@@ -1,0 +1,12 @@
+/ 7	. 
+
+/ we maken in github bij +V een nieuwe repository	,
+/ we zien vanzelf,
+echo "# notes" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/ericjvandervelden/notes.git
+git push -u origin master
+
+/ we hebben gemaakt	,
