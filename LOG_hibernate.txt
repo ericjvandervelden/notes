@@ -1,0 +1,7 @@
+/ 7	. 
+
+/ google,
+how to create hibernate maven project in eclipse
+/ lees,
+http://www.javawebtutor.com/articles/maven/maven_hibernate_example.php
+https://examples.javacodegeeks.com/enterprise-java/hibernate/hibernate-maven-example/

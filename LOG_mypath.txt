@@ -1,0 +1,56 @@
+1. Mijn Productiviteit optimaliseren
+Ik ga in op welk deel van de contracttijd in 2018 ik mij heb ingezet voor klanten en/of interne opdrachtgevers en wat daarbij mijn resultaten waren (Was je beschikbaar? Wat heb je in die tijd gedaan om bv weer zo snel mogelijk in opdracht te komen.) Hierbij geef tevens ik aan wat mij goed af ging, wat heb ik geleerd en hoe ik dat verder kan toepassen.
+
+werkzaamheden, resultaten afgelopen jaar; beschrijf wat goed ging, wat ik heb geleerd, en hoe je dat verder kunt gaan toepassen; benoem aandachtspunten en hoe heb verbeterd; en waar je plezier aan hebt beleefd	,
+
+Lindorff:
+werkzaamheden: ik heb gewerkt aan een website waar mensen die een of meerdere schulden hadden een betalingsregeling kunnen afsluiten, en het verloop daarvan kunnen blijven inzien. Ik programmeerde aan de backend: SQL queries maken, SOAP webservices maken en aanpassen, berekeningen met rentes maken. Hier zat ik heel goed op mijn plaats.
+
+geleerd: SOAP webservices, SoapUI, SQL Server, DB2, zelfstandig werken, omgaan met de klant. Met 'omgaan met de klant' bedoel ik het in kunnen schatten hoe lang je over een opdracht gaat doen, en het op tijd zeggen als dat niet lukt. Je moet de klant echt serieus nemen. Dat heb ik daar wel geleerd. Op een gegeven moment heb je voldoende ervaring opgedaan en gaat het min of meer vanzelf. Ook kon ik mijn wiskundige kennis toepassen: zo berekende het programma de maandrente door de jaarrente te delen door 12. Daarmee betaalt de klant teveel af. Ik zie dat dat fout is. Ook andere berekeningen kon ik goed begrijpen.
+
+
+Politie:
+werkzaamheden: ik heb gewerkt aan het BVV programma, dat alles over vreemdelingen behandelt. In het begin heb ik aan de backend geprogrammeerd: XML berichten verwerken, Sybase queries maken. Later heb ik vooral getest, met een door de politie ontwikkelde tool, en met SoapUI, Verder heb ik applicaties uitgevoerd, zoals schoningen (genaturaliseerde vreemdelingen bijvoorbeeld zijn geen vreemdelingen meer). Ik heb veel nieuwe programma's geleerd: Weblogic, SVN en GIT en Bitbucket, Nexus, SonarQube, Confluence, Ansible en Jenkins. Ook heb ik meer geleerd over programma's die ik al kende: JavaEE, Spring Boot, PostgreSQL. Ik vind dat ik er minder goed op mijn plaats zit als bij Lindorff: bij Lindorff kon ik ook mijn wiskundige kennis gebruiken en was daardoor productiever, vind ik. Binnen ons team hebben we afgesproken dat ik me vooral op Jenkins gaat richten, en daar heb ik heel veel zin in. Ik vind dat een interessant programma.
+Bij de politie zit ik in een DevOps team, mijn aandachtspunten daar zijn vooral al die nieuwe programma's die ik moest leren. Ook de infrastructuur van de politie die erg groot is, moest ik leren kennen.
+Ik had mijn kennis van SQL verder uitgebouwd bij Lindorff, en vind dat wel het interessantste onderdeel van JavaEE. We moesten op een gegeven moment genaturaliseerden schonen uit de database: het zijn immers geen vreemdelingen meer. Wat hierbij een rol speelde is dat iedere vreemdeling een a-nummer heeft als hij of zij bij de gemeente een nationaliteit heeft. Tenminste in theorie. Ik dacht: laat ik eens kijken of dat in onze database ook zo is. Het database ontwerp bij ons is vrij zwak: er zijn helemaal geen restricties op de data, terwijl het allemaal wel mogelijk is. Het was best een lastige vraag, want een vreemdeling kan meerdere nationaliteiten hebben. Uiteindelijk vond ik duizenden vreemdeling met a-nummer maar zonder een nationaliteit bij de gemeente en andersom. Mijn PO heeft de lijsten opgestuurd naar de IND. Deze vreemdelingen mochten niet worden geschoond. Aan het bestaan van deze gevallen was niet gedacht, maar met een gezonde portie achterdocht kom je een heel eind.   
+
+
+
+
+2. Werken aan mijn duurzame inzetbaarheid
+Ik ga in op mijn activiteiten die bijdragen aan het in stand houden of verbeteren van mijn toekomstige inzetbaarheid voor Sogeti in het afgelopen jaar. Ik geef vooral aan wat ik heb gedaan aan het bijhouden of uitbreiden van mijn kennis, vaardigheden en vitaliteit. Daarnaast geef ik aan waar ik plezier uit heb gehaald tijdens mijn werk. Ook geef ik aan of ik specifieke aandachtspunten had en hoe ik deze bewaakt en verbeterd heb.
+
+hoe ervoor gezorgd dat ik maximaal inzetbaar was 
+wat ik heb gedaan zodat ik inzetbaar blijf voor Sogeti; geef aan hoe kennis, kunde en vitaliteit bij te houden en uit te breiden; ook hoe ervoor te zorgen dat ik over een aantal jaar nog inzetbaar ben als Sogetist
+
+Bij Lindorff was ik best wel maximaal inzetbaar door mijn domainkennis op een gegeven moment. Bij de politie minder, daar moest ik veel leren en ik heb het gevoel nooit maximaal inzetbaar te worden, tenzij ik bij de AIVD zou komen of bij een Big Data project van de politie.
+Bij Lindorff heb ik veel SOAP en SQL geleerd, bij de politie ga ik meer DevOps dingen leren zoals Ansible en Jenkins. Thuis oefen ik meer ook wel met JavaEE en Spring Boot, maar ook wiskunde voor AI of encryptie. Ik denk dat ik dit alles in de toekomst zal blijven gebruiken.
+
+
+
+3. Extra waarde toevoegen
+Ik ga in op mijn activiteiten (binnen en buiten mijn directe opdracht), die klanten, collega’s en mijn professionele communities  ervaren als “iets extra’s”.
+
+activiteiten die klanten hebben ervaren als iets extras	,
+Niet van toepassing, behalve dat ze bij Lindorff vonden dat ik meer deed dan nodig was.
+
+individual objectives
+Ik zou graag gaan werken aan wiskundige programma's in de financiële sector, bij een bank of verzekeraar, of bij ASML bijvoorbeeld. Wellicht in de toekomst misschien met AI, ik lees thuis en in het OV boeken erover en oefen met Python. Ook wil ik binnenkort contact opnemen met een groep binnen Sogeti die zich daarmee bezighoudt. Ook lees ik wiskundeboeken die over versleuteling gaan.
+Wat is nog mis is ervaring met Docker en Kubernetes. Die ervaring hoop ik nog wel op te doen. Ik heb thuis wel geoefend met Docker. Ik blijf JavaEE ook interessant vinden, vooral SQL, dus ook daar zou ik mee willen blijven werken.
+
+hoe ik heb gefunctioneerd, wat er goed en minder goed ging , hoe je opgedane kennis in het vervolg gaat inzetten, waar ik plezier aan heb beleefd
+
+Ik vat samen: programmeren ging OK, vooral als het om wiskundige programma's gaat; bij de politie moest ik veel nieuwe programma's leren kennen waardoor ik minder productief was, ook omdat ze geen wiskundige programma's gebruiken; ik heb geleerd de klant serieus te nemen; Ik vind programmeren sowieso wel leuk, maar wiskundige programma's het meest en van JavaEE vind ik SQL en databases in het algemeen het interessantst.
+
+
+
+
+Next
+Next
+Career development plan
+/ vul in doelen op de langere termijn,
+Submit for review
+
+/ TruQu 
+eric.vander.velden@sogeti.com 
+vlLang17

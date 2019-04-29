@@ -1,0 +1,287 @@
+/ 7	.
+
+/ intro
+
+/ google,
+difference commons logging slf4j
+/ lees,
+https://stackoverflow.com/questions/873051/difference-between-simple-logging-facade-for-java-and-apache-commons-logging
+
+SLF4J is conceptually very similar to JCL. As such, it can be thought of as yet another logging facade. However, SLF4J is much simpler in design and arguably more robust. In a nutshell, SLF4J avoid the class loader issues that plague JCL.
+
+While SLF4J can be used as a facade over libraries like Log4j, or JUL, it can also be used as an API to implement native logging libraries, like Logback did. A native SLF4J library won't need adapter glue in the middle like the facade for Log4j or JUL does, so it should be more efficient as well.
+
+/ lees,
+https://stackoverflow.com/questions/869945/how-to-send-java-util-logging-to-log4j
+ they have removed the dependency on commons-logging and replaced it with java.util.logging instead.
+ 
+One approach I have used successfully is to use slf4j as my primary logging API. I then have slf4j bind to log4j. 3rd party dependencies using other frameworks (like JUL) can be bridged to slf4j.
+
+
+We use SLF4J on our current project and it's worked very well for us. SLF4J is written by Ceki Gülcü, the creator of Log4J, and he's done a really great job. In our code we use the SLF4J logging APIs directly, and we configure SLF4J so that calls from the Jakarta Commons Logging (JCL), java.util.logging (JUL), and Log4J APIs are all bridged to the SLF4J APIs. We need to do that because like you we use third party (open source) libraries that have chosen different logging APIs.
+
+On the bottom of SLF4J, you configure it to use a particular logger implementation. It comes with an internal, or "simple" logger, and you can override this with Log4J, JUL, or Logback. Configuration is all done simply by dropping in different jar files in your classpath.
+
+Originally, we used the Logback implementation, also written by Ceki Gülcü. This is very powerful. However, we then decided to deploy our application to the Glassfish Java EE application server, whose log viewer expects JUL-formatted messages. So today I switched from Logback to JUL, and in just a few minutes I replaced two Logback jars with an SLF4J jar that connects it to the JUL implementation.
+
+So like @overthink, I would heartily recommend using SLF4J in your setup.
+
+/ lees,
+https://stackoverflow.com/questions/11359187/why-not-use-java-util-logging
+
+/ 13	. 
+
+/ jul
+
+/ lees,
+https://stackoverflow.com/questions/5950557/good-examples-using-java-util-logging
+https://www.marcobehler.com/guides/a-guide-to-logging-in-java
+http://tutorials.jenkov.com/java-logging/configuration.html
+/ google,
+jul configuration
+/ lees,
+https://stackoverflow.com/questions/960099/how-to-set-up-java-logging-using-a-properties-file-java-util-logging
+
+
+/ 7	.  
+
+/ google,
+log jul
+/ lees,
+https://www.logicbig.com/tutorials/misc/java-logging/slf4j-with-jul.html
+
+/ workspace-arquillian
+
+
+
+/ 7	. 
+
+/ google
+commons logging
+/ lees,
+https://www.logicbig.com/tutorials/misc/java-logging/apache-commons-logging.html
+https://o7planning.org/en/10151/java-commons-logging-tutorial 	/ !
+
+$ vi pom.xml
+   <dependencies>
+       <dependency>
+           <groupId>commons-logging</groupId>
+           <artifactId>commons-logging</artifactId>
+           <version>1.1.3</version>
+       </dependency>
+       <dependency>
+           <groupId>log4j</groupId>
+           <artifactId>log4j</artifactId>
+           <version>1.2.17</version>
+       </dependency>
+   </dependencies>
+   
+$ vi commons-logging.properties
+
+org.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
+log4j.configuration=log4j.properties
+
+ 
+$ vi log4j.properties
+
+log4j.rootLogger=DEBUG, CA, NTEventLog
+#Console Appender
+log4j.appender.CA=org.apache.log4j.ConsoleAppender
+log4j.appender.CA.layout=org.apache.log4j.PatternLayout
+log4j.appender.CA.layout.ConversionPattern=%-4r [%t] %-5p %c %x - %m%n
+
+/ of met log4.xml,
+
+$ vi commons-logging.properties
+
+org.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger
+ 
+log4j.configuration=log4j.xml
+
+$ vi log4j.xml
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+ 
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+ 
+   <appender name="MyConsole" class="org.apache.log4j.ConsoleAppender">
+       <param name="Target" value="System.out" />
+       <layout class="org.apache.log4j.PatternLayout">
+           <param name="ConversionPattern" value="%-4r [%t] %-5p %c %x - %m%n" />
+       </layout>
+   </appender>
+ 
+ 
+ 
+   <root>
+       <priority value="debug" />
+       <appender-ref ref="MyConsole" />
+   </root>
+ 
+</log4j:configuration>
+
+
+
+
+
+
+
+
+/ 7	. 
+
+/ log4j
+
+/ google,
+/ log4j
+/ lees,
+https://logging.apache.org/log4j/2.x/maven-artifacts.html
+
+/ 13	. 
+
+/ lees,
+http://www.mkyong.com/logging/log4j-hello-world-example/
+
+/ dit is log4j1 ,
+
+/ workspace-arquillian
+/ we maken 
+/ proj abc-log4j1
+
+/ log4j.properties moet in webapp's classes/ komen, dus moet in src/main/resources	,
+/ als in src/main/webapp/ , dan komt in webapp's /	, 
+
+/ lees over log4j.properties,
+http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html
+
+/ de volgorde in logging is: off, fatal, error, warn, info, debug, trace, all
+/ fatals zie je altijd	, met all zie je alles	, 
+
+$ vi pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>my.own</groupId>
+  <artifactId>abc-log4j1</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<artifactId>log4j</artifactId>
+  		<groupId>log4j</groupId>
+  		<version>1.2.17</version>
+  	</dependency>
+  </dependencies>
+</project>
+
+//////////////////////
+/ we zet de level op DEBUG, dus zien we alles wat er onder zit: info, warn, error, fatal,
+
+$ vi src/main/resources/log4j.properties
+
+# lees http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html
+# %p is priority, bijv DEBUG of INFO
+# %d is date	,
+# %c is logging name, via getLogger	,
+# %L is line number from where the logging request was issued	,
+# %m is de logging message
+# %n is newline	,
+
+log4j.rootLogger=DEBUG,stdout,file
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target=System.out
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{yyyy-MM-dd hh:mm:ss} %-5p %c{1}:%L -%m%n
+
+log4j.appender.file=org.apache.log4j.RollingFileAppender
+log4j.appender.file.File=D:\\Users\\ervelden\\tmp\\abc-log4j1.log
+log4j.appender.file.MaxFileSize=1MB
+log4j.appender.file.MaxBackupIndex=10
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd hh:mm:ss} %-5p %c{1}:%L -%m%n
+
+
+$ vi src/main/java/Main.java
+
+package log4j1;
+
+import org.apache.log4j.Logger;
+
+public class Main {
+	
+	final static Logger logger=Logger.getLogger(Main.class);
+	
+	public static void main(String[] args) {
+		new Main("foo");
+	}
+	
+	public Main(String par) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("This is debug: "+par);
+		}
+		if(logger.isInfoEnabled()) {
+			logger.info("This is info: "+par);
+		}
+		logger.warn("This is warn: "+par);
+		logger.error("This is error: "+par);
+		logger.fatal("This is fatal: "+par);
+	}
+
+}
+
+/ run	, we zien, 
+
+
+
+
+
+
+
+
+/ Einde LOG4J
+
+/ JBOSS LOGGING 
+
+/ LOGGING 
+
+/ lees,
+https://github.com/wildfly/quickstart/tree/master/logging
+
+/ lees,
+http://lukas.fryc.eu/blog/2013/06/debugging-arquillian.html
+
+$ vi src/test/resources/logging.properties
+
+# Additional logger names to configure (root logger is always configured)
+#loggers=org.jboss.whatever,org.jboss.foo
+
+# Root logger level
+logger.level=DEBUG
+
+# Root logger handlers
+logger.handlers=FILE, CONSOLE
+
+# Console handler configuration
+handler.CONSOLE=org.jboss.logmanager.handlers.ConsoleHandler
+handler.CONSOLE.properties=autoFlush
+handler.CONSOLE.level=INFO
+handler.CONSOLE.autoFlush=true
+handler.CONSOLE.formatter=PATTERN
+
+# File handler configuration
+handler.FILE=org.jboss.logmanager.handlers.FileHandler
+handler.FILE.level=DEBUG
+handler.FILE.properties=autoFlush,fileName
+handler.FILE.autoFlush=true
+handler.FILE.fileName=./target/test.log
+handler.FILE.formatter=PATTERN
+
+# Formatter pattern configuration
+formatter.PATTERN=org.jboss.logmanager.formatters.PatternFormatter
+formatter.PATTERN.properties=pattern
+formatter.PATTERN.pattern=%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n
+
+/ TODO
+
+
+/ Einde JBOSS LOGGING

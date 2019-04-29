@@ -1,0 +1,9 @@
+/ 7	.
+
+/ we use de wallets:
+MyEtherWallet
+Mycelium
+
+/ we kopen bij 
+anycoindirect.eu
+

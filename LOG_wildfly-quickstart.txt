@@ -1,0 +1,188 @@
+/ 7	.
+
+/ we hebben in eclipse alle validatie uitgezet	, 
+Window, Preferences, Validation, Disable All,
+/ herstart eclipse,
+/ dan werkt een mvn commando in eclipse weer,	als hij aan het valideren is niet	,
+
+/ 7	. 
+
+/ wildfly uses cxf, 
+/ WH	,
+
+ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
+$ find -name "*.jar" | grep jaxws
+./modules/system/layers/base/javax/xml/ws/api/main/jboss-jaxws-api_2.2_spec-2.0.3.Final.jar
+./modules/system/layers/base/org/apache/cxf/impl/main/cxf-rt-frontend-jaxws-3.1.6.jar
+./modules/system/layers/base/org/apache/cxf/impl/main/cxf-tools-wsdlto-frontend-jaxws-3.1.6.jar
+./modules/system/layers/base/org/jboss/ws/jaxws-client/main/jbossws-cxf-client-5.1.5.Final.jar
+./modules/system/layers/base/org/jboss/ws/jaxws-client/main/jbossws-cxf-jaspi-5.1.5.Final.jar
+./modules/system/layers/base/org/jboss/ws/jaxws-undertow-httpspi/main/jaxws-undertow-httpspi-1.0.1.Final.jar
+
+/ 7	. 
+
+/ we geven in wildfly-helloworld-ws in een run config: mvn clean install wildfly:deploy	,
+/ geef in de browser	,
+http://localhost:8080/wildfly-helloworld-ws/HelloWorldService?wsdl
+/ of op de command line, in git-bash,
+$ curl localhost:8080/wildfly-helloworld-ws/HelloWorldService?wsdl
+
+
+<wsdl:definitions 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:tns="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld" 
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:ns2="http://schemas.xmlsoap.org/soap/http" 
+	xmlns:ns1="http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld" 
+	name="HelloWorldService" 
+	targetNamespace="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+
+	<wsdl:import location="http://localhost:8080/wildfly-helloworld-ws/HelloWorldService?wsdl=HelloWorldService.wsdl" 
+		namespace="http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld"> </wsdl:import>
+/ hierin zitten de schema, de  <message .../>s, <portType .../>
+		
+	<wsdl:binding name="HelloWorldServiceSoapBinding" type="ns1:HelloWorldService">
+		<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<wsdl:operation name="sayHelloToNames">
+			<soap:operation soapAction="" style="document"/>
+			<wsdl:input name="sayHelloToNames">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="sayHelloToNamesResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="sayHello">
+			<soap:operation soapAction="" style="document"/>
+			<wsdl:input name="sayHello">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="sayHelloResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="sayHelloToName">
+			<soap:operation soapAction="" style="document"/>
+			<wsdl:input name="sayHelloToName">
+				<soap:body use="literal"/>
+			</wsdl:input>
+			<wsdl:output name="sayHelloToNameResponse">
+				<soap:body use="literal"/>
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="HelloWorldService">
+		<wsdl:port binding="tns:HelloWorldServiceSoapBinding" name="HelloWorld">
+			<soap:address location="http://localhost:8080/wildfly-helloworld-ws/HelloWorldService"/>
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>
+
+/ geef in de browser,
+http://localhost:8080/wildfly-helloworld-ws/HelloWorldService?wsdl=HelloWorldService.wsdl
+/ of op de command line,
+$ curl localhost:8080/wildfly-helloworld-ws/HelloWorldService?wsdl=HelloWorldService.wsdl
+
+
+<wsdl:definitions 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+	xmlns:ns1="http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld" 
+	name="HelloWorldService" 
+	targetNamespace="http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld">
+	<wsdl:types>
+		<xs:schema 
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+			xmlns:tns="http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld" 
+			elementFormDefault="unqualified" 
+			targetNamespace="http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld" 
+			version="1.0">
+			<xs:element name="sayHello" type="tns:sayHello"/>
+			<xs:element name="sayHelloResponse" type="tns:sayHelloResponse"/>
+			<xs:element name="sayHelloToName" type="tns:sayHelloToName"/>
+			<xs:element name="sayHelloToNameResponse" type="tns:sayHelloToNameResponse"/>
+			<xs:element name="sayHelloToNames" type="tns:sayHelloToNames"/>
+			<xs:element name="sayHelloToNamesResponse" type="tns:sayHelloToNamesResponse"/>
+			<xs:complexType name="sayHelloToNames">
+				<xs:sequence>
+					<xs:element maxOccurs="unbounded" minOccurs="0" name="arg0" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="sayHelloToNamesResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="return" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="sayHello">
+				<xs:sequence/>
+			</xs:complexType>
+			<xs:complexType name="sayHelloResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="return" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="sayHelloToName">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="arg0" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+			<xs:complexType name="sayHelloToNameResponse">
+				<xs:sequence>
+					<xs:element minOccurs="0" name="return" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:schema>
+	</wsdl:types>
+	<wsdl:message name="sayHelloToNames">
+		<wsdl:part element="ns1:sayHelloToNames" name="parameters"> </wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sayHello">
+		<wsdl:part element="ns1:sayHello" name="parameters"> </wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sayHelloToNameResponse">
+		<wsdl:part element="ns1:sayHelloToNameResponse" name="parameters"> </wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sayHelloToNamesResponse">
+		<wsdl:part element="ns1:sayHelloToNamesResponse" name="parameters"> </wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sayHelloResponse">
+		<wsdl:part element="ns1:sayHelloResponse" name="parameters"> </wsdl:part>
+	</wsdl:message>
+	<wsdl:message name="sayHelloToName">
+		<wsdl:part element="ns1:sayHelloToName" name="parameters"> </wsdl:part>
+	</wsdl:message>
+	<wsdl:portType name="HelloWorldService">
+		<wsdl:operation name="sayHelloToNames">
+			<wsdl:input message="ns1:sayHelloToNames" name="sayHelloToNames"> </wsdl:input>
+			<wsdl:output message="ns1:sayHelloToNamesResponse" name="sayHelloToNamesResponse"> </wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="sayHello">
+			<wsdl:input message="ns1:sayHello" name="sayHello"> </wsdl:input>
+			<wsdl:output message="ns1:sayHelloResponse" name="sayHelloResponse"> </wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="sayHelloToName">
+			<wsdl:input message="ns1:sayHelloToName" name="sayHelloToName"> </wsdl:input>
+			<wsdl:output message="ns1:sayHelloToNameResponse" name="sayHelloToNameResponse"> </wsdl:output>
+		</wsdl:operation>
+	</wsdl:portType>
+</wsdl:definitions>
+
+/ 7	. 
+
+/ lees	,
+http://www.adam-bien.com/roller/abien/entry/installing_oracle_jdbc_driver_on
+http://www.mastertheboss.com/jboss-server/jboss-script/installing-a-jboss-as-7-module-using-the-cli
+https://docs.jboss.org/author/display/WFLY10/Admin+Guide
+/ see,
+https://docs.jboss.org/author/display/WFLY10/Operating+modes
+https://docs.jboss.org/author/display/WFLY10/Domain+Setup
+https://docs.jboss.org/author/display/WFLY10/Management+Clients#ManagementClients-ConfigurationFiles
+
+/ lees,
+https://docs.jboss.org/author/display/WFLY10/Class+Loading+in+WildFly
+Deployments in WildFly are also modules, and do not have access to 
+/ TODO
+->
+https://docs.jboss.org/author/display/WFLY10/Implicit+module+dependencies+for+deployments
+

@@ -1,0 +1,345 @@
+/ 7	.
+
+/ 13	. 
+
+/ als een project een parent is, moet hij <packaging>pom</packaging> hebben	,
+
+/ workspace-jbosstools-jee-oxygen
+
+$ vi a1-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>my.own</groupId>
+  <artifactId>a1-proj</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <dependencies>
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>4.12</version>
+  	</dependency>
+  </dependencies>
+</project>
+
+$ vi a2-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+  	<groupId>my.own</groupId>
+  	<artifactId>a1-proj</artifactId>
+  	<version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a2-proj</artifactId>
+</project>
+
+/ 13	.
+
+/ we zien in eclipse dat de deps van de parent a1-proj ook de deps van child a2-proj worden	,
+
+/ 13	. 
+
+/ we kunnen het ook op de command line,	 maar dan moeten we eerst op a1-proj: mvn install,
+/ dit hoeft in eclipse niet, 
+/ TODO
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/a1-proj
+$ mvn clean install
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/a2-proj
+$ mvn dependency:tree
+[INFO] my.own:a2-proj:jar:0.0.1-SNAPSHOT
+[INFO] \- junit:junit:jar:4.12:compile
+[INFO]    \- org.hamcrest:hamcrest-core:jar:1.3:compile
+
+/ 13	. 
+
+/ we maken a3-proj, die dep wordt van a2-proj,
+/ a3-proj heeft ook a1-proj als parent, en heeft deps
+/ in a3-proj hebben we $ mvn install gedaan	, anders vindt a2-proj hem niet 	, 
+/ TODO
+
+$ vi a2-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+  	<groupId>my.own</groupId>
+  	<artifactId>a1-proj</artifactId>
+  	<version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a2-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>my.own</groupId>
+  		<artifactId>a3-proj</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
+</project>
+
+$ vi a3-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	  <groupId>my.own</groupId>
+	  <artifactId>a1-proj</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a3-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>commons-logging</groupId>
+  		<artifactId>commons-logging</artifactId>
+  		<version>1.2</version>
+  	</dependency>
+  </dependencies>
+  
+</project>
+
+/ we doen in a2-proj,
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/a2-proj
+$ mvn dependency:tree
+[INFO] my.own:a2-proj:jar:0.0.1-SNAPSHOT
+[INFO] +- my.own:a3-proj:jar:0.0.1-SNAPSHOT:compile
+[INFO] |  \- commons-logging:commons-logging:jar:1.2:compile
+[INFO] \- junit:junit:jar:4.12:compile
+[INFO]    \- org.hamcrest:hamcrest-core:jar:1.3:compile
+
+/ 13	. 
+
+/ optional	,
+
+/ 1313	. 
+
+/ in a2-proj en en a3-proj beide postgresql dep, 
+/ a2-proj heeft child a3-proj,
+
+/ als we de pom van a3-proj veranderen, doe in a2-proj dir eerst,
+$ (cd ../a3-proj/;mvn clean install)
+
+/ doe dan pas	,
+$ mvn  dependency:tree
+
+
+$ vi a2-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+  	<groupId>my.own</groupId>
+  	<artifactId>a1-proj</artifactId>
+  	<version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a2-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>my.own</groupId>
+  		<artifactId>a3-proj</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.postgresql</groupId>
+  		<artifactId>postgresql</artifactId>
+  		<version>42.2.5</version>
+  	</dependency>
+  </dependencies>
+</project>
+
+$ vi a3-proj/pom
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	  <groupId>my.own</groupId>
+	  <artifactId>a1-proj</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a3-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>commons-logging</groupId>
+  		<artifactId>commons-logging</artifactId>
+  		<version>1.2</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.postgresql</groupId>
+  		<artifactId>postgresql</artifactId>
+  		<version>42.2.5</version>
+  		
+  	</dependency>
+  </dependencies>
+  
+</project>
+
+/ we zien,
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/a2-proj
+$ mvn  dependency:tree
+[INFO] my.own:a2-proj:jar:0.0.1-SNAPSHOT
+[INFO] +- my.own:a3-proj:jar:0.0.1-SNAPSHOT:compile
+[INFO] |  \- commons-logging:commons-logging:jar:1.2:compile
+[INFO] +- org.postgresql:postgresql:jar:42.2.5:compile
+[INFO] \- junit:junit:jar:4.12:compile
+[INFO]    \- org.hamcrest:hamcrest-core:jar:1.3:compile
+
+/ in eclipse in dependency hierarchy zien we wel een dep postgresql onder a3-proj, maar is omitted:
+a3-proj
+	postgresql:42.1.0 (omitted for conflict with 42.2.5)
+	
+/ als we in a3-proj ook versie 42.2.5 hebben, zien we ook de msg omitted,
+
+/ 1313	. 
+
+/ daarom kunnen de postgresql dep in a3-proj <optional>true</optional>
+/ dan verdwijnt in eclipse de omitted melding	,
+
+/ 1313	. 
+
+/ als we in a3-proj postgresql optional maken, en in a2-proj NIET postgresql dep , dan is postgresql geen dep van a2-proj,
+
+$ vi a2-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+  	<groupId>my.own</groupId>
+  	<artifactId>a1-proj</artifactId>
+  	<version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a2-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>my.own</groupId>
+  		<artifactId>a3-proj</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
+</project>
+
+
+$ vi a3-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	  <groupId>my.own</groupId>
+	  <artifactId>a1-proj</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a3-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>commons-logging</groupId>
+  		<artifactId>commons-logging</artifactId>
+  		<version>1.2</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.postgresql</groupId>
+  		<artifactId>postgresql</artifactId>
+  		<version>42.1.0</version>
+  		<optional>true</optional>
+  	</dependency>
+  	
+  </dependencies>
+  
+</project>
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/a2-proj
+$ (cd ../a3-proj/;mvn clean install)
+$ mvn  dependency:tree
+[INFO] my.own:a2-proj:jar:0.0.1-SNAPSHOT
+[INFO] +- my.own:a3-proj:jar:0.0.1-SNAPSHOT:compile
+[INFO] |  \- commons-logging:commons-logging:jar:1.2:compile
+[INFO] \- junit:junit:jar:4.12:compile
+[INFO]    \- org.hamcrest:hamcrest-core:jar:1.3:compile
+
+/ 13	. 
+
+/ ipv door postgresql dep in a3-proj optional te maken, kunnen we ook in a2-proj in de a3-proj dep de postgresql (met de versie uit a3-proj) exclude:
+
+$ vi a2-proj/pom
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+  	<groupId>my.own</groupId>
+  	<artifactId>a1-proj</artifactId>
+  	<version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a2-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>my.own</groupId>
+  		<artifactId>a3-proj</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  		<exclusions>
+  			<exclusion>
+  				<groupId>org.postgresql</groupId>
+  				<artifactId>postgresql</artifactId>
+  			</exclusion>
+  		</exclusions>
+  	</dependency>
+  	 
+  	<dependency>
+  		<groupId>org.postgresql</groupId>
+  		<artifactId>postgresql</artifactId>
+  		<version>42.2.5</version>
+  	</dependency>
+  	
+  </dependencies>
+</project>
+
+
+$ vi a3-proj/pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+	  <groupId>my.own</groupId>
+	  <artifactId>a1-proj</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>a3-proj</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>commons-logging</groupId>
+  		<artifactId>commons-logging</artifactId>
+  		<version>1.2</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.postgresql</groupId>
+  		<artifactId>postgresql</artifactId>
+  		<version>42.1.0</version>
+  	</dependency>
+  	
+  </dependencies>
+  
+</project>
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/a2-proj
+$ (cd ../a3-proj/;mvn clean install)
+$ mvn  dependency:tree
+[INFO] my.own:a2-proj:jar:0.0.1-SNAPSHOT
+[INFO] +- my.own:a3-proj:jar:0.0.1-SNAPSHOT:compile
+[INFO] |  \- commons-logging:commons-logging:jar:1.2:compile
+[INFO] +- org.postgresql:postgresql:jar:42.2.5:compile
+[INFO] \- junit:junit:jar:4.12:compile
+[INFO]    \- org.hamcrest:hamcrest-core:jar:1.3:compile
+
+/ we zien in eclipse geen omitted dep,
+
+/ in een <exclusion> mag geen versie staan	,
+
+
+
+
+
+
+
+
+
+
+

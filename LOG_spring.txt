@@ -1,0 +1,650 @@
+/ see EXECUTABLE JAR 
+
+/ 7	. 
+
+/ workspace-jbosstools-jee-oxygen-spring
+/ hierbinnen hebben we SpringiA4_SourceCode
+
+/ 7	. 
+
+/ boek(37)
+
+/ WH @Autowired injects an already existing bean	,
+/ de bean is created toen de context werd created met @RunWith(SpringJUnit4ClassRunner.class)	, doordat we @ComponentScan hebben en @Component op de class	, 
+/ de bean is singleton, je kunt op meerdere plaatsen @Autowired deze bean, bijv in de test op (42) is de CompactDisc injected door @Autowired in de MediaPlayer, en in de test (ook door @Autowired)	,
+
+/ we zien dat de test hieronder dat hij ook draait zonder de @Autowired private CompactDisc cd, 
+/ de CompactDisc singleton bestaat al, in de context, en is al injected in de MediaPlayer, want daar staat ook @Autowired de CompactDisc	,
+/ dezelfde CompactDisc werd alleen injected om te laten zien dat hij niet null is, dus we weten dat de CompactDisc die in de MediaPlayer wordt injected niet null is, 
+
+$ vi CDPlayerTest.java
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes=CDPlayerConfig.class)
+public class CDPlayerTest {
+
+  @Rule
+  public final StandardOutputStreamLog log = new StandardOutputStreamLog();
+
+  @Autowired
+  private MediaPlayer player;
+  
+//  @Autowired
+//  private CompactDisc cd;
+//  
+//  @Test
+//  public void cdShouldNotBeNull() {
+//    assertNotNull(cd);
+//  }
+
+  @Test
+  public void play() {
+    player.play();
+    assertEquals(
+        "Playing Sgt. Pepper's Lonely Hearts Club Band by The Beatles\r\n", 
+        log.getLog());
+  }
+
+}
+
+@Component
+public class CDPlayer implements MediaPlayer {
+  private CompactDisc cd;
+
+  @Autowired
+  public CDPlayer(CompactDisc cd) {
+    this.cd = cd;
+  }
+
+  public void play() {
+    cd.play();
+  }
+
+}
+
+
+
+/ 7	. 
+
+/ met @Bean in de config file wordt bij create context de bean created, een singleton, die er dus dan is,
+/ je kunt deze @Autowired op verschillende meerdere plaatsen	,
+
+/ 
+
+$ vi CDPlayerConfig.java
+
+@Configuration
+public class CDPlayerConfig {
+  
+  @Bean
+  public CompactDisc compactDisc() {
+    return new SgtPeppers();
+  }
+  
+  @Bean
+  public CDPlayer cdPlayer(CompactDisc compactDisc) {
+    return new CDPlayer(compactDisc);
+  }
+
+}
+
+$ vi CDPlayer.java
+
+public class CDPlayer implements MediaPlayer {
+  private CompactDisc cd;
+
+  @Autowired
+  public CDPlayer(CompactDisc cd) {
+    this.cd = cd;
+  }
+
+  public void play() {
+    cd.play();
+  }
+
+}
+
+$ vi SgtPeppers.java
+
+public class SgtPeppers implements CompactDisc {
+
+  private String title = "Sgt. Pepper's Lonely Hearts Club Band";  
+  private String artist = "The Beatles";
+  
+  public void play() {
+    System.out.println("Playing " + title + " by " + artist);
+  }
+
+}
+
+/ 7	. 
+
+/ de beans zelf veranderen niet, alleen de config files	,
+/ deze bean is er altijd,
+/ al heeft de @Component geen zin bij java config (ipv auto config)	, dus bij java config zal de @Component er niet zijn	,
+
+$ vi CDPlayer.java
+
+@Component
+// @Component
+public class CDPlayer implements MediaPlayer {
+  private CompactDisc cd;
+
+  @Autowired
+  public CDPlayer(CompactDisc cd) {
+    this.cd = cd;
+  }
+
+  public void play() {
+    cd.play();
+  }
+
+}
+
+$ vi CDPlayerConfig.java
+
+@Configuration
+@ComponentScan
+public class CDPlayerConfig { 
+}
+
+$ vi CDPlayerConfig.java
+
+@Configuration
+public class CDPlayerConfig {
+  
+  @Bean
+  public CompactDisc compactDisc() {
+    return new SgtPeppers();
+  }
+  
+  @Bean
+  public CDPlayer cdPlayer(CompactDisc compactDisc) {
+    return new CDPlayer(compactDisc);
+  }
+
+}
+/ Doordat @Autowired in de CDPlayer.<init> staat, wordt de CompactDisc die door de context is create, injected, 
+/ deze CompactDisc is er al, en is een singleton,
+
+/ 7	. 
+
+/ Lees	,
+https://www.mkyong.com/java8/java-8-foreach-examples/
+
+/ 7	. 
+
+/ lees,
+https://cloud.spring.io/spring-cloud-dataflow/
+https://spring.io/blog	, 
+Spring Cloud Data Flow 1.7.4 and Skipper 1.1.4 Released, Mark Pollack, FEBRUARY 8, 2019
+->
+https://docs.spring.io/spring-cloud-dataflow/docs/1.7.4.RELEASE/reference/htmlsingle/#getting-started
+https://docs.spring.io/spring-cloud-dataflow-server-cloudfoundry/docs/1.7.4.RELEASE/reference/htmlsingle/#getting-started
+https://docs.spring.io/spring-cloud-dataflow-server-kubernetes/docs/1.7.3.RELEASE/reference/htmlsingle/#kubernetes-getting-started
+
+
+/ 7	.
+
+/ SPRING TESTING
+
+/ lees,
+https://docs.spring.io/spring/docs/5.1.5.RELEASE/spring-framework-reference/testing.html#integration-testing
+
+
+/ Einde SPRING TESTING
+
+/ 7	. 
+
+/ spring,
+
+/ spring main class @configuration
+/ lees,
+https://www.tutorialspoint.com/spring/spring_java_based_configuration.htm
+/ lees,
+http://camel.apache.org/spring-boot.html
+
+/ 13	. 
+
+/ workspace-jbosstools-jee-oxygen-spring
+/ proj my-stereo-autoconfig
+
+/ we maken een mvn project my-stereo-autoconfig, en copy source uit gradle project stereo-autoconfig er in,
+
+/ we voegen toe,
+
+$ vi src/main/java/MyMain.java
+
+package soundsystem;
+
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class MyMain {
+
+	public static void main(String[] args) {
+		AnnotationConfigApplicationContext applicationContext=new AnnotationConfigApplicationContext();
+		applicationContext.register(CDPlayerConfig.class);
+		applicationContext.refresh();
+		CDPlayer bean = applicationContext.getBean(CDPlayer.class);
+		bean.play();
+	}
+/ of,
+		AnnotationConfigApplicationContext applicationContext=new AnnotationConfigApplicationContext(CDPlayerConfig.class);
+		CDPlayer bean = applicationContext.getBean(CDPlayer.class);
+		bean.play();
+
+}
+/ we zien,
+Playing Sgt. Pepper's Lonely Hearts Club Band by The Beatles
+
+/ 1313	.
+
+/ EXECUTABLE JAR 
+
+/ see LOG_jaxws.txt,
+/ maar executable jar,
+/ lees,
+https://www.mkyong.com/java/how-to-make-an-executable-jar-file/
+https://www.baeldung.com/executable-jar-with-maven
+https://stackoverflow.com/questions/574594/how-can-i-create-an-executable-jar-with-dependencies-using-maven
+
+$ vi pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" ...>
+
+  <groupId>my.test.own</groupId>
+  <artifactId>my-stereo-autoconfig</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+	  <groupId>org.springframework</groupId>
+	  <artifactId>spring-context</artifactId>
+	  <version>5.1.5.RELEASE</version>
+	</dependency>
+  </dependencies>
+    <build>
+          <plugins>
+                  <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                        <archive>
+                                <manifest>
+                                        <mainClass>soundsystem.MyMain</mainClass>
+                                </manifest>
+                        </archive>
+                            <descriptorRefs>
+                              <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                </plugin>
+        </plugins>
+</build>
+  
+</project>
+
+$ mvn clean compile assembly:single
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-spring/my-stereo-autoconfig
+$ java -jar target/my-stereo-autoconfig-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+Playing Sgt. Pepper's Lonely Hearts Club Band by The Beatles
+
+/ dus src/main/resources/application.properties werkt niet in spring zoals in spring boot,
+
+/ lees,
+https://www.baeldung.com/properties-with-spring
+https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/PropertySource.html
+
+/ 7	. 
+
+/ external properties in spring,
+
+/ workspace-jbosstools-jee-oxygen-spring
+/ proj stereo-javaconfig, stereo-autoconfig
+
+/ we hadden in 
+src/main/resources
+	META-INF
+		spring
+			app-context.xml
+
+$ vi app-context.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<context:component-scan base-package="soundsystem" />
+
+</beans>
+
+/ 13	. 
+
+/ wanneer default ctor?
+
+/ we maken de properties van SgtPeppers niet meer hardcoded, maar uit properties file,
+
+/ we hadden,
+public class CDPlayerConfig {
+  @Bean
+  public CompactDisc compactDisc() {
+    return new SgtPeppers();
+  }
+/ we hoeven in SgtPeppers geen default ctor te schrijven , want die is er al,
+/ maar als we 
+
+$ vi StgPeppers.java
+  public SgtPeppers(String title,String artist) {
+	this.title=title;
+	this.artist=artist;
+  }
+/ dan fout in CDPlayerConfig	, er is geen default ctor meer, deze moeten we dan expliciet in StgPeppers create, als we deze willen use in CDPlayerConfig,
+/ maar we willen geen default ctor meer use in CDPlayerConfig, dus hoeven we het niet te doen	,
+
+/ 7	. 
+
+/ properties,
+
+/ lees,
+https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/PropertySource.html
+
+/ workspace-jbosstools-jee-oxygen-spring
+/ proj my-stereo-autoconfig, my-stereo-javaconfig
+
+/ 13	. 
+
+/ my-stereo-javaconfig
+
+/ we kunnen in CDPlayerConfig, omdat we daar alle beans def, met Environment werken	,
+
+$ vi CDJavaConfig.java
+
+@Configuration
+@PropertySource("classpath:/application.properties")
+public class CDPlayerConfig {
+	
+	@Autowired
+	Environment env;
+  
+  @Bean
+  public CompactDisc compactDisc() {
+    return new SgtPeppers(env.getProperty("disc.title"),env.getProperty("disc.artist"));
+  }
+  
+  @Bean
+  public CDPlayer cdPlayer(CompactDisc compactDisc) {
+    return new CDPlayer(compactDisc);
+  }
+
+}
+
+$ vi StgPeppers.java
+
+public class SgtPeppers implements CompactDisc {
+
+  private String title; // = "Sgt. Pepper's Lonely Hearts Club Band";  
+  private String artist; // = "The Beatles";
+  
+  public SgtPeppers(String title,String artist) {
+	this.title=title;
+	this.artist=artist;
+  }
+  
+$ vi application.properties
+disc.title=Sgt. Pepper's Lonely Hearts Club Band
+disc.artist=The Beatles
+
+  
+  
+/ 13	. 
+
+/ stereo-autoconfig
+
+/ maar nu in CDPlayerConfig staan er geen beans, dus moeten we het in de beans zelf doen met @Value	,
+
+$ vi CDPlayerConfig.java
+
+@Configuration
+@ComponentScan
+@PropertySource("classpath:/application.properties")
+public class CDPlayerConfig {
+	
+$ vi StgPeppers.java
+
+@Component
+public class SgtPeppers implements CompactDisc {
+
+  private String title ;	// = "Sgt. Pepper's Lonely Hearts Club Band";  
+  private String artist ; //= "The Beatles";
+  
+  public SgtPeppers(@Value("${disc.title}")String title,@Value("${disc.artist}")String artist) {
+	this.title=title;
+	this.artist=artist;
+}
+
+$ vi application.properties
+disc.title=Sgt. Pepper's Lonely Hearts Club Band
+disc.artist=The Beatles
+
+/ 13	. 
+
+/ Je kunt bij my-stereo-javaconfig wel met @Value werken, maar  in de @Bean def in CDPlayerConfig geef je de values in de ctor al mee	, dus misschien doe je 2 keer lookup van de properties,
+/ TODO
+
+/ 7	.
+
+/ DEBUG SPRING SOURCES
+
+/ 1313	. 
+
+/ lees,
+https://stackoverflow.com/questions/5780758/maven-always-download-sources-and-javadocs
+
+<settings>
+
+   <!-- ... other settings here ... -->
+
+    <profiles>
+        <profile>
+            <id>downloadSources</id>
+            <properties>
+                <downloadSources>true</downloadSources>
+                <downloadJavadocs>true</downloadJavadocs>
+            </properties>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <activeProfile>downloadSources</activeProfile>
+    </activeProfiles>
+</settings>
+
+/ of,
+
+mvn dependency:sources dependency:resolve -Dclassifier=javadoc
+
+/ of, 
+/ eclipse doet het zelf,
+
+/ 1313	. 
+
+$ vi AbstractApplicationContext.java
+
+package org.springframework.context.support;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public abstract class AbstractApplicationContext extends DefaultResourceLoader
+		implements ConfigurableApplicationContext, DisposableBean {
+
+	/** Logger used by this class. Available to subclasses. */
+	protected final Log logger = LogFactory.getLog(getClass());
+
+
+/ 7	. 
+
+/ logging,
+
+$ less  spring-context/4.3.6.RELEASE/spring-context-4.3.6.RELEASE.pom
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>4.3.6.RELEASE</version>
+      <scope>compile</scope>
+    </dependency>
+</dependencies>
+
+$ less  spring-core/4.3.6.RELEASE/spring-core-4.3.6.RELEASE.pom
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+	
+/ In 5.1.5.RELEASE,
+ERVELDEN@LBNL031514 MINGW64 ~/.m2/repository/org/springframework
+$ find -type d -name 5.1.5.RELEASE | xargs -I % find % -name "*.pom" | xargs grep log
+./spring-jcl/5.1.5.RELEASE/spring-jcl-5.1.5.RELEASE.pom:      <groupId>org.apache.logging.log4j</groupId>
+./spring-jcl/5.1.5.RELEASE/spring-jcl-5.1.5.RELEASE.pom:      <artifactId>log4j-api</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.11.1</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
+/ spring 4 uses jcl, en log4j versie 1	,
+/ dus spring 5 uses geen jcl, maar slf4j, en log4j, maar log4j2
+
+/ 7	. 
+
+/ google
+problems singleton spring
+/ lees,
+https://dzone.com/articles/an-interview-question-on-spring-singletons
+
+/ google
+problems singleton test
+/ TODO
+
+/ 7	. 
+
+/ integratie test,
+
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-spring/SpringiA4_SourceCode
+$ less ./Chapter_13/caching/src/test/java/spittr/db/jdbc/JdbcSpitterRepositoryTest.java
+
+@RunWith(SpringJUnit4ClassRunner.class)					/ integratie test, WH creates applicationContext
+@ContextConfiguration(classes=RootConfig.class)			/ configuratie	, WH welke beans komen er in de applicationContext
+public class JdbcSpitterRepositoryTest {
+
+/ omdat in spring boot SpringApplication.run de logging en external property files regelt, is er ook SpringApplicationConfiguration ipv ContextConfiguration,
+
+/ 7	. 
+
+$ vi gradle.properties
+distributionUrl=http\://services.gradle.org/distributions/gradle-3.5-bin.zip
+
+/ 7	. 
+
+/ In Chapter05 is gradle proj Spittr	, maar deze kan ik niet import,
+/ we maken een mvn proj
+
+/ 7	. 
+
+/ hoe spring data repository en datasource verbonden? 
+/ proj abc-my-ds
+
+/ google,
+spring data repository datasource
+/ lees,
+https://docs.spring.io/spring-boot/docs/current/reference/html/howto-data-access.html
+
+/ see proj abc-ch3-profiles
+
+/ 7	. 
+
+/ proj abc-ch5-spittr
+
+/ we moeten org.hamcrest:hamcrest-library:1.3	, 2.1 is NIET OK	, voor in SpittleControllerTest	,
+
+/ proj abc-ch11-jpa-springdata
+
+/ we moeten hibernate-entitymanager dep, vanwege in SpitterRepositoryImpl:
+	@PersistenceContext
+	private EntityManager em;
+	
+/ het is javax.persistence.PersistenceContext en javax.persistence.EntityManager
+/ toch in een hibernate package, 
+/ TODO
+
+/ 7	.
+
+public class SpitterRepositoryTest {
+
+	@Test
+	@Transactional
+	public void findOne() {
+		assertSpitter(0, spitterRepository.findById(1L).orElse(null));
+
+/ er stond spitterRepository.findOne(1L)
+
+/ lees,
+https://stackoverflow.com/questions/44101061/missing-crudrepositoryfindone-method
+
+/ Kunnen we geen findOne zelf def in de repository? En waar?
+/ TODO
+
+/ 7	 .
+
+/ we hebben de src code van sia5 download,
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/spring-in-action-5-samples-master/ch08
+$ ls 
+pom.xml ...
+/ dit is een parent pom 	,
+
+/ we import in workspace-jbosstools-jee-oxygen-spring,
+/ we zien projects die start met tacocloud,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

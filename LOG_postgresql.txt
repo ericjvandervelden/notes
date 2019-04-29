@@ -1,0 +1,2052 @@
+/ POSTGRESQL
+
+select i from first 
+union
+select i from third
+order by i desc
+
+select i from first 
+union
+select i from third
+where not exists(
+	select*from fourth f where f.i=i
+)
+order by i desc
+
+/ SQL RECURSIVE 
+
+C:\Program Files\PostgreSQL\9.6\bin>psql -Ueric test
+Password for user eric: vi_lang17
+
+/ 7	. 
+
+test=> create table rec(id int,iid int,rg int, be int);
+CREATE TABLE
+test=> insert into rec values(1,1,1,2),(2,1,2,3),(3,1,4,5),(4,1,5,6),(5,1,6,0);
+INSERT 0 5
+test=> insert into rec values (1,2,1,2),(2,2,2,3),(3,2,4,5),(4,2,6,0);
+INSERT 0 4
+
+test=> select*from rec;
+ id | iid | rg | be
+----+-----+----+----
+  1 |   1 |  1 |  2
+  2 |   1 |  2 |  3
+  3 |   1 |  4 |  5		<- rg 4
+  4 |   1 |  5 |  6
+  5 |   1 |  6 |  0
+  
+  1 |   2 |  1 |  2
+  2 |   2 |  2 |  3
+  3 |   2 |  4 |  5
+  4 |   2 |  6 |  0		<0 rg 6
+(9 rows)
+
+/ 7	. 
+
+
+
+/ google,
+sql recursive
+/ Lees,	
+https://technet.microsoft.com/en-us/library/ms186243(v=sql.105).aspx
+
+CREATE TABLE MyEmployees
+(
+	EmployeeID smallint NOT NULL,
+	FirstName varchar(30)  NOT NULL,
+	LastName  varchar(40) NOT NULL,
+	Title varchar(50) NOT NULL,
+	DeptID smallint NOT NULL,
+	ManagerID int NULL,
+ CONSTRAINT PK_EmployeeID PRIMARY KEY (EmployeeID) 
+);
+-- Populate the table with values.
+INSERT INTO MyEmployees VALUES 
+ (1, N'Ken', N'Sánchez', N'Chief Executive Officer',16,NULL)
+,(273, N'Brian', N'Welcker', N'Vice President of Sales',3,1)
+,(274, N'Stephen', N'Jiang', N'North American Sales Manager',3,273)
+,(275, N'Michael', N'Blythe', N'Sales Representative',3,274)
+,(276, N'Linda', N'Mitchell', N'Sales Representative',3,274)
+,(285, N'Syed', N'Abbas', N'Pacific Sales Manager',3,273)
+,(286, N'Lynn', N'Tsoflias', N'Sales Representative',3,285)
+,(16,  N'David',N'Bradley', N'Marketing Manager', 4, 273)
+,(23,  N'Mary', N'Gibson', N'Marketing Specialist', 4, 16);
+
+test=> select*from MyEmployees;
+ employeeid | firstname | lastname |            title             | deptid | managerid
+------------+-----------+----------+------------------------------+--------+-----------
+          1 | Ken       | Sánchez  | Chief Executive Officer      |     16 |
+        273 | Brian     | Welcker  | Vice President of Sales      |      3 |         1
+        274 | Stephen   | Jiang    | North American Sales Manager |      3 |       273
+        275 | Michael   | Blythe   | Sales Representative         |      3 |       274
+        276 | Linda     | Mitchell | Sales Representative         |      3 |       274
+        285 | Syed      | Abbas    | Pacific Sales Manager        |      3 |       273
+        286 | Lynn      | Tsoflias | Sales Representative         |      3 |       285
+         16 | David     | Bradley  | Marketing Manager            |      4 |       273
+         23 | Mary      | Gibson   | Marketing Specialist         |      4 |        16
+(9 rows)
+
+/ google 
+postgresql primary key
+/ lees,
+https://www.w3resource.com/PostgreSQL/primary-key-constraint.php
+
+/ we wilt lijst met 
+mgrid, empid
+Null, 1
+1,273
+273, 274
+273, 285
+273, 16
+274, 275
+274, 276
+285, 286
+16, 23
+
+/ Intermezzo
+
+/ oef met cte
+
+/ 13	. 
+
+with director as(
+select e.managerid, e.employeeid,e.title,e.deptid
+from MyEmployees e
+)
+select d.*
+from director d;
+/ OK
+
+/ 13	. 
+
+/ als we een columnname meegeven aan cte, dan zien we alle column, alleen de columnname is renamed, en die kun je dan use in volgende cte's of query,
+
+with director(mgrid) as(
+select e.managerid, e.employeeid,e.title,e.deptid
+from MyEmployees e
+)
+select d.*
+from director d;
+ mgrid | employeeid |            title             | deptid
+-------+------------+------------------------------+--------
+       |          1 | Chief Executive Officer      |     16
+     1 |        273 | Vice President of Sales      |      3
+   273 |        274 | North American Sales Manager |      3
+   274 |        275 | Sales Representative         |      3
+   274 |        276 | Sales Representative         |      3
+   273 |        285 | Pacific Sales Manager        |      3
+   285 |        286 | Sales Representative         |      3
+   273 |         16 | Marketing Manager            |      4
+    16 |         23 | Marketing Specialist         |      4
+(9 rows)
+
+/ Einde Intermezzo
+
+
+/ 13	. 
+
+/ we zien een employee als een director van ...
+
+with director(mgrid,empid,title,deptid,level) as(
+	select e.managerid, e.employeeid,e.title,e.deptid,0 as level
+	from MyEmployees e
+	where e.managerid is null
+	union
+	select e.managerid, e.employeeid,e.title,e.deptid,level+1
+	from MyEmployees e
+	join director d on e.managerid=d.employeeid
+)
+select mgrid,empid,title,deptid,level
+from director
+
+/ 7	. 
+
+/ lees,
+https://www.postgresql.org/docs/9.1/static/queries-with.html
+
+Note: Strictly speaking, this process is iteration not recursion, but RECURSIVE is the terminology chosen by the SQL standards committee.
+
+with recursive t(n) as(
+	values(1)				
+	union all
+	select n+1 from t where n<10
+)
+select n from t
+
+/ of,
+with recursive t(n) as(
+	select 1
+	union all
+	select n+1 from t where n<10
+)
+select n from t
+
+/ het werkt zo: maak onderscheid tussen rij bepaald in iteratie stap, en het temp antwoord tmp die merge is van wat er in alle stappen is gevonden,
+/ 1ste stap : 
+t
+-
+1 
+/ merge in temp antwoord: 
+tmp
+---
+1 
+/ 2de stap: we gaan verder met rijen bepaald in stap 1:
+t
+-
+1
+select n+1 from t where n<10
+t,
+-
+2
+/ merge:
+tmp
+---
+1
+2
+... 
+
+test-> select n from t;
+ n
+----
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+(10 rows)
+In the example above, the working table has just a single row in each step, and it takes on the values from 1 through 10 in successive steps. In the 10th step, there is no output because of the WHERE clause, and so the query terminates.
+
+/ 13	. 
+ 
+with recursive t as(
+	values(1)				
+	union all
+	select n+1 from t where n<10
+)
+select n from t
+
+/ of,
+with recursive t as(
+	select 1				
+	union all
+	select n+1 from t where n<10
+)
+select n from t
+
+ERROR:  column "n" does not exist
+LINE 4:  select n+1 from t where n<10
+/ we moeten t(n) 
+
+
+/ 13	. 
+
+/ with recursive must always be on top	,
+
+
+with a as(
+	select 1
+),
+with recursive t(n) as(
+	values(1)		-- select 1 
+	union all
+	select n+1 from t where n<10
+)
+select n 
+from t
+/ ERR
+/ TODO
+
+/ de oplossing is:
+/ lees,
+https://stackoverflow.com/questions/49012197/must-the-with-recursive-statement-always-be-on-top-of-a-with-statements-chain
+
+with recursive a as(
+	select 1
+),t(n) as(
+	values(1)		-- select 1 
+	union all
+	select n+1 from t where n<10
+), u as (
+	select *
+	from t
+)
+select n 
+from t
+ n
+----
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+(10 rows)
+
+
+
+/ 13	. 
+
+with recursive f(n) as(
+		select 1
+	union all
+		select (n+1)*n
+		from f
+		where n<10
+)
+select *
+from f
+ n
+----
+  1
+  2
+  6
+ 42
+(4 rows)
+
+/ voor n! zien we dat we ook n moeten bijhouden	,
+
+/ lees,
+http://stevestedman.com/2012/02/calculating-factorials-with-a-recursive-cte/
+
+with recursive f(m,n) as(
+		select 1,1
+	union all
+		select m+1,m*n
+		from f
+		where m<10
+)
+select *
+from f
+ m  |   n
+----+--------
+  1 |      1
+  2 |      1
+  3 |      2
+  4 |      6
+  5 |     24
+  6 |    120
+  7 |    720
+  8 |   5040
+  9 |  40320
+ 10 | 362880
+(10 rows)
+
+
+
+
+
+
+/ 13	. 
+
+with recursive t(n) as(
+	values(1)
+	union all
+	select mod(n+1,2) from t where n<10
+)
+select n from t
+/ hangs!
+/ klopt: 
+
+/ 13	. 
+
+create table parts(sub_part varchar(4),part varchar(4),quantity int);
+insert into parts values('1a','1',2),(null,'1a',5),('1b','1',3),('1ba','1b',2),(null,'1ba',3);
+
+WITH RECURSIVE included_parts(sub_part, part, quantity) AS (
+    SELECT sub_part, part, quantity FROM parts WHERE part = '1'
+  UNION ALL
+    SELECT p.sub_part, p.part, p.quantity
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+SELECT sub_part, part,quantity
+FROM included_parts
+/ see voorbeeld beneden: maak onderscheid tussen welke rijen er steeds in een stap worden bepaald, en het temp antwoord waarin de rijen uit deze stap worden merged in,
+/ met de rijen uit deze stap gaat hij verder, het temp antwoord is groter	,
+
+
+WITH RECURSIVE included_parts AS (
+    SELECT sub_part, part, quantity FROM parts WHERE part = '1'
+  UNION ALL
+    SELECT p.sub_part, p.part, p.quantity
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+SELECT sub_part, part,quantity
+FROM included_parts
+/ OK
+
+WITH RECURSIVE included_parts(sub_part, part, quantity) AS (
+    SELECT *
+	FROM parts 
+	WHERE part = '1'
+  UNION ALL
+    SELECT p.sub_part, p.part, p.quantity
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+SELECT sub_part, part,quantity
+FROM included_parts
+/ OK
+
+WITH RECURSIVE included_parts AS (
+    SELECT *
+	FROM parts 
+	WHERE part = '1'
+  UNION ALL
+    SELECT p.sub_part, p.part, p.quantity
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+SELECT sub_part, part,quantity
+FROM included_parts
+/ OK
+
+WITH RECURSIVE included_parts AS (
+    SELECT *
+	FROM parts 
+	WHERE part = '1'
+  UNION ALL
+    SELECT p.*
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+SELECT sub_part, part,quantity
+FROM included_parts
+/ OK
+
+
+/ 7	. 
+
+/ lees,
+http://www.postgresqltutorial.com/postgresql-recursive-query/
+
+CREATE TABLE employees (
+ employee_id serial PRIMARY KEY,
+ full_name VARCHAR NOT NULL,
+ manager_id INT
+);
+INSERT INTO employees (
+ employee_id,
+ full_name,
+ manager_id
+)
+VALUES
+ (1, 'Michael North', NULL),
+ (2, 'Megan Berry', 1),
+ (3, 'Sarah Berry', 1),
+ (4, 'Zoe Black', 1),
+ (5, 'Tim James', 1),
+ (6, 'Bella Tucker', 2),
+ (7, 'Ryan Metcalfe', 2),
+ (8, 'Max Mills', 2),
+ (9, 'Benjamin Glover', 2),
+ (10, 'Carolyn Henderson', 3),
+ (11, 'Nicola Kelly', 3),
+ (12, 'Alexandra Climo', 3),
+ (13, 'Dominic King', 3),
+ (14, 'Leonard Gray', 4),
+ (15, 'Eric Rampling', 4),
+ (16, 'Piers Paige', 7),
+ (17, 'Ryan Henderson', 7),
+ (18, 'Frank Tucker', 8),
+ (19, 'Nathan Ferguson', 8),
+ (20, 'Kevin Rampling', 8);
+ 
+WITH RECURSIVE subordinates AS (
+	 SELECT  employee_id, manager_id, full_name
+	 FROM  employees
+	 WHERE  employee_id = 2
+ UNION
+	 SELECT e.employee_id, e.manager_id, e.full_name
+	 FROM employees e
+	 INNER JOIN subordinates s ON s.employee_id = e.manager_id
+) 
+SELECT *
+FROM subordinates;
+ employee_id | manager_id |    full_name
+-------------+------------+-----------------
+           2 |          1 | Megan Berry
+           6 |          2 | Bella Tucker
+           7 |          2 | Ryan Metcalfe
+           8 |          2 | Max Mills
+           9 |          2 | Benjamin Glover
+          16 |          7 | Piers Paige
+          17 |          7 | Ryan Henderson
+          18 |          8 | Frank Tucker
+          19 |          8 | Nathan Ferguson
+          20 |          8 | Kevin Rampling
+(10 rows)
+/ alle directe/indirecte ondergeschikten van manager met employee_id =2 	,
+
+/ eerst:  2 |          1 | Megan Berry
+/ dit is wat is bepaald in deze stap, en deze wordt merged met temp antwoord, die nu leeg is, dus temp antwoord wordt:
+  2 |          1 | Megan Berry
+  
+/ dan join met zijn directe ondergeschikten (die hem als baas hebben)	,
+2 |          1 | Megan Berry 6 |          2 | Bella Tucker
+ 2 |          1 | Megan Berry 7 |          2 | Ryan Metcalfe
+ 2 |          1 | Megan Berry 8 |          2 | Max Mills
+2 |          1 | Megan Berry  9 |          2 | Benjamin Glover 
+/ en pakt alleen employees:
+6 |          2 | Bella Tucker
+7 |          2 | Ryan Metcalfe
+8 |          2 | Max Mills
+9 |          2 | Benjamin Glover
+/ Hier gaat hij straks mee verder, en merges deze met wat we al hadden in temp antwoord:
+2 |          1 | Megan Berry
+6 |          2 | Bella Tucker
+7 |          2 | Ryan Metcalfe
+8 |          2 | Max Mills
+9 |          2 | Benjamin Glover
+/ Maar nogmaals, hij gaat met de entries die werden bepaald in deze stap verder,
+
+/ bepaal directe ondergeschikten van employees die we net hebben bepaald, dus van:
+6 |          2 | Bella Tucker
+7 |          2 | Ryan Metcalfe
+8 |          2 | Max Mills
+9 |          2 | Benjamin Glover
+/ dus join,
+-- 6 |          2 | Bella Tucker	-- heeft geen ondergeschikten,
+7 |          2 | Ryan Metcalfe 16 |          7 | Piers Paige
+7 |          2 | Ryan Metcalfe 17 |          7 | Ryan Henderson
+8 |          2 | Max Mills 18 |          8 | Frank Tucker
+8 |          2 | Max Mills 19 |          8 | Nathan Ferguson
+8 |          2 | Max Mills 20 |          8 | Kevin Rampling
+-- 9 |          2 | Benjamin Glover	-- heeft geen ondergeschikten,
+/ en pak de ondergeschikten:
+16 |          7 | Piers Paige
+17 |          7 | Ryan Henderson
+18 |          8 | Frank Tucker
+19 |          8 | Nathan Ferguson
+20 |          8 | Kevin Rampling
+/ en voeg toe aan temp antwoord, en wordt nieuwe (temp) antwoord:
+2 |          1 | Megan Berry
+6 |          2 | Bella Tucker
+7 |          2 | Ryan Metcalfe
+8 |          2 | Max Mills
+9 |          2 | Benjamin Glover
+16 |          7 | Piers Paige
+17 |          7 | Ryan Henderson
+18 |          8 | Frank Tucker
+19 |          8 | Nathan Ferguson
+20 |          8 | Kevin Rampling
+
+/ 13	. 
+
+/ OPLOSSING RECURSIVE 
+
+/ per iid,
+
+test=> select*from rec
+test-> ;
+ id | iid | rg | be
+----+-----+----+----
+  1 |   1 |  1 |  2
+  2 |   1 |  2 |  3
+  3 |   1 |  4 |  5
+  4 |   1 |  5 |  6
+  5 |   1 |  6 |  0
+  1 |   2 |  1 |  2
+  2 |   2 |  2 |  3
+  3 |   2 |  4 |  5
+  4 |   2 |  6 |  0
+(9 rows)
+
+with recursive irec(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from rec r
+	where r.iid=1
+),st(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	where r.be=0
+	union
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	join st s on r.be=s.rg
+)
+select min(rg)
+from st
+ min
+-----
+   4
+(1 row)
+
+with recursive irec(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from rec r
+	where r.iid=2
+),st(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	where r.be=0
+	union
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	join st s on r.be=s.rg
+)
+select min(rg)
+from st
+ min
+-----
+   6
+(1 row)
+
+/ 13	. 
+
+/ start met de laatste	,
+
+select r.*
+
+from rec r
+where r.be=0
+
+with recursive irec(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from rec r
+	where r.iid=2
+),st(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	where r.be=0
+	union
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	join st s on r.be=s.rg
+)
+select min(rg)
+from st
+
+/ Einde OPLOSSING RECURSIVE
+
+with recursive irec(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from rec r
+	where r.iid=1
+),st(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	where r.be=0
+	union
+	select r.id,r.iid,r.rg,r.be
+	from irec r
+	join st s on r.be=s.rg
+),irec2(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from rec r
+	where r.iid=2
+),st2(id,iid,rg,be) as(
+	select r.id,r.iid,r.rg,r.be
+	from irec2 r
+	where r.be=0
+	union
+	select r.id,r.iid,r.rg,r.be
+	from irec2 r
+	join st2 s on r.be=s.rg
+)
+select min(s.rg),min(s2.rg)
+from st s,st2 s2
+ min | min
+-----+-----
+   4 |   6
+(1 row)
+
+/ 7	. 
+
+create table reg(vlg int,rg int, be int);	-- volgnummer, reg aanmaakdatum, reg beeindingsdatum
+create table term(vlg int,tm int,dt int,bd int);	-- volgnummer, termijn datum (een van de 12 bijv), betaaldatum, betaald bedrag
+
+insert into reg values(1,1,2),(2,2,3),(3,4,5),(4,5,6),(5,6,0); 
+insert into term values 
+(1,9,9,13),
+(1,10,10,7),
+(1,11,11,9),
+(1,12,12,3),
+(1,13,13,5),
+(2,10,0,0),
+(3,11,11,3),
+(3,12,11,4),
+(4,12,12,5),
+(5,1,0,0);
+
+test=> select*
+test-> from reg;
+ vlg | rg | be
+-----+----+----
+   1 |  1 |  2
+   2 |  2 |  3
+   3 |  4 |  5
+   4 |  5 |  6
+   5 |  6 |  0
+(5 rows)
+/ we zien 5 regelingen (op 1 vordering, die we niet zien), met begin- en einddatum
+
+test=> select*from term;
+ vlg | tm | dt | bd
+-----+----+----+----
+   1 |  9 |  9 | 13
+   1 | 10 | 10 |  7
+   1 | 11 | 11 |  9
+   1 | 12 | 12 |  3
+   1 | 13 | 13 |  5
+   2 | 10 |  0 |  0
+   3 | 11 | 11 |  3
+   3 | 12 | 11 |  4
+   4 | 12 | 12 |  5
+   5 |  1 |  0 |  0
+(10 rows)
+/ we zien de begindatum tm van de termijnen, en de betalingen: dt is de datum van betaling en bd het bedrag wat betaald is,
+/ dus reg 3 is op 4 gemaakt en op 5 beeindigd, en er was afgesproken om op 11 te betalen, de debiteur heeft dat ook , en ook op 12 en de debiteur heeft al op 11 betaald!
+
+with recursive reg_ as(
+	select r.*
+	from reg r
+), chain_(rg,be) as(
+	select r.rg,r.be
+	from reg_ r 
+	where r.be=0
+	union all
+	select r.rg,r.be
+	from reg_ r 
+	join chain_ c on r.be=c.rg
+),start_(rg) as(
+	select min(c.rg)
+	from chain_ c
+)
+select s.rg,
+from start_ s;
+rg
+--
+4
+
+with recursive reg_ as(
+	select r.*
+	from reg r
+), chain_(rg,be) as(
+	select r.rg,r.be
+	from reg_ r 
+	where r.be=0
+	union all
+	select r.rg,r.be
+	from reg_ r 
+	join chain_ c on r.be=c.rg
+),start_(rg) as(
+	select min(c.rg)
+	from chain_ c
+)
+select max(t.dt) -- r.*,t.*,s.*
+from reg_ r
+join term t on t.vlg=r.vlg
+cross join start_ s
+where r.rg >= s.rg
+ max
+----
+ 12
+ 
+/ als we de start_.rg, vanaf we keken, willen print,
+ 
+with recursive reg_ as(
+	select r.*
+	from reg r
+), chain_(rg,be) as(
+	select r.rg,r.be
+	from reg_ r 
+	where r.be=0
+	union all
+	select r.rg,r.be
+	from reg_ r 
+	join chain_ c on r.be=c.rg
+),start_(rg) as(
+	select min(c.rg)
+	from chain_ c
+)
+select s.rg,max(t.dt) -- r.*,t.*,s.*
+from reg_ r
+join term t on t.vlg=r.vlg
+cross join start_ s
+where r.rg >= s.rg
+ERROR:  column "s.rg" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 16: select s.rg,max(t.dt)
+
+with recursive reg_ as(
+	select r.*
+	from reg r
+), chain_(rg,be) as(
+	select r.rg,r.be
+	from reg_ r 
+	where r.be=0
+	union all
+	select r.rg,r.be
+	from reg_ r 
+	join chain_ c on r.be=c.rg
+),start_(rg) as(
+	select min(c.rg)
+	from chain_ c
+)
+select s.rg,max(t.dt) 
+from reg_ r
+join term t on t.vlg=r.vlg
+cross join start_ s
+where r.rg >= s.rg
+group by s.rg			-- is toch constant	,
+
+ rg | max
+----+-----
+  4 |  12
+/ klopt,
+
+13	. 
+
+/ we kunnen de group by vermijden door in last
+
+with recursive reg_ as(
+	select r.*
+	from reg r
+), chain_(rg,be) as(
+	select r.rg,r.be
+	from reg_ r 
+	where r.be=0
+	union all
+	select r.rg,r.be
+	from reg_ r 
+	join chain_ c on r.be=c.rg
+),start_(rg) as(
+	select min(c.rg)
+	from chain_ c
+), last_(dt) as(
+	select max(t.dt) 
+	from reg_ r
+	join term t on t.vlg=r.vlg
+	cross join start_ s
+	where r.rg >= s.rg
+)
+select s.rg,l.dt	
+from start_ s
+cross join last_ l
+
+ rg | dt
+----+----
+  4 | 12
+(1 row)
+-- rg = aanmaakdatum van de reg waarvan de current regeling een aanpassing is, en dt is de laatste betaaldatum vanaf die aanmaakdatum,  
+
+/ 13	. 
+
+/ min bepalen en bijbehorend bedrag,
+
+test=> select *
+test-> from reg;
+ vlg | rg | be
+-----+----+----
+   1 |  1 |  2
+   2 |  2 |  3
+   3 |  4 |  5
+   4 |  5 |  6
+   5 |  6 |  0
+(5 rows)
+
+with min_(rg) as(
+	select min(rg)
+	from reg
+), bd_(be) as(
+	select r.be
+	from reg r
+	join min_ n on r.rg=n.rg
+)
+select m.rg,b.be
+from min_ m
+cross join bd_ b
+
+ rg | be
+----+----
+  1 |  2
+(1 row)
+
+
+
+
+
+
+
+
+
+/ Einde SQL RECURSIVE
+
+/ SQL LEFT JOIN
+
+create table vordering(id int,stat int);
+create table regeling(id int,vsst int);
+insert into vordering values(1,41),(2,41);
+insert into regeling values(1,2),(1,1);
+commit;
+
+select v.*,r.*
+from vordering v
+join regeling r on r.id=v.id
+where v.stat in (41,71)
+and r.vsst=1;
+ id | stat | id | vsst
+----+------+----+------
+  1 |   41 |  1 |    1
+(1 row)
+
+select v.*,r.*
+from vordering v
+left join regeling r on r.id=v.id
+where v.stat in (41,71)
+and r.vsst<>1;
+test-> and r.vsst<>1;
+ id | stat | id | vsst
+----+------+----+------
+  1 |   41 |  1 |    2
+
+select v.*,r.*
+from vordering v
+left join regeling r on r.id=v.id
+where v.stat in (41,71)
+and r.vsst<>1 or r.vsst is null;
+ id | stat | id | vsst
+----+------+----+------
+  1 |   41 |  1 |    2
+  2 |   41 |    |
+(2 rows)
+
+select v.id
+from vordering v
+where v.stat in (41,71)
+and not exists(
+	select r.id
+	from regeling r
+	where r.id=v.id
+	and r.vsst=1
+);
+ id
+----
+  2
+(1 row)
+
+with my77 as(
+select v.id
+from vordering v
+left join regeling r on r.id=v.id
+where v.stat in (41,71)
+and r.vsst<>1 or r.vsst is null
+except
+select v.id
+from vordering v
+where v.stat in (41,71)
+and not exists(
+	select r.id
+	from regeling r
+	where r.id=v.id
+	and r.vsst=1
+)
+)
+select v.*
+from my77 m
+join vordering v on v.id=m.id;
+ id | stat
+----+------
+  1 |   41
+(1 row)
+
+with my77 as(
+select v.id
+from vordering v
+left join regeling r on r.id=v.id
+where v.stat in (41,71)
+and r.vsst<>1 or r.vsst is null
+except
+select v.id
+from vordering v
+where v.stat in (41,71)
+and not exists(
+	select r.id
+	from regeling r
+	where r.id=v.id
+	and r.vsst=1
+)
+)
+select v.*,r.*
+from my77 m
+join vordering v on v.id=m.id
+left join regeling r on r.id=v.id;  -- deze join is ERR	,
+ id | stat | id | vsst
+----+------+----+------
+  1 |   41 |  1 |    2
+  1 |   41 |  1 |    1
+(2 rows)
+
+/ 7	. 
+
+/ verschillen restriction in join or outside	,
+
+create table vk(id int);
+create table r(id int,st int);
+commit;
+insert into vk values(1),(2);
+insert into vk values(3),(4);
+insert into r values(1,1),(1,2),(3,1),(3,2);
+commit;
+
+test=> select *from vk;
+ id
+----
+  1
+  2
+  3
+  4
+(4 rows)
+
+test=> select*from r;
+ id | st
+----+----
+  1 |  1
+  1 |  2
+  3 |  1
+  3 |  2
+(4 rows)
+
+/ 13	,
+
+
+select *
+from vk
+left join r on vk.id=r.id and r.st is null;
+ id | id | st
+----+----+----
+  1 |    |
+  2 |    |
+  3 |    |
+  4 |    |
+(4 rows)
+
+select *
+from vk
+left join r on vk.id=r.id
+where r.st is null;
+ id | id | st
+----+----+----
+  2 |    |
+  4 |    |
+(2 rows)
+
+select *
+from vk
+left join r on vk.id=r.id;
+ id | id | st
+----+----+----
+  1 |  1 |  1
+  1 |  1 |  2
+  2 |    |
+  3 |  3 |  1
+  3 |  3 |  2
+  4 |    |
+(6 rows)
+
+test=>\pset null 'null'
+
+-- het verschil waar r.st is null speelt alleen bij 'left join'	,
+select *
+from vk
+join r on vk.id=r.id and r.st is null;
+/=
+select *
+from vk
+join r on vk.id=r.id
+where r.st is null;
+ id | id | st
+----+----+----
+(0 rows)
+
+select *
+from vk
+join r on vk.id=r.id;
+ id | id | st
+----+----+----
+  1 |  1 |  1
+  1 |  1 |  2
+  3 |  3 |  1
+  3 |  3 |  2
+(4 rows)
+
+/ lees,
+https://stackoverflow.com/questions/19725014/sql-server-left-join-with-or-operator
+-> 
+http://www.microhowto.info/howto/log_all_queries_to_a_postgresql_server.html
+
+
+
+/ Einde SQL LEFT JOIN
+
+/ JOIN
+
+test=> select * from vk;
+ id
+----
+  1
+  2
+  3
+  4
+  5
+(5 rows)
+
+test=> select *from r;
+ id | st
+----+----
+  1 |  1
+  1 |  2
+  3 |  1
+  3 |  2
+(4 rows)
+
+create table r2(
+	id int,
+	st int
+);
+insert into r2 values
+(1,1),
+(1,2),
+(2,1),
+(3,1),
+(3,2),
+(3,3);
+
+test=> select*from r2;
+ id | st
+----+----
+  1 |  1
+  1 |  2
+  2 |  1
+  3 |  1
+  3 |  2
+  3 |  3
+(6 rows)
+
+
+select count(vk.id)
+from vk
+join r on r.id=vk.id
+group by vk.id
+having count(vk.id)>1;
+ count
+-------
+     2
+     2
+(2 rows)
+
+select vk.id
+from vk
+join r on r.id=vk.id
+group by vk.id
+having count(vk.id)>1;
+id
+----
+1
+3
+
+select vk.id
+from vk
+join r2 on r2.id=vk.id
+group by vk.id
+having count(vk.id)>1;
+id
+---
+1
+3
+
+/ 13	. 
+
+/ select uit r2 rows met maximale st,
+
+/ oef,	
+select max(st) 
+from r2
+where id=3
+max
+----
+3
+
+select o.*
+from r2 o
+where st=(
+	select max(st)
+	from r2 a
+	where a.id=o.id
+)
+ id | st
+----+----
+  1 |  2
+  2 |  1
+  3 |  3
+(3 rows)
+
+select count(vk.id)
+from vk
+join r2 on r2.id=vk.id
+order by r2.st
+ERROR:  column "r2.st" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 4: order by r2.st;
+
+select count(r2.id) 
+from r2
+order by r2.st
+ERROR:  column "r2.st" must appear in the GROUP BY clause or be used in an aggregate function
+LINE 4: order by r2.st;
+
+
+
+
+
+
+
+/ Einde JOIN
+
+/ 7	. 
+
+/ log postgresql,
+
+
+/ lees,
+https://stackoverflow.com/questions/722221/how-to-log-postgresql-queries
+
+/ 7	. 
+
+/ lees,
+https://www.postgresql.org/docs/9.6/static/functions-srf.html
+
+/ generate_series
+
+/ Intermezzo
+
+/ alias een table, en de columns, 
+
+/ toen nu toe alias we altijd alleen de table,	 maar de columns kan ook,
+
+/ wat we hieronder doen is table en de columns een andere naam geven:
+
+test=> select*from foo;
+ id | name
+----+------
+  1 | foo
+(1 row)
+
+test=> select s.name from foo s
+test-> ;
+ name
+------
+ foo
+(1 row)
+/ we alias de table, 
+
+test=> select s.a from foo s;
+ERROR:  column s.a does not exist
+LINE 1: select s.a from foo s
+               ^
+test=> select s.a from foo s(a,b);
+ a
+---
+ 1
+(1 row)
+/ alias ook de columns,
+
+test=> select s.a,s.b from foo s(a,b);
+ a |  b
+---+-----
+ 1 | foo
+(1 row)
+
+test=> select s from foo s		-- of: from foo s(a,b) of: from foo s(a)
+test-> ;
+    s
+---------
+ (1,foo)
+(1 row)
+
+/ we passen dit toe op generate_series	,
+
+test=> select * from generate_series(0,4,2) ;
+ generate_series
+-----------------
+               0
+               2
+               4
+(3 rows)
+
+
+test=> select * from generate_series(0,4,2) s(a);
+ a
+---
+ 0
+ 2
+ 4
+(3 rows)
+
+test=> select s.a from generate_series(0,4,2) s(a);
+ a
+---
+ 0
+ 2
+ 4
+(3 rows)
+
+
+
+/ Einde Intermezzo
+
+/ 13	. 
+
+test=> select current_date+s.a from generate_series(0,14,7)s(a);
+  ?column?
+------------
+ 2018-07-03
+ 2018-07-10
+ 2018-07-17
+(3 rows)
+
+test=> select current_date+s.a date from generate_series(0,14,7)s(a);
+    date
+------------
+ 2018-07-03
+ 2018-07-10
+ 2018-07-17
+(3 rows)
+/ alias de result column,
+
+test=> select current_date+a date from generate_series(0,14,7)a;
+    date
+------------
+ 2018-07-03
+ 2018-07-10
+ 2018-07-17
+(3 rows)
+
+test=> select current_date+s.a date from generate_series(0,14,7)s(a) schedule(date);
+ERROR:  syntax error at or near "schedule"
+LINE 1: ...nt_date+s.a date from generate_series(0,14,7)s(a) schedule(d...
+/ TODO 
+
+/ 13	.
+
+/ in de tijd moet een : voorkomen	,
+
+test=> select * from generate_series('20180301 0:'::timestamp,'20180304 12:','10 hours');
+   generate_series
+---------------------
+ 2018-03-01 00:00:00
+ 2018-03-01 10:00:00
+ 2018-03-01 20:00:00
+ 2018-03-02 06:00:00
+ 2018-03-02 16:00:00
+ 2018-03-03 02:00:00
+ 2018-03-03 12:00:00
+ 2018-03-03 22:00:00
+ 2018-03-04 08:00:00
+(9 rows)
+
+
+
+/	7	. 
+
+/ time
+
+/ lees,
+https://www.postgresql.org/docs/9.6/static/functions-datetime.html
+->
+https://www.postgresql.org/docs/9.6/static/functions-datetime.html#FUNCTIONS-DATETIME-CURRENT
+
+https://www.postgresql.org/docs/9.6/static/functions-matching.html
+
+test=> select current_time;
+       timetz
+--------------------
+ 07:54:00.678321+02
+(1 row)
+
+
+test=> select current_time;
+       timetz
+--------------------
+ 07:54:04.237532+02
+(1 row)
+
+
+test=> select current_timestamp;
+              now
+-------------------------------
+ 2018-07-03 07:54:09.710148+02
+(1 row)
+
+/ we kunnen NIET 
+select current_date();
+/ maar WEL,
+select now()
+
+/ 13	. 
+
+/ current_timestamp geeft tijd binnen een tx	,
+
+test=> begin;
+BEGIN
+test=> select current_timestamp;
+             now
+------------------------------
+ 2018-07-03 17:09:53.56133+02
+(1 row)
+
+
+test=> select current_timestamp;
+             now
+------------------------------
+ 2018-07-03 17:09:53.56133+02
+(1 row)
+
+/ 13	. 
+
+test=> select current_timestamp;
+              now
+-------------------------------
+ 2018-07-03 17:12:35.728244+02
+(1 row)
+
+
+test=> select timeofday();
+              timeofday
+--------------------------------------
+ Tue Jul 03 17:12:50.884687 2018 CEST
+(1 row)
+
+
+/ 13	. 
+
+/ clock_timestamp is moment van de select, current_timestamp van begin,
+
+/ timeofday()=clock_timestamp, alleen anders formatted,	
+
+test=> begin;
+BEGIN
+test=> select current_timestamp,clock_timestamp();
+              now              |        clock_timestamp
+-------------------------------+-------------------------------
+ 2018-07-03 17:14:53.472616+02 | 2018-07-03 17:14:56.248423+02
+(1 row)
+
+test=> select current_timestamp, timeofday();
+              now              |              timeofday
+-------------------------------+--------------------------------------
+ 2018-07-03 17:14:53.472616+02 | Tue Jul 03 17:16:22.775172 2018 CEST
+(1 row)
+
+/ 13	 .
+
+/ date en time types	,
+ 
+test=> select '11:12:59.1234567890123'::time;
+      time
+-----------------
+ 11:12:59.123457
+(1 row)
+
+/ 7	. 
+
+/ lees,
+https://www.cybertec-postgresql.com/en/postgresql-indexes-and-foreign-keys/
+
+/ 7	. 
+
+/ lees,
+https://www.postgresql.org/docs/9.6/static/wal.html
+/ 30.4 checkpoints
+
+
+/ 7	. 
+
+/ update & join
+
+/ lees,
+http://www.postgresqltutorial.com/postgresql-update-join/
+
+test=> create table if not exists vs(bvvnr int,nr int);
+CREATE TABLE
+test=> create table if not exists bdv(bvvnr int,nr int);
+CREATE TABLE
+test=> insert into vs values(1,11),(2,12);
+INSERT 0 2
+test=> insert into bdv(bvvnr) values (1),(2);
+INSERT 0 2
+test=> select*from vs;
+ bvvnr | nr
+-------+----
+     1 | 11
+     2 | 12
+(2 rows)
+
+
+test=> select*from bdv
+test-> ;
+ bvvnr | nr
+-------+----
+     1 |
+     2 |
+(2 rows)
+
+
+
+test=> update bdv
+test-> set bdv.nr=7
+test-> from vs
+test-> where bdv.bvvnr=vs.bvvnr;
+ERROR:  column "bdv" of relation "bdv" does not exist
+LINE 2: set bdv.nr=7
+            ^
+/ dit kan WEL in sybase
+			
+test=> update bdv b
+test-> set b.nr=13;
+ERROR:  column "b" of relation "bdv" does not exist
+LINE 2: set b.nr=13;
+/ Dit kan ook NIET in sybase		
+
+
+test=> update bdv
+test-> set nr=7
+test-> from vs
+test-> where bdv.bvvnr=vs.bvvnr;
+UPDATE 2
+/ OK,
+
+
+test=> update bdv
+test-> set nr=vs.nr
+test-> from vs
+test-> where bdv.bvvnr=vs.bvvnr;
+UPDATE 2
+test=> select*
+test-> from bdv;
+ bvvnr | nr
+-------+----
+     1 | 11
+     2 | 12
+(2 rows)
+/ Kan ook op sybase,
+
+/ REPLICATION
+
+/ kijk,
+https://www.youtube.com/watch?v=ldOPon17uYE
+
+
+/ Einde REPLICATION
+
+/ GENERATE_SERIES
+
+/ lees,
+https://www.periscopedata.com/blog/use-generate-series-to-get-continuous-results
+
+/ lees,
+https://www.postgresql.org/docs/9.6/functions-datetime.html
+https://www.postgresql.org/docs/9.6/functions-srf.html			/ set returning 
+https://wiki.postgresql.org/wiki/Working_with_Dates_and_Times_in_PostgreSQL
+
+/ 13	. 
+
+test=> select pg_typeof(now());
+        pg_typeof
+--------------------------
+ timestamp with time zone
+(1 row)
+
+test=> select current_timestamp;
+              now
+-------------------------------
+ 2019-01-15 07:15:57.317917+01
+(1 row)
+/=
+test=> select now();
+              now
+-------------------------------
+ 2019-01-15 07:16:03.315827+01
+(1 row)
+
+test=> select interval'2 days';
+ interval
+----------
+ 2 days
+(1 row)
+
+/ 13	. 
+
+/ lees, 
+https://stackoverflow.com/questions/2354717/how-to-write-a-postgresql-query-for-getting-only-the-date-part-of-timestamp-fiel
+
+/ 1313	. 
+
+test=> select date '2019-01-31';		-- date er voor, is dat typisch iets voor strings? TODO
+    date
+------------
+ 2019-01-31
+(1 row)
+
+test=>  select '2018-05-31'::date;
+    date
+------------
+ 2018-05-31
+(1 row)
+
+test=>  select cast('2010-01-21' as date);
+    date
+------------
+ 2010-01-21
+(1 row)
+
+/ 1313	. 
+
+test=> select date now();
+ERROR:  syntax error at or near "("
+LINE 1: select date now();
+
+test=> select now()::date;
+    now
+------------
+ 2019-01-15
+(1 row)
+
+
+test=> select cast(now() as date);
+    now
+------------
+ 2019-01-15
+(1 row)
+
+/ 1313	. 
+
+
+test=> select generate_series(current_date-interval'5 days',current_date,'1 days');
+   generate_series
+---------------------
+ 2019-01-10 00:00:00
+ 2019-01-11 00:00:00
+ 2019-01-12 00:00:00
+ 2019-01-13 00:00:00
+ 2019-01-14 00:00:00
+ 2019-01-15 00:00:00
+(6 rows)
+
+test=> select pg_typeof(generate_series(current_date-interval'5 days',current_date,'1 days'));
+          pg_typeof
+-----------------------------
+ timestamp without time zone
+ timestamp without time zone
+ timestamp without time zone
+ timestamp without time zone
+ timestamp without time zone
+ timestamp without time zone
+(6 rows)
+
+
+test=> select generate_series(current_date-interval'5 days',current_date,'1 days')::date ;		-- pg specific TODO
+ generate_series
+-----------------
+ 2019-01-10
+ 2019-01-11
+ 2019-01-12
+ 2019-01-13
+ 2019-01-14
+ 2019-01-15
+(6 rows)
+
+
+test=> select cast(generate_series(current_date-interval'5 days',current_date,'1 days')as date); 		-- SQL TODO
+ generate_series
+-----------------
+ 2019-01-10
+ 2019-01-11
+ 2019-01-12
+ 2019-01-13
+ 2019-01-14
+ 2019-01-15
+(6 rows)
+
+test=> select date(generate_series(current_date-interval'5 days',current_date,'1 days'));  	-- WH deprecated TODO
+    date
+------------
+ 2019-01-10
+ 2019-01-11
+ 2019-01-12
+ 2019-01-13
+ 2019-01-14
+ 2019-01-15
+(6 rows)
+
+/ 13	. 
+
+/ lees,
+https://stackoverflow.com/questions/22964272/postgresql-get-a-random-datetime-timestamp-between-two-datetime-timestamp
+
+test=> select cast(current_date+random()*interval'30 days' as date);
+    date
+------------
+ 2019-01-25
+(1 row)
+
+select i,cast(current_date+random()*interval'30 days' as date)
+from generate_series(1,10)g(i)
+;
+ i  |    date
+----+------------
+  1 | 2019-02-05
+  2 | 2019-01-21
+  3 | 2019-01-15
+  4 | 2019-02-06
+  5 | 2019-02-12
+  6 | 2019-02-03
+  7 | 2019-02-04
+  8 | 2019-01-25
+  9 | 2019-01-18
+ 10 | 2019-02-06
+(10 rows)
+
+/ 13	. 
+
+/ lees,
+http://www.postgresqltutorial.com/postgresql-random-range/
+https://www.postgresql.org/docs/9.6/functions-math.html
+https://www.postgresql.org/docs/9.6/datatype-numeric.html
+
+/ random() is double precision
+random value in the range 0.0 <= x < 1.0
+
+/ dus 1+100*random() is 1<= en <101	, 
+
+/ een int, 1<= en <=100	,
+test=> select floor(1+100*random())::int;
+ floor
+-------
+    46
+(1 row)
+
+
+/ 1313	. 
+
+/ random() is double precision, 
+/ afronden van dp naar int: eerst floor(), dat blijft een dp, en dan ::int,
+
+/ ::int rond af	,
+
+test=> select pg_typeof(1.7);
+ pg_typeof
+-----------
+ numeric
+(1 row)
+
+test=> select 1.3::double precision;
+ float8
+--------
+    1.3
+(1 row)
+
+test=> select (1.3::double precision)::int;
+ int4
+------
+    1
+(1 row)
+
+test=> select (1.7::double precision)::int;
+ int4
+------
+    2
+(1 row)
+
+test=> select floor(1.7::double precision)::int;
+ floor
+-------
+     1
+(1 row)
+
+/ 13	. 
+
+select i,cast(current_date+random()*interval'30 days' as date),cast(floor(1+100*random())as int)
+from generate_series(1,10)g(i)
+;
+ i  |    date    | floor
+----+------------+-------
+  1 | 2019-01-25 |    59
+  2 | 2019-01-30 |    85
+  3 | 2019-01-18 |    48
+  4 | 2019-02-08 |    71
+  5 | 2019-01-31 |    49
+  6 | 2019-01-27 |    42
+  7 | 2019-02-12 |    58
+  8 | 2019-02-10 |    50
+  9 | 2019-01-27 |    82
+ 10 | 2019-02-04 |     5
+(10 rows)
+
+select i,cast(current_date+random()*interval'30 days' as date),cast(floor(1+100*random())as int)as count
+from generate_series(1,10)g(i)
+;
+ i  |    date    | count
+----+------------+-------
+  1 | 2019-01-28 |    96
+  2 | 2019-02-06 |    86
+  3 | 2019-01-20 |    19
+  4 | 2019-02-10 |   100
+  5 | 2019-02-03 |    12
+  6 | 2019-01-31 |    77
+  7 | 2019-01-29 |    86
+  8 | 2019-02-08 |    69
+  9 | 2019-01-27 |    79
+ 10 | 2019-01-29 |    91
+(10 rows)
+
+/ we use g(i) helemaal niet, we kunnen ook,
+
+select cast(current_date+random()*interval'30 days' as date),cast(floor(1+100*random())as int)as count
+from generate_series(1,10)
+;
+    date    | count
+------------+-------
+ 2019-02-07 |    28
+ 2019-01-18 |     9
+ 2019-02-07 |    51
+ 2019-02-12 |    45
+ 2019-01-19 |    94
+ 2019-01-29 |    14
+ 2019-02-13 |     8
+ 2019-01-21 |    59
+ 2019-01-21 |    19
+ 2019-01-20 |    11
+(10 rows)
+
+/ 13	. 
+
+/ terug naar,
+https://www.periscopedata.com/blog/use-generate-series-to-get-continuous-results
+
+/ sales over 100 dagen geleden	,
+
+select cast(current_date-random()*interval'7 days' as date),cast(floor(1+100*random())as int)as count
+into sales
+from generate_series(1,100)
+;
+/ we krijgen veel sales op dezelfde datum; goed voor group by 	,
+
+select date,count(count)
+from sales
+group by date
+order by date    
+
+date    | count
+------------+-------
+ 2019-01-08 |    15
+ 2019-01-09 |    14
+ 2019-01-10 |    10
+ 2019-01-11 |    20
+ 2019-01-12 |    13
+ 2019-01-13 |    17
+ 2019-01-14 |    11
+(7 rows)
+
+test=> select generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')::date;
+ generate_series
+-----------------
+ 2019-01-08
+ 2019-01-09
+ 2019-01-10
+ 2019-01-11
+ 2019-01-12
+ 2019-01-13
+ 2019-01-14
+(7 rows)
+
+select generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')::date as gs(date);
+/ ERR	,
+test=> select cast(generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')as date)date;
+    date
+------------
+ 2019-01-08
+ 2019-01-09
+ 2019-01-10
+ 2019-01-11
+ 2019-01-12
+ 2019-01-13
+ 2019-01-14
+(7 rows)
+/ OK,
+
+select *
+from generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')
+;
+/ OK,
+select *
+from generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')gs(date)
+;
+/ OK,
+select *
+from cast(generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')as date)gs(date)
+;
+/ ERROR:  set-valued function called in context that cannot accept a set
+/ lees,
+https://dba.stackexchange.com/questions/37571/error-set-valued-function-called-in-context-that-cannot-accept-a-set-what-is-i
+/ TODO
+/ Met ints gaat het wel OK,
+test=> select * from cast(generate_series(1,15,2)as int);
+ generate_series
+-----------------
+               1
+               3
+               5
+               7
+               9
+              11
+              13
+              15
+(8 rows)
+
+/ 1313	. 
+
+/ numeric
+
+test=> select cast(123.456 as numeric(2,1))
+test-> ;
+ERROR:  numeric field overflow
+DETAIL:  A field with precision 2, scale 1 must round to an absolute value less than 10^1.
+
+test=> select cast(123.456 as numeric(6,3));
+ numeric
+---------
+ 123.456
+(1 row)
+
+test=> select cast(123.456 as numeric(7,4));
+ numeric
+----------
+ 123.4560
+(1 row)
+
+/ 
+
+test=> select *
+test-> from pg_typeof(generate_series(1.3,10.6,2));
+ERROR:  set-valued function called in context that cannot accept a set
+/ je kunt niet de type van een set nemen	,
+/ doe	,
+test=> select pg_typeof(i)
+test-> from generate_series(1.3,10.6,2)gs(i);
+ pg_typeof
+-----------
+ numeric
+ numeric
+ numeric
+ numeric
+ numeric
+(5 rows)
+
+test=> select pg_typeof(i)
+test-> from generate_series(1,10,2)gs(i);
+ pg_typeof
+-----------
+ integer
+ integer
+ integer
+ integer
+ integer
+(5 rows)
+
+test-> from cast(generate_series(1,10,2)as int);
+ generate_series
+-----------------
+               1
+               3
+               5
+               7
+               9
+(5 rows)
+/ WH omdat er helemaal geen cast wordt exec, het type is al goed,
+/ en,
+test=> select *
+test-> from cast(generate_series(1.3,10.6,2)as int);
+ERROR:  set-valued function called in context that cannot accept a set
+
+
+/ 1313	. 
+
+/ we doen daarom maar geen cast,
+/ in sales doen we dat wel, of niet: we cast in de join naar date,
+
+
+select *
+from generate_series(current_date-interval'7 days',current_date-interval'1 day','1 day')gs(date)
+join sales on cast(sales.date as date)=cast(gs.date as date)
+;
+        date         |    date    | count
+---------------------+------------+-------
+ 2019-01-09 00:00:00 | 2019-01-09 |    59
+ 2019-01-13 00:00:00 | 2019-01-13 |    61
+ 2019-01-10 00:00:00 | 2019-01-10 |    70
+ 2019-01-13 00:00:00 | 2019-01-13 |    84
+ 2019-01-11 00:00:00 | 2019-01-11 |     9
+...
+
+select gs.date,count(sales.count)
+from generate_series(current_date-interval'7 days',current_date,'1 day')gs(date)
+left join sales on sales.date=cast(gs.date as date)
+group by gs.date
+order by gs.date
+;
+        date         | count
+---------------------+-------
+ 2019-01-08 00:00:00 |    15
+ 2019-01-09 00:00:00 |    14
+ 2019-01-10 00:00:00 |    10
+ 2019-01-11 00:00:00 |    20
+ 2019-01-12 00:00:00 |    13
+ 2019-01-13 00:00:00 |    17
+ 2019-01-14 00:00:00 |    11
+ 2019-01-15 00:00:00 |     0
+(8 rows)
+
+
+
+
+
+/ Einde GENERATE_SERIES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

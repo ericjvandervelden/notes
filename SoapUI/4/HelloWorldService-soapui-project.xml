@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="6ddfc59a-e867-4ecf-bfbc-2bf5e410d1d8" activeEnvironment="Default" name="HelloWorldService" resourceRoot="" soapui-version="5.3.0" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" id="53e4abd4-5f5a-4484-8ba0-5f6a6aa5ddb8" wsaVersion="NONE" name="HelloWorldServiceSoapBinding" type="wsdl" bindingName="{http://server.hw.demo/}HelloWorldServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="file:/C:/Users/ervelden/java/apache-cxf-3.2.0/samples/java_first_jaxws4/src/main/resources/HelloWorldService.wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="file:\C:\Users\ervelden\java\apache-cxf-3.2.0\samples\java_first_jaxws4\src\main\resources\HelloWorldService.wsdl"><con:part><con:url>file:\C:\Users\ervelden\java\apache-cxf-3.2.0\samples\java_first_jaxws4\src\main\resources\HelloWorldService.wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="HelloWorldService" targetNamespace="http://server.hw.demo/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://server.hw.demo/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <xs:schema elementFormDefault="unqualified" targetNamespace="http://server.hw.demo/" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="getUsers" type="tns:getUsers"/>
+      <xs:element name="getUsersResponse" type="tns:getUsersResponse"/>
+      <xs:element name="sayHi" type="tns:sayHi"/>
+      <xs:element name="sayHi2" type="tns:sayHi2"/>
+      <xs:element name="sayHi2Response" type="tns:sayHi2Response"/>
+      <xs:element name="sayHiResponse" type="tns:sayHiResponse"/>
+      <xs:element name="sayHiToUser" type="tns:sayHiToUser"/>
+      <xs:element name="sayHiToUserResponse" type="tns:sayHiToUserResponse"/>
+      <xs:complexType name="sayHi2">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+          <xs:element name="arg1" type="xs:int"/>
+          <xs:element minOccurs="0" name="arg2" type="xs:string"/>
+          <xs:element minOccurs="0" name="arg3" type="xs:int"/>
+          <xs:element name="arg4" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="sayHi2Response">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="sayHiToUser">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0" type="tns:User"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="User">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="name" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="sayHiToUserResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="getUsers">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:complexType name="getUsersResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="tns:IntegerUserMap"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="IntegerUserMap">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="entry" type="tns:IdentifiedUser"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="IdentifiedUser">
+        <xs:sequence>
+          <xs:element name="id" type="xs:int"/>
+          <xs:element minOccurs="0" name="user" type="tns:User"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="sayHi">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="sayHiResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="return" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="sayHi2Response">
+    <wsdl:part name="parameters" element="tns:sayHi2Response"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sayHi2">
+    <wsdl:part name="parameters" element="tns:sayHi2"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getUsersResponse">
+    <wsdl:part name="parameters" element="tns:getUsersResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sayHi">
+    <wsdl:part name="parameters" element="tns:sayHi"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sayHiToUserResponse">
+    <wsdl:part name="parameters" element="tns:sayHiToUserResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sayHiResponse">
+    <wsdl:part name="parameters" element="tns:sayHiResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sayHiToUser">
+    <wsdl:part name="parameters" element="tns:sayHiToUser"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getUsers">
+    <wsdl:part name="parameters" element="tns:getUsers"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="HelloWorld">
+    <wsdl:operation name="sayHi2">
+      <wsdl:input name="sayHi2" message="tns:sayHi2"></wsdl:input>
+      <wsdl:output name="sayHi2Response" message="tns:sayHi2Response"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sayHiToUser">
+      <wsdl:input name="sayHiToUser" message="tns:sayHiToUser"></wsdl:input>
+      <wsdl:output name="sayHiToUserResponse" message="tns:sayHiToUserResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getUsers">
+      <wsdl:input name="getUsers" message="tns:getUsers"></wsdl:input>
+      <wsdl:output name="getUsersResponse" message="tns:getUsersResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sayHi">
+      <wsdl:input name="sayHi" message="tns:sayHi"></wsdl:input>
+      <wsdl:output name="sayHiResponse" message="tns:sayHiResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="HelloWorldServiceSoapBinding" type="tns:HelloWorld">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="sayHi2">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="sayHi2">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sayHi2Response">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sayHiToUser">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="sayHiToUser">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sayHiToUserResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getUsers">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getUsers">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getUsersResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sayHi">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="sayHi">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sayHiResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="HelloWorldService">
+    <wsdl:port name="HelloWorldPort" binding="tns:HelloWorldServiceSoapBinding">
+      <soap:address location="http://localhost:8080/java_first_jaxws4/services/hello_world"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/java_first_jaxws4/services/hello_world</con:endpoint></con:endpoints><con:operation id="5dff596c-22c7-456e-be4a-8758aa03211c" isOneWay="false" action="" name="getUsers" bindingOperationName="getUsers" type="Request-Response" outputName="getUsersResponse" inputName="getUsers" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="5ccdeb67-b7f3-415b-a25f-ed617f5d3000" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/java_first_jaxws4/services/hello_world</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://server.hw.demo/">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ser:getUsers/>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://server.hw.demo/HelloWorld/getUsers"/></con:call></con:operation><con:operation id="ffe56d95-ecc4-4069-8aab-208bfd2e67d6" isOneWay="false" action="" name="sayHi" bindingOperationName="sayHi" type="Request-Response" outputName="sayHiResponse" inputName="sayHi" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="8de2d9e8-de29-41d0-ad41-67236d6e75b5" name="Request 1"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/java_first_jaxws2/services/hello_world</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://server.hw.demo/">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ser:sayHi>\r
+         <!--Optional:-->\r
+         <arg0>Foo</arg0>\r
+      </ser:sayHi>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://server.hw.demo/HelloWorld/sayHi"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation id="059e29c4-56b2-44db-922c-6622ef80ac83" isOneWay="false" action="" name="sayHi2" bindingOperationName="sayHi2" type="Request-Response" outputName="sayHi2Response" inputName="sayHi2" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="17d244b3-1aee-4a85-a803-b176a99739af" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/java_first_jaxws4/services/hello_world</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://server.hw.demo/">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ser:sayHi2>\r
+         <!--Optional:-->\r
+         <arg0>?</arg0>\r
+         <arg1>?</arg1>\r
+         <!--Optional:-->\r
+         <arg2>?</arg2>\r
+         <!--Optional:-->\r
+         <arg3>?</arg3>\r
+         <arg4>?</arg4>\r
+      </ser:sayHi2>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://server.hw.demo/HelloWorld/sayHi2"/></con:call></con:operation><con:operation id="55b6fa4a-627a-422c-b562-b4437471c404" isOneWay="false" action="" name="sayHiToUser" bindingOperationName="sayHiToUser" type="Request-Response" outputName="sayHiToUserResponse" inputName="sayHiToUser" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call id="40387016-bcc4-4f14-b63b-2f4b3a01ec6c" name="Request 1"><con:settings/><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/java_first_jaxws4/services/hello_world</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://server.hw.demo/">\r
+   <soapenv:Header/>\r
+   <soapenv:Body>\r
+      <ser:sayHiToUser>\r
+         <!--Optional:-->\r
+         <arg0>\r
+            <!--Optional:-->\r
+            <name>?</name>\r
+         </arg0>\r
+      </ser:sayHiToUser>\r
+   </soapenv:Body>\r
+</soapenv:Envelope>]]></con:request><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://server.hw.demo/HelloWorld/sayHiToUser"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/></con:soapui-project>

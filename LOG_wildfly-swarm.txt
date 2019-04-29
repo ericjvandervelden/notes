@@ -1,0 +1,873 @@
+/ youtube: wildfly-swarm
+https://www.youtube.com/watch?v=5BvJVAlZyvo&t=891s / goncalves 
+https://www.youtube.com/watch?v=9xb6GIZ1gjs&t=73s / soto: rest-assured	,
+https://www.youtube.com/watch?v=S8L9qTaEO7Y / Heiko Braun
+https://www.youtube.com/watch?v=hsna68JUgqw 
+https://www.youtube.com/watch?v=yXmkSEpgSf4 / deploy on minishift
+https://www.youtube.com/watch?v=HguM1tCE_FI
+
+https://docs.openshift.org/latest/minishift/getting-started/installing.html / minishift
+
+/ 7	. 
+
+
+/ GONSALVES DEVOXX
+
+/ Kijk	,
+https://www.youtube.com/watch?v=5BvJVAlZyvo&t=891s / goncalves 
+
+/ 13	. 
+
+
+/ we gaan eerst een war deploy in wildfly,
+
+[workspace-jbosstools-jee-oxygen]$ project-new --named dvxuk2 --stack JAVA_EE_7
+/ er is ook --type, maar de default is war, wildfly-swarm of jar kan ook,
+
+[dvxuk2]$ rest-new-endpoint --named HelloEndpoint --path hello --methods GET
+***SUCCESS*** JAX-RS has been installed.
+***SUCCESS*** REST rest.HelloEndpoint was created
+
+/ lees	,
+https://docs.oracle.com/javaee/6/tutorial/doc/giepu.html	/ javaee tutorial over jax-rs	,
+
+
+$ vi src/main/java/org/dvxuk2/rest/RestApplication.java
+
+package rest;
+
+import javax.ws.rs.core.Application;
+import javax.ws.rs.ApplicationPath;
+
+@ApplicationPath("/rest")
+public class RestApplication extends Application {
+}
+/ Dit is WH ***SUCCESS*** JAX-RS has been installed.
+
+$ vi src/main/java/org/dvxuk2/rest/HelloEndpoint.java
+
+package rest;
+
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.GET;
+import javax.ws.rs.Produces;
+
+@Path("/hello")
+public class HelloEndpoint {
+
+	@GET
+	@Produces("text/plain")
+	public Response doGet() {
+		return Response.ok("method doGet invoked").build();
+	}
+}
+/ we maken er van	,
+		return Response.ok("method doGet invoked "+new Date()).build();
+		
+		
+/ 137	. 
+
+/ we maken een war,
+
+/ 13713	. 
+
+/ in eclipse we maken run config: dvxuk2-clean-package
+/ we zien target/
+Building war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+
+/ 13713	. 
+/ in forge
+
+/ als we build een ERR command geven,	 zien we het	,
+
+[rest] $ build foo
+[SEVERE] Unknown lifecycle phase "foo". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-clean, clean, post-clean, pre-site, site, post-site, site-deploy. -> [Help 1]
+
+[rest]$ build clean
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ dvxuk2 ---
+[INFO] Deleting C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target
+
+[rest]$ build package
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dvxuk2 ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 2 source files to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\classes
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dvxuk2 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ dvxuk2 ---
+[INFO]
+[INFO] --- maven-war-plugin:2.2:war (default-war) @ dvxuk2 ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [dvxuk2] in [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2]
+[INFO] Processing war project
+[INFO] Copying webapp resources [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\src\main\webapp]
+[INFO] Webapp assembled in [31 msecs]
+[INFO] Building war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[rest]$
+
+
+
+
+/ Intermezzo
+
+/ google,
+jboss forge build
+/ kijk	,
+https://www.youtube.com/watch?v=tMh_kpSQlGA
+https://www.youtube.com/watch?v=zm_EbTiEr_U
+https://blog.openshift.com/day-17-jboss-forge-java-ee-6-angularjs-application-on-openshift/
+
+/ google
+jboss forge documentation
+https://forge.jboss.org/documentation
+
+/ google 
+jboss forge commands
+https://docs.jboss.org/tools/4.0.1.Final/en/forge_reference/html_single/index.html
+http://docs.jboss.org/tools/latest/en/User_Guide/html/chap-Forge_Tools.html
+
+/ we kunnen geen docs vinden over build , waar we altijd build test mee doen	, dus we doen 	,
+C:\Users\ervelden\java\forge>git clone https://github.com/forge/core.git
+
+/ lees,
+https://forge.jboss.org/document/jboss-forge-2,-java-ee-easily,-so-easily
+
+/ google
+jboss forge wildfly-swarm
+/ lees,
+https://forge.jboss.org/addon/org.jboss.forge.addon:wildfly-swarm
+
+
+/ Einde Intermezzo
+
+/ we hadden eerder 
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> add-user.bat
+What type of user do you wish to add?
+ a) Management User (mgmt-users.properties)
+ b) Application User (application-users.properties)
+(a):
+ericj:vi_lang17 add als user mgn, de laatste vraag hadden we met yes beantwoord	,
+/ we zien deze in $WILDFLY_HOME/standalone/configuration/mgmt-users.properties
+
+/ klik Deployments, Add	, 
+Upload a new deployment
+Choose: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+
+/ geef in chrome,
+http://localhost:8080/dvxuk2/rest/hello
+method doGet invoked Sun Mar 11 20:40:00 CET 2018
+
+/ 13	. 
+
+/ nu in wildfly-swarm,
+
+/ shutdown wildfly en jboss-cli	,
+
+/ we blijven met forge in het project dvxuk2,
+
+[dvxuk2]$ wildfly-swarm-setup --context-path dvxuk2alias
+***SUCCESS*** WildFly Swarm is now set up! Enjoy!
+
+$ vi pom.xml
+
+  <groupId>org.dvxuk2</groupId>
+  <artifactId>dvxuk2</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>war</packaging>			/ dit is nog steeds zo, 	$ mvn package zal de war maken, we moeten $ mvn install voor de jar,
+ <build>	
+    <finalName>dvxuk2</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>wildfly-swarm-plugin</artifactId>
+        <version>${version.wildfly-swarm}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <properties>
+            <swarm.context.path>dvxuk2alias</swarm.context.path>
+          </properties>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+    <dependencyManagement>
+    <dependencies>
+		...
+      <dependency>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>bom-all</artifactId>
+        <version>${version.wildfly-swarm}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+  
+[dvxuk2]$ wildfly-swarm-detect-fractions
+***INFO*** Detecting fractions  [1/1] ...
+***INFO*** Detected fractions: [org.wildfly.swarm:jaxrs:2017.8.1]
+
+[dvxuk2]$  wildfly-swarm-add-fraction --fractions
+Display all 189 possibilities? (y or n)
+asciidoctorj              camel-jackson             camel-smpp                jaxrs-jsonp
+batch-jberet              camel-jacksonxml          camel-snakeyaml           jaxrs-multipart
+bean-validation           camel-jasypt              camel-snmp                jaxrs-validator
+camel-activemq            camel-jaxb                camel-soap                jca
+camel-ahc                 camel-jbpm                camel-splunk              jdr
+camel-ahc-ws              camel-jcache              camel-spring-batch        jgroups
+camel-amqp                camel-jdbc                camel-spring-integration  jmx
+camel-atom                camel-jgroups             camel-spring-ldap         jolokia
+camel-avro                camel-jms                 camel-spring-redis        jpa
+camel-aws                 camel-jmx                 camel-spring-security     jpa-eclipselink
+camel-barcode             camel-jpa                 camel-sql                 jpa-spatial
+camel-base64              camel-jsch                camel-ssh                 jsf
+camel-bean-validator      camel-jsonpath            camel-stax                jsonp
+camel-beanio              camel-kafka               camel-stream              keycloak
+camel-bindy               camel-kubernetes          camel-swagger             keycloak-server
+camel-box                 camel-ldap                camel-syslog              logging
+camel-braintree           camel-linkedin            camel-tagsoup             logstash
+camel-cassandraql         camel-lucene              camel-tarfile             mail
+camel-castor              camel-mail                camel-twitter             management
+camel-cdi                 camel-metrics             camel-undertow            management-console
+camel-coap                camel-mina2               camel-velocity            messaging
+camel-context             camel-mllp                camel-vertx               microprofile
+camel-core                camel-mongodb             camel-weather             mod_cluster
+camel-couchdb             camel-mqtt                camel-xmlbeans            mongodb
+camel-crypto              camel-mvel                camel-xmlsecurity         monitor
+camel-csv                 camel-mybatis             camel-xstream             neo4j
+camel-cxf                 camel-nats                camel-zipfile             opentracing
+camel-dns                 camel-netty4              camel-zipkin              orientdb
+camel-dozer               camel-ognl                camel-zookeeper           remoting
+camel-dropbox             camel-olingo2             cassandra                 resource-adapters
+camel-ejb                 camel-optaplanner         cdi                       ribbon
+camel-elasticsearch       camel-paho                cdi-config                ribbon-secured
+camel-elsql               camel-pdf                 cdi-jaxrsapi              spring
+camel-exec                camel-protobuf            cli                       swagger
+camel-facebook            camel-quartz2             datasources               swagger-webapp
+camel-flatpack            camel-rabbitmq            drools-server             teiid
+camel-freemarker          camel-reactive-streams    ejb                       topology-consul
+camel-ftp                 camel-rest-swagger        ejb-remote                topology-jgroups
+camel-git                 camel-rss                 fluentd                   topology-openshift
+camel-github              camel-salesforce          flyway                    topology-webapp
+camel-groovy              camel-sap-netweaver       hibernate-search          transactions
+camel-gson                camel-saxon               hibernate-validator       undertow
+camel-hl7                 camel-schematron          hystrix                   vertx
+camel-http4               camel-script              infinispan                webservices
+camel-hystrix             camel-servicenow          jaeger                    zipkin-jaxrs
+camel-infinispan          camel-servlet             javafx
+camel-influxdb            camel-sjms                jaxrs
+camel-irc                 camel-sjms2               jaxrs-jaxb
+[dvxuk2]$  wildfly-swarm-add-fraction --fractions jaxrs
+***SUCCESS*** Wildfly Swarm Fractions '[jaxrs]' were successfully added to the project descriptor
+[dvxuk2]$
+
+$ vi pom.xml
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>jaxrs</artifactId>
+    </dependency>
+  </dependencies>
+  
+/ 137	.
+
+/ we kunnen zelf $ java -jar, of in forge $ wildfly-swarm-run, we hoeven dan niet de jar te create	, 
+  
+[dvxuk2]$ build clean
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ dvxuk2 ---
+[INFO] Deleting C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target
+
+/ om de jar te maken, moeten we 'build install' doen, 'build package' maakt alleen de jar,
+
+
+[dvxuk2]$ build install
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building dvxuk2 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dvxuk2 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dvxuk2 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ dvxuk2 ---
+[INFO]
+[INFO] --- maven-war-plugin:2.2:war (default-war) @ dvxuk2 ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [dvxuk2] in [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2]
+[INFO] Processing war project
+[INFO] Copying webapp resources [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\src\main\webapp]
+[INFO] Webapp assembled in [135 msecs]
+[INFO] Building war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO]
+[INFO] --- wildfly-swarm-plugin:2017.8.1:package (default) @ dvxuk2 ---
+Resolving 46 out of 206 artifacts
+[INFO] Repackaging .war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO] Fallback file move: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO] Copied C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war.original
+[INFO] Fallback failed to delete, will overwrite existing file: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO] Repackaged .war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO]
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ dvxuk2 ---
+[INFO] Installing C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war to C:\Users\ervelden\.m2\repository\org\dvxuk2\dvxuk2\1.0.0-SNAPSHOT\dvxuk2-1.0.0-SNAPSHOT.war
+[INFO] Installing C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\pom.xml to C:\Users\ervelden\.m2\repository\org\dvxuk2\dvxuk2\1.0.0-SNAPSHOT\dvxuk2-1.0.0-SNAPSHOT.pom
+[INFO] Installing C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2-swarm.jar to C:\Users\ervelden\.m2\repository\org\dvxuk2\dvxuk2\1.0.0-SNAPSHOT\dvxuk2-1.0.0-SNAPSHOT-swarm.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 4.458 s
+[INFO] Finished at: 2018-03-11T22:21:47+01:00
+[INFO] Final Memory: 56M/412M
+[INFO] ------------------------------------------------------------------------
+***SUCCESS*** Build Success
+[dvxuk2]$
+
+/ dan niet in forge, maar in de shell,
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2>java -jar target\dvxuk2-swarm.jar
+2018-03-11 23:43:27,540 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                  Logging - STABLE          org.wildfly.swarm:logging:2017.8.1
+2018-03-11 23:43:27,546 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                   JAX-RS - STABLE          org.wildfly.swarm:jaxrs:2017.8.1
+2018-03-11 23:43:27,546 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                 Undertow - STABLE          org.wildfly.swarm:undertow:2017.8.1
+2018-03-11 23:43:29,114 INFO  [org.jboss.msc] (main) JBoss MSC version 1.2.6.Final
+2018-03-11 23:43:29,162 INFO  [org.jboss.as] (MSC service thread 1-6) WFLYSRV0049: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) starting
+2018-03-11 23:43:29,206 INFO  [org.wildfly.swarm] (MSC service thread 1-6) WFSWARM0019: Install MSC service for command line args: []
+2018-03-11 23:43:29,673 INFO  [org.jboss.as.naming] (ServerService Thread Pool -- 14) WFLYNAM0001: Activating Naming Subsystem
+2018-03-11 23:43:29,674 INFO  [org.jboss.as.security] (ServerService Thread Pool -- 11) WFLYSEC0002: Activating Security Subsystem
+2018-03-11 23:43:29,678 INFO  [org.wildfly.extension.io] (ServerService Thread Pool -- 12) WFLYIO001: Worker 'default' has auto-configured to 16 core threads with 128 task threads based on your 8 available processors
+2018-03-11 23:43:29,683 INFO  [org.jboss.as.security] (MSC service thread 1-6) WFLYSEC0001: Current PicketBox version=4.9.6.Final
+2018-03-11 23:43:29,709 INFO  [org.jboss.as.naming] (MSC service thread 1-8) WFLYNAM0003: Starting Naming Service
+2018-03-11 23:43:29,735 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0003: Undertow 1.4.11.Final starting
+2018-03-11 23:43:29,755 INFO  [org.xnio] (MSC service thread 1-8) XNIO version 3.4.3.Final
+2018-03-11 23:43:29,763 INFO  [org.xnio.nio] (MSC service thread 1-8) XNIO NIO Implementation Version 3.4.3.Final
+2018-03-11 23:43:29,812 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0012: Started server default-server.
+2018-03-11 23:43:29,963 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-7) WFLYUT0006: Undertow HTTP listener default listening on [0:0:0:0:0:0:0:0]:8080
+2018-03-11 23:43:30,023 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) started in 938ms - Started 70 of 77 services (14 services are lazy, passive or on-demand)
+2018-03-11 23:43:30,212 INFO  [org.wildfly.swarm.runtime.deployer] (main) deploying dvxuk2.war
+2018-03-11 23:43:30,230 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-2) WFLYSRV0027: Starting deployment of "dvxuk2.war" (runtime-name: "dvxuk2.war")
+2018-03-11 23:43:30,432 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0018: Host default-host starting
+2018-03-11 23:43:30,583 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 4) RESTEASY002225: Deploying javax.ws.rs.core.Application: class rest.RestApplication
+2018-03-11 23:43:30,597 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 4) WFLYUT0021: Registered web context: /dvxuk2alias
+2018-03-11 23:43:30,626 INFO  [org.jboss.as.server] (main) WFLYSRV0010: Deployed "dvxuk2.war" (runtime-name : "dvxuk2.war")
+2018-03-11 23:43:30,628 INFO  [org.wildfly.swarm] (main) WFSWARM99999: WildFly Swarm is Ready
+
+/ Geef	, 
+http://localhost:8080/dvxuk2alias/rest/hello
+
+/ 13713	. 
+
+/ FORGE DOCS
+
+/ we hoeven geen jar te create, we doen:
+
+/ lees,
+
+https://forge.jboss.org/addon/org.jboss.forge.addon:wildfly-swarm
+
+[dvxuk2]$ wildfly-swarm-run
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building dvxuk2 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] >>> wildfly-swarm-plugin:2017.8.1:run (default-cli) > package @ dvxuk2 >>>
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dvxuk2 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ dvxuk2 ---
+[INFO] Not copying test resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dvxuk2 ---
+[INFO] Not compiling test sources
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ dvxuk2 ---
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- maven-war-plugin:2.2:war (default-war) @ dvxuk2 ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [dvxuk2] in [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2]
+[INFO] Processing war project
+[INFO] Copying webapp resources [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\src\main\webapp]
+[INFO] Webapp assembled in [158 msecs]
+[INFO] Building war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO]
+[INFO] --- wildfly-swarm-plugin:2017.8.1:package (default) @ dvxuk2 ---
+Resolving 46 out of 206 artifacts
+[INFO] Repackaging .war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO] Fallback file move: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO] Copied C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war.original
+[INFO] Fallback failed to delete, will overwrite existing file: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO] Repackaged .war: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\dvxuk2.war
+[INFO]
+[INFO] <<< wildfly-swarm-plugin:2017.8.1:run (default-cli) < package @ dvxuk2 <<<
+[INFO]
+[INFO]
+[INFO] --- wildfly-swarm-plugin:2017.8.1:run (default-cli) @ dvxuk2 ---
+[INFO] Starting .war
+Sun Mar 11 23:38:00 CET 2018 INFO [org.wildfly.swarm.bootstrap] (main) Dependencies not bundled; resolving from M2REPO.
+2018-03-11 23:38:01,695 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                  Logging - STABLE          org.wildfly.swarm:logging:2017.8.1
+2018-03-11 23:38:01,695 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                 Undertow - STABLE          org.wildfly.swarm:undertow:2017.8.1
+2018-03-11 23:38:01,695 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                   JAX-RS - STABLE          org.wildfly.swarm:jaxrs:2017.8.1
+2018-03-11 23:38:03,218 INFO  [org.jboss.msc] (main) JBoss MSC version 1.2.6.Final
+2018-03-11 23:38:03,280 INFO  [org.jboss.as] (MSC service thread 1-6) WFLYSRV0049: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) starting
+2018-03-11 23:38:03,312 INFO  [org.wildfly.swarm] (MSC service thread 1-6) WFSWARM0019: Install MSC service for command line args: []
+2018-03-11 23:38:03,809 INFO  [org.jboss.as.naming] (ServerService Thread Pool -- 12) WFLYNAM0001: Activating Naming Subsystem
+2018-03-11 23:38:03,809 INFO  [org.wildfly.extension.io] (ServerService Thread Pool -- 11) WFLYIO001: Worker 'default' has auto-configured to 16 core threads with 128 task threads based on your 8 available processors
+2018-03-11 23:38:03,809 INFO  [org.jboss.as.security] (ServerService Thread Pool -- 16) WFLYSEC0002: Activating Security Subsystem
+2018-03-11 23:38:03,809 INFO  [org.jboss.as.security] (MSC service thread 1-7) WFLYSEC0001: Current PicketBox version=4.9.6.Final
+2018-03-11 23:38:03,844 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-4) WFLYUT0003: Undertow 1.4.11.Final starting
+2018-03-11 23:38:03,859 INFO  [org.jboss.as.naming] (MSC service thread 1-4) WFLYNAM0003: Starting Naming Service
+2018-03-11 23:38:03,875 INFO  [org.xnio] (MSC service thread 1-1) XNIO version 3.4.3.Final
+2018-03-11 23:38:03,875 INFO  [org.xnio.nio] (MSC service thread 1-1) XNIO NIO Implementation Version 3.4.3.Final
+2018-03-11 23:38:03,938 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-2) WFLYUT0012: Started server default-server.
+2018-03-11 23:38:04,079 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0006: Undertow HTTP listener default listening on [0:0:0:0:0:0:0:0]:8080
+2018-03-11 23:38:04,126 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) started in 939ms - Started 70 of 77 services (14 services are lazy, passive or on-demand)
+2018-03-11 23:38:04,645 INFO  [org.wildfly.swarm.runtime.deployer] (main) deploying dvxuk2.war
+2018-03-11 23:38:04,660 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-7) WFLYSRV0027: Starting deployment of "dvxuk2.war" (runtime-name: "dvxuk2.war")
+2018-03-11 23:38:05,363 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0018: Host default-host starting
+2018-03-11 23:38:05,566 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 5) RESTEASY002225: Deploying javax.ws.rs.core.Application: class rest.RestApplication
+2018-03-11 23:38:05,582 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 5) WFLYUT0021: Registered web context: /dvxuk2alias
+2018-03-11 23:38:05,630 INFO  [org.jboss.as.server] (main) WFLYSRV0010: Deployed "dvxuk2.war" (runtime-name : "dvxuk2.war")
+2018-03-11 23:38:05,632 INFO  [org.wildfly.swarm] (main) WFSWARM99999: WildFly Swarm is Ready
+
+/ Geef	, 
+http://localhost:8080/dvxuk2alias/rest/hello
+
+/ 13	. 
+
+/ in forge cancel wildfly-swarm-run,
+[dvxuk2]$  wildfly-swarm-new-test --named HelloEndpointTest --target-package rest
+
+[dvxuk2]$ build test
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building dvxuk2 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dvxuk2 ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ dvxuk2 ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dvxuk2 ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\test-classes
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ dvxuk2 ---
+[INFO] Surefire report directory: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\dvxuk2\target\surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running rest.HelloEndpointTest
+Resolving 0 out of 502 artifacts
+Mon Mar 12 22:22:08 CET 2018 INFO [org.wildfly.swarm.bootstrap] (main) Dependencies not bundled; resolving from M2REPO.
+2018-03-12 22:22:10,538 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:               Arquillian - STABLE          org.wildfly.swarm:arquillian:2017.8.1
+2018-03-12 22:22:10,538 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                  Logging - STABLE          org.wildfly.swarm:logging:2017.8.1
+2018-03-12 22:22:10,538 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                   JAX-RS - STABLE          org.wildfly.swarm:jaxrs:2017.8.1
+2018-03-12 22:22:10,538 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                 Undertow - STABLE          org.wildfly.swarm:undertow:2017.8.1
+2018-03-12 22:22:12,314 INFO  [org.jboss.msc] (main) JBoss MSC version 1.2.6.Final
+2018-03-12 22:22:12,376 INFO  [org.jboss.as] (MSC service thread 1-6) WFLYSRV0049: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) starting
+2018-03-12 22:22:12,408 INFO  [org.wildfly.swarm] (MSC service thread 1-6) WFSWARM0019: Install MSC service for command line args: []
+2018-03-12 22:22:12,905 INFO  [org.jboss.as.security] (ServerService Thread Pool -- 13) WFLYSEC0002: Activating Security Subsystem
+2018-03-12 22:22:12,920 INFO  [org.jboss.as.naming] (ServerService Thread Pool -- 15) WFLYNAM0001: Activating Naming Subsystem
+2018-03-12 22:22:12,920 INFO  [org.jboss.as.security] (MSC service thread 1-7) WFLYSEC0001: Current PicketBox version=4.9.6.Final
+2018-03-12 22:22:12,936 INFO  [org.wildfly.extension.io] (ServerService Thread Pool -- 16) WFLYIO001: Worker 'default' has auto-configured to 16 core threads with 128 task threads based on your 8 available processors
+2018-03-12 22:22:12,952 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0003: Undertow 1.4.11.Final starting
+2018-03-12 22:22:12,968 INFO  [org.jboss.as.naming] (MSC service thread 1-4) WFLYNAM0003: Starting Naming Service
+2018-03-12 22:22:12,971 INFO  [org.wildfly.swarm.arquillian.daemon.server.Server] (MSC service thread 1-5) Arquillian Daemon server started on 127.0.0.1:12345
+2018-03-12 22:22:12,982 INFO  [org.xnio] (MSC service thread 1-1) XNIO version 3.4.3.Final
+2018-03-12 22:22:12,998 INFO  [org.xnio.nio] (MSC service thread 1-1) XNIO NIO Implementation Version 3.4.3.Final
+2018-03-12 22:22:13,060 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0012: Started server default-server.
+2018-03-12 22:22:13,249 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-5) WFLYUT0006: Undertow HTTP listener default listening on 0.0.0.0:8080
+2018-03-12 22:22:13,311 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) started in 1029ms - Started 71 of 79 services (15 services are lazy, passive or on-demand)
+2018-03-12 22:22:13,672 INFO  [org.wildfly.swarm.runtime.deployer] (main) deploying HelloEndpointTest.war
+2018-03-12 22:22:13,688 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-5) WFLYSRV0027: Starting deployment of "HelloEndpointTest.war" (runtime-name: "HelloEndpointTest.war")
+2018-03-12 22:22:14,152 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-2) WFLYUT0018: Host default-host starting
+2018-03-12 22:22:14,346 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 8) RESTEASY002225: Deploying javax.ws.rs.core.Application: class rest.RestApplication
+2018-03-12 22:22:14,362 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 8) WFLYUT0021: Registered web context: /
+2018-03-12 22:22:14,393 INFO  [org.jboss.as.server] (main) WFLYSRV0010: Deployed "HelloEndpointTest.war" (runtime-name : "HelloEndpointTest.war")
+2018-03-12 22:22:14,393 INFO  [org.wildfly.swarm] (main) WFSWARM99999: WildFly Swarm is Ready
+2018-03-12 22:22:14,645 INFO  [org.jboss.arquillian.testenricher.cdi.container.BeanManagerProducer] (nioEventLoopGroup-3-1) BeanManager not found.
+2018-03-12 22:22:14,692 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-7) WFLYUT0008: Undertow HTTP listener default suspending
+2018-03-12 22:22:14,692 INFO  [stdout] (MSC service thread 1-5) [Server] Requesting shutdown...
+
+2018-03-12 22:22:14,692 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-7) WFLYUT0007: Undertow HTTP listener default stopped, was bound to 0.0.0.0:8080
+2018-03-12 22:22:14,692 INFO  [null] (MSC service thread 1-5) Requesting shutdown...
+2018-03-12 22:22:14,692 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 8) WFLYUT0022: Unregistered web context: /
+2018-03-12 22:22:14,707 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-8) WFLYUT0019: Host default-host stopping
+2018-03-12 22:22:14,707 INFO  [stdout] (MSC service thread 1-5) [Server] Server shutdown.
+
+2018-03-12 22:22:14,707 INFO  [null] (MSC service thread 1-5) Server shutdown.
+2018-03-12 22:22:14,707 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-5) WFLYUT0004: Undertow 1.4.11.Final stopping
+2018-03-12 22:22:14,739 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-2) WFLYSRV0028: Stopped deployment HelloEndpointTest.war (runtime-name: HelloEndpointTest.war) in 57ms
+2018-03-12 22:22:14,754 INFO  [org.jboss.as] (MSC service thread 1-7) WFLYSRV0050: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) stopped in 61ms
+2018-03-12 22:22:14,770 INFO  [org.jboss.weld.Bootstrap] (pool-1-thread-1) WELD-ENV-002001: Weld SE container internal shut down
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.74 sec
+
+Results :
+
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 16.365 s
+[INFO] Finished at: 2018-03-12T22:22:15+01:00
+[INFO] Final Memory: 67M/612M
+[INFO] ------------------------------------------------------------------------
+***SUCCESS*** Build Success
+[dvxuk2]$
+
+/ Einde FORGE DOCS
+
+/ Hoe een echte test te maken? 
+
+/ 7	. 
+
+/ ALEX SOTO
+
+/ lees, 
+https://dzone.com/articles/develop-a-microservice-with-forge-wildfly-swarm-an-1
+/ of kijk,
+https://www.youtube.com/watch?v=9xb6GIZ1gjs
+
+[workspace-jbosstools-jee-oxygen]$ project-new --named  a_soto --top-level-package org.superbiz --type wildfly-swarm
+[a_soto]$  wildfly-swarm-add-fraction --fractions microprofile
+***SUCCESS*** Wildfly Swarm Fractions '[microprofile]' were successfully added to the project descriptor
+
+$ vi pom.xml
+...
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>microprofile</artifactId>
+    </dependency>
+  </dependencies>
+  <dependencyManagement>
+	<dependency>							/ al,	
+	<groupId>org.wildfly.swarm</groupId>
+	<artifactId>bom-all</artifactId>
+	<version>${version.wildfly-swarm}</version>
+	<type>pom</type>
+	<scope>import</scope>
+  </dependency>
+  
+$ vi src/main/java/org/superbiz/rest/HelloWorldEndpoint.java
+...
+/ maar er is GEEN src/main/java/org/superbiz/rest/RestApplication.java zoals bij dvxuk2,
+/ TODO
+/ later wel	,
+/ TODO
+
+
+[a_soto]$  wildfly-swarm-new-test --target-package org.superbiz  --named HelloWorldEndpointTest --as-client
+
+/ we doen ook 	,
+[a_soto]$ wildfly-swarm-new-test --target-package org.superbiz  --named HelloWorldEndpointTest2
+
+/ en met -> verschillen	,
+
+$ vi HelloWorldEndpointTest.java
+
+package org.superbiz;
+
+import org.junit.runner.RunWith;
+import org.jboss.arquillian.junit.Arquillian;
+import org.wildfly.swarm.arquillian.DefaultDeployment;
+import org.jboss.arquillian.test.api.ArquillianResource;	<-
+import java.net.URL;										<-
+import org.junit.Test;
+
+@RunWith(Arquillian.class)
+@DefaultDeployment(testable = false)						<-
+public class HelloWorldEndpointTest {
+
+	@ArquillianResource										<-
+	private URL url;										<-
+
+	@Test
+	public void should_start_service() {
+	}
+}
+
+$ vi HelloWorldEndpointTest2.java
+
+package org.superbiz;
+
+import org.junit.runner.RunWith;
+import org.jboss.arquillian.junit.Arquillian;
+import org.wildfly.swarm.arquillian.DefaultDeployment;
+import org.junit.Test;
+
+@RunWith(Arquillian.class)
+@DefaultDeployment
+public class HelloWorldEndpointTest2 {
+
+	@Test
+	public void should_start_service() {
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/ Omdat de test remote is (hij wordt niet deployed in wildfly-swarm), moeten we een URL inject,
+
+/ Intermezzo
+
+/ Toen we niet met wildfly-swarm , maar wildfly, 
+
+/ we doen vervolgens	,
+[LanguageDaoTest.java]$ arquillian-create-test --targets repository.LanguageDao --enable-jpa
+
+/ als we in forge, en we hadden wildfly-remote als ... container adapters, 
+$ build test
+/ werd de appl war deployed in wildfly ! 
+/ TODO
+
+$ vi LanguageDaoTest.java
+
+package repository;
+
+import repository.LanguageDao;
+
+import javax.inject.Inject;
+
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import domain.Language;
+import static org.junit.Assert.*;
+import static org.hamcrest.core.Is.*;
+
+@RunWith(Arquillian.class)
+public class LanguageDaoTest {
+
+	@Inject
+	private LanguageDao languageDao;
+
+	@Deployment
+	public static JavaArchive createDeployment() {
+		return ShrinkWrap
+				.create(JavaArchive.class)
+				.addClass(LanguageDao.class)
+				.addClass(Language.class)
+				.addAsManifestResource("META-INF/persistence.xml",
+						"persistence.xml")
+				.addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+	}
+
+	@Test
+	public void should_be_deployed() {
+		Assert.assertNotNull(languageDao);
+	}
+}
+/ TODO @AutoDeployment
+
+  
+/ Einde Intermezzo
+
+[a_soto]$ project-add-dependencies io.rest-assured:rest-assured:3.0.7:test
+
+$ vi pom.xml
+
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <dependencyManagement>
+  <dependencies>
+      <dependency>
+        <groupId>io.rest-assured</groupId>
+        <artifactId>rest-assured</artifactId>
+        <version>3.0.7</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+[a_soto]$ build test
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building a_soto 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ a_soto ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ a_soto ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\a_soto\target\classes
+[INFO]
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ a_soto ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 0 resource
+[INFO]
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ a_soto ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\a_soto\target\test-classes
+[INFO]
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ a_soto ---
+[INFO] Surefire report directory: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\a_soto\target\surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.superbiz.HelloWorldEndpointTest
+Resolving 1 out of 538 artifacts
+Tue Mar 13 22:07:07 CET 2018 INFO [org.wildfly.swarm.bootstrap] (main) Dependencies not bundled; resolving from M2REPO.
+2018-03-13 22:07:10,209 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:               Arquillian - STABLE          org.wildfly.swarm:arquillian:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                  Logging - STABLE          org.wildfly.swarm:logging:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:         JAX-RS with JAXB - STABLE          org.wildfly.swarm:jaxrs-jaxb:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:             MicroProfile - STABLE          org.wildfly.swarm:microprofile:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:          Bean Validation - STABLE          org.wildfly.swarm:bean-validation:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:        CDI Configuration - STABLE          org.wildfly.swarm:cdi-config:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                   JAX-RS - STABLE          org.wildfly.swarm:jaxrs:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:       JAX-RS with JSON-P - STABLE          org.wildfly.swarm:jaxrs-jsonp:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:             Transactions - STABLE          org.wildfly.swarm:transactions:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                      CDI - STABLE          org.wildfly.swarm:cdi:2017.8.1
+2018-03-13 22:07:10,225 INFO  [org.wildfly.swarm] (main) WFSWARM0013: Installed fraction:                 Undertow - STABLE          org.wildfly.swarm:undertow:2017.8.1
+2018-03-13 22:07:12,335 INFO  [org.jboss.msc] (main) JBoss MSC version 1.2.6.Final
+2018-03-13 22:07:12,413 INFO  [org.jboss.as] (MSC service thread 1-6) WFLYSRV0049: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) starting
+2018-03-13 22:07:12,465 INFO  [org.wildfly.swarm] (MSC service thread 1-6) WFSWARM0019: Install MSC service for command line args: []
+2018-03-13 22:07:12,948 INFO  [org.wildfly.swarm.arquillian.daemon.server.Server] (MSC service thread 1-7) Arquillian Daemon server started on 127.0.0.1:12345
+2018-03-13 22:07:13,336 WARN  [org.jboss.as.txn] (ServerService Thread Pool -- 15) WFLYTX0013: Node identifier property is set to the default value. Please make sure it is unique.
+2018-03-13 22:07:13,352 INFO  [org.jboss.as.security] (ServerService Thread Pool -- 13) WFLYSEC0002: Activating Security Subsystem
+2018-03-13 22:07:13,352 INFO  [org.jboss.as.naming] (ServerService Thread Pool -- 22) WFLYNAM0001: Activating Naming Subsystem
+2018-03-13 22:07:13,368 INFO  [org.jboss.as.security] (MSC service thread 1-2) WFLYSEC0001: Current PicketBox version=4.9.6.Final
+2018-03-13 22:07:13,385 INFO  [org.wildfly.extension.io] (ServerService Thread Pool -- 21) WFLYIO001: Worker 'default' has auto-configured to 16 core threads with 128 task threads based on your 8 availa
+2018-03-13 22:07:13,435 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0003: Undertow 1.4.11.Final starting
+2018-03-13 22:07:13,451 INFO  [org.jboss.as.naming] (MSC service thread 1-6) WFLYNAM0003: Starting Naming Service
+2018-03-13 22:07:13,485 INFO  [org.xnio] (MSC service thread 1-8) XNIO version 3.4.3.Final
+2018-03-13 22:07:13,500 INFO  [org.xnio.nio] (MSC service thread 1-8) XNIO NIO Implementation Version 3.4.3.Final
+2018-03-13 22:07:13,564 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-1) WFLYUT0012: Started server default-server.
+2018-03-13 22:07:13,702 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-1) WFLYUT0006: Undertow HTTP listener default listening on 0.0.0.0:8080
+2018-03-13 22:07:13,812 INFO  [org.jboss.as] (Controller Boot Thread) WFLYSRV0025: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) started in 1524ms - Started 89 of 99 services (19 services are lazy,
+2018-03-13 22:07:14,133 INFO  [org.wildfly.swarm.runtime.deployer] (main) deploying HelloWorldEndpointTest.war
+2018-03-13 22:07:14,148 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-7) WFLYSRV0027: Starting deployment of "HelloWorldEndpointTest.war" (runtime-name: "HelloWorldEndpointTest.war")
+2018-03-13 22:07:14,380 WARN  [org.jboss.as.dependency.private] (MSC service thread 1-4) WFLYSRV0018: Deployment "deployment.HelloWorldEndpointTest.war" is using a private module ("org.jboss.jts:main")
+2018-03-13 22:07:14,435 INFO  [org.jboss.weld.deployer] (MSC service thread 1-1) WFLYWELD0003: Processing weld deployment HelloWorldEndpointTest.war
+2018-03-13 22:07:14,488 INFO  [org.hibernate.validator.internal.util.Version] (MSC service thread 1-1) HV000001: Hibernate Validator 5.2.4.Final
+2018-03-13 22:07:14,847 INFO  [org.jboss.weld.Version] (MSC service thread 1-6) WELD-000900: 2.3.5 (Final)
+2018-03-13 22:07:14,864 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-4) WFLYUT0018: Host default-host starting
+2018-03-13 22:07:15,380 INFO  [org.jboss.resteasy.resteasy_jaxrs.i18n] (ServerService Thread Pool -- 10) RESTEASY002225: Deploying javax.ws.rs.core.Application: class org.wildfly.swarm.generated.WildFly
+2018-03-13 22:07:15,395 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 10) WFLYUT0021: Registered web context: /
+2018-03-13 22:07:15,426 INFO  [org.jboss.as.server] (main) WFLYSRV0010: Deployed "HelloWorldEndpointTest.war" (runtime-name : "HelloWorldEndpointTest.war")
+2018-03-13 22:07:15,426 INFO  [org.wildfly.swarm] (main) WFSWARM99999: WildFly Swarm is Ready
+2018-03-13 22:07:15,481 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0008: Undertow HTTP listener default suspending
+2018-03-13 22:07:15,483 INFO  [stdout] (MSC service thread 1-1) [Server] Requesting shutdown...
+
+2018-03-13 22:07:15,485 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-6) WFLYUT0007: Undertow HTTP listener default stopped, was bound to 0.0.0.0:8080
+2018-03-13 22:07:15,481 INFO  [null] (MSC service thread 1-1) Requesting shutdown...
+2018-03-13 22:07:15,485 INFO  [org.wildfly.extension.undertow] (ServerService Thread Pool -- 10) WFLYUT0022: Unregistered web context: /
+2018-03-13 22:07:15,502 INFO  [stdout] (MSC service thread 1-1) [Server] Server shutdown.
+
+2018-03-13 22:07:15,502 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-3) WFLYUT0019: Host default-host stopping
+2018-03-13 22:07:15,501 INFO  [null] (MSC service thread 1-1) Server shutdown.
+2018-03-13 22:07:15,502 INFO  [org.wildfly.extension.undertow] (MSC service thread 1-1) WFLYUT0004: Undertow 1.4.11.Final stopping
+2018-03-13 22:07:15,533 INFO  [org.jboss.as.server.deployment] (MSC service thread 1-2) WFLYSRV0028: Stopped deployment HelloWorldEndpointTest.war (runtime-name: HelloWorldEndpointTest.war) in 63ms
+2018-03-13 22:07:15,533 INFO  [org.jboss.as] (MSC service thread 1-5) WFLYSRV0050: WildFly Swarm 2017.8.1 (WildFly Core 2.2.1.Final) stopped in 66ms
+2018-03-13 22:07:15,549 INFO  [org.jboss.weld.Bootstrap] (pool-1-thread-1) WELD-ENV-002001: Weld SE container internal shut down
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.843 sec
+
+Results :
+
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 19.323 s
+[INFO] Finished at: 2018-03-13T22:07:17+01:00
+[INFO] Final Memory: 65M/289M
+[INFO] ------------------------------------------------------------------------
+***SUCCESS*** Build Success
+[a_soto]$
+
+/ Einde ALEX SOTO
+
+/ @DefaultDeployment in dvxuk2, 
+/ @DefaultDeployment is van wildfly-swarm,
+
+/ soap-setup ?
+/ TODO
+
+/ build test starts wildfly-remote in arquillian-forge4	?
+/j,	
+
+
+/ SOAP WEBSERVICE
+
+/ in forge,
+[...]$ soap-setup
+/ TODO Wat doet dit?
+[...]$ soap-new-service --named HelloWorldSoapEndpoint  --target-package soap
+
+$ vi src/main/java/soap/HelloWorldSoapEndpoint.java
+
+package soap;
+
+import javax.jws.WebService;
+
+@WebService
+public class HelloWorldSoapEndpoint {
+}
+
+/ Einde SOAP WEBSERVICE
+ 
+
+
+
+
+
+
+
+
+
+

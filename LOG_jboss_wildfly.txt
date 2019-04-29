@@ -1,0 +1,1453 @@
+
+/ see BEAN-DISCOVERY-MODE
+/ see COPY A QUICKSTART
+/ see WELD-PROBE
+/ see SAMENVATTING DATASOURCES
+/ see JNDI
+/ see INSTALL PARENT POM LOCAL
+
+/ 7	. 
+
+/ google,
+jboss server group
+/ lees,
+https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html/configuration_guide/domain_management
+
+/ google,
+jboss wildfly domain
+/ lees,
+https://docs.jboss.org/author/display/WFLY10/Clustering+and+Domain+Setup+Walkthrough
+http://www.mastertheboss.com/jboss-server/jboss-as-7/jboss-as-7-domain-configuration?start=1
+
+/ 7	. 
+
+/ datasource maken,
+
+/ See LOG_angular20180124.txt, WILDFLY DATASOURCES
+
+/ 13	. 
+
+/ 13	. 
+
+/ SAMENVATTING DATASOURCES
+
+/ datasources,
+
+/ postgres
+
+[standalone@localhost:9990 /] 
+module add --name=org.postgresql --resources=c:\Users\ervelden\postgresql\postgresql-9.4-1202.jdbc42.jar --dependencies=javax.api,javax.transaction.api /subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource)
+xa-data-source add --name=PostgreSQLDS --jndi-name=java:jboss/datasources/PostgreSQLDS --driver-name=postgresql --xa-datasource-properties=[ServerName=localhost,DatabaseName=test,User=eric,Password=vi_lang17]
+
+/ h2
+
+/subsystem=datasources/jdbc-driver=h2:add(driver-name=h2,driver-module-name=com.h2database.h2,driver-xa-datasource-class-name=org.h2.jdbcx.JdbcDataSource)
+xa-data-source add --name=H2DS --jndi-name=java:jboss/datasources/H2DS --driver-name=h2 --xa-datasource-properties=[URL=jdbc:h2:tcp://localhost/~/h2/test] --user-name=sa --password=sa
+
+
+/ Einde SAMENVATTING DATASOURCES
+
+/ 13	. 
+
+/ in jboss-cli zijn er de commands,
+
+[standalone@localhost:9990 /] module add
+[standalone@localhost:9990 /] /subsystem=datasources/jdbc-driver=<resource name>:add
+[standalone@localhost:9990 /] xa-data-source add
+/ dus er is niet zoiets als: jdbc-driver add	,
+/ maar is er alleen	,
+[standalone@localhost:9990 /] jdbc-driver-info <driver-name>
+
+
+/ 13	 .
+
+/ module add,
+
+[standalone@localhost:9990 /] module add --name=foo/bar --resources=c:\Users\ervelden\postgresql\postgresql-9.4-1202.jdbc42.jar --dependencies=javax.api,javax.transaction.api
+
+/ type fout: --name foo/bar moet zijn --name foo.bar
+
+[standalone@localhost:9990 /] module remove --name=foo/bar
+[standalone@localhost:9990 /] module add --name=foo.bar --resources=c:\Users\ervelden\postgresql\postgresql-9.4-1202.jdbc42.jar --dependencies=javax.api,javax.transaction.api
+
+
+/ we zien	,
+ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
+$ ls modules/foo/bar/main/
+module.xml                      postgresql-9.4-1202.jdbc42.jar
+
+$ vi module.xml
+
+<?xml version='1.0' encoding='IBM1252'?>
+
+<module xmlns="urn:jboss:module:1.1" name="foo.bar">
+
+
+    <resources>
+        <resource-root path="postgresql-9.4-1202.jdbc42.jar"/>
+    </resources>
+
+    <dependencies>
+        <module name="javax.api"/>
+        <module name="javax.transaction.api"/>
+    </dependencies>
+</module>
+
+
+/ er waren al	,
+ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
+$ ls modules/system/layers/base/
+asm/    ch/     com/    gnu/    ibm/    io/     javaee/ javax/  net/    nu/     org/    sun/
+/ bijv	,
+$ jar tvf modules/system/layers/base/org/jboss/as/ejb3/main/wildfly-ejb3-10.1.0.Final.jar
+
+/ maar eerder hadden we gemaakt	, 
+$  ls modules/com/
+postgresql/
+/ en nu 
+$ ls modules/foo/
+bar
+
+/ dus modules/com is postgresql de enigste	, die hebben we net zo gemaakt vroeger als nu modules/foo met daarin bar/,
+
+
+/ 13	. 
+
+/ driver maken	,
+
+standalone@localhost:9990 /] /subsystem=datasources/jdbc-driver=me:add(driver-name=you,driver-module-name=foo.bar,driver-xa-datasource-class-name=first.second.X
+{
+    "outcome" => "failed",
+    "failure-description" => "WFLYJCA0015: the attribute driver-name (you) cannot be different from driver resource name (me)",
+    "rolled-back" => true
+}
+
+/ als je doet,
+[standalone@localhost:9990 /]  /subsystem=datasources/jdbc-driver=postgresql:read-resource(recursive=true)
+                                                                     ^^^^
+																	 resource name
+{
+    "outcome" => "success",
+    "result" => {
+        "deployment-name" => undefined,
+        "driver-class-name" => undefined,
+        "driver-datasource-class-name" => undefined,
+        "driver-major-version" => undefined,
+        "driver-minor-version" => undefined,
+        "driver-module-name" => "com.postgresql",
+        "driver-name" => "postgresql",
+        "driver-xa-datasource-class-name" => "org.postgresql.xa.PGXADataSource",
+        "jdbc-compliant" => undefined,
+        "module-slot" => undefined,
+        "profile" => undefined,
+        "xa-datasource-class" => undefined
+    }
+}
+
+/ wat voor :read-resource, of :add	, is de resource name, 
+/ die moet gelijk zijn aan de driver name, blijkbaar	,
+
+[standalone@localhost:9990 /] /subsystem=datasources/jdbc-driver=me:add(driver-name=me,driver-module-name=foo.bar,driver-xa-datasource-class-name=first.second.X)
+{"outcome" => "success"}
+
+/ first.second.X bestaat helemaal niet	, 
+
+$ vi standalone.xml
+
+        <subsystem xmlns="urn:jboss:domain:datasources:4.0">
+            <datasources>
+                <drivers>
+					...
+                    <driver name="postgresql" module="com.postgresql">
+                        <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
+                    </driver>
+                    <driver name="me" module="foo.bar">
+                        <xa-datasource-class>first.second.X</xa-datasource-class>
+                    </driver>
+                </drivers>
+            </datasources>
+        </subsystem>
+		
+/ 13	. 
+
+/ we zien verschillende manieren om een ds te maken,
+
+$ vi standalone.xml
+
+        <subsystem xmlns="urn:jboss:domain:datasources:4.0">
+            <datasources>
+                <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" enabled
+="true" use-java-context="true">
+                    <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</connect
+ion-url>
+                    <driver>h2</driver>
+                    <security>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                    </security>
+                </datasource>
+                <xa-datasource jndi-name="java:jboss/datasources/PostgreSQLDS" pool-name="PostgreSQLDS
+" spy="true">
+                    <xa-datasource-property name="ServerName">
+                        localhost
+                    </xa-datasource-property>
+                    <xa-datasource-property name="DatabaseName">
+                        test
+                    </xa-datasource-property>
+                    <xa-datasource-property name="User">
+                        eric
+                    </xa-datasource-property>
+                    <xa-datasource-property name="Password">
+                        vi_lang17
+                    </xa-datasource-property>
+                    <driver>postgresql</driver>
+                </xa-datasource>
+                <xa-datasource jndi-name="java:jboss/datasources/RemoteExampleDS" pool-name="RemoteExampleDS" spy="true">
+                    <xa-datasource-property name="URL">
+                        jdbc:h2:tcp://localhost/~/h2/test
+                    </xa-datasource-property>
+                    <driver>h2</driver>
+                    <security>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                    </security>
+                </xa-datasource>
+
+/ lees over jdbc driver urls,
+https://jdbc.postgresql.org/documentation/head/connect.html
+
+[standalone@localhost:9990 /] xa-data-source add --name=pg --jndi-name=java:jboss/pg --driver-name=me --xa-datasource-properties=[URL=jdbc:postgresql:test?user=eric]
+[standalone@localhost:9990 /] xa-data-source test-connection-in-pool --name=pg
+WFLYJCA0040: failed to invoke operation: WFLYJCA0047: Connection is not valid
+
+[standalone@localhost:9990 /] xa-data-source remove --name=pg
+operation-requires-reload: true
+process-state:             reload-required
+[standalone@localhost:9990 /] reload
+{
+    "outcome" => "success",
+    "result" => undefined
+}
+[standalone@localhost:9990 /] xa-data-source add --name=pg --jndi-name=java:jboss/pg --driver-name=me --xa-datasource-properties=[URL=jdbc:postgresql://localhost/test?user=eric&password=vi_lang17]
+/ ERR
+
+xa-data-source add --name=pg --jndi-name=java:jboss/pg --driver-name=me --xa-datasource-properties=[ServerName=localhost,DatabaseName=test,User=eric,Password=vi_lang17]
+/ OK,
+
+xa-data-source add --name=pg --jndi-name=java:jboss/pg  --user-name=eric --password=vi_lang17 --url-property=jdbc.postgresql:test
+/ ERR, 
+/ er moet een xa-datasource-property zijn,
+
+[standalone@localhost:9990 /] xa-data-source add --name=pg --jndi-name=java:jboss/pg --driver-name=me --user-name=eric --password=vi_lang17 --xa-datasource-properties=[URL=jdbc:postgresql:test]
+/ ERR
+
+
+subsystem=datasources/jdbc-driver=h2:add(driver-name=h2,driver-module-name=com.h2database.h2,driver-xa-datasource-class-name=org.h2.jdbcx.JdbcDataSource)
+xa-data-source add --name=H2DS --jndi-name=java:jboss/datasources/H2DS --driver-name=h2 --xa-datasource-properties=[URL=jdbc:h2:tcp://localhost/~/h2/test;user=sa;password=sa]
+/ ERR
+
+/ 13	. 
+
+/ aanpassen ds,
+
+[standalone@localhost:9990 /] /subsystem=datasources/xa-data-source=H2DS:write-attribute(name=user-name,value=sa)
+{
+    "outcome" => "success",
+    "response-headers" => {
+        "operation-requires-reload" => true,
+        "process-state" => "reload-required"
+    }
+}
+
+/ 13	. 
+
+/ oefen met ds,
+
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/6/html/administration_and_configuration_guide/example_postgresql_xa_datasource
+
+
+/ postgres
+
+[standalone@localhost:9990 /] 
+module add --name=org.postgresql --resources=c:\Users\ervelden\postgresql\postgresql-9.4-1202.jdbc42.jar --dependencies=javax.api,javax.transaction.api /subsystem=datasources/jdbc-driver=postgresql:add(driver-name=postgresql,driver-module-name=org.postgresql,driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource)
+xa-data-source add --name=PostgreSQLDS --jndi-name=java:jboss/datasources/PostgreSQLDS --driver-name=postgresql --xa-datasource-properties=[ServerName=localhost,DatabaseName=test,User=eric,Password=vi_lang17]
+
+/ h2
+
+/subsystem=datasources/jdbc-driver=h2:add(driver-name=h2,driver-module-name=com.h2database.h2,driver-xa-datasource-class-name=org.h2.jdbcx.JdbcDataSource)
+xa-data-source add --name=H2DS --jndi-name=java:jboss/datasources/H2DS --driver-name=h2 --xa-datasource-properties=[URL=jdbc:h2:tcp://localhost/~/h2/test] --user-name=sa --password=sa
+
+xa-data-source add --name=H2DS --jndi-name=java:jboss/datasources/H2DS --driver-name=h2 --xa-datasource-properties=[ServerName=localhost,DatabaseName=~/h2/test,User=sa,Password=sa]
+/ ERR
+
+
+
+/ 13	. 
+
+/ BEAN-DISCOVERY-MODE
+
+/ stel bean-discovery-mode="annotated"
+
+/ Als Resources geen annotatie heeft, dan deployes greeter niet, 
+/ als Resources @Dependent heeft, deployes greeter WEL,
+
+/ als bean-discovery-mode="all", en Resources heeft geen annotatie, dan deploys greeter wel, en in weld-probe zien we dat hij @Dependent heeft,
+/ dus dat is wat er gebeurt: als bean-discovery-mode="all", zet hij er de @Dependent op!
+
+/ Einde BEAN-DISCOVERY-MODE
+
+/ COPY A QUICKSTART
+
+/ bijv greeter hebben copied naar abc-greeter in de workspace	, moet ook niet in git,
+
+/ de parent quickstart-parent werkt in abc-greeter, want als in locale repo, dan OK, anders zal hij hem eerst download; het gaat dus niet via het fs direct of zoiets, altijd via de repo,
+	
+
+
+/ Einde COPY A QUICKSTART
+
+/ WELD-PROBE
+
+$ vi weld.xml
+
+    <context-param>
+
+        <param-name>org.jboss.weld.development</param-name>
+
+        <param-value>true</param-value>
+
+    </context-param>
+
+
+/ Einde WELD-PROBE
+
+/ INSTALL PARENT POM LOCAL
+
+/ we hebben greeter in d/Users/ervelden/git_codebase/quickstart copied in eclipse, deze abc-greeter komt terecht in de workspace-wildfly-quickstart,
+/ in greeter vindt mvn de parent pom op het fs, WH dient daar 
+    <parent>
+        <groupId>org.wildfly.quickstarts</groupId>
+        <artifactId>quickstart-parent</artifactId>
+        <version>16.0.0.Final</version>
+        <relativePath>../pom.xml</relativePath>				/ !
+    </parent>	
+	
+/ Maar abc-greeter zal het via de local repo of mvn central moeten doen	,
+
+/ lees,
+https://maven.apache.org/guides/mini/guide-3rd-party-jars-local.html
+
+/ we install de pom van quickstart-parent locally:
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart (16.x)
+$ mvn install:install-file -Dfile=pom.xml -DgroupId=org.wildfly.quickstarts -DartifactId=quickstart-parent -Dpackaging=pom -Dversion=16.0.0.Final
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO]
+[INFO] Quickstart: Parent
+[INFO] Quickstart: app-client
+[INFO] Quickstart: app-client - ejb
+[INFO] Quickstart: app-client - client-simple
+[INFO] Quickstart: app-client - ear
+[INFO] Quickstart: batch-processing
+[INFO] Quickstart: bean-validation
+[INFO] Quickstart: bean-validation-custom-constraint
+[INFO] Quickstart: bmt
+[INFO] Quickstart: cmt
+[INFO] Quickstart: contacts-jquerymobile
+[INFO] Quickstart: deltaspike-authorization
+[INFO] Quickstart: deltaspike-beanbuilder
+[INFO] Quickstart: deltaspike-projectstage
+[INFO] Quickstart: ee-security
+[INFO] Quickstart: ejb-asynchronous
+[INFO] Quickstart: ejb-asynchronous - ejb
+[INFO] Quickstart: ejb-asynchronous - client
+[INFO] Quickstart: ejb-in-ear
+[INFO] Quickstart: ejb-in-ear - ejb
+[INFO] Quickstart: ejb-in-ear - web
+[INFO] Quickstart: ejb-in-ear - ear
+[INFO] Quickstart: ejb-in-war
+[INFO] Quickstart: ejb-multi-server
+[INFO] Quickstart: ejb-multi-server - app-one
+[INFO] Quickstart: ejb-multi-server - app-one - ejb
+[INFO] Quickstart: ejb-multi-server - app-one - ear
+[INFO] Quickstart: ejb-multi-server - app-two
+[INFO] Quickstart: ejb-multi-server - app-two - ejb
+[INFO] Quickstart: ejb-multi-server - app-two - ear
+[INFO] Quickstart: ejb-multi-server - app-main
+[INFO] Quickstart: ejb-multi-server - app-main - ejb
+[INFO] Quickstart: ejb-multi-server - app-main - web
+[INFO] Quickstart: ejb-multi-server - app-main - ear
+[INFO] Quickstart: ejb-multi-server - app-web
+[INFO] Quickstart: ejb-multi-server - client
+[INFO] Quickstart: ejb-security
+[INFO] Quickstart: ejb-security-context-propagation
+[INFO] Quickstart: ejb-security-jaas
+[INFO] Quickstart: ejb-security-programmatic-auth
+[INFO] Quickstart: ejb-throws-exception
+[INFO] Quickstart: ejb-throws-exception - ejb-api
+[INFO] Quickstart: ejb-throws-exception - ejb
+[INFO] Quickstart: ejb-throws-exception - web
+[INFO] Quickstart: ejb-throws-exception - ear
+[INFO] Quickstart: ejb-timer
+[INFO] Quickstart: greeter
+[INFO] Quickstart: HA Singleton Deployment
+[INFO] Quickstart: HA Singleton Service (parent)
+[INFO] Quickstart: HA Singleton Service - primary-only
+[INFO] Quickstart: HA Singleton Service - with backups
+[INFO] Quickstart: helloworld
+[INFO] Quickstart: Hello World ClassFileTransformers
+[INFO] Quickstart: helloworld-html5
+[INFO] Quickstart: helloworld-jms
+[INFO] Quickstart: helloworld-mbean
+[INFO] Quickstart: helloworld-mbean - helloworld-mbean-webapp
+[INFO] Quickstart: helloworld-mbean - helloworld-mbean-service
+[INFO] Quickstart: helloworld-mdb
+[INFO] Quickstart: helloworld-mdb-propertysubstitution
+[INFO] Quickstart: helloworld-mutual-ssl
+[INFO] Quickstart: helloworld-mutual-ssl-secured
+[INFO] Quickstart: helloworld-rf
+[INFO] Quickstart: helloworld-rs
+[INFO] Quickstart: helloworld-singleton
+[INFO] Quickstart: helloworld-ssl
+[INFO] Quickstart: helloworld-ws
+[INFO] Quickstart: hibernate4
+[INFO] Quickstart: hibernate
+[INFO] Quickstart: http-custom-mechanism
+[INFO] Quickstart: http-custom-mechanism - webapp
+[INFO] Quickstart: inter-app
+[INFO] Quickstart: inter-app - shared
+[INFO] Quickstart: inter-app - appA
+[INFO] Quickstart: inter-app - appB
+[INFO] Quickstart: jaxrs-client
+[INFO] Quickstart: jaxrs-jwt
+[INFO] Quickstart: jaxrs-jwt - client
+[INFO] Quickstart: jaxrs-jwt - service
+[INFO] Quickstart: jaxws-addressing
+[INFO] Quickstart: jaxws-addressing - service
+[INFO] Quickstart: jaxws-addressing - client
+[INFO] Quickstart: jaxws-ejb
+[INFO] Quickstart: jaxws-ejb - service
+[INFO] Quickstart: jaxws-ejb - client
+[INFO] Quickstart: jaxws-pojo
+[INFO] Quickstart: jaxws-pojo - service
+[INFO] Quickstart: jaxws-pojo - client
+[INFO] Quickstart: jaxws-retail
+[INFO] Quickstart: jaxws-retail - service
+[INFO] Quickstart: jaxws-retail - client
+[INFO] Quickstart: jsonp
+[INFO] Quickstart: kitchensink
+[INFO] Quickstart: kitchensink-angularjs
+[INFO] Quickstart: kitchensink-ear
+[INFO] Quickstart: kitchensink-ear - ejb
+[INFO] Quickstart: kitchensink-ear - web
+[INFO] Quickstart: kitchensink-ear - ear
+[INFO] Quickstart: kitchensink-jsp
+[INFO] Quickstart: kitchensink-ml
+[INFO] Quickstart: Kitchensink with Undertow.JS and AngularJS
+[INFO] Quickstart: Kitchensink with Undertow.JS and Mustach
+[INFO] Quickstart: logging
+[INFO] Quickstart: logging-tools
+[INFO] Quickstart: mail
+[INFO] Quickstart: managed-executor-service
+[INFO] Quickstart: messaging-clustering-singleton
+[INFO] Quickstart: numberguess
+[INFO] Quickstart: payment-cdi-event
+[INFO] Quickstart: resteasy-jaxrs-client
+[INFO] Quickstart: security-domain-to-domain
+[INFO] Quickstart: security-domain-to-domain - ejb
+[INFO] Quickstart: security-domain-to-domain - web
+[INFO] Quickstart: security-domain-to-domain - ear
+[INFO] Quickstart: servlet-async
+[INFO] Quickstart: servlet-filterlistener
+[INFO] Quickstart: servlet-security
+[INFO] Quickstart: shopping-cart
+[INFO] Quickstart: shopping-cart - server
+[INFO] Quickstart: shopping-cart - client
+[INFO] Quickstart: spring-greeter
+[INFO] Quickstart: spring-kitchensink-basic
+[INFO] Quickstart: spring-kitchensink-springmvctest
+[INFO] Quickstart: spring-resteasy
+[INFO] Quickstart: tasks-jsf
+[INFO] Quickstart: tasks-rs
+[INFO] Quickstart: temperature-converter
+[INFO] Quickstart: thread-racing
+[INFO] Quickstart: websocket-client
+[INFO] Quickstart: websocket-endpoint
+[INFO] Quickstart: websocket-hello
+[INFO] Quickstart: wicket-ear
+[INFO] Quickstart: wicket-ear - ejb
+[INFO] Quickstart: wicket-ear - war
+[INFO] Quickstart: wicket-ear - ear
+[INFO] Quickstart: wicket-war
+[INFO] Quickstart: xml-jaxp
+[INFO] Quickstart: jts
+[INFO] Quickstart: jts - application-component-2
+[INFO] Quickstart: jts - application-component-1
+[INFO] Quickstart: ejb-remote
+[INFO] Quickstart: ejb-remote - server-side
+[INFO] Quickstart: ejb-remote - client
+[INFO] Quickstart: jta-crash-rec
+[INFO] Quickstart: wsat-simple
+[INFO] Quickstart: wsba-coordinator-completion-simple
+[INFO] Quickstart: wsba-participant-completion-simple
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Quickstart: Parent 16.0.0.Final
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-install-plugin:2.5.2:install-file (default-cli) @ quickstart-parent ---
+[INFO] Installing D:\Users\ervelden\git_codebase\quickstart\pom.xml to C:\Users\ervelden\.m2\repository\org\wildfly\quickstarts\quickstart-parent\16.0.0.Final\quickstart-parent-16.0.0.Final.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO]
+[INFO] Quickstart: Parent ................................. SUCCESS [  0.143 s]
+[INFO] Quickstart: app-client ............................. SKIPPED
+[INFO] Quickstart: app-client - ejb ....................... SKIPPED
+[INFO] Quickstart: app-client - client-simple ............. SKIPPED
+[INFO] Quickstart: app-client - ear ....................... SKIPPED
+[INFO] Quickstart: batch-processing ....................... SKIPPED
+[INFO] Quickstart: bean-validation ........................ SKIPPED
+[INFO] Quickstart: bean-validation-custom-constraint ...... SKIPPED
+[INFO] Quickstart: bmt .................................... SKIPPED
+[INFO] Quickstart: cmt .................................... SKIPPED
+[INFO] Quickstart: contacts-jquerymobile .................. SKIPPED
+[INFO] Quickstart: deltaspike-authorization ............... SKIPPED
+[INFO] Quickstart: deltaspike-beanbuilder ................. SKIPPED
+[INFO] Quickstart: deltaspike-projectstage ................ SKIPPED
+[INFO] Quickstart: ee-security ............................ SKIPPED
+[INFO] Quickstart: ejb-asynchronous ....................... SKIPPED
+[INFO] Quickstart: ejb-asynchronous - ejb ................. SKIPPED
+[INFO] Quickstart: ejb-asynchronous - client .............. SKIPPED
+[INFO] Quickstart: ejb-in-ear ............................. SKIPPED
+[INFO] Quickstart: ejb-in-ear - ejb ....................... SKIPPED
+[INFO] Quickstart: ejb-in-ear - web ....................... SKIPPED
+[INFO] Quickstart: ejb-in-ear - ear ....................... SKIPPED
+[INFO] Quickstart: ejb-in-war ............................. SKIPPED
+[INFO] Quickstart: ejb-multi-server ....................... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-one ............. SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-one - ejb ....... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-one - ear ....... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-two ............. SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-two - ejb ....... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-two - ear ....... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-main ............ SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-main - ejb ...... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-main - web ...... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-main - ear ...... SKIPPED
+[INFO] Quickstart: ejb-multi-server - app-web ............. SKIPPED
+[INFO] Quickstart: ejb-multi-server - client .............. SKIPPED
+[INFO] Quickstart: ejb-security ........................... SKIPPED
+[INFO] Quickstart: ejb-security-context-propagation ....... SKIPPED
+[INFO] Quickstart: ejb-security-jaas ...................... SKIPPED
+[INFO] Quickstart: ejb-security-programmatic-auth ......... SKIPPED
+[INFO] Quickstart: ejb-throws-exception ................... SKIPPED
+[INFO] Quickstart: ejb-throws-exception - ejb-api ......... SKIPPED
+[INFO] Quickstart: ejb-throws-exception - ejb ............. SKIPPED
+[INFO] Quickstart: ejb-throws-exception - web ............. SKIPPED
+[INFO] Quickstart: ejb-throws-exception - ear ............. SKIPPED
+[INFO] Quickstart: ejb-timer .............................. SKIPPED
+[INFO] Quickstart: greeter ................................ SKIPPED
+[INFO] Quickstart: HA Singleton Deployment ................ SKIPPED
+[INFO] Quickstart: HA Singleton Service (parent) .......... SKIPPED
+[INFO] Quickstart: HA Singleton Service - primary-only .... SKIPPED
+[INFO] Quickstart: HA Singleton Service - with backups .... SKIPPED
+[INFO] Quickstart: helloworld ............................. SKIPPED
+[INFO] Quickstart: Hello World ClassFileTransformers ...... SKIPPED
+[INFO] Quickstart: helloworld-html5 ....................... SKIPPED
+[INFO] Quickstart: helloworld-jms ......................... SKIPPED
+[INFO] Quickstart: helloworld-mbean ....................... SKIPPED
+[INFO] Quickstart: helloworld-mbean - helloworld-mbean-webapp SKIPPED
+[INFO] Quickstart: helloworld-mbean - helloworld-mbean-service SKIPPED
+[INFO] Quickstart: helloworld-mdb ......................... SKIPPED
+[INFO] Quickstart: helloworld-mdb-propertysubstitution .... SKIPPED
+[INFO] Quickstart: helloworld-mutual-ssl .................. SKIPPED
+[INFO] Quickstart: helloworld-mutual-ssl-secured .......... SKIPPED
+[INFO] Quickstart: helloworld-rf .......................... SKIPPED
+[INFO] Quickstart: helloworld-rs .......................... SKIPPED
+[INFO] Quickstart: helloworld-singleton ................... SKIPPED
+[INFO] Quickstart: helloworld-ssl ......................... SKIPPED
+[INFO] Quickstart: helloworld-ws .......................... SKIPPED
+[INFO] Quickstart: hibernate4 ............................. SKIPPED
+[INFO] Quickstart: hibernate .............................. SKIPPED
+[INFO] Quickstart: http-custom-mechanism .................. SKIPPED
+[INFO] Quickstart: http-custom-mechanism - webapp ......... SKIPPED
+[INFO] Quickstart: inter-app .............................. SKIPPED
+[INFO] Quickstart: inter-app - shared ..................... SKIPPED
+[INFO] Quickstart: inter-app - appA ....................... SKIPPED
+[INFO] Quickstart: inter-app - appB ....................... SKIPPED
+[INFO] Quickstart: jaxrs-client ........................... SKIPPED
+[INFO] Quickstart: jaxrs-jwt .............................. SKIPPED
+[INFO] Quickstart: jaxrs-jwt - client ..................... SKIPPED
+[INFO] Quickstart: jaxrs-jwt - service .................... SKIPPED
+[INFO] Quickstart: jaxws-addressing ....................... SKIPPED
+[INFO] Quickstart: jaxws-addressing - service ............. SKIPPED
+[INFO] Quickstart: jaxws-addressing - client .............. SKIPPED
+[INFO] Quickstart: jaxws-ejb .............................. SKIPPED
+[INFO] Quickstart: jaxws-ejb - service .................... SKIPPED
+[INFO] Quickstart: jaxws-ejb - client ..................... SKIPPED
+[INFO] Quickstart: jaxws-pojo ............................. SKIPPED
+[INFO] Quickstart: jaxws-pojo - service ................... SKIPPED
+[INFO] Quickstart: jaxws-pojo - client .................... SKIPPED
+[INFO] Quickstart: jaxws-retail ........................... SKIPPED
+[INFO] Quickstart: jaxws-retail - service ................. SKIPPED
+[INFO] Quickstart: jaxws-retail - client .................. SKIPPED
+[INFO] Quickstart: jsonp .................................. SKIPPED
+[INFO] Quickstart: kitchensink ............................ SKIPPED
+[INFO] Quickstart: kitchensink-angularjs .................. SKIPPED
+[INFO] Quickstart: kitchensink-ear ........................ SKIPPED
+[INFO] Quickstart: kitchensink-ear - ejb .................. SKIPPED
+[INFO] Quickstart: kitchensink-ear - web .................. SKIPPED
+[INFO] Quickstart: kitchensink-ear - ear .................. SKIPPED
+[INFO] Quickstart: kitchensink-jsp ........................ SKIPPED
+[INFO] Quickstart: kitchensink-ml ......................... SKIPPED
+[INFO] Quickstart: Kitchensink with Undertow.JS and AngularJS SKIPPED
+[INFO] Quickstart: Kitchensink with Undertow.JS and Mustach SKIPPED
+[INFO] Quickstart: logging ................................ SKIPPED
+[INFO] Quickstart: logging-tools .......................... SKIPPED
+[INFO] Quickstart: mail ................................... SKIPPED
+[INFO] Quickstart: managed-executor-service ............... SKIPPED
+[INFO] Quickstart: messaging-clustering-singleton ......... SKIPPED
+[INFO] Quickstart: numberguess ............................ SKIPPED
+[INFO] Quickstart: payment-cdi-event ...................... SKIPPED
+[INFO] Quickstart: resteasy-jaxrs-client .................. SKIPPED
+[INFO] Quickstart: security-domain-to-domain .............. SKIPPED
+[INFO] Quickstart: security-domain-to-domain - ejb ........ SKIPPED
+[INFO] Quickstart: security-domain-to-domain - web ........ SKIPPED
+[INFO] Quickstart: security-domain-to-domain - ear ........ SKIPPED
+[INFO] Quickstart: servlet-async .......................... SKIPPED
+[INFO] Quickstart: servlet-filterlistener ................. SKIPPED
+[INFO] Quickstart: servlet-security ....................... SKIPPED
+[INFO] Quickstart: shopping-cart .......................... SKIPPED
+[INFO] Quickstart: shopping-cart - server ................. SKIPPED
+[INFO] Quickstart: shopping-cart - client ................. SKIPPED
+[INFO] Quickstart: spring-greeter ......................... SKIPPED
+[INFO] Quickstart: spring-kitchensink-basic ............... SKIPPED
+[INFO] Quickstart: spring-kitchensink-springmvctest ....... SKIPPED
+[INFO] Quickstart: spring-resteasy ........................ SKIPPED
+[INFO] Quickstart: tasks-jsf .............................. SKIPPED
+[INFO] Quickstart: tasks-rs ............................... SKIPPED
+[INFO] Quickstart: temperature-converter .................. SKIPPED
+[INFO] Quickstart: thread-racing .......................... SKIPPED
+[INFO] Quickstart: websocket-client ....................... SKIPPED
+[INFO] Quickstart: websocket-endpoint ..................... SKIPPED
+[INFO] Quickstart: websocket-hello ........................ SKIPPED
+[INFO] Quickstart: wicket-ear ............................. SKIPPED
+[INFO] Quickstart: wicket-ear - ejb ....................... SKIPPED
+[INFO] Quickstart: wicket-ear - war ....................... SKIPPED
+[INFO] Quickstart: wicket-ear - ear ....................... SKIPPED
+[INFO] Quickstart: wicket-war ............................. SKIPPED
+[INFO] Quickstart: xml-jaxp ............................... SKIPPED
+[INFO] Quickstart: jts .................................... SKIPPED
+[INFO] Quickstart: jts - application-component-2 .......... SKIPPED
+[INFO] Quickstart: jts - application-component-1 .......... SKIPPED
+[INFO] Quickstart: ejb-remote ............................. SKIPPED
+[INFO] Quickstart: ejb-remote - server-side ............... SKIPPED
+[INFO] Quickstart: ejb-remote - client .................... SKIPPED
+[INFO] Quickstart: jta-crash-rec .......................... SKIPPED
+[INFO] Quickstart: wsat-simple ............................ SKIPPED
+[INFO] Quickstart: wsba-coordinator-completion-simple ..... SKIPPED
+[INFO] Quickstart: wsba-participant-completion-simple ..... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.155 s
+[INFO] Finished at: 2019-03-11T21:15:48+01:00
+[INFO] Final Memory: 60M/266M
+[INFO] ------------------------------------------------------------------------
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart (16.x)
+$ ls /c/Users/ervelden/.m2/repository/org/wildfly/quickstarts/quickstart-parent/16.0.0.Final/
+_remote.repositories  quickstart-parent-16.0.0.Final.pom  quickstart-parent-16.0.0.Final.pom.lastUpdated
+
+/ Nu kunnen we in eclipse in abc-greeter: mvn clean package
+
+
+
+/ Einde INSTALL PARENT POM LOCAL
+
+/ 13	. 
+
+/ eclipse /c/Users/ervelden/eclipse/jbosstools-jee-oxygen
+/ ws /d/Users/ervelden/workspaces/workspace-wildfly-quickstart/
+
+/ we hebben om de parent pom local in de repo te krijgen,
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart (16.x)
+$ mvn install:install-file -Dfile=pom.xml -DgroupId=org.wildfly.quickstarts -DartifactId=quickstart-parent -Dpackaging=pom -Dversion=16.0.0.Final
+
+/ we hebben in eclipse greeter copy naar abc-greeter, die dus in de workspace is,
+/ omdat de parent pom in de local repo is, kunnen we abc-greeter mvn clean package,
+
+/ we hebben start,	 
+/d/User/ervelden/bin/wildfly-16.0.0.Final, 
+/ en de jboss-cli,
+
+/ deploy abc-greeter,
+/ abc-greeter.war is niet in /d/Users/ervelden/git_codebase/quickstart, 
+/ upload: /d/Users/ervelden/workspaces/workspace-wildfly-quickstart/abc-greeter/target/abc-greeter.war
+
+
+/ 13	. 
+
+/ lees,
+https://stackoverflow.com/questions/438146/what-are-the-possible-values-of-the-hibernate-hbm2ddl-auto-configuration-and-wh
+
+I dedicated a blog post for the most common Hibernate DDL generation strategies:
+
+The hibernate.hbm2ddl.auto="update" is convenient but less flexible if you plan on adding functions or executing some custom scripts.
+The most flexible approach is to use Flyway.
+However, even if you use Flyway, you can still generate the initial migration script using hbm2ddl. In this article, you can see how you can combine the JPA Entity Model with jOOQ Table Model.
+
+/ we use: hibernate.hbm2ddl.auto=create, na iedere deployment vinden we de tabel users zo terug	,
+test=> select*from users;
+ id | firstname |  lastname  | username
+----+-----------+------------+----------
+ -1 | John      | Doe        | jdoe
+ -2 | Erika     | Mustermann | emuster
+(2 rows)
+
+
+$ vi persistence.xml
+
+    <persistence-unit name="pg">
+     <jta-data-source>java:jboss/datasources/PostgreSQLDS</jta-data-source>
+       <properties>
+         <property name="hibernate.hbm2ddl.auto" value="create"/>
+       </properties>
+    </persistence-unit>
+</persistence>
+
+/ 13	. 
+
+/ google,
+spring beans singletons?
+/ lees,
+https://stackoverflow.com/questions/31629993/is-spring-default-scope-singleton-or-not
+
+/ 13	. 
+
+/ beans with different names,
+
+/ google,
+spring difference between id and name
+/ lees,
+https://stackoverflow.com/questions/874505/difference-between-using-bean-id-and-name-in-spring-configuration-file
+
+Since Spring 3.1 the id attribute is an xsd:string and permits the same range of characters as the name attribute.
+
+The only difference between an id and a name is that a name can contain multiple aliases separated by a comma, semicolon or whitespace, whereas an id must be a single value.
+
+/ dus je kunt 2 beans maken,
+
+@Bean(name="foo")
+public I getI(){
+	return new X();
+}
+@Bean(name="bar")
+public I getI(){
+	return new X();
+}
+
+/ 1313	. 
+
+/ hoe zit het met @Component	?
+
+/ lees,
+https://stackoverflow.com/questions/41025627/how-can-i-name-a-service-with-multiple-names-in-spring
+
+@Service("Service-A")
+public class SampleService {
+    public String doSomething() { return "Foo"; }
+}
+
+@Configuration
+public class SampleConfig {
+
+    @Bean(name = {"Service-B", "Service-C"})
+    public SampleService createMirroredService(@Autowired SampleService service) {
+        return service;
+    }
+}
+And now you have three instances of SampleService: Service-A (your @Service), Service-B, and Service-C. 
+
+/ TODO (Oefen hiermee)
+
+/ 13	. 
+
+/ workspace-wildfly-quickstart
+/ proj abc-spring-greeter
+
+@Service
+public class UserDaoImpl implements UserDao {
+
+    @Autowired
+    private EntityManager entityManager;
+	
+	@Transactional
+    public User getForUsername(String username) {
+        ...
+    }
+...
+
+/ Dit is hetzelfde als een @Stateful session bean,
+
+$ vi EJBUserDao.java
+
+@Stateful
+@Alternative
+public class EJBUserDao implements UserDao {
+
+    @Inject
+    private EntityManager entityManager;
+
+    @Override
+    public User getForUsername(String username) {
+       ...
+    }
+	
+/ 13	. 
+
+/ als je een war wilt maken,
+https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/web/servlet/support/SpringBootServletInitializer.html
+/ TODO 
+/ parent,
+https://docs.spring.io/spring-framework/docs/5.1.5.RELEASE/javadoc-api/org/springframework/web/WebApplicationInitializer.html?is-external=true
+
+
+
+
+/ JNDI 
+
+/ 13	 .
+
+/ kijk in spring-kitchensink-basic, 
+
+/ google, 
+jee:jndi
+/ lees,
+https://stackoverflow.com/questions/9183321/how-to-use-jndi-datasource-provided-by-tomcat-in-spring
+https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/html/xsd-config.html
+https://www.javacodegeeks.com/2015/05/configuration-over-jndi-in-spring-framework.html
+https://www.ibm.com/support/knowledgecenter/en/SSAW57_9.0.0/com.ibm.websphere.nd.multiplatform.doc/ae/tspr_config_data_access.html
+
+/ boek Walls4 (288)
+/ met <jee:jndi ...> zoek je een jndi entry op en wordt meteen als een bean create,
+/ dit is de xml manier, maar het kan ook met 
+@Bean
+public JndiObjectFactoryBean  dataSource(){
+	...
+
+/ 1313	. 
+
+$ vi infrastructure.xml
+
+    <!-- JDNI name for EntityManagerFactory is defined in src/main/resources/META-INF/persistence.xml -->			/ 1
+    <jee:jndi-lookup jndi-name="java:jboss/spring-quickstart/persistencebasic" id="entityManagerFactory"
+                     expected-type="javax.persistence.EntityManagerFactory" />
+
+    <bean id="entityManager" class="org.springframework.orm.jpa.support.SharedEntityManagerBean">		/ 2
+        <property name="entityManagerFactory" ref="entityManagerFactory" />
+    </bean>
+
+    <jee:jndi-lookup jndi-name="java:jboss/datasources/SpringQuickstartDSBasic" id="dataSource" expected-type="javax.sql.DataSource" /> / 3
+	
+/ 1 is jndi-lookup, en maakt bean,
+/ 2 uses deze bean en creates ook een bean,
+/ 3 ? waarom	, 
+
+/ want 
+$ vi persistence.xml
+
+<persistence ...>
+    <persistence-unit name="primarybasic">
+        <!-- The datasource is deployed as WEB-INF/spring-quickstart-ds.xml, -->
+        <jta-data-source>java:jboss/datasources/SpringQuickstartDSBasic</jta-data-source>	/ 3a
+        <properties>
+            <property name="jboss.entity.manager.factory.jndi.name"
+                      value="java:jboss/spring-quickstart/persistencebasic" />		/ 4
+					  
+/ Hier bij 3a wordt de jndi naam van de ds used, en komt terecht in deze pu,
+/ bij 4 wordt WH de jndi name set van deze pu,
+/ bij de jee:jndi zien we dat de pu een EntityManagerFactory wordt,
+/ TODO
+
+/ dit is blijkbaar een manier om een ds te def buiten de manier in jboss om, 
+/ TODO
+$ vi spring-quickstart-ds.xml
+
+<datasources xmlns="http://www.jboss.org/ironjacamar/schema"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.jboss.org/ironjacamar/schema http://docs.jboss.org/ironjacamar/schema/datasources_1_0.xsd">
+    <!-- The datasource is bound into JNDI at this location. We reference
+       this in META-INF/persistence.xml -->
+    <datasource jndi-name="java:jboss/datasources/SpringQuickstartDSBasic"
+                pool-name="kitchensink-quickstart" enabled="true"
+                use-java-context="true">
+        <connection-url>jdbc:h2:mem:spring-kitchensink-basic-quickstart;DB_CLOSE_DELAY=-1</connection-url>
+        <driver>h2</driver>
+        <security>
+            <user-name>sa</user-name>
+            <password>sa</password>
+        </security>
+    </datasource>
+</datasources>
+
+
+
+
+/ l3	. 
+
+/ lees,
+http://docs.wildfly.org/16/Admin_Guide.html#Naming
+
+/ in ch 9	, 
+/ daar is ook ds configuration,
+
+/ 13	. 
+
+/ google
+wildfly namespaces
+/ lees,
+https://stackoverflow.com/questions/20305180/are-there-jndi-namespace-conventions
+->
+https://docs.jboss.org/author/display/AS71/JNDI+Reference
+
+Local JNDI
+The Java EE platform specification defines the following JNDI contexts:
+
+java:comp/ - The namespace is scoped to the current component (i.e. EJB)
+java:module/ - Scoped to the current module
+java:app/ - Scoped to the current application
+java:global/ - Scoped to the application server
+In addition to the standard namespaces, AS7 also provides the following two global namespaces:
+
+java:jboss/
+java:/
+
+To add these entries via the CLI:
+
+/subsystem=naming/binding=java\:global\/mybinding:add(binding-type=simple, type=long, value=1000)
+To see all all options that are taken by the add command (this can actually be used to get the description of any CLI command):
+
+/subsystem=naming/binding=*:read-operation-description(name=add)
+
+/ er is ook,
+https://docs.jboss.org/author/display/WFLY8/Naming+Subsystem+Configuration
+
+
+
+/ 13	. 
+
+/ jndi in jboss-cli
+
+/ google,
+wildfly jboss-cli how to look up by jndi name
+/ lees,
+https://stackoverflow.com/questions/32290197/show-all-jndi-names-in-wildlfy-9
+
+
+Given that you are running in domain mode you need to tell server in which profile you are interested in jndi names.
+
+running /subsystem=naming:jndi-view executes command on domain controller itself not on some profile that actually has subsystems defined.
+
+to get what you want you would need to execute jndi-view operation on actual server running inside your domain.
+
+For example :
+
+/host=master/server=server-one/subsystem=naming:jndi-view
+
+would return you jndi-view of server server-one on host master
+
+/ lees,
+https://octopus.com/blog/using-the-wildfly-cli
+/ voor remote access,
+
+
+/ 13	. 
+
+/ google,
+jndi java:comp/env
+/ lees,
+https://stackoverflow.com/questions/4099095/what-does-javacomp-env-do
+
+
+/ Einde JNDI
+
+/ 13	.
+
+/ lees,
+http://www.mastertheboss.com/jboss-server/jboss-datasource/jboss-datasource-configuration
+/ jdbc-driver:add zonder arg driver-xa-datasource-class-name
+/ TODO
+
+> psql -U eric test
+/ Waarom geen password gevraagd?
+/ TODO
+> psql -U postgres 
+password: vi_lang17
+/ OK
+/ bij postgres vraagt wel om password,
+
+/ force password,
+C:\Users\ervelden>psql -U eric -W test
+Password for user eric:vi_lang17
+/ OK
+
+C:\Users\ervelden>psql -U eric -W -h localhost test
+Password for user eric:
+/ vraagt om password,
+
+/ 13	. 
+
+/ lees,
+https://stackoverflow.com/questions/438146/what-are-the-possible-values-of-the-hibernate-hbm2ddl-auto-configuration-and-wh
+
+
+From the community documentation:
+
+hibernate.hbm2ddl.auto Automatically validates or exports schema DDL to the database when the SessionFactory is created. With create-drop, the database schema will be dropped when the SessionFactory is closed explicitly.
+
+e.g. validate | update | create | create-drop
+
+So the list of possible options are,
+
+validate: validate the schema, makes no changes to the database.
+update: update the schema.
+create: creates the schema, destroying previous data.
+create-drop: drop the schema when the SessionFactory is closed explicitly, typically when the application is stopped.
+
+
+/ 13	 .
+
+/ google,
+jndi-name
+/ lees,
+https://stackoverflow.com/questions/31439421/java-jndi-name-java
+
+6
+
+The explanation is in the name: JNDI is the "Java Naming and Directory Interface". It is part of the Java EE specification and provides an API for java clients to discover and look up data and objects by name. These objects are accessible via certain contexts, e.g.
+
+The names of system-provided objects, such as JTA UserTransaction objects, are stored in the environment naming context java:comp/env. The Java EE platform allows a component to name user-defined objects, such as enterprise beans, environment entries, JDBC DataSource objects, and message connections. An object should be named within a subcontext of the naming environment according to the type of the object. For example, enterprise beans are named within the subcontext java:comp/env/ejb, and JDBC DataSource references are named within the subcontext java:comp/env/jdbc.
+
+ref: http://docs.oracle.com/cd/E19798-01/821-1841/girdr/index.html
+
+As Pawel noted in his comment, the Wildfly docs are very helpful here:
+
+The Java EE platform specification defines the following JNDI contexts:
+
+java:comp - The namespace is scoped to the current component (i.e. EJB)
+java:module - Scoped to the current module
+java:app - Scoped to the current application
+java:global - Scoped to the application server
+In addition to the standard namespaces, WildFly also provides the following two global namespaces:
+
+java:jboss
+java:/
+So "java:/" is just a global namespace (and context) in Wildfly and should be confused with a folder. It is simply a "named address" in a directory to access objects and services like JDBC, EJB, LDAP, etc.
+
+For further information, the Java EE spec is useful:
+
+(Java 6) http://docs.oracle.com/cd/E19798-01/821-1841/girdr/index.html
+(Java 7, PDF) http://download.oracle.com/otn-pub/jcp/java_ee-7-fr-spec/JavaEE_Platform_Spec.pdf
+
+/ 13	. 
+
+/ workspace-jbosstools-jee-oxygen-quickstart
+/ abc-wildfly-greeter	,
+
+$ less src/main/java/pkg.Resources.java
+
+    @PersistenceContext(unitName="pg")
+    @Produces
+    private EntityManager em;
+	
+$ vi src/main/resources/META-INF/persistence.xml
+
+<persistence version="2.1"
+    xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://xmlns.jcp.org/xml/ns/persistence
+        http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+    <persistence-unit name="primary">
+        <!-- If you are running in a production environment, add a managed
+            data source, this example data source is just for development and testing! -->
+        <!-- The datasource is deployed as WEB-INF/greeter-quickstart-ds.xml,
+            you can find it in the source at src/main/webapp/WEB-INF/greeter-quickstart-ds.xml -->
+        <jta-data-source>java:jboss/datasources/GreeterQuickstartDS</jta-data-source>
+        <properties>
+            <!-- Properties for Hibernate -->
+            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="hibernate.show_sql" value="false" />
+        </properties>
+    </persistence-unit>
+	
+    <persistence-unit name="pg">															/ ! erbij gemaakt,
+    	<jta-data-source>java:jboss/datasources/PostgreSQLDS</jta-data-source>
+    	<properties>
+    		<property name="hibernate.hbm2ddl.auto" value="create"/>
+    	</properties>
+    </persistence-unit>
+</persistence>
+
+$ vi src/main/webapp/WEB-INF/beans.xml
+
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+      http://xmlns.jcp.org/xml/ns/javaee
+      http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd" bean-discovery-mode="all">
+
+    <!-- Uncomment this alternative to see EJB declarative transactions in
+        use -->
+    <alternatives> 
+    	<class>org.jboss.as.quickstarts.greeter.domain.EJBUserDao</class>
+	</alternatives>
+</beans>
+
+/ 13	. 
+
+/ geef	,
+http://localhost:8080/abc-wildfly-greeter/
+
+/ OK, 
+
+/ 7	. 
+
+/ we maken op d: 
+bin/
+	wildfly-16.0.0-Final
+git_codebase/
+workspaces
+	workspace-wildfly-quickstart
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase
+$ git clone https://github.com/wildfly/quickstart.git
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart ((53d9b627...))
+$ git checkout -b 16.x origin/16.x
+
+/ we hebben nu,
+git_codebase
+	quickstart
+	
+/ we start eclipse op deze workspace-
+D:\Users\ervelden\git_codebase\quickstart
+
+/ 13	. 
+
+/ errors	,
+
+/ 1313	.
+
+/ we zien in de greeter.pom
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+	^^^^
+	Plugin execution not covered by lifecycle configuration: org.apache.maven.plugins:maven-checkstyle-plugin:3.0.0:checkstyle (execution: check-style, phase: compile)
+        <groupId>org.wildfly.quickstarts</groupId>
+        <artifactId>quickstart-parent</artifactId>
+        <!--
+        Maintain separation between the artifact id and the version to help prevent
+        merge conflicts between commits changing the GA and those changing the V.
+        -->
+        <version>16.0.0.Final</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <artifactId>greeter</artifactId>
+    <packaging>war</packaging>
+	
+/ 1313	. 
+
+/ we wildfly-maven-plugin werkt ook niet,
+ A required class was missing while executing org.wildfly.plugins:wildfly-maven-plugin:2.0.0.Final:undeploy: org/jboss/as/controller/client/ModelControllerClientConfiguration
+[ERROR] -----------------------------------------------------
+
+/ op de command line,
+ERVELDEN@LBNL031514 MINGW64 ~/.m2/repository/org/wildfly/plugins
+$ mvn --version
+Apache Maven 3.5.0 (ff8f5e7444045639af65f6095c62210b5713f426; 2017-04-03T21:39:06+02:00)
+Maven home: C:\Users\ervelden\bin\apache-maven-3.5.0
+
+/ in eclipse ,
+3.3.9 embedded	,
+
+/ lees,
+https://www.eclipse.org/m2e/documentation/m2e-execution-not-covered.html
+
+/ 1313	. 
+
+Errors occurred during the build.
+Errors running builder 'CDI (Contexts and Dependency Injection) Builder' on project 'spring-kitchensink-basic'.
+Unknown tag! pos=3 poolCount = 86
+Errors running builder 'CDI (Contexts and Dependency Injection) Builder' on project 'spring-kitchensink-springmvctest'.
+Unknown tag! pos=3 poolCount = 86
+Errors running builder 'CDI (Contexts and Dependency Injection) Builder' on project 'websocket-client'.
+Unknown tag! pos=4 poolCount = 18
+Errors running builder 'CDI (Contexts and Dependency Injection) Builder' on project 'websocket-endpoint'.
+Unknown tag! pos=4 poolCount = 18
+
+/ 13	. 
+
+$ vi web.xml
+
+   <context-param>
+
+        <param-name>org.jboss.weld.development</param-name>
+
+        <param-value>true</param-value>
+
+    </context-param>
+</web-app>
+
+/ als we naar gaan,
+localhost:8080/greeter
+/ dan zien we onderin een button	, en klik , dan komen we op,
+http://localhost:8080/greeter/weld-probe
+
+/ 13	. 
+
+$ vi beans.xml
+
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+      http://xmlns.jcp.org/xml/ns/javaee
+      http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
+    bean-discovery-mode="annotated">
+
+    <!-- Uncomment this alternative to see EJB declarative transactions in use -->
+    <alternatives> 
+        <class>org.jboss.as.quickstarts.greeter.domain.EJBUserDao</class>
+    </alternatives>
+	
+/ dan,
+
+org.jboss.weld.exceptions.DeploymentException: WELD-001408: Unsatisfied dependencies for type FacesContext with qualifiers @Default
+  at injection point [BackedAnnotatedField] @Inject private org.jboss.as.quickstarts.greeter.web.CreateController.facesContext
+  at org.jboss.as.quickstarts.greeter.web.CreateController.facesContext(CreateController.java:0)
+
+org.jboss.weld.exceptions.DeploymentException: WELD-001408: Unsatisfied dependencies for type EntityManager with qualifiers @Default
+  at injection point [BackedAnnotatedField] @Inject private org.jboss.as.quickstarts.greeter.domain.EJBUserDao.entityManager
+  at org.jboss.as.quickstarts.greeter.domain.EJBUserDao.entityManager(EJBUserDao.java:0)
+  
+/ ook zegt eclipse in beans.xml dat EJBUserDao geen alternative is,
+
+/ FIX:
+
+/ google,
+WELD-001408: Unsatisfied dependencies for type EntityManager with qualifiers @Default
+/ lees,
+https://stackoverflow.com/questions/25214211/unsatisfied-dependencies-for-type-entitymanager-with-qualifiers-default
+
+/ omdat Resources 
+
+$ vi beans.xml
+
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+      http://xmlns.jcp.org/xml/ns/javaee
+      http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
+    bean-discovery-mode="annotated">																/ !
+
+    <!-- Uncomment this alternative to see EJB declarative transactions in use -->
+    <alternatives> 
+        <class>org.jboss.as.quickstarts.greeter.domain.EJBUserDao</class>
+    </alternatives>
+</beans>
+
+$ vi Resources.java
+
+@ApplicationScoped
+public class Resources {
+
+    // Expose an entity manager using the resource producer pattern
+    @PersistenceContext
+    @Produces
+    private EntityManager em;
+
+    @Produces
+    public Logger getLogger(InjectionPoint ip) {
+        String category = ip.getMember().getDeclaringClass().getName();
+        return Logger.getLogger(category);
+    }
+
+    @Produces
+    @RequestScoped
+    public FacesContext getFacesContext() {
+        return FacesContext.getCurrentInstance();
+    }
+
+}
+
+/ we zien op 
+http://localhost:8080/greeter/weld-probe#/beans
+
+2		PRODUCER_METHOD	@Dependent	org.jboss.as.quickstarts.greeter.Resources	
+java.util.logging.Logger
+@Default
+3		RESOURCE	@Dependent	org.jboss.as.quickstarts.greeter.Resources	
+javax.persistence.EntityManager
+@Default
+4		PRODUCER_METHOD	@RequestScoped	org.jboss.as.quickstarts.greeter.Resources	
+javax.faces.context.FacesContext
+@Default
+5		MANAGED	@ApplicationScoped	org.jboss.as.quickstarts.greeter.Resources	
+org.jboss.as.quickstarts.greeter.Resources
+@Default
+
+/ 1313	. 
+
+/ als we de Resources zonder scope annot , en in beans.xml bean-discovery-mode="all", dan zien we 	,
+
+2	1   	PRODUCER_METHOD	@RequestScoped	org.jboss.as.quickstarts.greeter.Resources	
+javax.faces.context.FacesContext
+@Default
+3	1   	PRODUCER_METHOD	@Dependent	org.jboss.as.quickstarts.greeter.Resources	
+java.util.logging.Logger
+@Default
+4	1   	RESOURCE	@Dependent	org.jboss.as.quickstarts.greeter.Resources	
+javax.persistence.EntityManager
+@Default
+5	1   	MANAGED	@Dependent	org.jboss.as.quickstarts.greeter.Resources	
+org.jboss.as.quickstarts.greeter.Resources
+@Default
+
+/ dus Resources is @Dependent, en wordt NIET gezien	, 
+/ TODO
+
+
+
+/ Einde FIX
+
+/ 13	. 
+
+/ lees over Instance,
+https://docs.jboss.org/cdi/api/1.1/javax/enterprise/inject/Instance.html
+https://rmannibucau.wordpress.com/2015/03/02/cdi-and-instance-3-pitfalls-you-need-to-know/
+https://stackoverflow.com/questions/9880231/understanding-cdi-instance-and-get-vs-inject
+http://docs.jboss.org/weld/reference/latest/en-US/html_single/#_the_dependent_pseudo_scope			/ !
+
+
+
+
+/ 7	. 
+
+/ multiple persistence-units, 
+
+/ hieronder staat <class>  in de <persistence-unit>
+/ TODO
+
+
+/ google,
+wildfly entityManager if multiple persistenceunits
+/ lees,
+https://stackoverflow.com/questions/35258801/multiple-persistence-units-in-wildfly
+
+here an example of what works in our wildfly 8.x/9.x ejb app:
+
+First of all define all the classes for each persistence-unit in the persistence.xml, unlisted classes can be turned off to disable autodiscovery.
+
+persistence.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+   <persistence-unit name="primary">
+      <jta-data-source>java:jboss/datasources/primary_ds</jta-data-source>
+      <class>whatever.primary.model.SomeEntity</class>
+      <exclude-unlisted-classes>true</exclude-unlisted-classes>
+      <properties> ... </properties>
+   </persistence-unit>
+
+   <persistence-unit name="secondary">
+      <jta-data-source>java:jboss/datasources/secondary_ds</jta-data-source>
+      <class>whatever.secondary.model.AnotherEntity</class>
+      <exclude-unlisted-classes>true</exclude-unlisted-classes>
+      <properties> ... </properties>
+   </persistence-unit>
+</persistence>
+If you use JBoss Developer Studio ignore the warning (it is only an eclipse flaw):
+
+Multiple persistence units defined - only the first persistence unit will be recognized
+
+Resources.java
+
+package whatever.util;
+
+import javax.annotation.Resource;
+import javax.enterprise.inject.Produces;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.sql.DataSource;
+
+public class Resources {
+
+    @Produces
+    @PersistenceContext(unitName = "primary")
+    private EntityManager emPrimary;
+
+    @Produces
+    @PersistenceContext(unitName = "secondary")
+    private EntityManager emSecondary;
+
+    @Produces
+    @Resource(lookup = "java:jboss/datasources/primary_ds")
+    private DataSource dsPrimary;
+
+    @Produces
+    @Resource(lookup = "java:jboss/datasources/secondary_ds")
+    private DataSource dsSecodnary;
+
+}
+Dao primary example
+
+package whatever.dao;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+@Stateless
+public class DaoPrimaryExample {
+
+    @PersistenceContext(unitName = "primary")
+    private EntityManager em;
+
+    public void create(SomeEntity entity) {
+        em.persist(entity);
+    }
+}
+Dao secondary example
+
+package whatever.dao;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+@Stateless
+public class DaoSecondaryExample {
+
+    @PersistenceContext(unitName = "secondary")
+    private EntityManager em;
+
+    public void create(AnotherEntity entity) {
+        em.persist(entity);
+    }
+}
+IMPORTANT: If you plan to use booth persistence units in same transaction than XA datasources should be used.
+
+/ 7	. 
+
+/ google,
+glassfish microprofile
+/ lees,
+https://blog.payara.fish/building-your-next-microservice-with-eclipse-microprofile
+https://github.com/payara/patched-src-javaee7-samples
+https://www.payara.fish/
+/ we hebben download	,
+
+
+

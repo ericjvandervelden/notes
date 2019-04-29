@@ -1,0 +1,25 @@
+/ youtube
+kubernetes kelsey hightower
+/ kijk,
+https://www.youtube.com/watch?v=N5ODnik00Cs
+
+/ hij uses kubernetes als een ci/cd pipeline,
+/ google
+kubernetes ci/cd pipeline
+/ lees,
+https://www.linux.com/blog/learn/chapter/Intro-to-Kubernetes/2017/5/set-cicd-pipeline-kubernetes-part-1-overview
+
+
+/ google,
+ci/cd pipeline kubernetes vs jenkins
+https://www.weave.works/technologies/cicd-tools/
+
+/ google,
+kubernetes build pipeline
+/ lees,
+https://github.com/kelseyhightower/pipeline
+
+/ google
+kubernetes kelsey hightower
+/ lees,
+https://github.com/kelseyhightower/kubernetes-the-hard-way

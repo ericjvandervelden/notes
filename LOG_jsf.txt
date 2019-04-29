@@ -1,0 +1,10 @@
+/ lees,
+https://www.javacodegeeks.com/2015/11/jsf-scopes-tutorial-jsfcdi-session-scope.html
+
+/ lees,
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
+/ @SessionScoped jsf bean instance leeft zolang de session is	,
+/ @RequestScoped jsf bean instance leeft zolang de request is, bij iedere request een nieuwe jsf bean instance,	
+/ een slsb's tx is zolang de mth is,
+/ een sfsb's tx is zolang de client is, dus als de client @RequestScoped, duurt de tx zo lang, 
+/ TODO hoe lang leven de slsbs en sfsbs?

@@ -1,0 +1,687 @@
+/ ...
+
+https://www.youtube.com/watch?v=S1z50UbEdZw&t=46s / Goncalves & docker
+https://www.youtube.com/watch?v=Bdg_DjuoX0A&feature=push-u&attr_tag=B2pqKWusUOzwsSuK-6 / keycloak
+https://www.youtube.com/watch?v=Rj0We91ec9Y / eric schabell openshift
+https://www.logicbig.com/tutorials/misc/yaml/snake-yaml-loading.html / snakeyaml
+https://anycoindirect.eu/nl/kopen/bitcoins	 / bitcoins ethereum kopen
+http://stevestedman.com/2012/02/calculating-factorials-with-a-recursive-cte/ / factorial in sql
+https://www.postgresql.org/docs/9.1/static/queries-with.html / postgresql with statements
+https://stackoverflow.com/questions/98610/how-can-i-get-eclipse-to-show-files / how eclipse shows .yaml files
+
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://docs.jboss.org/hibernate/orm/5.1/userguide/html_single/chapters/query-native/Native.html / native queries in jpa,
+https://www.thoughts-on-java.org/jpa-native-queries/
+https://www.youtube.com/watch?list=PL50BZOuKafAahDc-crUwcEEJ9Ae7b0AzT&time_continue=7&v=W0-3H4_luOA / native queries in jpa
+http://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/Hibernate_User_Guide.html#sql / user guide hibernate,
+https://github.com/arquillian/arquillian-core
+https://serviceorientedarchitect.com/how-to-test-jboss-eap-7-with-arquillian/ / misschien	,
+https://vladmihalcea.com/jpa-hibernate-cache-non-existing-entity-fetch-results/?utm_source=Vlad+Mihalcea%27s+Newsletter&utm_campaign=64bb4c0d31-EMAIL_CAMPAIGN_2018_02_14&utm_medium=email&utm_term=0_7a1c643a85-64bb4c0d31-193996189
+https://forge.jboss.org/document/hands-on-lab
+http://developers-club.com/posts/267301/ / arquillian & soap
+
+https://docs.oracle.com/javaee/6/tutorial/doc/gipzz.html / jax-rs
+https://stackoverflow.com/questions/5415261/what-is-javax-inject-named-annotation-supposed-to-be-used-for
+https://www.tutorialspoint.com/jsf/jsf_managed_beans.htm
+https://developer.jboss.org/thread/135607 / pojo en ejb transactions,
+https://stackoverflow.com/questions/5894530/what-is-difference-between-jpa-project-and-ejb-project-in-eclipse
+https://stackoverflow.com/questions/4684112/how-do-cdi-and-ejb-compare-interact
+https://docs.oracle.com/javaee/6/tutorial/doc/gipjg.html / session bean
+https://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
+
+
+https://www.youtube.com/watch?v=wWSRpaosc-M / openshift install on centos
+
+/ BalusC
+https://stackoverflow.com/questions/18369356/when-is-it-necessary-or-convenient-to-use-spring-or-ejb3-or-all-of-them-together/18379228#18379228
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req / !
+
+https://www.youtube.com/watch?v=nybVFJVXbww&feature=push-u&attr_tag=ujRBy5F12fTjMxmO-6 / ec back door
+https://www.youtube.com/watch?v=dU8_wSDhIFU&feature=push-u-sub&attr_tag=EkEqXtJyqR0N3u9j-6 / quantum computer door natuurkundige	, goed	,
+
+http://localhost:8080/abcmodify-marshal/
+https://docs.oracle.com/javase/tutorial/jaxp/sax/parsing.html / sax
+http://www.javased.com/?api=javax.xml.transform.sax.SAXSource
+https://www.tutorialspoint.com/java_xml/java_stax_parser.htm
+http://java2s.com/Tutorials/Java/XML/React_all_SAX_parser_actions_in_Java.htm
+http://www.java2s.com/Tutorials/Java/Java_XML/index.htm
+
+
+https://stackoverflow.com/questions/30324931/implementing-lsresourceresolver-for-reading-set-of-xsd-recursively# 	/ !
+https://stackoverflow.com/questions/2342808/how-to-validate-an-xml-file-using-java-with-an-xsd-having-an-include/21153587#21153587
+https://www.intertech.com/Blog/xml-schema-elementformdefault-and-attributeformdefault/
+https://www.journaldev.com/895/how-to-validate-xml-against-xsd-in-java / hier hebben we onze validator mee gemaakt, maar werkt niet met import	,
+https://docs.oracle.com/javase/tutorial/jaxb/intro/j2schema.html
+https://stackoverflow.com/questions/19660494/exception-src-resolve-4-2-error-resolving-component-in-xsd
+http://blog.bdoughan.com/2012/07/jaxb-and-root-elements.html / !
+https://docs.oracle.com/javase/tutorial/jaxp/intro/sample.html
+
+
+
+
+https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/index
+
+
+https://www.sitepoint.com/how-to-use-ssltls-with-node-js/
+
+/ 20180310
+
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
+https://docs.oracle.com/javase/tutorial/jaxp/intro/sample.html
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req  / ! BalusC
+http://developers-club.com/posts/267301/ / arquillian & soap 
+https://forge.jboss.org/document/hands-on-lab / forge
+https://vladmihalcea.com/jpa-hibernate-cache-non-existing-entity-fetch-results/?utm_source=Vlad+Mihalcea%27s+Newsletter&utm_campaign=64bb4c0d31-EMAIL_CAMPAIGN_2018_02_14&utm_medium=email&utm_term=0_7a1c643a85-64bb4c0d31-193996189
+https://github.com/arquillian/arquillian-core
+http://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/Hibernate_User_Guide.html#sql
+https://www.youtube.com/watch?list=PL50BZOuKafAahDc-crUwcEEJ9Ae7b0AzT&time_continue=7&v=W0-3H4_luOA / native sql queries thoughts on java
+https://www.thoughts-on-java.org/jpa-native-queries/ / thoughts on java native sql queries
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://github.com/arquillian/arquillian-container-chameleon/blob/master/arquillian-chameleon-container-model/src/main/resources/chameleon/default/containers.yaml
+http://learningviacode.blogspot.com.es/2012/09/hql-and-aliases.html
+http://docs.jboss.org/hibernate/orm/3.3/reference/en/html/queryhql.html
+https://docs.openshift.org/latest/minishift/getting-started/installing.html#installing-instructions / minishift	,
+/ google: hibernate logging show parameter values
+http://www.mkyong.com/hibernate/how-to-configure-log4j-in-hibernate-project/
+https://developer.jboss.org/thread/173915
+->
+https://docs.jboss.org/author/display/WFLY/JPA+Reference+Guide#JPAReferenceGuide-Troubleshooting
+http://www.mastertheboss.com/jboss-server/jboss-script/cli-recipe-create-a-logger-with-as7 / ! jboss-cli & logging,
+https://stackoverflow.com/questions/722221/how-to-log-postgresql-queries / ! postgres logging,
+https://stackoverflow.com/questions/438146/hibernate-hbm2ddl-auto-possible-values-and-what-they-do / create-drop, create, ...
+https://www.postgresql.org/docs/9.5/static/sql-createsequence.html
+https://stackoverflow.com/questions/29488900/system-out-print-doesnt-show-anything-in-test-methods / junit logging
+
+/ 2018/05/30
+
+https://www.thoughts-on-java.org/best-practices-many-one-one-many-associations-mappings/
+http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#associations
+http://docs.jboss.org/hibernate/orm/5.3/quickstart/html_single/#_maven_repository_artifacts
+
+https://www.postgresql.org/docs/9.6/static/protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY
+51.2. Message Flow
+https://www.postgresql.org/docs/9.3/static/sql-prepare.html
+/ prepare is postgresql,
+https://jdbc.postgresql.org/documentation/head/query.html#query-with-cursor
+/ cursor,
+https://stackoverflow.com/questions/8624036/postgresql-cursors
+https://stackoverflow.com/questions/722221/how-to-log-postgresql-queries
+
+
+https://www.cprogramming.com/tutorial/unicode.html
+https://stackoverflow.com/questions/42168303/unicode-vs-ascii-memory
+https://github.com/graphql-java/graphql-java	/ google: graphql javaee
+->
+http://graphql-java.readthedocs.io/en/latest/getting_started.html
+http://winterbe.com/posts/2014/03/16/java-8-tutorial/	/ streams in java8	,
+https://db.apache.org/derby/manuals/index.html#docs_10.14
+->
+https://db.apache.org/derby/docs/10.14/devguide/index.html
+https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-cursor-transact-sql?view=sql-server-2017
+https://docs.oracle.com/cd/A97630_01/java.920/a96654/xadistra.htm#1060238	/ leesbaar doc over tx!
+https://en.wikipedia.org/wiki/Eisenstein_series
+https://en.wikipedia.org/wiki/Dirichlet_series
+http://undertow.io/undertow-docs/undertow-docs-2.0.0/index.html#undertow-servlet
+http://www.ejbtutorial.com/corba/tutorial-for-corba-hello-world-using-java			/ !
+http://docs.jboss.org/jbosstm/docs/4.2.2/javadoc/jts/constant-values.html#com.arjuna.ats.arjuna.ObjectStatus.ACTIVE	/ constants in Wildfly	,
+/ google: two phase start end beforecompletion
+https://docs.oracle.com/cd/A97335_02/apps.102/a83722/appcorb9.htm	/ jts transaction example
+https://www.thoughts-on-java.org/hibernate-logging-guide/	/ TODO oud?
+http://www.mastertheboss.com/jboss-server/jboss-configuration/configuring-transactions-jta-using-jboss-as7-wildfly
+http://blog.codeleak.pl/2017/06/remote-debugging-wildfly-application-in.html
+http://www.baeldung.com/hibernate-save-persist-update-merge-saveorupdate
+https://docs.oracle.com/javaee/6/tutorial/doc/bnayn.html	 / javaee6 jaxws tutorial	,
+https://github.com/forge/core
+http://rest-assured.io/
+https://developers.redhat.com/blog/2017/07/20/testing-rest-apis-with-rest-assured/		/ !
+https://www.youtube.com/watch?v=9xb6GIZ1gjs		/ alex soto !
+https://vladmihalcea.com/how-to-resolve-the-hibernate-global-database-schema-and-catalog-for-native-sql-queries/	!
+https://forge.jboss.org/addon/org.jboss.forge.addon:wildfly-swarm	/ met video,
+https://www.youtube.com/watch?v=5BvJVAlZyvo&t=891s+%2F+goncalves	/ !
+https://www.youtube.com/watch?v=S1z50UbEdZw&t=1900s	/ ! met docker, rest apis, When Java EE Micro Profile meets Angular by Antonio Goncalves swagger	,
+https://docs.jboss.org/author/display/WFLY/JPA+Reference+Guide#JPAReferenceGuide-Troubleshooting																			
+https://stackoverflow.com/questions/4362876/how-to-view-the-sql-queries-issued-by-jpa
+https://stackoverflow.com/questions/1119385/junit-test-for-system-out-println
+
+
+																			
+http://localhost:8080/dvxuk2alias/rest/hello
+http://localhost:9990/console/App.html#standalone-deployments
+https://www.youtube.com/watch?v=7YcW25PHnAA&t=280s / rest apis
+https://docs.oracle.com/javaee/6/tutorial/doc/gilik.html	/ javaee	, rest
+
+
+https://www.youtube.com/watch?v=7MB6T9ewidI&t=646s	/ svn video!
+
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req	/ BalusC
+http://developers-club.com/posts/267301/ 	/ Test automation of Java EE of web services by means of SoapUI and Arquillian
+https://forge.jboss.org/document/hands-on-lab
+http://arquillian.org/guides/get_started_faster_with_forge/
+
+/ 2018-06-28
+
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
+http://developers-club.com/posts/267301/
+https://forge.jboss.org/document/hands-on-lab
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://www.youtube.com/watch?v=S1z50UbEdZw&t=1900s
+/ When Java EE Micro Profile meets Angular by Antonio Goncalves
+https://forge.jboss.org/addon/org.jboss.forge.addon:wildfly-swarm
+/ met video
+https://vladmihalcea.com/how-to-resolve-the-hibernate-global-database-schema-and-catalog-for-native-sql-queries/
+http://www.mastertheboss.com/jboss-server/jboss-configuration/configuring-transactions-jta-using-jboss-as7-wildfly
+https://docs.oracle.com/cd/A97335_02/apps.102/a83722/appcorb9.htm
+http://docs.jboss.org/jbosstm/docs/4.2.2/javadoc/jts/constant-values.html#com.arjuna.ats.arjuna.ObjectStatus.ACTIVE
+https://docs.oracle.com/cd/A97630_01/java.920/a96654/xadistra.htm#1060238
+http://winterbe.com/posts/2014/03/16/java-8-tutorial/
+https://www.youtube.com/watch?v=7MB6T9ewidI&t=646s	
+/ svn,
+http://docs.jboss.org/hibernate/orm/5.3/quickstart/html_single/#hibernate-gsg-tutorial-basic-test
+http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#associations
+https://www.thoughts-on-java.org/best-practices-many-one-one-many-associations-mappings/
+https://vladmihalcea.com/the-best-way-to-map-a-naturalid-business-key-with-jpa-and-hibernate/
+http://in.relation.to/2016/09/15/integration-tests-and-java-8-lambdas/
+
+/ jenkins x
+
+/ 20180721
+
+https://stackoverflow.com/questions/46650268/how-to-test-main-class-of-spring-boot-application
+https://stackoverflow.com/questions/16467685/difference-between-mock-and-injectmocks
+http://www.baeldung.com/mockito-spy
+http://www.baeldung.com/spring-data-rest-intro
+https://stackoverflow.com/questions/24040014/using-hibernate-to-map-flat-legacy-tables-with-no-foreign-key-composite-key-re
+
+https://docs.oracle.com/javase/tutorial/collections/streams/parallelism.html
+https://docs.oracle.com/javase/tutorial/collections/streams/examples/ParallelismExamples.java
+https://docs.oracle.com/javase/tutorial/collections/streams/examples/Person.java
+
+https://stackoverflow.com/questions/50990922/spring-how-to-call-method-from-another-controller  	/ !
+https://stackoverflow.com/questions/11083132/hibernate-manytoone-without-foreign-key
+https://stackoverflow.com/questions/13700565/jpa-query-getresultlist-use-in-a-generic-way
+
+https://www.tutorialspoint.com/h2_database/h2_database_alter.htm
+http://www.h2database.com/html/grammar.html#constraint
+https://github.com/arbfranklin/h2database/blob/master/src/main/org/h2/tools/Shell.java
+http://opensource-soa.blogspot.com/2009/03/how-to-use-h2-shell.html
+
+https://www.postgresql.org/docs/9.3/static/catalog-pg-constraint.html
+https://stackoverflow.com/questions/17837010/postgresql-should-i-alter-an-existing-index-or-create-a-new-one
+http://www.postgresqltutorial.com/postgresql-coalesce/																		/ !
+https://www.postgresql.org/docs/9.4/static/ddl-constraints.html
+https://stackoverflow.com/questions/40639541/listing-all-not-null-constraints-in-a-postgresql-table
+https://www.cybertec-postgresql.com/en/postgresql-indexes-and-foreign-keys/								/ !
+https://stackoverflow.com/questions/8674718/best-way-to-select-random-rows-postgresql		/ !
+
+
+https://www.thoughts-on-java.org/jpa-native-queries/ 	/ !
+https://vladmihalcea.com/a-beginners-guide-to-jpa-and-hibernate-cascade-types/		/ !
+/ google: jpa pagination
+https://dzone.com/articles/configuring-spring-boot-for-postgresql
+https://vladmihalcea.com/a-beginners-guide-to-jpa-and-hibernate-cascade-types/
+http://www.baeldung.com/hibernate-mappingexception-unknown-entity
+https://www.concretepage.com/hibernate/example-cascadetype-detach-hibernate
+https://stackoverflow.com/questions/13135309/how-to-find-out-whether-an-entity-is-detached-in-jpa-hibernate
+https://vladmihalcea.com/jpa-persist-and-merge/
+
+
+
+
+
+https://winterbe.com/posts/2014/07/31/java8-stream-tutorial-examples/
+
+https://www.mkyong.com/spring-boot/spring-boot-configurationproperties-example/
+https://www.boraji.com/spring-boot-configurationproperties-example
+https://spring.io/guides/gs/spring-boot/
+https://www.mkyong.com/spring-boot/spring-boot-hello-world-example-jsp/
+https://spring.io/guides/tutorials/react-and-spring-data-rest/
+/ google: spring boot react
+https://developer.okta.com/blog/2017/04/26/bootiful-development-with-spring-boot-and-angular	/ er is ook react versie	,
+->
+https://www.youtube.com/watch?time_continue=100&v=GhBwKT7EJsY
+https://spring.io/blog/2016/03/04/core-container-refinements-in-spring-framework-4-3 	/ geen @Autowired meer nodig	, TODO
+https://stackoverflow.com/questions/37930595/spring-framework-4-3-0-when-do-i-need-autowired
+/ google: spring boot isomorphic
+https://www.youtube.com/watch?v=cPxq66nXsf4
+https://www.youtube.com/watch?v=996OiexHze0
+/ nygard: release it!
+https://www.youtube.com/watch?v=JAdxO1XboJY	/ micrometer !
+http://www.baeldung.com/spring-boot-actuators
+
+
+/ 2018-11-14
+
+/ houden we open,
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
+http://developers-club.com/posts/267301/	/ soapui en arquillian
+https://forge.jboss.org/document/hands-on-lab
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://forge.jboss.org/addon/org.jboss.forge.addon:wildfly-swarm
+https://vladmihalcea.com/how-to-resolve-the-hibernate-global-database-schema-and-catalog-for-native-sql-queries/
+http://www.mastertheboss.com/jboss-server/jboss-configuration/configuring-transactions-jta-using-jboss-as7-wildfly
+http://in.relation.to/2016/09/15/integration-tests-and-java-8-lambdas/
+http://arquillian.org/guides/getting_started/
+https://content.pivotal.io/springone-platform-2017/its-a-kind-of-magic-under-the-covers-of-spring-boot-brian-clozel-st%C3%A9phane-nicoll / !
+
+/ ook open, later sluiten	,
+https://www.baeldung.com/rx-java
+https://www.oracle.com/technetwork/articles/java/java8-optional-2175753.html
+https://docs.oracle.com/javase/tutorial/collections/streams/index.html
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/MethodReferencesTest.java
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java
+https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
+https://github.com/ReactiveX/RxJava/tree/1.x/src/main/java/rx/functions
+https://github.com/ReactiveX/RxJava/blob/1.x/src/main/java/rx/Observable.java
+https://github.com/gaborbata/rx-java-sample			/ venkat's video code,
+https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+http://reactivex.io/documentation/operators/scan.html
+
+
+
+
+https://docs.oracle.com/cd/A97335_02/apps.102/a83722/appcorb9.htm
+http://docs.jboss.org/jbosstm/docs/4.2.2/javadoc/jts/constant-values.html#com.arjuna.ats.arjuna.ObjectStatus.ACTIVE
+https://docs.oracle.com/cd/A97630_01/java.920/a96654/xadistra.htm#1060238
+
+https://winterbe.com/posts/2014/03/16/java-8-tutorial/
+http://docs.jboss.org/hibernate/orm/5.3/quickstart/html_single/#hibernate-gsg-tutorial-basic-test
+http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#associations
+https://www.thoughts-on-java.org/best-practices-many-one-one-many-associations-mappings/
+https://vladmihalcea.com/the-best-way-to-map-a-naturalid-business-key-with-jpa-and-hibernate/
+https://vladmihalcea.com/a-beginners-guide-to-jpa-and-hibernate-cascade-types/
+
+https://www.cybertec-postgresql.com/en/postgresql-indexes-and-foreign-keys/
+
+https://spring.io/guides/gs/rest-service/
+https://spring.io/guides/gs/serving-web-content/ / spring mvc
+https://www.javacodegeeks.com/2018/08/jax-rs-exceptionmapper-config.html
+https://www.postgresql.org/docs/9.6/wal-reliability.html
+https://www.scalingpostgres.com/tutorials/postgresql-backup-point-in-time-recovery/ 	/ !
+https://www.opsdash.com/blog/postgresql-streaming-replication-howto.html		/ !
+http://www.postgresqltutorial.com/postgresql-update-join/
+https://www.postgres-xl.org/documentation/xc-overview-gtm.html
+https://www.postgresql.org/docs/9.4/datatype-json.html
+https://wiki.postgresql.org/wiki/ModificationTriggerGDQ
+https://wiki.postgresql.org/wiki/PGQ_Tutorial
+
+
+
+
+https://www.sitepoint.com/build-a-simple-rest-api-with-node-and-oauth-2-0/
+
+
+
+
+/ Einde 2018-11-14
+
+/ 2019-01-31
+
+https://spring.io/guides/gs/consuming-rest/
+https://spring.io/guides/gs/async-method/
+https://spring.io/guides/gs/producing-web-service/
+
+
+https://stackoverflow.com/questions/54196486/cast-on-generate-series-gives-error-set-valued-function-called-in-context-that/54196521?noredirect=1#comment95220575_54196521
+/ eigen vraag	,
+https://dba.stackexchange.com/questions/37571/error-set-valued-function-called-in-context-that-cannot-accept-a-set-what-is-i
+
+https://www.postgresql.org/docs/9.6/datatype-numeric.html
+https://www.postgresql.org/docs/9.6/functions-math.html
+https://www.postgresql.org/docs/9.6/functions-datetime.html
+https://www.postgresql.org/docs/9.6/functions-srf.html			/ generate_series
+
+https://stackoverflow.com/questions/22964272/postgresql-get-a-random-datetime-timestamp-between-two-datetime-timestamp			/ !
+https://stackoverflow.com/questions/2354717/how-to-write-a-postgresql-query-for-getting-only-the-date-part-of-timestamp-fiel
+https://www.periscopedata.com/blog/use-generate-series-to-get-continuous-results			/ !
+
+https://www.oreilly.com/programming/free/files/why-reactive.pdf
+https://blog.overops.com/reactive-streams-and-the-weird-case-of-back-pressure/
+http://www.reactive-streams.org/
+file:///D:/Users/ervelden/Documents/My%20Documents/java9_10_11.pdf
+https://mongodb.github.io/mongo-java-driver-reactivestreams/
+https://medium.com/@jagsaund/5-not-so-obvious-things-about-rxjava-c388bd19efbc
+http://reactivex.io/documentation/operators/range.html
+http://reactivex.io/documentation/operators/scan.html
+https://github.com/gaborbata/rx-java-sample
+https://github.com/ReactiveX/RxJava/blob/1.x/src/main/java/rx/Observable.java
+https://github.com/ReactiveX/RxJava/tree/1.x/src/main/java/rx/functions
+https://www.baeldung.com/rx-java
+
+
+
+
+https://stackoverflow.com/questions/6112561/clearing-coverage-highlighting-in-eclipse
+https://stackoverflow.com/questions/14037091/xsd-import-into-another-xsd-file/ 
+
+https://www.intertech.com/Blog/xml-schema-elementformdefault-and-attributeformdefault		/!
+https://stackoverflow.com/questions/16584555/understanding-jaxb-xmlrootelement-annotation
+
+
+https://www.youtube.com/watch?v=12eZWG0Z5gY / (ML 18.1) Markov chain Monte Carlo (MCMC) introduction
+https://www.youtube.com/watch?v=ldOPon17uYE	/ master-slave pg,
+
+https://github.com/kelseyhightower/pipeline
+https://www.youtube.com/watch?v=N5ODnik00Cs		/ ! Kubernetes,
+
+https://stackoverflow.com/questions/16584555/understanding-jaxb-xmlrootelement-annotation
+->
+http://blog.bdoughan.com/2010/08/jaxb-namespaces.html
+http://blog.bdoughan.com/2012/07/jaxb-and-root-elements.html
+
+https://www.baeldung.com/jaxb
+
+https://www.youtube.com/watch?v=jDchAEHIht0 / ! spring boot configuration,
+https://content.pivotal.io/springone-platform-2017/its-a-kind-of-magic-under-the-covers-of-spring-boot-brian-clozel-st%C3%A9phane-nicoll
+
+
+https://javaee.github.io/jaxb-v2/doc/user-guide/ch03.html
+
+https://docs.oracle.com/javase/tutorial/extra/generics/wildcards.html
+https://stackoverflow.com/questions/3012781/java-syntax-for-explicitly-specifying-generic-arguments-in-method-calls 
+/ obj.<Integer>mth, cls.<Integer>mth
+https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/MethodReferencesTest.java
+https://docs.oracle.com/javase/tutorial/collections/streams/index.html
+https://www.oracle.com/technetwork/articles/java/
+https://www.oracle.com/technetwork/articles/java/java8-optional-2175753.html / Optional	,
+
+http://arquillian.org/guides/getting_started/
+https://forge.jboss.org/addon/org.jboss.forge.addon:wildfly-swarm
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://forge.jboss.org/document/hands-on-lab
+
+http://in.relation.to/2016/09/15/integration-tests-and-java-8-lambdas/
+http://www.mastertheboss.com/jboss-server/jboss-configuration/configuring-transactions-jta-using-jboss-as7-wildfly
+https://vladmihalcea.com/how-to-resolve-the-hibernate-global-database-schema-and-catalog-for-native-sql-queries/
+
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req/ / BalusC
+
+
+
+
+
+
+
+
+/ Einde 2019-01-31
+
+/ 2019-02-21
+
+https://content.pivotal.io/springone-platform-2017/its-a-kind-of-magic-under-the-covers-of-spring-boot-brian-clozel-st%C3%A9phane-nicoll
+https://www.baeldung.com/rx-java
+https://github.com/ReactiveX/RxJava/tree/1.x/src/main/java/rx/functions
+https://github.com/gaborbata/rx-java-sample
+http://reactivex.io/documentation/operators/scan.html
+http://reactivex.io/documentation/operators/range.html
+https://javaee.github.io/jaxb-v2/doc/user-guide/ch03.html
+https://www.youtube.com/watch?v=jDchAEHIht0		/ spring boot Stephane Nicole
+https://www.baeldung.com/jaxb
+https://stackoverflow.com/questions/16584555/understanding-jaxb-xmlrootelement-annotation
+https://www.youtube.com/watch?v=N5ODnik00Cs
+https://github.com/kelseyhightower/pipeline
+https://www.intertech.com/Blog/xml-schema-elementformdefault-and-attributeformdefault/
+https://www.youtube.com/watch?v=EDB24onZxsA&t=1155s / spring react Josh 
+http://www.mastertheboss.com/javaee/jboss-web-services/how-to-debug-web-services		/ debug web services,
+https://coderanch.com/t/498104/java/Web-Service-Multiple-Endpoints
+http://www.mkyong.com/webservices/jax-ws/jax-ws-hello-world-example/
+
+
+
+
+
+/ Einde 2019-02-21
+
+/ 2019-03-07 OPEN IN CHROME
+
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req ! BalusC
+https://forge.jboss.org/document/hands-on-lab
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://vladmihalcea.com/how-to-resolve-the-hibernate-global-database-schema-and-catalog-for-native-sql-queries/
+http://www.mastertheboss.com/jboss-server/jboss-configuration/configuring-transactions-jta-using-jboss-as7-wildfly
+http://in.relation.to/2016/09/15/integration-tests-and-java-8-lambdas/	/ doInJPA
+http://arquillian.org/guides/getting_started/
+http://www.mastertheboss.com/javaee/jboss-web-services/how-to-debug-web-services
+
+
+https://www.baeldung.com/rx-java
+https://github.com/ReactiveX/RxJava/tree/1.x/src/main/java/rx/functions
+http://reactivex.io/documentation/operators/range.html
+
+https://javaee.github.io/jaxb-v2/doc/user-guide/ch03.html
+https://www.baeldung.com/jaxb
+https://stackoverflow.com/questions/16584555/understanding-jaxb-xmlrootelement-annotation	/ !
+https://www.intertech.com/Blog/xml-schema-elementformdefault-and-attributeformdefault/			/ !
+http://www.mkyong.com/webservices/jax-ws/jax-ws-hello-world-example/
+http://java.boot.by/ocewsd6-guide/ch06.html
+http://localhost:8888/ws/server?wsdl
+https://stackoverflow.com/questions/11561/what-is-the-difference-between-an-endpoint-a-service-and-a-port-when-working-w
+https://jaxenter.com/creating-soap-web-services-using-jax-ws-117689.html
+https://www.mkyong.com/webservices/jax-ws/java-lang-classnotfoundexception-com-sun-xml-ws-transport-http-servlet-wsservletcontextlistener/
+https://www.mkyong.com/webservices/jax-ws/jax-ws-wsgen-tool-example/
+https://www.mkyong.com/webservices/jax-ws/deploy-jax-ws-web-services-on-tomcat/
+https://github.com/eMahtab/discoverIndia-soap-web-service
+https://search.maven.org/artifact/com.sun.xml.ws/jaxws-ri/2.3.2/pom
+http://localhost:8080/SOAPWithJaxWS-0.0.1-SNAPSHOT/discoverIndia?wsdl
+http://localhost:8080/abc-wsgen-wsimport-0.0.1/country?wsdl
+http://localhost:8080/abc-wsgen-wsimport-0.0.1/country?wsdl=Country.wsdl
+https://stackoverflow.com/questions/15798351/jax-ws-implementation-included-with-java
+https://blogs.oracle.com/arungupta/totd-124:-using-cdi-jpa-with-jax-rs-and-jax-ws
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/6/html/development_guide/sect-jax-ws_web_service_endpoints
+http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl=HelloWorldService.wsdl
+https://stackoverflow.com/questions/15881256/multiple-port-service-defined-in-a-wsdl
+
+https://stackoverflow.com/questions/54633224/how-to-activate-springs-internal-logging-in-a-spring-application-which-is-not
+https://stackoverflow.com/questions/963492/in-log4j-does-checking-isdebugenabled-before-logging-improve-performance
+https://logging.apache.org/log4j/2.x/maven-artifacts.html
+https://stackoverflow.com/questions/873051/difference-between-simple-logging-facade-for-java-and-apache-commons-logging
+https://stackoverflow.com/questions/869945/how-to-send-java-util-logging-to-log4j
+https://stackoverflow.com/questions/51076807/logback-does-not-log-jul-fine-level
+http://www.mkyong.com/tutorials/log4j-tutorial/
+http://www.mkyong.com/logging/log4j-hello-world-example/
+
+
+
+
+
+
+https://www.youtube.com/watch?v=N5ODnik00Cs		/ Kubernetes, git , Kelsey Hightower
+https://github.com/kelseyhightower/pipeline
+
+
+https://www.youtube.com/watch?v=jDchAEHIht0		/ Stephane Nicole spring boot,
+https://www.youtube.com/watch?v=EDB24onZxsA&t=1155s	/ Josh Long, reactive,
+https://www.mkyong.com/spring-boot/spring-boot-configurationproperties-example/
+
+https://www.baeldung.com/mockito-annotations
+
+https://www.baeldung.com/properties-with-spring
+https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/PropertySource.html
+
+https://stackoverflow.com/questions/34413/why-am-i-getting-a-noclassdeffounderror-in-java/5756989#5756989
+
+
+http://www.mastertheboss.com/jboss-server/jboss-datasource/jboss-datasource-configuration
+http://docs.wildfly.org/14/Developer_Guide.html#suppressing-implicit-bean-archives
+https://www.javacodegeeks.com/2018/11/waiting-jakarta-ee.html
+http://undertow.io/undertow-docs/undertow-docs-2.0.0/index.html
+https://search.maven.org/artifact/org.wildfly.plugins/wildfly-maven-plugin/1.2.2.Final/maven-plugin
+https://docs.jboss.org/author/display/WFLY10/Clustering+and+Domain+Setup+Walkthrough	/ ! domain setup
+https://docs.jboss.org/author/display/WFLY10/Domain+Setup
+http://weld.cdi-spec.org/documentation/
+https://www.javacodegeeks.com/2019/02/have-you-tried-the-microprofile-starter-yet.html?utm_source=sendpulse&utm_medium=push&utm_campaign=893130
+https://docs.oracle.com/javaee/7/tutorial/cdi-adv001.htm	/ beans.xml
+https://stackoverflow.com/questions/37004374/how-to-invoke-a-stateless-bean-method-if-it-is-not-declared-in-interface-impleme / @LocalBean
+http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#named_at_injection_point
+https://docs.thorntail.io/2.3.0.Final/
+http://localhost:9990/console/App.html#standalone-deployments
+https://javaee.github.io/tutorial/usingexamples007.html		/ ! asadmin, ...
+https://issues.jboss.org/browse/WFLY-10029		/ bean-discovery annotated does not work in wildfly,
+https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html/development_guide/contexts_and_dependency_injection_cdi	/ bean defining annotations
+http://docs.wildfly.org/14/Developer_Guide.html#suppressing-implicit-bean-archives
+https://docs.jboss.org/weld/reference/2.3.0.Final/en-US/html/beanscdi.html#_session_beans
+https://abhirockzz.wordpress.com/2014/08/09/ejb-3-x-lifecycle-and-concurrency-models-part-1/
+https://dzone.com/articles/ejb-3x-lifecycle-and-0	/ part 2
+https://javaee.github.io/glassfish/download
+https://github.com/wildfly/boms/blob/master/javaee8/pom.xml
+https://stackoverflow.com/questions/35258801/multiple-persistence-units-in-wildfly
+http://www.mastertheboss.com/jboss-server/jboss-datasource/jboss-datasource-configuration
+
+
+
+
+
+
+
+
+
+
+
+http://www.postgresqltutorial.com/postgresql-window-function/
+
+
+
+
+https://stackoverflow.com/questions/9752972/how-to-add-an-extra-source-directory-for-maven-to-compile-and-include-in-the-bui
+https://stackoverflow.com/questions/1675255/how-to-manage-tomcat-6-libraries-into-subfolders-under-tomcat-home-lib
+https://www.rasia.io/blog/how-to-easily-setup-lucee-in-tomcat.html
+https://stackoverflow.com/questions/49837860/tomcat-8-common-loader-server-loader-shared-loader
+https://stackoverflow.com/questions/22456236/why-doesnt-tomcat-7x-require-wsservletcontextlistener-and-wsservlet-configured
+https://stackoverflow.com/questions/10776599/servletcontainerinitializer-vs-servletcontextlistener
+
+
+https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html
+
+http://ecmendenhall.github.io/blog/blog/2013/05/05/testing-console-output-with-junit-and-infinitest/	/ ! logging in junit,
+
+
+godaddy
+letsencrypt
+
+
+
+
+/ Einde 2019-03-07 OPEN IN CHROME
+
+/ 2019-03-15 OPEN IN BASH
+
+D:\Users\ervelden\bin\wildfly-16.0.0.Final\bin>standalone.bat
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+C:\Users\ervelden\bin\for_wildfly>h2_client1.bat
+C:\Users\ervelden>psql -U eric -W -h localhost test	, vi_lang17
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
+D:\Users\ervelden\bin\wildfly-16.0.0.Final\bin>jboss-cli.bat
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/workspaces/workspace-jbosstools-jee-oxygen-spring/SpringiA4_SourceCode/Chapter_17
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ vi ch2/portfolio/pom.xml
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/bin/apache-activemq-5.15.8
+$ bin/activemq console
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-wildfly-quickstart/abc-wsgen-wsimport/discoverIndia-soap-web-service-my-annot-jaxws (master)
+$ mvn clean package
+$ jar tvf target/abc-wsgen-wsimport-0.0.1.war
+$ wsgen -cp target/classes -keep -wsdl  net.mahtabalam.ws.CountryImpl -d target/gen
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-spring/my-stereo-autoconfig
+$  jar tvf target/my-stereo-autoconfig-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+$ mvn clean  assembly:single
+
+ERVELDEN@LBNL031514 MINGW64 ~/.m2/repository/com/sun/xml/ws
+$ jar tvf jaxws-rt/2.3.2/jaxws-rt-2.3.2.jar | grep WSServlet
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-wildfly-quickstart/abc-wsgen-wsimport/discoverIndia-soap-web-service-my-annot (master)
+$ mvn clean package
+$ (cd target/abc-wsgen-wsimport-0.0.1;jar cvf ../abc-wsgen-wsimport-0.0.1.war  *)
+$ jar tvf target/abc-wsgen-wsimport-0.0.1.war
+$ (cd target/SOAPWithJaxWS-0.0.1-SNAPSHOT;jar cvf ../SOAPWithJaxWS-0.0.1-SNAPSHOT.war  *)
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/restful_java_jax-rs_2_0-master/resteasy-jaxrs-3.0.5.Final/examples/oreilly-workbook
+$  less ./ex06_1/src/main/java/com/restfully/shop/services/CustomerResource.java
+
+ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
+$ less standalone/log/server.log
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/eugenp/tutorials/persistence-modules/spring-data-jpa (master)
+$ less ./src/main/java/com/baeldung/domain/product/Product.java
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart (16.x)
+$ mvn install:install-file -Dfile=pom.xml -DgroupId=org.wildfly.quickstarts -DartifactId=quickstart-parent -Dpackaging=pom -Dversion=16.0.0.Final
+
+/ eclipse workspace-jbosstools-jee-oxygen-spring
+
+
+
+
+
+/ Einde 2019-03-15 OPEN IN BASH
+
+/ OPEN IN CHROME 20-3-2019
+
+https://www.javacodegeeks.com/2019/03/java-behind-apache-http-server.html?utm_source=sendpulse&utm_medium=push&utm_campaign=964221
+https://www.javacodegeeks.com/2019/03/centralized-authorization-with-oauth2-opaque-tokens-using-spring-boot-2.html?utm_source=sendpulse&utm_medium=push&utm_campaign=964840  / !
+
+https://www.javacodegeeks.com/2019/03/centralized-authorization-with-oauth2-opaque-tokens-using-spring-boot-2.html?utm_source=sendpulse&utm_medium=push&utm_campaign=964840
+http://docs.wildfly.org/16/Admin_Guide.html#Logging		/ !
+https://github.com/wildfly/wildfly
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/6/html/administration_and_configuration_guide/example_postgresql_xa_datasource
+https://stackoverflow.com/questions/438146/what-are-the-possible-values-of-the-hibernate-hbm2ddl-auto-configuration-and-wh
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req	/ ! BalusC
+https://www.theserverside.com/discussions/thread/42158.html 	/ naming	,
+https://docs.spring.io/spring-javaconfig/docs/1.0.0.M4/reference/html/ch02s02.html
+https://stackoverflow.com/questions/41025627/how-can-i-name-a-service-with-multiple-names-in-spring
+https://docs.spring.io/spring-framework/docs/5.1.5.RELEASE/javadoc-api/org/springframework/web/WebApplicationInitializer.html?is-external=true / !
+https://docs.spring.io/spring/docs/3.0.x/spring-framework-reference/html/xsd-config.html
+https://docs.spring.io/spring-boot/docs/current/reference/html/howto-data-access.html		/ !
+https://www.baeldung.com/configuration-properties-in-spring-boot
+https://www.baeldung.com/java-optional
+https://developer.okta.com/blog/2019/02/20/spring-boot-with-postgresql-flyway-jsonb
+https://docs.jboss.org/author/display/WFLY10/Messaging+configuration / !
+https://activemq.apache.org/artemis/docs/latest/using-jms.html
+https://activemq.apache.org/manage-durable-subscribers.html
+https://spring.io/guides/gs/messaging-jms/
+https://terasolunaorg.github.io/guideline/5.2.0.RELEASE/en/ArchitectureInDetail/MessagingDetail/JMS.html
+http://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#associations / !
+http://activemq.apache.org/security.html
+https://myadventuresincoding.wordpress.com/2011/08/16/jms-how-to-setup-a-durablesubscriber-with-a-messagelistener-using-activemq/
+http://localhost:8161/admin/topics.jsp
+
+
+
+
+
+/ Einde OPEN IN CHROME 20-3-2019
+
+/ OPEN IN CHROME 21-04-2019
+
+https://issues.jboss.org/browse/WFLY-10029?_sscc=t 	/ bean-discovery-mode
+
+https://dzone.com/articles/ejb-3x-lifecycle-and-0	 /part 2
+https://abhirockzz.wordpress.com/2014/08/09/ejb-3-x-lifecycle-and-concurrency-models-part-1/ / part 1
+
+https://stackoverflow.com/questions/35258801/multiple-persistence-units-in-wildfly
+https://maven.apache.org/plugins/maven-checkstyle-plugin/
+https://www.eclipse.org/m2e/documentation/m2e-execution-not-covered.html
+
+http://localhost:8080/abc-greeter/greet.xhtml
+http://localhost:8080/abc-greeter/weld-probe#/beans	 / niets,
+http://localhost:8080/greeter/weld-probe#/beans	/ OK,
+http://localhost:8080/greeter/weld-probe/#/invocation/3 / ERR, Unable to get JSON data: error
+
+http://weld.cdi-spec.org/documentation/
+http://docs.jboss.org/weld/reference/latest/en-US/html_single/#_the_dependent_pseudo_scope
+
+https://stackoverflow.com/questions/9880231/understanding-cdi-instance-and-get-vs-inject
+https://developer.jboss.org/thread/249446 WELD-001408: Unsatisfied dependencies for type EntityManager with qualifiers
+
+
+
+/ Einde OPEN IN CHROME 21-04-2019
+
+
+
+
+

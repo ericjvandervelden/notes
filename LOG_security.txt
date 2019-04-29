@@ -1,0 +1,9 @@
+http://activemq.apache.org/security.html
+->
+https://www.oracle.com/technetwork/java/javase/jaas/index.html
+->
+https://docs.oracle.com/javase/8/docs/technotes/guides/security/index.html
+->
+https://docs.oracle.com/javase/8/docs/technotes/guides/security/jaas/tutorials/index.html
+->
+https://docs.oracle.com/javase/8/docs/technotes/guides/security/jaas/tutorials/GeneralAcnOnly.html

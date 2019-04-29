@@ -1,0 +1,1917 @@
+/ See H2 SAMENVATTING INDEXES BIJ CREATE FK
+
+/ H2
+
+/ INDEXES CONSTRAINTS
+
+/ lees	,
+http://www.h2database.com/html/grammar.html 
+/ voor syntax h2 sql,
+
+
+sql> create table foo2(i int ,s varchar(32));
+
+/ we willen toch een pk	, want kun je een fk maken naar een niet pk?
+
+sql> alter table foo2 add constraint foo2_pk primary key(i);
+/ kan alleen als de column not null is	,
+
+sql> alter table foo2 alter column i set not null;
+sql> alter table foo2 add constraint foo2_pk primary key(i);
+/ ok	,
+/ we hoeven constraint niet te doen	, WH alleen als je de pk een naam wilt geven	,
+
+sql> create table bar2(i int not null,j int);
+sql> alter table bar2 add primary key(i);
+
+sql> select *from information_schema.constraints where table_name in ('FOO2', 'BAR2');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | PRIMARY KEY     | TEST          | PUBLIC       | BAR2       | PRIMARY_KEY_1     | null             | I           |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_1 | 91
+TEST               | PUBLIC            | FOO2_PK         | PRIMARY KEY     | TEST          | PUBLIC       | FOO2       | PRIMARY_KEY_21    | null             | I           |         | ALTER TABLE PUBLIC.FOO2 ADD CONSTRAINT PUBLIC.FOO2_PK PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_21     | 88
+
+/ we kunnen de constraint op bar2.i weer drop	, om hem een andere naam te geven,
+sql> alter table bar2 drop constraint constraint_1;
+sql> alter table bar2 add constraint bar2_pk primary key(i);
+/ en we doen ook	,
+sql>  alter table bar2 add constraint bar2_fk_to_foo2 foreign key(j) references foo2(i) on delete cascade;
+/ ok,
+
+/ kunnen we een fk naar een niet pk maken? Ja,
+sql> alter table bar2 drop constraint bar2_fk_to_foo2;
+(Update count: 0, 2 ms)
+sql> alter table foo2 drop constraint foo2_pk;
+(Update count: 0, 2 ms)
+sql>  alter table bar2 add constraint bar2_fk_to_foo2 foreign key(j) references foo2(i) on delete cascade;
+(Update count: 0, 3 ms)
+/ maar werkt het ook?
+
+/ we set eerst de foo2_pk er weer , en de bar2_fk_to_foo2 is er al,
+sql> alter table foo2 add constraint foo2_pk primary key(i);
+
+/ 13	. 
+
+/ we maken in bar2 2 fks	, 1 naar foo2(i), die pk is, en 1 naar foo2a(i) die alleen not null is,
+
+sql>  alter table bar2 add constraint bar2_fk_to_foo2 foreign key(j) references foo2(i) on delete cascade;
+
+ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J2) INDEX PUBLIC.CONSTRAINT_I |
+
+sql> show columns from foo2;
+FIELD | TYPE        | NULL | KEY | DEFAULT
+I     | INTEGER(10) | NO   | PRI | NULL
+S     | VARCHAR(32) | YES  |     | NULL
+(2 rows, 5 ms)
+sql> show columns from bar2;
+FIELD | TYPE        | NULL | KEY | DEFAULT
+I     | INTEGER(10) | NO   |     | NULL
+J     | INTEGER(10) | YES  |     | NULL
+J2    | INTEGER(10) | YES  |     | NULL
+(3 rows, 5 ms)
+sql> show columns from foo2a;
+FIELD | TYPE        | NULL | KEY | DEFAULT
+I     | INTEGER(10) | NO   |     | NULL
+S     | VARCHAR(32) | YES  |     | NULL
+(2 rows, 7 ms)
+
+sql> alter table bar2 add foreign key(j) references foo2(i);
+(Update count: 0, 2 ms)
+sql> alter table bar2 add foreign key(j2) references foo2a(i);
+(Update count: 0, 2 ms)
+
+sql> maxwidth 1024
+Maximum column width is now 1024
+sql> select*from information_schema.constraints where table_name in ('FOO2', 'BAR2');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME  | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                            | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | PRIMARY_KEY_21     | null             | J           |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J) REFERENCES PUBLIC.FOO2(I) NOCHECK                                    | 89
+TEST               | PUBLIC            | CONSTRAINT_1E   | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | CONSTRAINT_INDEX_3 | null             | J2          |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1E FOREIGN KEY(J2) REFERENCES PUBLIC.FOO2A(I) INDEX PUBLIC.CONSTRAINT_INDEX_3 NOCHECK | 96
+TEST               | PUBLIC            | FOO2_PK         | PRIMARY KEY     | TEST          | PUBLIC       | FOO2       | PRIMARY_KEY_21     | null             | I           |         | ALTER TABLE PUBLIC.FOO2 ADD CONSTRAINT PUBLIC.FOO2_PK PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_21                                               | 92
+(3 rows, 56 ms)
+sql>
+sql> select*from information_schema.indexes where index_name='CONSTRAINT_INDEX_3';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME         | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                              | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO2A      | FALSE      | CONSTRAINT_INDEX_3 | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_3 ON PUBLIC.FOO2A(I) | 95 | 0         | CONSTRAINT_1E   | org.h2.index.PageBtreeIndex
+(1 row, 9 ms)
+sql> select*from information_schema.indexes where index_name='PRIMARY_KEY_21';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME     | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                        | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO2       | FALSE      | PRIMARY_KEY_21 | 1                | I           | 0           | TRUE        | PRIMARY KEY     | TRUE         | 3          | A           | 0     |                  |         | CREATE PRIMARY KEY PUBLIC.PRIMARY_KEY_21 ON PUBLIC.FOO2(I) | 91 | 0         | FOO2_PK         | org.h2.index.PageDelegateIndex
+(1 row, 8 ms)
+
+/ eerder	,
+
+sql>  alter table bar2 add  foreign key(j2) references foo2a(i) on delete cascade;
+(Update count: 0, 3 ms)
+sql>  alter table bar2 add  foreign key(j) references foo2(i) on delete cascade;
+(Update count: 0, 3 ms)
+sql> select*from information_schema.constraints where table_name in ('FOO2', 'BAR2');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME  | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | CONSTRAINT_INDEX_3 | null             | J2          |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J2) INDEX PUBLIC.CONSTRAINT_I | 89
+TEST               | PUBLIC            | CONSTRAINT_1E   | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | PRIMARY_KEY_21     | null             | J           |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1E FOREIGN KEY(J) INDEX PUBLIC.CONSTRAINT_I | 96
+TEST               | PUBLIC            | FOO2_PK         | PRIMARY KEY     | TEST          | PUBLIC       | FOO2       | PRIMARY_KEY_21     | null             | I           |         | ALTER TABLE PUBLIC.FOO2 ADD CONSTRAINT PUBLIC.FOO2_PK PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_21     | 92
+(data is partially truncated)
+(3 rows, 11 ms)
+
+/ 13	. 
+sql> create table foo3(i int not null,s varchar(32));
+(Update count: 0, 2 ms)
+sql> create table bar3(i int not null,j int);
+(Update count: 0, 2 ms)
+sql> create table foo3a(i int not null,s varchar(32));
+(Update count: 0, 2 ms)
+sql> alter table foo3 add primary key(i);
+(Update count: 0, 2 ms)
+sql> select*from information_schema.constraints where table_name in ('FOO3', 'FOO3A','BAR3');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                     | ID
+TEST               | PUBLIC            | CONSTRAINT_21   | PRIMARY KEY     | TEST          | PUBLIC       | FOO3       | PRIMARY_KEY_210   | null             | I           |         | ALTER TABLE PUBLIC.FOO3 ADD CONSTRAINT PUBLIC.CONSTRAINT_21 PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_210 | 95
+(1 row, 6 ms)
+sql> alter table bar3 add foreign key(j) references foo3(i);
+(Update count: 0, 3 ms)
+sql> select*from information_schema.constraints where table_name in ('FOO3', 'FOO3A','BAR3');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                         | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | REFERENTIAL     | TEST          | PUBLIC       | BAR3       | PRIMARY_KEY_210   | null             | J           |         | ALTER TABLE PUBLIC.BAR3 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J) INDEX PUBLIC.CONSTRAINT_INDEX_1 REFERENCES PUBLIC.FOO3(I) NOCHECK | 97
+TEST               | PUBLIC            | CONSTRAINT_21   | PRIMARY KEY     | TEST          | PUBLIC       | FOO3       | PRIMARY_KEY_210   | null             | I           |         | ALTER TABLE PUBLIC.FOO3 ADD CONSTRAINT PUBLIC.CONSTRAINT_21 PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_210                                     | 95
+(2 rows, 8 ms)
+sql> alter table bar3 add column j3 int;
+(Update count: 0, 8 ms)
+sql> alter table bar3 add foreign key(j3) references foo3a(i);
+(Update count: 0, 4 ms)
+sql> select*from information_schema.constraints where table_name in ('FOO3', 'FOO3A','BAR3');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME  | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                                            | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | REFERENTIAL     | TEST          | PUBLIC       | BAR3       | PRIMARY_KEY_210    | null             | J           |         | ALTER TABLE PUBLIC.BAR3 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J) INDEX PUBLIC.CONSTRAINT_1_INDEX_E REFERENCES PUBLIC.FOO3(I) NOCHECK                                  | 101
+TEST               | PUBLIC            | CONSTRAINT_1E   | REFERENTIAL     | TEST          | PUBLIC       | BAR3       | CONSTRAINT_INDEX_3 | null             | J3          |         | ALTER TABLE PUBLIC.BAR3 ADD CONSTRAINT PUBLIC.CONSTRAINT_1E FOREIGN KEY(J3) INDEX PUBLIC.CONSTRAINT_INDEX_1 REFERENCES PUBLIC.FOO3A(I) INDEX PUBLIC.CONSTRAINT_INDEX_3 NOCHECK | 97
+TEST               | PUBLIC            | CONSTRAINT_21   | PRIMARY KEY     | TEST          | PUBLIC       | FOO3       | PRIMARY_KEY_210    | null             | I           |         | ALTER TABLE PUBLIC.FOO3 ADD CONSTRAINT PUBLIC.CONSTRAINT_21 PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_210                                                                        | 95
+(3 rows, 11 ms)
+sql>
+
+/ HIER HIER HIER
+
+
+
+sql> create index x_j on bar2(j);
+(Update count: 0, 1 ms)
+sql> create index x_j2 on bar2(j2);
+(Update count: 0, 2 ms)
+
+sql>  alter table bar2 add foreign key(j) references foo2(i) index x_j;
+(Update count: 0, 2 ms)
+/ OK,
+sql>  alter table bar2 add foreign key(j2) references foo2a(i) index x_j2;
+
+sql> select*from information_schema.constraints where table_name in ('FOO2', 'BAR2');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME  | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | PRIMARY_KEY_21     | null             | J           |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J) REFERENCES PUBLIC.FOO2(I)  | 89
+TEST               | PUBLIC            | CONSTRAINT_1E   | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | CONSTRAINT_INDEX_3 | null             | J2          |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1E FOREIGN KEY(J2) REFERENCES PUBLIC.FOO2A( | 96
+TEST               | PUBLIC            | FOO2_PK         | PRIMARY KEY     | TEST          | PUBLIC       | FOO2       | PRIMARY_KEY_21     | null             | I           |         | ALTER TABLE PUBLIC.FOO2 ADD CONSTRAINT PUBLIC.FOO2_PK PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_21     | 92
+(data is partially truncated)
+(3 rows, 11 ms)
+/ Wat doet constraint_index_3	?
+
+sql> select*from information_schema.indexes where index_name='CONSTRAINT_INDEX_3';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME         | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                              | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO2A      | FALSE      | CONSTRAINT_INDEX_3 | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_3 ON PUBLIC.FOO2A(I) | 89 | 0         | CONSTRAINT_1    | org.h2.index.PageBtreeIndex
+(1 row, 6 ms)
+
+sql> alter table bar2 add foreign key(j) references foo2(i);
+(Update count: 0, 2 ms)
+sql> alter table bar2 add foreign key(j2) references foo2a(i);
+(Update count: 0, 2 ms)
+sql> select*from information_schema.constraints where table_name in ('FOO2', 'BAR2');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME  | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_1    | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | PRIMARY_KEY_21     | null             | J           |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1 FOREIGN KEY(J) REFERENCES PUBLIC.FOO2(I)  | 89
+TEST               | PUBLIC            | CONSTRAINT_1E   | REFERENTIAL     | TEST          | PUBLIC       | BAR2       | CONSTRAINT_INDEX_3 | null             | J2          |         | ALTER TABLE PUBLIC.BAR2 ADD CONSTRAINT PUBLIC.CONSTRAINT_1E FOREIGN KEY(J2) REFERENCES PUBLIC.FOO2A( | 96
+TEST               | PUBLIC            | FOO2_PK         | PRIMARY KEY     | TEST          | PUBLIC       | FOO2       | PRIMARY_KEY_21     | null             | I           |         | ALTER TABLE PUBLIC.FOO2 ADD CONSTRAINT PUBLIC.FOO2_PK PRIMARY KEY(I) INDEX PUBLIC.PRIMARY_KEY_21     | 92
+(data is partially truncated)
+(3 rows, 11 ms)
+
+/ 7	. 
+
+/////////////////////////////////////////////////////////
+
+/ als we een fk maken naar een column in een andere table, dan kunnen er 2 dingen gebeuren,
+/ 1	. er is geen unique index op de column, als h2 de fk maakt, maakt hij ook een unique index op die column, en een index op de fk column,
+/ 2	. er is al een unique index op de column, h2 maakt alleen de index op de fk column, 
+
+/ 1	. 
+
+sql> create table foo4(i int );
+(Update count: 0, 0 ms)
+sql> create table bar4(i int,j int,k int);
+(Update count: 0, 2 ms)
+sql> alter table bar4 add foreign key(j) references foo4(i);
+(Update count: 0, 3 ms)
+
+/ wat er is gebeurd nu is dat er op foo4(i) een unique index is created	( in pg gebeurt precies hetzelfde, maar daar moeten we het zelf doen), en dat er daarna een index wordt create op bar4(j)
+
+sql> select*from information_schema.constraints where table_name in ('FOO4','BAR4');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME  | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                                            | ID
+TEST               | PUBLIC            | CONSTRAINT_1EF  | REFERENTIAL     | TEST          | PUBLIC       | BAR4       | CONSTRAINT_INDEX_2 | null             | J           |         | ALTER TABLE PUBLIC.BAR4 ADD CONSTRAINT PUBLIC.CONSTRAINT_1EF FOREIGN KEY(J) INDEX PUBLIC.CONSTRAINT_INDEX_1E REFERENCES PUBLIC.FOO4(I) INDEX PUBLIC.CONSTRAINT_INDEX_2 NOCHECK | 106
+(1 row, 5 ms)
+
+sql> select*from information_schema.indexes where table_name like '%4%';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME          | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                             | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO4       | FALSE      | CONSTRAINT_INDEX_2  | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_2 ON PUBLIC.FOO4(I) | 105 | 0         | CONSTRAINT_1EF  | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR4       | TRUE       | CONSTRAINT_INDEX_1E | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.CONSTRAINT_INDEX_1E ON PUBLIC.BAR4(J)       | 104 | 0         | CONSTRAINT_1EF  | org.h2.index.PageBtreeIndex
+(2 rows, 5 ms)
+
+/ 2	.
+
+sql> create table foo5(i int);
+sql> alter table foo5 add unique(i);
+(Update count: 0, 3 ms)
+sql> create table bar5(i int,j int,k int);
+(Update count: 0, 2 ms)
+sql> alter table bar5 add foreign key(j)references foo5(i);
+(Update count: 0, 4 ms)
+
+/ omdat de unique index op foo5(i) er al is, wordt deze NIET create in de alter table bar5 regel	, zoals hierboven 	,
+
+sql> select*from information_schema.constraints where table_name like '%5%';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME   | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                              | ID
+TEST               | PUBLIC            | CONSTRAINT_1EFE | REFERENTIAL     | TEST          | PUBLIC       | BAR5       | CONSTRAINT_INDEX_21 | null             | J           |         | ALTER TABLE PUBLIC.BAR5 ADD CONSTRAINT PUBLIC.CONSTRAINT_1EFE FOREIGN KEY(J) INDEX PUBLIC.CONSTRAINT_INDEX_1EF REFERENCES PUBLIC.FOO5(I) NOCHECK | 112
+TEST               | PUBLIC            | CONSTRAINT_210  | UNIQUE          | TEST          | PUBLIC       | FOO5       | CONSTRAINT_INDEX_21 | null             | I           |         | ALTER TABLE PUBLIC.FOO5 ADD CONSTRAINT PUBLIC.CONSTRAINT_210 UNIQUE(I) INDEX PUBLIC.CONSTRAINT_INDEX_21                                          | 109
+(2 rows, 6 ms)
+
+
+sql> select*from information_schema.indexes where table_name like '%5%';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME           | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                              | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO5       | FALSE      | CONSTRAINT_INDEX_21  | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_21 ON PUBLIC.FOO5(I) | 108 | 0         | CONSTRAINT_1EFE | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR5       | TRUE       | CONSTRAINT_INDEX_1EF | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.CONSTRAINT_INDEX_1EF ON PUBLIC.BAR5(J)       | 111 | 0         | CONSTRAINT_1EFE | org.h2.index.PageBtreeIndex
+(2 rows, 6 ms)
+
+/ 13	. 
+
+/ we gaan het zelf doen,
+
+sql> create table foo6(i int);
+(Update count: 0, 2 ms)
+sql> create table bar6(i int,j int);
+(Update count: 0, 3 ms)
+sql> create unique index u_foo_i on foo6(i);
+(Update count: 0, 2 ms)
+sql> create index bar_j on bar6(j);
+(Update count: 0, 0 ms)
+
+sql> select * from information_schema.indexes where table_name ~ '6';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                  | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO6       | FALSE      | U_FOO_I    | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | FALSE        | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.U_FOO_I ON PUBLIC.FOO6(I) | 115 | 0         | null            | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR6       | TRUE       | BAR_J      | 1                | J           | 0           | FALSE       | INDEX           | FALSE        | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.BAR_J ON PUBLIC.BAR6(J)          | 116 | 0         | null            | org.h2.index.PageBtreeIndex
+(2 rows, 10 ms)
+
+sql> alter table bar6 add constraint fk_bar foreign key(j) index bar_j references foo6(i) index u_foo_i;
+(Update count: 0, 3 ms)
+
+
+sql> insert into bar6 values(1,11);
+Error: org.h2.jdbc.JdbcSQLException: Referential integrity constraint violation: "FK_BAR: PUBLIC.BAR6 FOREIGN KEY(J) REFERENCES PUBLIC.FOO6(I) (11)"; SQL statement:
+insert into bar6 values(1,11) [23506-173]
+sql> insert into foo6 values(11);
+(Update count: 1, 3 ms)
+sql> insert into bar6 values(1,11);
+(Update count: 1, 3 ms)
+sql> delete from bar6;
+(Update count: 1, 0 ms)
+sql> delete from foo6;
+(Update count: 2, 2 ms)
+sql> alter table bar6 drop constraint fk_bar;
+(Update count: 0, 3 ms)
+sql> insert into bar6 values(1,12);
+(Update count: 1, 0 ms)
+sql> delete from bar6;
+(Update count: 1, 0 ms)
+
+/ 13	. 
+
+sql> alter table bar6 add constraint fk_bar foreign key(j) index u_foo_i references foo6(i) index bar_j;
+(Update count: 0, 5 ms)
+
+/ 13	. 
+
+sql> drop index u_foo_i;
+Error: org.h2.jdbc.JdbcSQLException: Index "U_FOO_I" belongs to a constraint; SQL statement:
+sql> alter table bar6 drop constraint fk_bar;
+(Update count: 0, 3 ms)
+sql> drop index u_foo_i;
+(Update count: 0, 2 ms)
+sql> drop index bar_j;
+(Update count: 0, 2 ms)
+
+/ 13	. 
+
+/ als je h2 de indexes laat gen bij een fk, en je drop de fk, dan verdwijnen de indexes ook,
+
+sql> alter table bar6 add constraint fk_bar foreign key(j) references foo6(i);
+(Update count: 0, 3 ms)
+
+sql> select * from information_schema.constraints where table_name ~ '6';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                           | ID
+TEST               | PUBLIC            | FK_BAR          | REFERENTIAL     | TEST          | PUBLIC       | BAR6       | FK_BAR_INDEX_2    | null             | J           |         | ALTER TABLE PUBLIC.BAR6 ADD CONSTRAINT PUBLIC.FK_BAR FOREIGN KEY(J) INDEX PUBLIC.FK_BAR_INDEX_1 REFERENCES PUBLIC.FOO6(I) INDEX PUBLIC.FK_BAR_INDEX_2 NOCHECK | 117
+(1 row, 8 ms)
+/ WH betekent deze line ook: create de indexes, 
+/ je kunt ook zelf indexes create, hoeft niet via fk (constraint)
+
+sql> select*from information_schema.indexes where table_name ~ '6';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME     | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                         | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO6       | FALSE      | FK_BAR_INDEX_2 | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.FK_BAR_INDEX_2 ON PUBLIC.FOO6(I) | 116 | 0         | FK_BAR          | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR6       | TRUE       | FK_BAR_INDEX_1 | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.FK_BAR_INDEX_1 ON PUBLIC.BAR6(J)        | 115 | 0         | FK_BAR          | org.h2.index.PageBtreeIndex
+(2 rows, 10 ms)
+
+sql> alter table bar6 drop constraint fk_bar;
+(Update count: 0, 3 ms)
+sql> select * from information_schema.constraints where table_name ~ '6';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL | ID
+(0 rows, 3 ms)
+sql> select*from information_schema.indexes where table_name ~ '6';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+(0 rows, 3 ms)
+
+/ 13	. 
+
+/ als de indexes niet bestaan in de add fk line, dan gaat h2 ze niet maken, hij maakt zelf indexes, 
+
+sql> alter table bar6 add constraint fk_bar foreign key(j) index bar_j references foo6(i) index u_foo_i;
+(Update count: 0, 2 ms)
+sql> select * from information_schema.constraints where table_name ~ '6';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                           | ID
+TEST               | PUBLIC            | FK_BAR          | REFERENTIAL     | TEST          | PUBLIC       | BAR6       | FK_BAR_INDEX_2    | null             | J           |         | ALTER TABLE PUBLIC.BAR6 ADD CONSTRAINT PUBLIC.FK_BAR FOREIGN KEY(J) INDEX PUBLIC.FK_BAR_INDEX_1 REFERENCES PUBLIC.FOO6(I) INDEX PUBLIC.FK_BAR_INDEX_2 NOCHECK | 117
+(1 row, 6 ms)
+sql> select*from information_schema.indexes where table_name ~ '6';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME     | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                         | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO6       | FALSE      | FK_BAR_INDEX_2 | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.FK_BAR_INDEX_2 ON PUBLIC.FOO6(I) | 116 | 0         | FK_BAR          | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR6       | TRUE       | FK_BAR_INDEX_1 | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.FK_BAR_INDEX_1 ON PUBLIC.BAR6(J)        | 115 | 0         | FK_BAR          | org.h2.index.PageBtreeIndex
+(2 rows, 8 ms)
+
+sql> alter table bar6 drop constraint fk_bar;
+(Update count: 0, 1 ms)
+sql> select*from information_schema.indexes where table_name ~ '6';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+(0 rows, 5 ms)
+
+/ 13	. 
+
+sql> create unique index u_foo_i on foo6(i);
+(Update count: 0, 1 ms)
+sql> create index bar_j on bar6(j);
+(Update count: 0, 1 ms)
+sql> alter table bar6 add constraint fk_bar foreign key(j) index bar_j references foo6(i) index u_foo_i;
+(Update count: 0, 5 ms)
+sql> select * from information_schema.constraints where table_name ~ '6';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                           | ID
+TEST               | PUBLIC            | FK_BAR          | REFERENTIAL     | TEST          | PUBLIC       | BAR6       | U_FOO_I           | null             | J           |         | ALTER TABLE PUBLIC.BAR6 ADD CONSTRAINT PUBLIC.FK_BAR FOREIGN KEY(J) INDEX PUBLIC.BAR_J REFERENCES PUBLIC.FOO6(I) INDEX PUBLIC.U_FOO_I NOCHECK | 117
+(1 row, 5 ms)
+sql> select * from information_schema.indexes where table_name ~ '6';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                  | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO6       | FALSE      | U_FOO_I    | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.U_FOO_I ON PUBLIC.FOO6(I) | 115 | 0         | FK_BAR          | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR6       | TRUE       | BAR_J      | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.BAR_J ON PUBLIC.BAR6(J)          | 116 | 0         | FK_BAR          | org.h2.index.PageBtreeIndex
+(2 rows, 7 ms)
+
+/ 13	. 
+
+/ als de volgorde niet klopt, als we de u_foo_i index achter foreign_key(j) schrijven, en bar_j achter references foo(i)	, 
+
+
+/ 13	.
+
+/ rename indexes, constraints
+ 
+sql> create table foo7(i int);
+(Update count: 0, 3 ms)
+sql> alter table foo7 add unique(i);
+(Update count: 0, 2 ms)
+
+sql> create table bar7(i int,j int);
+(Update count: 0, 2 ms)
+sql> select*from information_schema.indexes where table_name ~'7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME           | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                               | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | CONSTRAINT_INDEX_210 | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_210 ON PUBLIC.FOO7(I) | 120 | 0         | CONSTRAINT_2104 | org.h2.index.PageBtreeIndex
+(1 row, 5 ms)
+
+sql> select*from information_schema.indexes where table_name ~'7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME           | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                               | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | CONSTRAINT_INDEX_210 | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_210 ON PUBLIC.FOO7(I) | 120 | 0         | CONSTRAINT_2104 | org.h2.index.PageBtreeIndex
+(1 row, 5 ms)
+sql> alter index constraint_index_210 rename to u_foo7_i;
+(Update count: 0, 2 ms)
+
+sql> select*from information_schema.indexes where table_name ~'7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                   | ID  | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | U_FOO7_I   | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.U_FOO7_I ON PUBLIC.FOO7(I) | 120 | 0         | CONSTRAINT_2104 | org.h2.index.PageBtreeIndex
+(1 row, 5 ms)
+sql> select * from information_schema.constraints where table_name ~ '7';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                           | ID
+TEST               | PUBLIC            | CONSTRAINT_2104 | UNIQUE          | TEST          | PUBLIC       | FOO7       | U_FOO7_I          | null             | I           |         | ALTER TABLE PUBLIC.FOO7 ADD CONSTRAINT PUBLIC.CONSTRAINT_2104 UNIQUE(I) INDEX PUBLIC.U_FOO7_I | 121
+(1 row, 5 ms)
+
+sql> help alter table
+...
+
+/ we kunnen de constraint niet rename, 
+/ TODO
+
+/ 13	. 
+
+/ als we de constraint rm, rm we ook de index,
+
+sql> alter table foo7 drop constraint constraint_2104;
+(Update count: 0, 2 ms)
+sql> select * from information_schema.constraints where table_name ~ '7';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL | ID
+(0 rows, 2 ms)
+sql> select*from information_schema.indexes where table_name ~'7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+(0 rows, 3 ms)
+
+/ H2 SAMENVATTING INDEXES BIJ CREATE FK
+
+/ 13	. 
+
+/ als we de constraint rm, rm we ook de indexes,
+
+sql> create unique index u_foo7_i on foo7(i);
+(Update count: 0, 0 ms)
+sql> create index bar7_j on bar7(j);
+(Update count: 0, 0 ms)
+sql> alter table bar7 add foreign key (j) index bar7_j references foo7(i) index u_foo7_i;
+(Update count: 0, 0 ms)
+
+sql> select * from information_schema.indexes where table_name ~ '(FOO|BAR)7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                   | ID  | SORT_TYPE | CONSTRAINT_NAME  | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | U_FOO7_I   | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.U_FOO7_I ON PUBLIC.FOO7(I) | 120 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR7       | TRUE       | BAR7_J     | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.BAR7_J ON PUBLIC.BAR7(J)          | 122 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+
+sql> select * from information_schema.constraints where table_name ~ '(FOO|BAR)7';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME  | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                       | ID
+TEST               | PUBLIC            | CONSTRAINT_1EFEA | REFERENTIAL     | TEST          | PUBLIC       | BAR7       | U_FOO7_I          | null             | J           |         | ALTER TABLE PUBLIC.BAR7 ADD CONSTRAINT PUBLIC.CONSTRAINT_1EFEA FOREIGN KEY(J) INDEX PUBLIC.BAR7_J REFERENCES PUBLIC.FOO7(I) INDEX PUBLIC.U_FOO7_I NOCHECK | 123
+(1 row, 0 ms)
+
+sql> alter table bar7 drop constraint CONSTRAINT_1EFEA;
+(Update count: 0, 3 ms)
+sql> select * from information_schema.indexes where table_name ~ '(FOO|BAR)7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+(0 rows, 0 ms)
+
+/ 13	. 
+
+/ als we vantevoren maar 1 index create, en in de fk statement 2 indexes noemen waarvan er dus maar 1 bestaat, dan maakt hij zelf een nieuwe index,
+/ als we geen index hebben create van te voren, maakt hij 2 indexes aan,
+
+sql> create unique index u_foo7_i on foo7(i);
+(Update count: 0, 15 ms)
+sql> alter table bar7 add foreign key (j) index bar7_j references foo7(i) index u_foo7_i;
+(Update count: 0, 0 ms)
+sql> select * from information_schema.indexes where table_name ~ '(FOO|BAR)7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME            | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                         | ID  | SORT_TYPE | CONSTRAINT_NAME  | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | U_FOO7_I              | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.U_FOO7_I ON PUBLIC.FOO7(I)       | 120 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR7       | TRUE       | CONSTRAINT_INDEX_1EFE | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.CONSTRAINT_INDEX_1EFE ON PUBLIC.BAR7(J) | 122 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+(2 rows, 0 ms)
+
+
+sql> alter table bar7 drop constraint CONSTRAINT_1EFEA;
+(Update count: 0, 0 ms)
+sql> select * from information_schema.indexes where table_name ~ '(FOO|BAR)7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL | ID | SORT_TYPE | CONSTRAINT_NAME | INDEX_CLASS
+(0 rows, 0 ms)
+sql> alter table bar7 add foreign key (j) index bar7_j references foo7(i) index u_foo7_i;
+(Update count: 0, 0 ms)
+sql> select * from information_schema.indexes where table_name ~ '(FOO|BAR)7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME            | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                               | ID  | SORT_TYPE | CONSTRAINT_NAME  | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | CONSTRAINT_INDEX_210  | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.CONSTRAINT_INDEX_210 ON PUBLIC.FOO7(I) | 122 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR7       | TRUE       | CONSTRAINT_INDEX_1EFE | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.CONSTRAINT_INDEX_1EFE ON PUBLIC.BAR7(J)       | 120 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+(2 rows, 16 ms)
+
+/ Einde H2 SAMENVATTING INDEXES BIJ CREATE FK
+
+/ 7	. 
+
+/ on delete cascade
+
+/ bar7 heeft fk naar foo7 ,
+/ zonder delete cascade: als je een entry in foo7 wilt rm, en in bar7 wijst een entry er naar, dan gaat de rm in foo7 niet door,
+/ met delete cascade: als je de entry in foo7 rm, wordt ook de entries in bar7 die er naar wijzen rm,
+
+sql> show columns from foo7;
+FIELD | TYPE        | NULL | KEY | DEFAULT
+I     | INTEGER(10) | YES  | UNI | NULL
+(1 row, 0 ms)
+sql> show columns from bar7;
+FIELD | TYPE        | NULL | KEY | DEFAULT
+J     | INTEGER(10) | YES  |     | NULL
+(1 row, 0 ms)
+
+sql> alter table bar7 drop constraint CONSTRAINT_1EFEA;
+(Update count: 0, 0 ms)
+sql> create unique index u_foo7_i on foo7(i);
+(Update count: 0, 0 ms)
+sql> create index bar7_j on bar7(j);
+(Update count: 0, 0 ms)
+sql> alter table bar7 add foreign key (j) index bar7_j references foo7(i) index u_foo7_i;
+(Update count: 0, 0 ms)
+sql> select * from information_schema.indexes where table_name ~ '(FOO|BAR)7';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | NON_UNIQUE | INDEX_NAME | ORDINAL_POSITION | COLUMN_NAME | CARDINALITY | PRIMARY_KEY | INDEX_TYPE_NAME | IS_GENERATED | INDEX_TYPE | ASC_OR_DESC | PAGES | FILTER_CONDITION | REMARKS | SQL                                                   | ID  | SORT_TYPE | CONSTRAINT_NAME  | INDEX_CLASS
+TEST          | PUBLIC       | FOO7       | FALSE      | U_FOO7_I   | 1                | I           | 0           | FALSE       | UNIQUE INDEX    | TRUE         | 3          | A           | 0     |                  |         | CREATE UNIQUE INDEX PUBLIC.U_FOO7_I ON PUBLIC.FOO7(I) | 120 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+TEST          | PUBLIC       | BAR7       | TRUE       | BAR7_J     | 1                | J           | 0           | FALSE       | INDEX           | TRUE         | 3          | A           | 0     |                  |         | CREATE INDEX PUBLIC.BAR7_J ON PUBLIC.BAR7(J)          | 122 | 0         | CONSTRAINT_1EFEA | org.h2.index.PageBtreeIndex
+(2 rows, 8 ms)
+sql> select * from information_schema.constraints where table_name ~ '(FOO|BAR)7';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME  | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                       | ID
+TEST               | PUBLIC            | CONSTRAINT_1EFEA | REFERENTIAL     | TEST          | PUBLIC       | BAR7       | U_FOO7_I          | null             | J           |         | ALTER TABLE PUBLIC.BAR7 ADD CONSTRAINT PUBLIC.CONSTRAINT_1EFEA FOREIGN KEY(J) INDEX PUBLIC.BAR7_J REFERENCES PUBLIC.FOO7(I) INDEX PUBLIC.U_FOO7_I NOCHECK | 123
+(1 row, 0 ms)
+
+/ 13	 .
+
+sql> insert into foo7 values(1);
+(Update count: 1, 0 ms)
+sql> insert into bar7 values(2);
+Error: org.h2.jdbc.JdbcSQLException: Referential integrity constraint violation: "CONSTRAINT_1EFEA: PUBLIC.BAR7 FOREIGN KEY(J) REFERENCES PUBLIC.FOO7(I) (2)"; SQL statement:
+insert into bar7 values(2) [23506-173]
+
+sql> insert into bar7 values(1);
+(Update count: 1, 0 ms)
+sql> delete from foo7 where i=1;
+Error: org.h2.jdbc.JdbcSQLException: Referential integrity constraint violation: "CONSTRAINT_1EFEA: PUBLIC.BAR7 FOREIGN KEY(J) REFERENCES PUBLIC.FOO7(I) (1)"; SQL statement:
+delete from foo7 where i=1 [23503-173]
+
+/ 13	. 
+
+sql> alter table bar7 drop constraint constraint_1efea;
+(Update count: 0, 0 ms)
+sql> alter table bar7 add foreign key (j) index bar7_j references foo7(i) index u_foo7_i on delete cascade;
+(Update count: 0, 0 ms)
+sql> select * from information_schema.constraints where table_name ~ '(FOO|BAR)7';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME  | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME    | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                                                                                                                    | ID
+TEST               | PUBLIC            | CONSTRAINT_1EFEA | REFERENTIAL     | TEST          | PUBLIC       | BAR7       | CONSTRAINT_INDEX_210 | null             | J           |         | ALTER TABLE PUBLIC.BAR7 ADD CONSTRAINT PUBLIC.CONSTRAINT_1EFEA FOREIGN KEY(J) INDEX PUBLIC.CONSTRAINT_INDEX_1EFE REFERENCES PUBLIC.FOO7(I) INDEX PUBLIC.CONSTRAINT_INDEX_210 ON DELETE CASCADE NOCHECK | 123
+(1 row, 0 ms)
+
+/ 13	. 
+
+sql> select *from foo7;
+I
+1
+(1 row, 0 ms)
+sql> select *from bar7;
+J
+1
+(1 row, 0 ms)
+sql> delete from foo7 where i=1;
+(Update count: 1, 0 ms)
+sql> select *from bar7;
+J
+(0 rows, 0 ms)
+
+/ 7	. 
+
+
+
+
+
+
+
+
+
+
+
+ 
+/ Intermezzo
+
+/ google
+sql multiple like
+/ lees,
+https://stackoverflow.com/questions/1865353/combining-like-and-in-for-sql-server
+
+
+/ Einde Intermezzo
+
+/ Einde INDEXES AND CONSTRAINTS
+
+/ Einde H2
+
+/ PG
+
+test=> create table foo(i int not null,s varchar(32));
+CREATE TABLE
+test=> create table bar(i int not null,j int);
+CREATE TABLE
+test=> alter table foo add primary key(i);
+ALTER TABLE
+test=> alter table bar add foreign key(j) references foo(i);
+ALTER TABLE
+test=> select * from pg_constraint;
+
+test=> alter table bar add column j2 int;
+ALTER TABLE
+test=> create table foo2(i int not null,s varchar(32));
+CREATE TABLE           ^
+test=> alter table foo2 add unique(i);						-- moet voor fk,
+ALTER TABLE
+test=> alter table bar add foreign key(j2) references foo2(i);
+ALTER TABLE
+
+test=> select*from pg_indexes where tablename in ('foo','foo2','bar');
+ schemaname | tablename | indexname  | tablespace |                        indexdef
+------------+-----------+------------+------------+--------------------------------------------------------
+ public     | foo       | foo_pkey   |            | CREATE UNIQUE INDEX foo_pkey ON foo USING btree (i)
+ public     | foo2      | foo2_i_key |            | CREATE UNIQUE INDEX foo2_i_key ON foo2 USING btree (i)
+(2 rows)
+test=>  select*from pg_constraint where conname similar to '%(foo|bar)%';
+   conname   | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+-------------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ foo_pkey    |         2200 | p       | f             | f           | t            |    41440 |        0 |    41446 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+ bar_j_fkey  |         2200 | f       | f             | f           | t            |    41443 |        0 |    41446 |     41440 | a           | a           | s             | t          |           0 | t            | {2}    | {1}     | {96}      | {96}      | {96}      |           |        |
+ foo2_i_key  |         2200 | u       | f             | f           | t            |    41453 |        0 |    41456 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+ bar_j2_fkey |         2200 | f       | f             | f           | t            |    41443 |        0 |    41456 |     41453 | a           | a           | s             | t          |           0 | t            | {3}    | {1}     | {96}      | {96}      | {96}      |           |        |
+(4 rows)
+
+/ google,
+postgresql pg_constraint join pg_indexes
+/ lees,
+https://stackoverflow.com/questions/2970050/postgresql-how-to-index-all-foreign-keys
+https://stackoverflow.com/questions/2204058/list-columns-with-indexes-in-postgresql/2213199
+
+/ 13	. 
+
+/ 1313	. 
+
+test=> create table foo(i int);
+CREATE TABLE
+test=> create table bar(i int,j int);
+CREATE TABLE
+test=> \d+ foo
+                         Table "public.foo"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+
+
+test=> \d+ bar
+                         Table "public.bar"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+ j      | integer |           | plain   |              |
+ 
+test=>  select*from pg_constraint where conname similar to '%(foo|bar)%';
+ conname | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+---------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+(0 rows)
+
+
+test=> select*from pg_indexes where tablename in ('foo','bar');
+ schemaname | tablename | indexname | tablespace | indexdef
+------------+-----------+-----------+------------+----------
+(0 rows)
+
+/ 1313	. 
+
+test=> alter table bar add foreign key(j)references foo(i);
+ERROR:  there is no unique constraint matching given keys for referenced table "foo"
+
+test=> alter table foo add unique(i);
+ALTER TABLE
+
+test=>  select*from pg_constraint where conname similar to '%(foo|bar)%';
+  conname  | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+-----------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ foo_i_key |         2200 | u       | f             | f           | t            |    41478 |        0 |    41484 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+(1 row)
+test=> select*from pg_indexes where tablename in ('foo','bar');
+ schemaname | tablename | indexname | tablespace |                       indexdef
+------------+-----------+-----------+------------+------------------------------------------------------
+ public     | foo       | foo_i_key |            | CREATE UNIQUE INDEX foo_i_key ON foo USING btree (i)
+(1 row)
+
+
+test=> \d+ foo
+                         Table "public.foo"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+Indexes:
+    "foo_i_key" UNIQUE CONSTRAINT, btree (i)
+	
+/ 1313
+
+test=> alter table bar add foreign key(j)references foo(i);
+ALTER TABLE
+
+test=>  select*from pg_constraint where conname similar to '%(foo|bar)%';
+  conname   | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+------------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ foo_i_key  |         2200 | u       | f             | f           | t            |    41478 |        0 |    41484 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+ bar_j_fkey |         2200 | f       | f             | f           | t            |    41481 |        0 |    41484 |     41478 | a           | a           | s             | t          |           0 | t            | {2}    | {1}     | {96}      | {96}      | {96}      |           |        |
+(2 rows)
+
+
+test=> select*from pg_indexes where tablename in ('foo','bar');
+ schemaname | tablename | indexname | tablespace |                       indexdef
+------------+-----------+-----------+------------+------------------------------------------------------
+ public     | foo       | foo_i_key |            | CREATE UNIQUE INDEX foo_i_key ON foo USING btree (i)
+(1 row)
+
+test=> \d+ foo
+                         Table "public.foo"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+Indexes:
+    "foo_i_key" UNIQUE CONSTRAINT, btree (i)
+Referenced by:
+    TABLE "bar" CONSTRAINT "bar_j_fkey" FOREIGN KEY (j) REFERENCES foo(i)
+
+
+test=> \d+ bar
+                         Table "public.bar"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+ j      | integer |           | plain   |              |
+Foreign-key constraints:
+
+/ 1313	.
+
+/ Intermezzo
+
+/ lees,
+https://www.postgresql.org/docs/9.0/static/functions-matching.html
+
+test=> select 'abc' similar to 'abc';
+ ?column?
+----------
+ t
+(1 row)
+
+
+test=> select 'abc' similar to '%(b|d)%';
+ ?column?
+----------
+ t
+(1 row)
+
+test=> select 'abc' ~'(b|d)';
+ ?column?
+----------
+ t
+(1 row)
+
+
+
+/ Einde Intermezzo
+
+/ 7	. 
+test=> create table foo6(i int);
+CREATE TABLE
+test=> create table bar6(i int,j int);
+CREATE TABLE
+test=> alter table foo6 add unique(i);
+ALTER TABLE
+test=> alter table bar6 add foreign key(j) references foo6(i);
+ALTER TABLE
+
+test=> \d+ bar6
+                         Table "public.bar6"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+ j      | integer |           | plain   |              |
+Foreign-key constraints:
+    "bar6_j_fkey" FOREIGN KEY (j) REFERENCES foo6(i)
+
+
+test=> \d+ foo6
+                         Table "public.foo6"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+Indexes:
+    "foo6_i_key" UNIQUE CONSTRAINT, btree (i)
+Referenced by:
+    TABLE "bar6" CONSTRAINT "bar6_j_fkey" FOREIGN KEY (j) REFERENCES foo6(i)
+	
+test=> alter table bar6 drop constraint bar6_j_fkey;
+ALTER TABLE
+test=> select * from pg_indexes where tablename ~ '6';
+ schemaname | tablename | indexname  | tablespace |                        indexdef
+------------+-----------+------------+------------+--------------------------------------------------------
+ public     | foo6      | foo6_i_key |            | CREATE UNIQUE INDEX foo6_i_key ON foo6 USING btree (i)
+(1 row)
+
+
+test=> select * from pg_constraint where conname ~'6';
+  conname   | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+------------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ foo6_i_key |         2200 | u       | f             | f           | t            |    41496 |        0 |    41502 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+(1 row)
+
+
+test=>
+
+/ 7	.
+
+test=> create table foo6(i int);
+CREATE TABLE
+test=> alter table foo6 add unique(i);
+ALTER TABLE
+
+/ zo verwijder	,
+test=> alter table foo6 drop constraint foo6_i_key;
+ALTER TABLE
+test=> select * from pg_constraint where conname ~'6';
+ conname | connamespace | contype | condeferrable | condeferred | convalidated | c...
+---------+--------------+---------+---------------+-------------+--------------+--
+(0 rows)
+
+/ let op column names: tablename en conname,
+test=> select * from pg_indexes where tablename ~'6';
+test=> select * from pg_constraint where conname ~'6';
+
+test=>  create unique index u_foo_i on foo6(i);
+CREATE INDEX
+test=> alter table foo6 add unique(i);
+ALTER TABLE
+test=> select * from pg_indexes where tablename ~'6';
+ schemaname | tablename | indexname  | tablespace |                        indexdef
+------------+-----------+------------+------------+--------------------------------------------------------
+ public     | foo6      | u_foo_i    |            | CREATE UNIQUE INDEX u_foo_i ON foo6 USING btree (i)
+ public     | foo6      | foo6_i_key |            | CREATE UNIQUE INDEX foo6_i_key ON foo6 USING btree (i)
+(2 rows)
+test=> select * from pg_constraint where conname ~'6';
+  conname   | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+------------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ foo6_i_key |         2200 | u       | f             | f           | t            |    41496 |        0 |    41510 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+(1 row)
+
+test=> alter table foo6 alter column i set not null;
+ALTER TABLE
+
+test=> alter table foo6 add unique using index u_foo_i;
+ALTER TABLE
+/ dus niet add unique(i) using index u_foo_i, want i zit al in de index,
+
+test=> \d+ foo6
+                         Table "public.foo6"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer | not null  | plain   |              |
+Indexes:
+    "foo6_i_key" UNIQUE CONSTRAINT, btree (i)
+    "u_foo_i" UNIQUE CONSTRAINT, btree (i)
+
+	
+/ met add constraint <name> using index u_foo6_i ... kun je een constraint zelf een naam geven,
+
+/ 7. 	
+
+test=> alter table foo6 alter i set not null;
+ALTER TABLE
+/ alter of alter column, beide OK,
+
+/ een naam geven aan een constraint als de index er al is heeft geen zin	,
+test=> create unique index u_foo6_i on foo6(i);
+CREATE INDEX
+test=> alter table foo6 add constraint foo6_pk unique using index u_foo6_i;
+NOTICE:  ALTER TABLE / ADD CONSTRAINT USING INDEX will rename index "u_foo6_i" to "foo6_pk"
+ALTER TABLE
+
+/ als je de constraint rm, is ook de index rm, want dat is hetzelfde ding,
+
+/ 13	. 
+
+/ dit is het makkelijkst	, 
+
+test=> alter table foo6 add unique(i);
+ALTER TABLE
+test=> select * from pg_indexes where tablename ~'foo';
+ schemaname | tablename | indexname  | tablespace |                        indexdef
+------------+-----------+------------+------------+--------------------------------------------------------
+ public     | foo6      | foo6_i_key |            | CREATE UNIQUE INDEX foo6_i_key ON foo6 USING btree (i)
+ 
+/ maar dit kan ook,
+
+test=> alter table foo6 drop constraint  foo6_i_key;
+ALTER TABLE
+test=> create unique index u_foo6_i on foo6(i)
+test-> ;
+CREATE INDEX
+test=> alter table foo6 add unique using index u_foo6_i;
+ALTER TABLE
+
+/ 7	. 
+
+/ in pg zien we dat een primary key leidt tot een unique index, en tot not null,
+
+test=> create table foo8(i int primary key);
+CREATE TABLE
+test=> select*from pg_indexes where tablename ~'8';
+ schemaname | tablename | indexname | tablespace |                       indexdef
+------------+-----------+-----------+------------+-------------------------------------------------------
+ public     | foo8      | foo8_pkey |            | CREATE UNIQUE INDEX foo8_pkey ON foo8 USING btree (i)
+(1 row)
+
+test=> select*from pg_constraint where conname ~'8';
+  conname  | connamespace | contype | condeferrable | condeferred | convali...
+-----------+--------------+---------+---------------+-------------+--------
+ foo8_pkey |         2200 | p       | f             | f           | t
+(1 row)
+/ dus type =p , geen u,
+/ WH omdat is ook not null,
+
+test=> select is_nullable from information_schema.columns where table_name~'8';
+ is_nullable
+-------------
+ NO
+(1 row)
+
+/ 7	 
+
+/ lees,
+https://stackoverflow.com/questions/10356484/how-to-add-on-delete-cascade-constraints
+
+test=> select *
+test-> from information_schema.key_column_usage
+test-> where position_in_unique_constraint is not null
+test-> ;
+ constraint_catalog | constraint_schema |       constraint_name       | table_catalog | table_schema | table_name | column_name | ordinal_position | position_in_unique_constraint
+--------------------+-------------------+-----------------------------+---------------+--------------+------------+-------------+------------------+-------------------------------
+ test               | public            | fk25g82yobwd9r8qqqjvbe8himq | test          | public       | bar        | foo_id      |                1 |                             1
+(1 row)
+
+/ lees,
+https://www.cybertec-postgresql.com/en/postgresql-indexes-and-foreign-keys/
+
+https://www.cybertec-postgresql.com/en/
+
+/ 7	. 
+
+test=> \d+ foo8
+                         Table "public.foo8"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer | not null  | plain   |              |
+Indexes:
+    "foo8_pkey" PRIMARY KEY, btree (i)
+
+
+test=> create table bar8(i int ,j int);
+CREATE TABLE
+test=> alter table bar8 add foreign key(j)references foo8(i) on update cascade on delete cascade;
+ALTER TABLE
+test=> \d+ bar8
+                         Table "public.bar8"
+ Column |  Type   | Modifiers | Storage | Stats target | Description
+--------+---------+-----------+---------+--------------+-------------
+ i      | integer |           | plain   |              |
+ j      | integer |           | plain   |              |
+Foreign-key constraints:
+    "bar8_j_fkey" FOREIGN KEY (j) REFERENCES foo8(i) ON UPDATE CASCADE ON DELETE CASCADE
+	
+/ lees,
+https://www.postgresql.org/docs/9.1/static/catalog-pg-constraint.html
+test=> select*from pg_constraint where conname~'bar8';
+   conname   | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+-------------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ bar8_j_fkey |         2200 | f       | f             | f           | t            |    41572 |        0 |    41525 |     41522 | c           | c           | s             | t          |           0 | t            | {2}    | {1}     | {96}      | {96}      | {96}      |           |        |
+(1 row)
+/ we zien confupdtype c en confdeltype c	, c staat voor cascade, 
+/ als we geen on update cascade on update delete	, dan zien we a ipv c,
+
+test=> insert into foo8 values(1),(2);
+INSERT 0 2
+test=> insert into bar8 values(11,1),(12,1),(21,2);
+INSERT 0 3
+test=> update foo8 set i=i*2;
+ERROR:  duplicate key value violates unique constraint "foo8_pkey"
+DETAIL:  Key (i)=(2) already exists.
+test=> update foo8 set i=i*3;
+UPDATE 2
+test=> select*from foo8;
+ i
+---
+ 3
+ 6
+(2 rows)
+
+
+test=> select*from bar8;
+ i  | j
+----+---
+ 11 | 3
+ 12 | 3
+ 21 | 6
+(3 rows)
+
+test=> delete from foo8 where i=3;
+DELETE 1
+test=> select*from foo8;
+ i
+---
+ 6
+(1 row)
+
+
+test=> select*from bar8;
+ i  | j
+----+---
+ 21 | 6
+(1 row)
+
+
+/ 7	. 
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+	
+	@OneToMany(mappedBy="foo",cascade=CascadeType.ALL,orphanRemoval=true)
+	private List<Bar>bars=new ArrayList<Bar>();
+
+	
+$ vi Bar.java
+
+@Entity
+public class Bar {
+	
+	@Id
+	private Long id;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Foo foo;
+	
+$ vi persistence.xml
+
+    </persistence-unit>
+        <persistence-unit name="jpa_pg">
+		
+        <class>org.hibernate.tutorial.em.Foo</class>  
+        <class>org.hibernate.tutorial.em.Bar</class>       
+                                   
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost/test" />
+            <property name="javax.persistence.jdbc.user" value="eric" />
+            <property name="javax.persistence.jdbc.password" value="vi_lang17" />
+
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.hbm2ddl.auto" value="create" />
+        </properties>
+
+    </persistence-unit>
+	
+/ we zien in postgresql,
+
+test=> \d+ bar
+                         Table "public.bar"
+ Column |  Type  | Modifiers | Storage | Stats target | Description
+--------+--------+-----------+---------+--------------+-------------
+ id     | bigint | not null  | plain   |              |
+ foo_id | bigint |           | plain   |              |
+Indexes:
+    "bar_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "fk25g82yobwd9r8qqqjvbe8himq" FOREIGN KEY (foo_id) REFERENCES foo(id)
+
+test=> select * from pg_indexes where tablename~'foo|bar';
+ schemaname | tablename | indexname | tablespace |                       indexdef
+------------+-----------+-----------+------------+-------------------------------------------------------
+ public     | bar       | bar_pkey  |            | CREATE UNIQUE INDEX bar_pkey ON bar USING btree (id)
+ public     | foo       | foo_pkey  |            | CREATE UNIQUE INDEX foo_pkey ON foo USING btree (id)
+(5 rows)
+
+test=> select*from pg_constraint where conname~'foo|bar';
+   conname   | connamespace | contype | condeferrable | condeferred | convalidated | conrelid | contypid | conindid | confrelid | confupdtype | confdeltype | confmatchtype | conislocal | coninhcount | connoinherit | conkey | confkey | conpfeqop | conppeqop | conffeqop | conexclop | conbin | consrc
+-------------+--------------+---------+---------------+-------------+--------------+----------+----------+----------+-----------+-------------+-------------+---------------+------------+-------------+--------------+--------+---------+-----------+-----------+-----------+-----------+--------+--------
+ bar_pkey    |         2200 | p       | f             | f           | t            |    41557 |        0 |    41560 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        |
+ foo_pkey    |         2200 | p       | f             | f           | t            |    41562 |        0 |    41565 |         0 |             |             |               | t          |           0 | t            | {1}    |         |           |           |           |           |        | bar8_j_fkey |         2200 | f       | f             | f           | t            |    41572 |        0 |    41525 |     41522 | c           | c           | s             | t          |           0 | t            | {2}    | {1}     | {96}      | {96}      | {96}      |           |        |
+(6 rows)
+
+/ geen confupdtype, confdeltype
+/ TODO Doet H. dat dan?
+
+/ 7	 
+
+/ verschil cascade=CascadeType.ALL en in pg on delete cascade on update cascade
+
+/ we set in Java GEEN CascadeType, en in pg WEL	,
+
+/ we maken Foo2, Bar2, en hibernate.hbm2ddl.auto=validate	,
+/ we maken in pg,
+
+test=> alter table bar2 drop constraint fkrwwttcncs8nf7ntsmh3wd62gw
+test-> ;
+ALTER TABLE
+test=> alter table bar2 add foreign key(foo_id)references foo2(id) on update cascade on delete cascade;
+ALTER TABLE
+
+test=> alter table bar2 rename foo_id to foo2_id;
+ALTER TABLE
+
+/ doe NIET,
+test=> alter table bar2 alter foo_id rename to foo2_id;
+ERROR:  syntax error at or near "rename"
+
+/ en in Java geen CascadeType,
+
+$ vi Foo2.java
+
+@Entity
+public class Foo2 {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+//	@OneToMany(mappedBy = "foo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy="foo2")
+	private List<Bar2> bars = new ArrayList<Bar2>();
+	
+$ vi Bar2.java
+
+@Entity
+public class Bar2 {
+	
+	@Id
+	private Long id;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Foo2 foo2;
+
+
+$ vi EntityTests.java
+
+	@Test
+	public void test3_pk_mult_pg() throws Exception {
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo2 foo2=new Foo2(1l,"foo");
+		Bar2 bar2=new Bar2(1l,foo2);
+		entityManager.persist(foo2);
+		entityManager.persist(bar2);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();												/ (*)
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+//		Query q=entityManager.createQuery("update Foo2 f set f.id=f.id*3");
+// of	,
+		Query q=entityManager.createQuery("update Foo2 set id=id*3");
+
+		q.executeUpdate();
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();																/ (**)
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		q=entityManager.createQuery("delete from Foo2");
+
+		q.executeUpdate();
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();														/ (***)
+		
+		
+	}
+	
+/ Na (*),
+
+test=> select*from foo2
+test-> ;
+ id | name
+----+------
+  1 | foo
+(1 row)
+
+
+test=> select*from bar2;
+ id | foo2_id
+----+---------
+  1 |       1
+(1 row)
+
+/ Na (**)	,
+
+test=> select*from foo2;
+ id | name
+----+------
+  3 | foo
+(1 row)
+
+
+test=> select*from bar2;
+ id | foo2_id
+----+---------
+  1 |       3
+(1 row)
+
+/ Na (***)	,
+
+test=> select*from foo2;
+ id | name
+----+------
+(0 rows)
+
+
+test=> select*from bar2;
+ id | foo2_id
+----+---------
+(0 rows)
+
+/ 7	 
+
+/ verschil cascade=CascadeType.ALL en in pg on delete cascade on update cascade
+
+/ we set in Java WEL  CascadeType, en in pg NIET,
+
+/ CascadeType werkt alleen met entityManager fcts	, zoals remove	, maar NIET met JPA QL	,
+
+/ we hebben Foo, Bar in Java,
+
+$ vi Foo.java
+/ HIER HIER HIER
+
+
+/ 7	. 
+
+/ CascadeType.MERGE
+
+/ we add een column to bar, zodat we deze kunnen update, dan zie je de merge goed	,
+
+test=> alter table bar add name varchar(32);
+ALTER TABLE
+
+$ vi Bar.java
+@Entity
+public class Bar {
+	
+	@Id
+	private Long id;
+	
+	private String name;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Foo foo;
+	
+$ vi Foo.java
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, // em.save(foo) saves ook foo.getBars()
+					CascadeType.MERGE, // als NIET, dan als detached foo update, en in tx merge, dan wordt foo.getBars() in db niet update	,
+					CascadeType.REMOVE, // als NIET, dan bij em.remove(foo): ERROR: update or delete on table "foo" violates foreign key constraint "fk25g82yobwd9r8qqqjvbe8himq" on table "bar"
+//					CascadeType.DETACH,
+//					CascadeType.REFRESH
+			}
+//			,orphanRemoval = true
+			)
+	private List<Bar> bars = new ArrayList<Bar>();
+
+$ vi EntityTests.java
+
+	@Test
+	public void test_cascade_merge_pg() throws Exception {
+		
+
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,"bar1",foo);
+		foo.getBars().add(bar);
+		Bar bar2=new Bar(2l,"bar2",foo);
+		foo.getBars().add(bar2);
+		entityManager.persist(foo);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		foo.getBars()
+			.stream()
+			.filter(b->b.getName().toLowerCase().contains("bar"))
+			.findAny()
+			.ifPresent(b->b.setName(b.getName()+" modified"));
+			
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		entityManager.merge(foo);	// alleen als @OneToMany(cascade=CascadeType.MERGE), wordt ook foo.getBars() update in db,
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	
+/ voor de test,
+test=> select*from bar;
+ id | foo_id | name
+----+--------+------
+  1 |      1 | bar1
+  2 |      1 | bar2
+(2 rows)
+
+/ na de test,
+test=> select*from bar;
+ id | foo_id |     name
+----+--------+---------------
+  2 |      1 | bar2
+  1 |      1 | bar1 modified
+(2 rows)
+
+/ 7	. 
+
+/ ophanRemoval	,
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, // em.save(foo) saves ook foo.getBars()
+					CascadeType.MERGE, // als NIET, dan als detached foo update, en in tx merge, dan wordt foo.getBars() in db niet update	,
+					CascadeType.REMOVE, // als NIET, dan bij em.remove(foo): ERROR: update or delete on table "foo" violates foreign key 		constraint "fk25g82yobwd9r8qqqjvbe8himq" on table "bar"
+//					CascadeType.DETACH,
+//					CascadeType.REFRESH
+			}
+			,orphanRemoval = true
+			)
+	private List<Bar> bars = new ArrayList<Bar>();
+
+$ vi EntityTests.java
+
+public class EntityTests{
+
+	@Test
+	public void test_ophanRemoval2_pg() throws Exception { 
+	
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		foo=entityManager.find(Foo.class, 1l);
+		foo.getBars().remove(0);
+// of,		
+		foo=(Foo)entityManager.createQuery(
+			"select f "
+			+ "from Foo f "
+//			+ "join fetch f.bars "			// (*)
+			+ "where f.id=:id")
+			.setParameter("id", 1l)
+			.getSingleResult();
+		foo.getBars().get(0).setFoo(null);
+		foo.getBars().remove(0);
+						
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+
+/ als we NIET @OneToMany(orphanRemoval=true)	, dan wordt bar update,
+ id | foo_id | name
+----+--------+------
+  2 |      1 |
+  1 |        |
+(2 rows)
+
+/ als WEL @OneToMany(orphanRemoval=true), dan wordt bar delete,
+ id | foo_id | name
+----+--------+------
+  2 |      1 |
+  
+/ als we (*) NIET, dan ook OK, 
+/ TODO
+
+/ 13	. 
+
+		foo=entityManager.find(Foo.class, 1l);
+		entityManager.detach(foo);
+		entityManager.remove(foo);
+/ ERR,
+java.lang.IllegalArgumentException: Removing a detached instance org.hibernate.tutorial.em.Foo#1
+
+		foo=entityManager.find(Foo.class, 1l);
+		entityManager.detach(foo);
+		entityManager.merge(foo);
+/ OK,
+
+		foo=entityManager.find(Foo.class, 1l);
+		entityManager.detach(foo);
+		entityManager.persist(foo);
+/ ERR,
+duplicate key violates unique constraint foo_key
+
+/ 7	 . 
+
+/ als je iets doet met een Foo in detached state, doe dan in een tx NIET entityManager.find, maar entityManager.merge(deze Foo)	, 
+/ want met find mis je de veranderingen die je hebt gemaakt	,
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, 
+//					CascadeType.MERGE
+			}
+			,orphanRemoval = true
+			)
+	private List<Bar> bars = new ArrayList<Bar>();
+
+$ vi EntityTests.java
+
+	@Test
+	public void test_orphanRemoval3_pg() throws Exception { 
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,foo);
+		foo.getBars().add(bar);
+		Bar bar2=new Bar(2l,foo);
+		foo.getBars().add(bar2);
+		entityManager.persist(foo);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+				
+		bar.setFoo(null);						/ rm een bar uit coll in foo, in detached state,
+		foo.getBars().remove(bar);
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		foo=entityManager.merge(foo);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}	
+
+/ je kunt het ook binnen de tx doen, als foo managed is,
+/ dan kun je wel eerst find doen, of ook ook merge is OK,
+
+/ 13	. 
+
+/ waarom hoeven geen CascadeType.MERGE?
+
+////////////////////////////////////////
+/ er zijn 2 mogelijkheden: 
+/ CascadeType.MERGE	, dat is voor als je de coll heb veranderd	,
+/ orphanRemoval=true, dat is als je een item uit de collectie verwijdert	,
+
+/ TODO morgen allebei	,
+
+/ dat zagen we eerder, toen het wel moest	,
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, 
+					CascadeType.MERGE, 
+			}
+	//		,orphanRemoval = true
+			)
+	private List<Bar> bars = new ArrayList<Bar>();
+
+
+$ vi EntityTests.java
+
+	@Test
+	public void test_cascade_merge_pg() throws Exception {
+		
+
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,"bar1",foo);
+		foo.getBars().add(bar);
+		Bar bar2=new Bar(2l,"bar2",foo);
+		foo.getBars().add(bar2);
+		entityManager.persist(foo);
+		entityManager.flush();
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		foo.getBars()								// detached	, update	,
+		.stream()
+		.filter(b->b.getName().toLowerCase().contains("bar"))
+		.findAny()
+		.ifPresent(b->b.setName(b.getName()+" modified"));
+			
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		entityManager.merge(foo);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}	
+	
+/ 7	. 
+
+/ detach,
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, 
+					CascadeType.MERGE, 
+//					CascadeType.REMOVE, 
+//					CascadeType.DETACH,
+//					CascadeType.REFRESH
+			}
+			,orphanRemoval = true
+			)
+	private List<Bar> bars = new ArrayList<Bar>();
+	
+$ vi EntityTests.java
+
+	@Test
+	public void test_detach_pg() throws Exception { 
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(11l,"bar11",foo);
+		foo.getBars().add(bar);
+		Bar bar2=new Bar(12l,"bar12",foo);
+		foo.getBars().add(bar2);
+		entityManager.persist(foo);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+//		entityManager.detach(foo);		// zinloos, want foo is detached, de pc is nog leeg	,
+		bar.setFoo(null);
+		foo.getBars().remove(bar);
+		bar2.setName(bar2.getName()+"modified");		
+		entityManager.merge(foo);					// merge de veranderingen er in, foo= hoeft niet hier	,
+// OK	,
+		
+//		entityManager.merge(foo);
+//		bar.setFoo(null);
+//		foo.getBars().remove(bar);
+//		bar2.setName(bar2.getName()+"modified");
+// NIET OK	, de Foo uit de pc is niet het arg foo	, en bar en bar2 zijn 
+// niet in pc's Foo.getBars()
+// dat zie je goed in de debugger,	 je ziet foo en ook pc's foo
+
+		
+		foo=entityManager.merge(foo);
+		foo.getBars().get(0).setFoo(null);
+		foo.getBars().remove(0);
+		foo.getBars().get(0).setName(foo.getBars().get(0).getName()+"modified");				
+// OK	,
+// de foo van foo= is een andere dan de arg foo	, de 1ste is die in de pc	,
+// die heeft bars=foo.getBars(), en deze zijn ook merged	, want we hebben
+// CascadeType.MERGE. Deze Bars zijn weer andere dan bar en bar2	, 
+// foo.getBars() zitten in de pc, en bar en bar2 niet	,
+
+						
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}	
+	
+	
+/ Na merge zien we 3 objs in pc bij entityContext: Foo en 2 Bar,
+/ TODO
+/ Na persist van een Foo zie je er maar 1, de Foo	,
+/ er is ook collectionEntries ,
+/ TODO
+
+/ lees over jndi, session context in web,	
+https://docs.oracle.com/cd/E16439_01/doc.1013/e13981/usclient005.htm
+
+/ lees,
+https://docs.jboss.org/hibernate/orm/4.0/devguide/en-US/html/ch03.html
+	
+/ 7	. 
+
+contains()=!DELETED && !GONE
+[MANAGED, READ_ONLY, DELETED, GONE, LOADING, SAVING]
+
+/ 7	. 
+
+/ CascadeType.DETACH
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, 
+					CascadeType.MERGE, 
+//					CascadeType.REMOVE, 
+					CascadeType.DETACH,
+//					CascadeType.REFRESH
+			}
+			,orphanRemoval = true
+			)
+	private List<Bar> bars = new ArrayList<Bar>();
+
+$ vi EntityTests.java
+
+	@Test
+	public void test_detach2_pg() throws Exception { 
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(11l,"bar11",foo);
+		foo.getBars().add(bar);
+		Bar bar2=new Bar(12l,"bar12",foo);
+		foo.getBars().add(bar2);
+		entityManager.persist(foo); 
+		// foo is een local met 2 Bars, en deze 3 zitten ook in de pc's entityEntryContext, 
+		// en in de pc's collectionEntries zit een PersistentBag met de 2 Bars	,
+		
+		
+		log(entityManager,foo,bar);
+		log(entityManager,foo,bar2);
+		
+		
+		
+		entityManager.getTransaction().commit();
+		log(entityManager,foo,bar); // de local foo en zijn 2 Bars zitten nog steeds in de pc	,
+		log(entityManager,foo,bar2);
+		entityManager.close(); // nu is 
+		
+//		log(entityManager,foo,foo.getBars().get(0)); // kan niet hier, entityManager is not ... TODO
+//		log(entityManager,foo,foo.getBars().get(1));
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		log(entityManager,foo,foo.getBars().get(0)); // foo en zijn 2 Bars zitten niet in de pc, want die is leeg	,
+		log(entityManager,foo,foo.getBars().get(1));
+		
+		
+		foo=entityManager.merge(foo); // nieuwe Foo foo , is attached	, de arg foo is dus niet attached	,
+				 // in de debugger zie je 2 Foos, de local foo en de Foo in de pc	, deze zijn gelijk	,
+			// als je alleen entityManager.merge(foo) , dan zie je in de debugger 2 verschillende Foos: de local foo en die uit de pc	,
+				// er zijn ook 2 nieuwe Bars create die in de coll getBars() zijn	, TODO
+		log(entityManager,foo,bar); // er is een nieuwe Foo gemaakt, maar ook nieuwe Bars	, dus bar zit niet in pc,
+		log(entityManager,foo,foo.getBars().get(0)); // foo.getBars().get(0) is altijd attached, ook als we NIET CascadeType.MERGE TODO
+		log(entityManager,foo,foo.getBars().get(1));
+
+		
+		entityManager.detach(foo); 
+		// als niet: @OneToMany(CascadeType.DETACH)
+		// in de pc zien we dat de Foo foo verdwijnt in de entityEntryContext, maar de 2 Bars blijven in de entityEntryContext,
+		// maar in de pc is collectionEntries er niet meer	, dus is de PersistentBag met de 2 Bars weg	,
+		// foo is ook een local, en die is er nog, en die heeft een coll getBars() en dat zijn de 2 Bars uit de pc, uit de entityEntryContext	,
+			
+		log(entityManager,foo,foo.getBars().get(0)); // foo is detached, foo.getBars().get(0) is detached als CascadeType.DETACH, anders blijft attached,
+		log(entityManager,foo,foo.getBars().get(1));
+		
+		foo.setName(foo.getName()+" detached");
+		foo.getBars().get(0).setFoo(null);
+		foo.getBars().remove(0);
+		foo.getBars().get(0).setName(foo.getBars().get(0).getName()+"modified");				
+		entityManager.merge(foo);				
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	public boolean isDetached(EntityManager em,Foo entity) {
+	    return entity.getId() != null  // must not be transient
+	        && !em.contains(entity)  // must not be managed now
+	        && em.find(Foo.class, entity.getId()) != null;  // must not have been removed
+	}
+	public boolean isDetached(EntityManager em,Bar entity) {
+	    return entity.getId() != null  // must not be transient
+	        && !em.contains(entity)  // must not be managed now
+	        && em.find(Bar.class, entity.getId()) != null;  // must not have been removed
+	}
+	public boolean isManaged(EntityManager em,Foo entity) {
+		return em.contains(entity);
+	}
+	public boolean isManaged(EntityManager em,Bar entity) {
+		return em.contains(entity);
+	}
+	public void log(EntityManager em,Foo foo,Bar bar) {
+		System.out.println("new");
+		System.out.println(isManaged(em, foo));
+		System.out.println(isManaged(em, bar));
+		System.out.println(isDetached(em, foo));
+		System.out.println(isDetached(em, bar));
+	}
+	
+/ 7	. 
+
+/ Kunnen we de pk veranderen? 
+/ Wel met JPA QL,
+
+	@Test
+	public void test3_pk_mult_pg() throws Exception {
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo2 foo2=new Foo2(1l,"foo");
+		Bar2 bar2=new Bar2(1l,foo2);
+		entityManager.persist(foo2);
+		entityManager.persist(bar2);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Query q=entityManager.createQuery("update Foo2 f set f.id=f.id*3");
+// of	,
+//		Query q=entityManager.createQuery("update Foo2 set id=id*3");
+
+		q.executeUpdate();
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		q=entityManager.createQuery("delete from Foo2");
+
+		q.executeUpdate();
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+/ OK,
+
+	@Test
+	public void test3_pg() throws Exception { // onveranderd, als ware de Bar:Foo=N:1 uni, 
+											// we use niet de bidir mogelijkheden	,
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,"bar");
+		bar.setFoo(foo);
+		foo.getBars().add(bar);
+		entityManager.persist(foo);
+//		entityManager.persist(bar);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		bar=entityManager.find(Bar.class, 1l);
+		foo=bar.getFoo();
+		String name=foo.getName();
+		assertTrue(name!=null);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		bar=entityManager.find(Bar.class, 1l); 
+		// we zien alleen bar in de pc, in entityEntryContext, bar.foo=Foo$$jvst150_1
+		foo=bar.getFoo(); 
+		// gebeurt niets, foo=Foo$$jvst150_1
+		foo.setId(2l);
+		entityManager.merge(foo);
+		
+		
+//		Query q=entityManager.createQuery("select b from Bar b");
+//		List<Bar>bars=q.getResultList();
+//		bars.stream()
+//			.map(b->{return b.getFoo();})
+//			.forEach(System.out::println);
+//		Query q=entityManager.createQuery("select f from Foo f");
+//		List<Foo>foos=q.getResultList();
+//		foos.stream()
+//			.forEach(f->f.setId(f.getId()*3));
+		
+//		Query q=entityManager.createNativeQuery("update foo set id=id*3",Foo.class);
+//		q.executeUpdate();
+		// ERR: bar fk is 1 , 
+		
+//		Query q=entityManager.createQuery("delete from Foo");
+//		q.executeUpdate();
+		// ERR bar fk is 1	,
+		
+//		Foo foo_=entityManager.find(Foo.class, 1l);
+//		entityManager.remove(foo_);
+		// OK	, als @OneToMany(orphanRemoval=true)
+		
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		foo=entityManager.find(Foo.class, 1l);
+		foo.getBars().remove(0);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+
+/ 7	. 
+
+$ vi EntityTests.java
+	@Test
+	public void test3_pg() throws Exception { 
+											
+		EntityManager entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,"bar");
+//		bar.setFoo(foo);
+		foo.getBars().add(bar);
+		entityManager.persist(foo);
+//		entityManager.persist(bar);
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+
+	@OneToMany(mappedBy = "foo"
+			,cascade = {
+					CascadeType.PERSIST, // em.save(foo) saves ook foo.getBars()
+	)
+	private List<Bar> bars = new ArrayList<Bar>();
+	
+/ we zien dat foo en bar beide in de entityEntryContext, en we zien in collectionEntries een PersistentBag met bar,
+/ maar bar.foo=null,
+
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactoryPG.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		bar=entityManager.find(Bar.class, 1l);
+		foo=bar.getFoo();
+		String name=foo.getName();
+		assertTrue(name!=null);
+	
+
+/ Einde PG
+
+
+
+
+
+
+

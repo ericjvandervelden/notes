@@ -1,0 +1,34 @@
+/ zoek in youtube: rest-assured
+https://www.youtube.com/watch?v=aqrxDxumKZQ / otmani
+->
+https://www.youtube.com/watch?v=UTnjtpftk4k&list=PL6flErFppaj2X3bInIqkw4wYGxT6n0n6H	/ otmani webservices
+https://www.youtube.com/watch?v=7YcW25PHnAA / rest api
+
+-> openweathermap
+
+/ 7 .
+
+/ kijk over test apis,
+https://www.youtube.com/watch?v=7YcW25PHnAA&t=280s
+
+https://graph.facebook.com/youtube/
+{
+error: {
+message: "An access token is required to request this resource.",
+type: "OAuthException",
+code: 104,
+fbtrace_id: "AdeawphqOfa"
+}
+}
+
+/ lees	,
+https://developers.facebook.com/docs/facebook-login/access-tokens#errors
+/ google	,
+graph.facebook.com oath error
+/ google,
+graph.facebook.com An access token is required to request this resource.
+/ lees,	
+https://stackoverflow.com/questions/4121535/an-access-token-is-required-to-request-this-resource-while-accessing-an-album
+
+/ over facebook apps	, 
+/ TODO weer ophalen	,

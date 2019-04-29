@@ -1,0 +1,69 @@
+http://www.lmfdb.org/NumberField/2.0.35.1
+
+/ we zien onderin mathjax.js	,
+https://www.mathjax.org/#gettingstarted
+/ click LaTex link	,
+https://tex.stackexchange.com/questions/3/compiling-documents-online/1654#1654
+
+/ google
+latex html
+/ lees	,
+https://tex.stackexchange.com/questions/23804/how-to-incorporate-tex-into-a-website
+
+/ google
+latex mathjax
+/ lees,
+
+http://docs.mathjax.org/en/latest/tex.html
+
+/ lees,
+http://www.lmfdb.org/NumberField/2.0.35.1
+/ we zien commands voor Sage en Pari/GP
+
+/ lees,
+https://en.wikipedia.org/wiki/Langlands_program
+https://en.wikipedia.org/wiki/Eisenstein_series
+
+/ lees,
+www.latex-tutorial.com/tutorials
+
+/ kijk,
+/ Introduction to Bayesian statistics, part 1: The basic concepts
+https://www.youtube.com/watch?v=0F0QoMCSKJ4
+/ stata, Introduction to Bayesian statistics, part 2: MCMC and the Metropolis Hastings algorithm
+https://www.youtube.com/watch?v=OTO1DygELpY
+
+/ mcmc	,
+https://www.youtube.com/watch?v=kV_UfhjLlHI
+
+/ youtube
+pydata monte carlo
+
+/ youtube
+pydata mcmc
+/ kijk pymc,
+https://www.youtube.com/watch?v=XbxIo7ScVzc&t=239s
+
+/ lees,
+https://en.wikipedia.org/wiki/PyMC3
+->
+https://docs.pymc.io/
+
+/ lees,
+https://en.wikipedia.org/wiki/Stan_(software)
+->
+http://mc-stan.org/
+
+/ kijk mcmc,
+https://www.youtube.com/watch?v=12eZWG0Z5gY
+
+/ kijk Kristin Lennox 	,
+https://www.youtube.com/watch?v=eDMGDhyDxuY
+-> gelfand, smith: mcmc
+metropolis alg -> mcmc
+
+http://wwwf.imperial.ac.uk/~das01/MyWeb/SCBI/Papers/GelfandSmith.pdf
+/  downloaded in D:\Users\ervelden\Documents\My Documents
+
+/ kijk git add submodule
+https://examples.javacodegeeks.com/software-development/git/git-add-submodule-example/

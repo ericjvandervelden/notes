@@ -1,0 +1,1980 @@
+https://mail.google.com/mail/u/0/#inbox/161b7940d7950334
+->
+https://vladmihalcea.com/jpa-hibernate-cache-non-existing-entity-fetch-results/?utm_source=Vlad+Mihalcea%27s+Newsletter&utm_campaign=64bb4c0d31-EMAIL_CAMPAIGN_2018_02_14&utm_medium=email&utm_term=0_7a1c643a85-64bb4c0d31-193996189
+->
+https://github.com/vladmihalcea/high-performance-java-persistence/blob/master/core/src/test/java/com/vladmihalcea/book/hpjp/hibernate/concurrency/SkipLockJobQueueTest.java
+/ oef met doInJpa()
+/ wat is executeSync()?
+/ TODO
+
+/	7	.
+
+C:\Users\ervelden\hibernate>git clone https://github.com/hibernate/hibernate-orm.git
+/ deze in workspace-jbosstools-jee-oxygen-hibernate
+
+/ lees,
+https://docs.jboss.org/hibernate/orm/5.0/quickstart/html/#tutorial-native
+/ we download,
+ hibernate-tutorials.zip
+ 
+ / we extract deze in
+C:\Users\ervelden\eclipse\workspace-jee-hibernate\hibernate-tutorials
+
+/ Hier zien we bijv in project hibernate-tutorial-hbm
+/ hier lezen we over in quickstart docs (naast de userguide), http://docs.jboss.org/hibernate/orm/5.3/quickstart/html_single/#_maven_repository_artifacts
+C:\Users\ervelden\eclipse\workspace-jee-hibernate\hibernate-tutorials\basic\src\test\java\org\hibernate\tutorial\hbm\NativeApiIllustrationTest.java
+
+/ 7	. 
+
+/ eclipse-jbosstools-jee-oxygen,
+/ workspace-jbosstools-jee-oxygen-hibernate
+/ hier is project aascratch	,
+
+/ lees	,
+http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#associations
+2.7
+
+/ 7	. 
+
+/ workspace-jee-hibernate
+/ proj. hibernate-tutorial-hbm	,
+/ run NativeApiIllustrationTest	, 
+
+$ vi src/main/resources/hibernate.cfg
+
+<hibernate-configuration>
+
+    <session-factory>
+
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">org.h2.Driver</property>
+        <property name="connection.url">jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1;MVCC=TRUE</property>
+        <property name="connection.username">sa</property>
+        <property name="connection.password"/>
+
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.H2Dialect</property>
+
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>
+
+        <!-- Echo all executed SQL to stdout --> 
+        <property name="show_sql">true</property>
+
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hbm2ddl.auto">create</property>
+
+        <mapping resource="org/hibernate/tutorial/hbm/Event.hbm.xml"/>
+
+    </session-factory>
+
+</hibernate-configuration>
+
+/ we zien als we de test run,
+
+Hibernate: drop table EVENTS if exists
+Hibernate: create table EVENTS (EVENT_ID bigint not null, EVENT_DATE timestamp, title varchar(255), primary key (EVENT_ID))
+Hibernate: select max(EVENT_ID) from EVENTS
+Hibernate: insert into EVENTS (EVENT_DATE, title, EVENT_ID) values (?, ?, ?)
+Hibernate: insert into EVENTS (EVENT_DATE, title, EVENT_ID) values (?, ?, ?)
+Hibernate: select event0_.EVENT_ID as EVENT_ID1_0_, event0_.EVENT_DATE as EVENT_DA2_0_, event0_.title as title3_0_ from EVENTS event0_
+Event (2018-05-29 20:51:17.349) : Our very first event!
+Event (2018-05-29 20:51:17.364) : A follow up event
+
+/ 7	. 
+
+/ we zien niet welke params er zijn bind	,
+
+/ 13	. 
+
+/ lees,
+https://stackoverflow.com/questions/2536829/hibernate-show-real-sql
+log4j.logger.org.hibernate.SQL=DEBUG
+log4j.logger.org.hibernate.type=TRACE
+/ TODO
+/ we hebben log4j.properties gemaakt, maar we zien niets	,
+
+/ 13	. 
+
+$ vi hibernate-tutorials/pom.xml
+
+        <!-- Hibernate uses jboss-logging for logging, for the tutorials we will use the sl4fj-simple backend -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+		
+/ werkt <property name="show_sql">true</property> met jboss-logging?
+/ de slf4j hebben niet nodig, de ddl messages hierboven verschijnen als we de slf4j out comment	,
+
+/ 13	. 
+
+/ lees,
+https://docs.jboss.org/author/display/AS71/JPA+Reference+Guide
+/ over jboss logging, 
+/ in wildfly OK 
+/ TODO
+
+/ 13	. 
+
+/ lees,
+https://www.thoughts-on-java.org/hibernate-tips-how-to-log-sql-statements-and-their-parameters/
+https://www.thoughts-on-java.org/hibernate-logging-guide/
+
+$ vi src/main/resources/log4j.properties
+
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.Target=System.out
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d{HH:mm:ss,SSS} %-5p [%c] - %m%n
+
+log4j.rootLogger=info, stdout
+# basic log level for all messages
+log4j.logger.org.hibernate=info
+
+# SQL statements and parameters
+log4j.logger.org.hibernate.SQL=debug
+log4j.logger.org.hibernate.type.descriptor.sql=trace
+
+$ vi hibernate-tutorials/pom.xml
+
+        <dependency>
+		  <groupId>org.apache.logging.log4j</groupId>
+		  <artifactId>log4j</artifactId>
+		  <version>2.11.0</version>
+		  <type>pom</type>
+		</dependency>
+/ TODO
+/ we zien GEEN bind params,
+
+/ 7	. 
+
+/ proj. hibernate-tutorial-entitymanager
+
+$ vi src/main/resources/persistence.xml
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+
+    <persistence-unit name="org.hibernate.tutorial.jpa">
+        <description>
+            Persistence unit for the JPA tutorial of the Hibernate Getting Started Guide
+        </description>
+
+        <class>org.hibernate.tutorial.em.Event</class>
+
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+            <!-- 
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:mem:db1;DB_CLOSE_DELAY=-1;MVCC=TRUE" />
+            -->
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/Users/ervelden/temp/h2/test"/>
+             
+            <property name="javax.persistence.jdbc.user" value="sa" />
+            <property name="javax.persistence.jdbc.password" value="" />
+
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.hbm2ddl.auto" value="create" />
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
+
+/ we willen niet een in memory db use,
+/ we hebben de h2 server gestart in C:\Users\ervelden\bin\for_wildfly. Van hieruit worden de dbs created	. 
+/ dus als we jdbc:h2:tcp://localhost/Users/ervelden/temp/h2/test	, dan verschijnt er,
+C:\Users\ervelden\bin\for_wildfly\Users\ervelden\temp\h2\test.h2.db,
+
+/ 13	 .
+
+/ we doen het voorlopig zo:
+
+			<property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/h2/test"/>
+            <property name="javax.persistence.jdbc.user" value="sa" />
+            <property name="javax.persistence.jdbc.password" value="sa" />
+
+
+/ hierdoor wordt er create C:\Users\ervelden\bin\for_wildfly\h2\test.h2.db
+
+/ we hebben een script, die eigenlijk een arg moet krijgen, maar voorlopig, 
+
+C:\Users\ervelden\bin\for_wildfly> type h2_client_with_args.bat
+@echo off
+set DIR=C:\Users\ervelden\bin\wildfly-10.1.0.Final
+java -classpath java -classpath %DIR%\modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/h2/test -user sa -password sa
+
+/ als je de test runs	, wordt er een test.h2.db create, met de username, password zoals er in persistence.xml staat	,
+/ als je de test nog een keer run, wordt er NIET opnieuw een db create, als je het password wilt veranderen, moet je de db rm	, en de test opnieuw run,
+/ TODO
+/ kunnen we leeg password?
+/ TODO
+
+/ lees over args aan bat script,
+https://stackoverflow.com/questions/26551/how-do-i-pass-command-line-parameters-to-a-batch-file
+
+/ 13	. 
+
+/ many-to-one unidir 
+/ Phone:Person=N:1 unidir,
+
+/ workspace-jee-hibernate 
+/ proj aa-associations,
+/ is copy van hibernate-tutorial-entitymanager	,
+
+/ we hebben Event.java in src/main/java set,
+
+/ in src/main/java
+
+$ vi Person.java
+
+@Entity
+public class Person {
+
+	@Id 
+	@GeneratedValue
+	private Long id;
+	
+	public Person() {
+		// TODO Auto-generated constructor stub
+	}
+
+	// getters	, setters	,
+}
+
+$ vi Phone.java
+
+@Entity
+public class Phone {
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String number;
+	
+	@ManyToOne
+	private Person person;
+	
+	public Phone() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public Phone(String number) {
+		this.number=number;
+	}
+	// getters	, setters	,
+
+/ in src/test/java
+
+$ vi AssociationsTest.java
+
+public class AssociationsTest extends TestCase {
+	private EntityManagerFactory entityManagerFactory;
+
+	@Before
+	protected void setUp() throws Exception {
+		// like discussed with regards to SessionFactory, an EntityManagerFactory is set up once for an application
+		// 		IMPORTANT: notice how the name here matches the name we gave the persistence-unit in persistence.xml!
+		entityManagerFactory = Persistence.createEntityManagerFactory( "org.hibernate.tutorial.jpa" );
+	}
+
+	@After
+	protected void tearDown() throws Exception {
+		entityManagerFactory.close();
+	}
+
+	@Test
+	public void testBasicUsage() {
+		// create a couple of events...
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Person person=new Person();
+		entityManager.persist(person);
+		Phone phone=new Phone("0612121212");
+		phone.setPerson(person);
+		entityManager.persist(phone);
+		
+		entityManager.flush();
+		phone.setPerson(null);
+		
+		entityManager.getTransaction().commit();
+//		entityManager.close();
+
+//		// now lets pull events from the database and list them
+//		entityManager = entityManagerFactory.createEntityManager();
+//		entityManager.getTransaction().begin();
+//        List<Event> result = entityManager.createQuery( "from ", Event.class ).getResultList();
+//		for ( Event event : result ) {
+//			System.out.println( "Event (" + event.getDate() + ") : " + event.getTitle() );
+//		}
+//        entityManager.getTransaction().commit();
+//        entityManager.close();
+	}
+}
+
+/ we zien,
+
+sql> show tables
+...> ;
+TABLE_NAME | TABLE_SCHEMA
+ADDRESS    | PUBLIC
+EVENT      | PUBLIC
+EVENTS     | PUBLIC
+PERSON     | PUBLIC
+PHONE      | PUBLIC
+(5 rows, 15 ms)
+sql> show columns from person;
+FIELD | TYPE       | NULL | KEY | DEFAULT
+ID    | BIGINT(19) | NO   | PRI | NULL
+(1 row, 0 ms)
+sql> show columns from phone;
+FIELD     | TYPE         | NULL | KEY | DEFAULT
+ID        | BIGINT(19)   | NO   | PRI | NULL
+NUMBER    | VARCHAR(255) | YES  |     | NULL
+PERSON_ID | BIGINT(19)   | YES  |     | NULL
+(3 rows, 16 ms)
+
+/ we zien de fk niet, daarom	,
+
+sql> select *  from information_schema.constraints where table_name='PHONE';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME             | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NA
+ME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL
+                                         | ID
+TEST               | PUBLIC            | FKMW13YFSJYPIIQ0I1OSDKAEQPG | REFERENTIAL     | TEST          | PUBLIC       | PHONE
+   | PRIMARY_KEY_8     | null             | PERSON_ID   |         | ALTER TABLE PUBLIC.PHONE ADD CONSTRAINT PUBLIC.FKMW13YFSJYPI
+IQ0I1OSDKAEQPG FOREIGN KEY(PERSON_ID) IN | 28
+TEST               | PUBLIC            | CONSTRAINT_4                | PRIMARY KEY     | TEST          | PUBLIC       | PHONE
+   | PRIMARY_KEY_4     | null             | ID          |         | ALTER TABLE PUBLIC.PHONE ADD CONSTRAINT PUBLIC.CONSTRAINT_4
+PRIMARY KEY(ID) INDEX PUBLIC.PRIMARY_KEY | 26
+(data is partially truncated)
+(2 rows, 8 ms)
+
+/ we zien de pk en fk,
+
+/ let op dat je PHONE geeft als table name, in hoofdletters	,
+
+/ 13	. 
+
+/ in h2 hebben we, 
+
+$ show tables from information_schema;
+$ show columns from address;
+
+/ doe,
+sql> create table address(id bigint,p bigint references person(id));
+/ of,
+sql> create table address(id bigint,p bigint, foreign key(p) references person(id));
+
+/ show columns from address toont de PK, maar niet de fks	, daarom moeten we doen:
+
+sql> select *  from information_schema.constraints where table_name='ADDRESS';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_
+INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL
+                             | ID
+TEST               | PUBLIC            | CONSTRAINT_E    | REFERENTIAL     | TEST          | PUBLIC       | ADDRESS    | PRIMARY
+_KEY_8     | null             | P           |         | ALTER TABLE PUBLIC.ADDRESS ADD CONSTRAINT PUBLIC.CONSTRAINT_E FOREIGN KE
+Y(P) INDEX PUBLIC.CONSTRAINT | 31
+(data is partially truncated)
+(1 row, 16 ms)
+
+/ 7	.
+
+/ Phone:Person=M-1, unidir	,
+
+@Entity
+public class Phone {
+	@ManyToOne
+	private Person person;
+	
+/ multiple phones hebben/ wijzen naar een person 	, dat is fk, 
+/ in gewone taal: een person kan multiple phones hebben,
+	
+	/**
+	 * phone:person=M:1	, 
+	 * 
+	 * db: phone heeft person column	,
+	 * 
+	 * person		phone
+	 * id			id	 	person
+	 * 1			11		1
+	 * 2			12		1
+	 * 				13		2
+	 */
+$ vi AssociationsTest.java
+
+	@Test
+	public void testBasicUsage() {
+		// create a couple of events...
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Person person=new Person();
+		entityManager.persist(person);
+		Phone phone=new Phone("0612121212");
+		phone.setPerson(person);
+		entityManager.persist(phone);
+		
+		entityManager.flush();
+		phone.setPerson(null);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+
+		// now lets pull events from the database and list them
+		entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+        List<Phone> listOfPhones = entityManager.createQuery( "select p from Phone p", Phone.class ).getResultList();
+		for (Phone phone2 : listOfPhones ) {
+			boolean b=false;
+		}
+        entityManager.getTransaction().commit();
+        entityManager.close();
+	}
+}
+
+/ we kunnen "from Phone" of "select p from Phone p"	, 
+
+/ debug de test,
+/ we zien in eclipse,
+
+Hibernate: drop table Event if exists
+Hibernate: drop table Person if exists
+Hibernate: drop table Phone if exists
+Hibernate: drop sequence if exists hibernate_sequence
+Hibernate: create sequence hibernate_sequence start with 1 increment by 1
+Hibernate: create table Event (id bigint not null, EVENT_DATE date, title varchar(255), primary key (id))
+Hibernate: create table Person (id bigint not null, primary key (id))
+Hibernate: create table Phone (id bigint not null, number varchar(255), person_id bigint, primary key (id))
+Hibernate: alter table Phone add constraint FKmw13yfsjypiiq0i1osdkaeqpg foreign key (person_id) references Person
+mei 30, 2018 5:57:54 PM org.hibernate.tool.hbm2ddl.SchemaExport execute
+INFO: HHH000230: Schema export complete
+Hibernate: call next value for hibernate_sequence
+Hibernate: call next value for hibernate_sequence
+Hibernate: insert into Person (id) values (?)
+Hibernate: insert into Phone (number, person_id, id) values (?, ?, ?)
+Hibernate: update Phone set number=?, person_id=? where id=?
+
+/ 13	. 
+
+/ lees,
+https://www.thoughts-on-java.org/best-practices-many-one-one-many-associations-mappings/
+/ @...ToOne heeft FetchType.EAGER als default	,
+
+/ dat betekent dat boven phone2 altijd een Person heeft,
+
+/ kijk nu naar, 
+
+@Entity
+public class Phone {
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Person person;
+	
+        List<Phone> listOfPhones = entityManager.createQuery( "select p from Phone p", Phone.class ).getResultList();
+        for (Phone phone_ : listOfPhones ) {
+			Person person_=phone_.getPerson();
+			Long id_=person_.getId();			/ nu is person2 er pas,
+			boolean b=false;
+
+/ we debug,
+        for (Phone phone_ : listOfPhones ) {
+		
+phone_	Phone  (id=76)	
+	id	Long  (id=77)	
+	number	"0612121212" (id=81)	
+	person	Person_$$_jvstc1a_1  (id=84)	
+		handler	JavassistLazyInitializer  (id=94)	
+			id	Long  (id=412)				/ WH null	,
+			initialized	false	
+			target	Person  (id=448)	
+		id	null	
+
+			Person person_=phone_.getPerson();
+person_	Person_$$_jvstc1a_1  (id=84)		/ doet niets,	 pakt alleen de proxy	,
+
+			Long id_=person_.getId();			/ nu is person2 er pas,
+			
+phone_	Phone  (id=76)	
+	id	Long  (id=77)	
+	number	"0612121212" (id=81)	
+	person	Person_$$_jvstc1a_1  (id=84)	
+		handler	JavassistLazyInitializer  (id=89)	
+			initialized	true	
+			target	Person  (id=119)	
+		id	null						/ blijft null,
+/ 13	. 
+
+$ vi Phone.java
+
+@Entity
+public class Phone {
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String number;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn( name="pers",foreignKey=@ForeignKey(name="person_fk"))
+//	@Column(name="persc")
+	private Person person;
+
+/ we zien,
+
+sql> select*from information_schema.constraints where table_name ='PHONE';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_4    | PRIMARY KEY     | TEST          | PUBLIC       | PHONE      | PRIMARY_KEY_4     | null             | ID          |         | ALTER TABLE PUBLIC.PHONE ADD CONSTRAINT PUBLIC.CONSTRAINT_4 PRIMARY KEY(ID) INDEX PUBLIC.PRIMARY_KEY | 26
+TEST               | PUBLIC            | PERSON_FK       | REFERENTIAL     | TEST          | PUBLIC       | PHONE      | PRIMARY_KEY_8     | null             | PERS        |         | ALTER TABLE PUBLIC.PHONE ADD CONSTRAINT PUBLIC.PERSON_FK FOREIGN KEY(PERS) INDEX PUBLIC.PERSON_FK_IN | 28
+(data is partially truncated)
+(2 rows, 10 ms)
+
+/ we zien dat de fk PERSON_FK heet, en de pk CONSTRAINT_4,
+
+/ als we @Column ipv @JoinColumn	, krijgen we de ERR dat hij de EntityManager niet kan build	,
+/ TODO
+/ we kunnen @JoinColumn ook weglaten	, heeft niet een 'echte' fct	,
+/ TODO
+
+/ 7	. 
+
+/ bij de volgende fout moet je verder kijken	,
+
+e	InvocationTargetException  (id=279)	
+	cause	null	
+	detailMessage	null	
+	stackTrace	StackTraceElement[0]  (id=285)	
+	suppressedExceptions	Collections$UnmodifiableRandomAccessList<E>  (id=286)	
+	target	IllegalArgumentException  (id=278)	
+		cause	IllegalArgumentException  (id=278)	
+		detailMessage	"Unknown entity: org.hibernate.tutorial.em.Person2" (id=306)	
+		stackTrace	StackTraceElement[0]  (id=285)	
+		suppressedExceptions	Collections$UnmodifiableRandomAccessList<E>  (id=286)	
+
+/ we moeten Person2 toevoegen in persistence.xml,
+
+/ 13	. 
+
+OneToMany: LAZY
+ManyToOne: EAGER
+ManyToMany: LAZY
+OneToOne: EAGER
+
+
+/ 7	.
+
+/ Person2:Phone2=1:N undir	,
+
+/ wie is hier de owner?
+/ TODO
+
+$ vi Person2.java
+
+@Entity
+public class Phone2 {
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String number;
+	
+$ vi Phone2.java
+
+@Entity
+public class Person2 {
+
+	@Id 
+	@GeneratedValue
+	private Long id;
+	
+
+	@OneToMany(cascade=CascadeType.ALL,orphanRemoval=true)
+	private List<Phone2>phones=new ArrayList<>();
+	
+
+	/**
+	 * Person2:Phone2=1:N unidir,
+	 * 
+	 * person	 	phone		person_phone	
+	 * id			id			personid		phoneid (uniq)
+	 * 1			11			1				11
+	 * 2			12			1				12
+	 * 							2				13
+	 *
+	 * omdat 1:N is de phoneid col in de join table unique	,
+	 * 
+	 */
+$ vi AssociationsTest.java
+
+	/**
+	 * Person:Phone=1:N 
+	 */
+	@Test
+	public void testUserguide2_7_2() {
+		// create a couple of events...
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Person2 person2=new Person2();
+		Phone2 phone2a=new Phone2("0612121212");
+		person2.getPhones().add(phone2a);
+		Phone2 phone2b=new Phone2("010123456");
+		person2.getPhones().add(phone2b);
+		Phone2 phone2c=new Phone2("010654321");
+		person2.getPhones().add(phone2c);
+		entityManager.persist(person2); // maar 1 persist vanwege cascade op de set,
+		
+		entityManager.flush();
+		person2.getPhones().remove(phone2c);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		List<Person2>listOfPersons=entityManager.createQuery("select p from Person2 p").getResultList();
+		for(Person2 person2_:listOfPersons) {
+			List<Phone2>phone2s=person2_.getPhones();
+			for(Phone2 phone2_:phone2s) {
+				System.out.println(phone2_.getNumber());
+			}
+		}
+
+        entityManager.getTransaction().commit();
+        entityManager.close();
+        System.out.println("Done!");
+	}
+
+/ we zien,
+
+Person2_Phone2
+Person2_id, phones_id (uniq)
+1				11
+1				12
+2				13
+/ uniq: een phone heeft maar 1 eigenaar	, en een person kan meerdere phones hebben,
+
+
+Hibernate: create sequence hibernate_sequence start with 1 increment by 1
+Hibernate: create table Person (id bigint not null, primary key (id))
+Hibernate: create table Person2 (id bigint not null, primary key (id))
+Hibernate: create table Person2_Phone2 (Person2_id bigint not null, phones_id bigint not null)
+Hibernate: create table Phone (id bigint not null, number varchar(255), pers bigint, primary key (id))	/ fk pers in entity,
+Hibernate: create table Phone2 (id bigint not null, number varchar(255), primary key (id))
+Hibernate: alter table Person2_Phone2 add constraint UK_58fx5qqu18dswcpiou4s3pphg unique (phones_id)
+Hibernate: alter table Person2_Phone2 add constraint FKrknbottfcof6ky18yrcgqfx25 foreign key (phones_id) references Phone2
+Hibernate: alter table Person2_Phone2 add constraint FKksu7f1w2edmmjbpmy8ekqu85t foreign key (Person2_id) references Person2  / fk in join table
+Hibernate: alter table Phone add constraint person_fk foreign key (pers) references Person
+mei 31, 2018 6:58:34 PM org.hibernate.tool.hbm2ddl.SchemaExport execute
+INFO: HHH000230: Schema export complete
+Hibernate: call next value for hibernate_sequence
+Hibernate: call next value for hibernate_sequence
+Hibernate: call next value for hibernate_sequence
+Hibernate: call next value for hibernate_sequence
+Hibernate: insert into Person2 (id) values (?)
+Hibernate: insert into Phone2 (number, id) values (?, ?)
+Hibernate: insert into Phone2 (number, id) values (?, ?)
+Hibernate: insert into Phone2 (number, id) values (?, ?)
+Hibernate: insert into Person2_Phone2 (Person2_id, phones_id) values (?, ?)
+Hibernate: insert into Person2_Phone2 (Person2_id, phones_id) values (?, ?)
+Hibernate: insert into Person2_Phone2 (Person2_id, phones_id) values (?, ?)
+Hibernate: delete from Person2_Phone2 where Person2_id=?					/ Person is 'in control', parent, dus alle Person entries in de join table worden rm, ook al vroegen we maar 1 Phone van hem te verwijderen	,
+Hibernate: insert into Person2_Phone2 (Person2_id, phones_id) values (?, ?)	/ de overige 2 Phones (en de Person) worden weer teruggeplaatst in de join table,
+Hibernate: insert into Person2_Phone2 (Person2_id, phones_id) values (?, ?)
+Hibernate: delete from Phone2 where id=?									/ door deleteOrphan	,
+mei 31, 2018 6:58:50 PM org.hibernate.hql.internal.QueryTranslatorFactoryInitiator initiateService
+INFO: HHH000397: Using ASTQueryTranslatorFactory
+Hibernate: select person2x0_.id as id1_2_ from Person2 person2x0_
+Hibernate: select phones0_.Person2_id as Person1_3_0_, phones0_.phones_id as phones_i2_3_0_, phone2x1_.id as id1_5_1_, phone2x1_.number as number2_5_1_ from Person2_Phone2 phones0_ inner join Phone2 phone2x1_ on phones0_.phones_id=phone2x1_.id where phones0_.Person2_id=?
+0612121212
+010123456
+Done!
+
+/we zien dus,
+Hibernate: 
+select pers_phone.Person2_id as Person1_3_0_, pers_phone.phones_id as phones_i2_3_0_, 
+	phone_.id as id1_5_1_, phone_.number as number2_5_1_ 
+from Person2_Phone2 pers_phone 
+inner join Phone2 phone_ on pers_phone.phones_id=phone_.id 
+where pers_phone.Person2_id=?
+
+/ dus,
+
+Person2_Phone2					Phone2
+Person2_id, phones_id (uniq)	id		number
+1				11				11 		06-12121212
+1				12				12		06-23232323
+2				13				13		06-34343434
+
+/ 7	. 
+
+/ Phonebi:Personbi= M:1 bidir	,
+
+/ lees,
+https://www.thoughts-on-java.org/best-practices-many-one-one-many-associations-mappings/
+
+@Entity
+public class Phonebi {
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String number;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn( name="pers",foreignKey=@ForeignKey(name="person_fk"))
+	private Personbi person;
+	
+public class Personbi {
+
+	@Id 
+	@GeneratedValue
+	private Long id;
+	
+	@NaturalId
+//	@Column(unique=true)
+	private String number;
+	
+	@OneToMany(mappedBy="person",cascade=CascadeType.ALL,orphanRemoval=true)
+	private List<Phonebi>phones=new ArrayList<>();
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((number == null) ? 0 : number.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Phonebi other = (Phonebi) obj;
+		if (number == null) {
+			if (other.number != null)
+				return false;
+		} else if (!number.equals(other.number))
+			return false;
+		return true;
+	}
+}
+
+public class AssociationsTest extends TestCase {
+	@Test
+	public void testUserguide2_7_1_bi() {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Personbi personbi=new Personbi();
+		Phonebi phonebia=new Phonebi("0612121212");
+		Phonebi phonebib=new Phonebi("0101234567");
+		Phonebi phonebic=new Phonebi("0612121211");
+		personbi.addPhone(phonebia);
+		personbi.addPhone(phonebib);
+		personbi.addPhone(phonebic);
+		entityManager.persist(personbi);
+		
+		entityManager.flush();
+		personbi.removePhone(phonebic);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	
+
+
+/ 13	. 
+
+/ over,
+@OneToMany(mappedBy="person",cascade=CascadeType.ALL,orphanRemoval=true)	
+
+/ person is de Java property name, niet de table column name, en dat is logisch: we zijn in Java,
+
+/ de phone is de managing side, maar omdat we 
+	@OneToMany(mappedBy="person",cascade=CascadeType.ALL,orphanRemoval=true)
+/ kunnen we de person persist, de phone wordt daardoor persist, 
+/ als we orphanRemoval NIET, dan wordt de phone row update: pers=null, maar als we WEL orphanRemoval, wordt de phone row delete,
+
+/ NIET orphanRemoval,
+Hibernate: update Phonebi set pers=?
+sql> select*from phonebi;
+ID | NUMBER     | PERS
+2  | 0612121212 | 1
+3  | 0101234567 | 1
+4  | 0612121211 | null
+(3 rows, 16 ms)
+sql> select*from personbi;
+ID
+1
+(1 row, 0 ms)
+
+/ WEL orphanRemoval,
+Hibernate: delete from Phonebi where id=?
+sql> select*from personbi;
+ID
+1
+(1 row, 0 ms)
+sql> select*from phonebi;
+ID | NUMBER     | PERS
+2  | 0612121212 | 1
+3  | 0101234567 | 1
+(2 rows, 0 ms)
+
+/ als we @NaturalId	, dan zien we,
+Hibernate: alter table Phonebi add constraint UK_jh7f900jth3ae7dqw68lej6d5 unique (number)
+/ als we @Column(unique=true)	, dan zie we dat OOK	,
+/ dus in dit geval is een van beide genoeg	,
+
+/ 7	. 
+
+/ Phone3:PhoneDetails3=one-to-one , unidir
+
+/ phone is de owning side,
+
+/ we zien,
+
+phone
+-----
+id	(pk)
+number
+phoneDetails_id (fk)	-> phonedetails.id
+
+phonedetails
+------------
+id (pk)
+provider
+technology
+
+
+
+$ vi Phone3.java
+
+@Entity
+public class Phone3 {
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String number;
+	
+	@OneToOne
+	private PhoneDetails3 phoneDetails;
+	
+$ vi PhoneDetails3.java
+
+@Entity
+public class PhoneDetails3 {
+	
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String provider;
+	
+	private String technology;
+	
+$ vi persistence.xml
+
+<persistence ...>
+    <persistence-unit name="org.hibernate.tutorial.jpa">
+        ...
+        <class>org.hibernate.tutorial.em.Phone3</class>
+        <class>org.hibernate.tutorial.em.PhoneDetails3</class>      
+	
+$ vi AssociationTest.java
+
+public class AssociationsTest{
+	@Test
+	public void testUserguide2_7_3() {
+		EntityManager entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		Phone3 phone=new Phone3("0612121212");
+		PhoneDetails3 phoneDetails=new PhoneDetails3("X", "GSM");
+		
+		
+	}
+
+/ we zien,
+Hibernate: create table Phone3 (id bigint not null, number varchar(255), phoneDetails_id bigint, primary key (id))
+Hibernate: create table PhoneDetails3 (id bigint not null, provider varchar(255), technology varchar(255), primary key (id))
+Hibernate: alter table Phone3 add constraint FKer0280nybkvw2aa3dadlcyy10 foreign key (phoneDetails_id) references PhoneDetails3
+Hibernate: alter table Phonebi add constraint person_fk foreign key (pers) references Personbi
+
+phone										phonedetails
+id 	number phoneDetails						id provider technology
+
+/ 7	. 
+
+/ one-to-one , bidir,
+
+/ PhoneDetails3bi:Phone3bi=1-1 bidir,
+
+/ ze hebben de richting omgedraaid tov. one-to-one, undir,
+
+/ PhoneDetails3bi is owning side, 
+/ Phone3bi is parent, heeft set,
+/ dus de PhoneDetails3bi in de set hebben de fk naar de Phone3bi, hun parent,	
+
+/ in db,
+
+phone
+-----
+id (pk)
+number
+
+phonedetails
+------------
+id (pk)
+provider
+technology
+phone_id	(fk)	->  phone.id,
+
+/ we zien	,
+
+
+$ vi Phone3bi.java
+
+@Entity
+public class Phone3bi {
+
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String number;
+	
+	@OneToOne(mappedBy="phone",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+	private PhoneDetails3bi phoneDetails;
+
+	public void addPhoneDetails(PhoneDetails3bi phoneDetails) {
+		this.phoneDetails=phoneDetails;
+		phoneDetails.setPhone(this);
+	}
+	public void removePhoneDetails() {
+		if(this.phoneDetails!=null) {
+			phoneDetails.setPhone(null);
+		}
+		this.phoneDetails=null;
+		
+	}
+
+
+$ vi PhoneDetails3bi.java
+
+@Entity
+public class PhoneDetails3bi {
+	
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String provider;
+	
+	private String technology;
+	
+	@OneToOne(fetch=FetchType.LAZY)
+	private Phone3bi phone;
+
+$ vi AssociationTest.java
+
+	@Test
+	public void testUserguide2_7_3_bi() {
+		EntityManager entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		Phone3bi phone=new Phone3bi("0612121212");
+		PhoneDetails3bi phoneDetails=new PhoneDetails3bi("X", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		phoneDetails=new PhoneDetails3bi("Y", "GSM");
+		phone.addPhoneDetails(phoneDetails);				/ expres een 2de	, 
+		entityManager.persist(phone);
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	
+/ we zien dat alleen de laatste wordt persist, in Java is er GEEN Set<PhoneDetails3bi> in Phone3bi, alleen een PhoneDetails3bi, dus ook 
+/ in de db is er maar 1	, 
+/ de 2de overwrites de 1ste	,
+
+/ 13	. 
+
+/ als je doet in eclipse,
+
+class Phone3bi{
+@OneToOne
+private Set<PhoneDetails3bi>phoneDetails, 
+/ dan krijg je een X in eclipse, 
+
+class Phonebi_2
+@OneToMany
+private PhoneDetailsbi_2 phoneDetails;
+/ dan krijg je een X in eclipse, 
+
+
+
+sql> select*from phonedetails3bi;
+ID | PROVIDER | TECHNOLOGY | PHONE_ID
+2  | Y        | GSM        | 1
+(1 row, 5 ms)
+sql> select*from phone3bi;
+ID | NUMBER
+1  | 0612121212
+(1 row, 7 ms)
+
+/ 7	. 
+
+/ many-to-one bidir, 
+
+PhoneDetailsbi_2:Phonebi_2=N:1 bidir,
+
+
+/ we doen het nog een keer, maar nu net als met Phone3bi, PhoneDetails3bi, maar dan many-to-one, 
+/ we doen gewoon alsof een phone meerdere details kan hebben,
+
+/ we maken PhoneDetailsbi_2 (ipv PhoneDetails3bi)	, en Phonebi_2 (ipv Phone3bi)	,
+
+/ het verschil aan de owner (van de relatie, fk) tussen PhoneDetails3 en PhoneDetailsbi_2 is nauwelijks, alleen @OneToMany resp. @OneToOne
+
+$ vi PhoneDetails3bi.java
+	@OneToOne(fetch=FetchType.LAZY)
+	private Phone3bi phone;
+	
+$ vi PhoneDetailsbi_2.java
+	@OneToOne(fetch=FetchType.LAZY)
+	private Phonebi_2 phone;
+	
+/ het verschil aan de parent kant is dat Phone3bi een PhoneDetails3bi heeft, en Phonebi_2 een Set<PhoneDetailsbi_2> 
+
+$ vi Phone3bi.java
+
+	@OneToOne(mappedBy="phone",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+	private PhoneDetails3bi phoneDetails;
+
+	public void addPhoneDetails(PhoneDetails3bi phoneDetails) {
+		this.phoneDetails=phoneDetails;
+		phoneDetails.setPhone(this);
+	}
+	public void removePhoneDetails() {
+		if(this.phoneDetails!=null) {
+			phoneDetails.setPhone(null);
+		}
+		this.phoneDetails=null;
+		
+	}
+
+$ vi Phonebi_2.java
+
+	@OneToMany(mappedBy="phone",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+	private Set<PhoneDetailsbi_2> phoneDetails=new HashSet<>();
+
+	public void addPhoneDetails(PhoneDetailsbi_2 phoneDetails) {
+		this.phoneDetails.add(phoneDetails);
+		phoneDetails.setPhone(this);
+	}
+	public void removePhoneDetails(PhoneDetailsbi_2 phoneDetails){
+		phoneDetails.setPhone(null);
+		this.phoneDetails.remove(phoneDetails);
+	}
+	
+/ we maken 	,
+
+$ vi AssociationTest.java
+
+	@Test
+	public void testUserguide2_7_1_bi_2() {
+		EntityManager entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		Phonebi_2 phone=new Phonebi_2("0612121212");
+		PhoneDetailsbi_2 phoneDetails=new PhoneDetailsbi_2("X", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		phoneDetails=new PhoneDetailsbi_2("Y", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		entityManager.persist(phone);
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		System.out.println("Done!");
+	}
+
+/ we zien 	,
+
+sql> select*from phonebi_2;
+ID | NUMBER
+1  | 0612121212
+(1 row, 4 ms)
+sql> select*from phonedetailsbi_2;
+ID | PROVIDER | TECHNOLOGY | PHONE_ID
+2  | Y        | GSM        | 1
+3  | X        | GSM        | 1
+(2 rows, 6 ms)
+	
+	
+/ 7	. 
+
+/ rol cascade=CascadeType.ALL,orphanRemoval=true
+
+public class Phonebi_2 {
+	@OneToMany(mappedBy="phone",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+//	@OneToMany(mappedBy="phone",cascade={CascadeType.PERSIST,CascadeType.MERGE},orphanRemoval=true,fetch=FetchType.LAZY)
+	private Set<PhoneDetailsbi_2> phoneDetails=new HashSet<>();
+
+	@Test
+	public void testUserguide2_7_1_bi_2() {
+		EntityManager entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Phonebi_2 phone=new Phonebi_2("0612121212");
+		PhoneDetailsbi_2 phoneDetails=new PhoneDetailsbi_2("X", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		phoneDetails=new PhoneDetailsbi_2("Y", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		phoneDetails=new PhoneDetailsbi_2("Z", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		entityManager.persist(phone);		/ (****)
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		phone=entityManager.find(Phonebi_2.class, new Long(1));	// (*)
+		phone.removePhoneDetails(phoneDetails);					// (**)
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		phone=entityManager.find(Phonebi_2.class, new Long(1));		// (*)
+		entityManager.remove(phone);								// (***)	,
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		System.out.println("Done!");
+		
+	}
+
+		
+/ 13	, 
+
+/ (*) doen we	, anders is phone de detached Phonebi_2, en doet de regel erachter (**) NIETS	, dus is in Java de PhoneDetailsbi_2 wel rm, maar in de db na de commit niet,
+
+/ bij (**) gaat het om @OneToMany(orphanRemoval=true)	, als je een PhoneDetailsbi_2 rm uit de set in Phonebi_2, dan wordt ook in de db de phonedetailsbi_2 rm,
+
+/ bij (***) gaat het om @OneToMany(cascade=CascadeType.ALL)	,  als je de Phonebi_2 rm , dan ook alle PhoneDetailsbi_2s	, 
+/ als je @OneToMany(mappedBy="phone",cascade={CascadeType.PERSIST,CascadeType.MERGE}, dan wordt bij entitymanager.persist(phone) de phone en alle phonedetails persist naar db,	 maar bij entitymanager.remove(phone) krijg je een rollbackexception	, WH omdat de phonedetails in de db blijven (want CascadeType.REMOVE is er niet bij)	, en in een phonedetails is er een fk naar de phone, die dan verwijderd zou moeten worden, maar dat gaat daarom niet	,
+/ lees,
+https://vladmihalcea.com/a-beginners-guide-to-jpa-and-hibernate-cascade-types/
+As a rule of thumb, you should always use PERSIST for TRANSIENT entities and MERGE for DETACHED ones.
+
+/ Als je helemaal geen @OneToMany(cascade=...)	, dan wordt bij (****) helemaal geen een PhoneDetailsbi_2 stored in db,
+
+
+/ 7	. 
+
+/ Person/Phone , Personbi/Phonebi, Phonebi_2/PhoneDetailsbi_2: many-to-one,
+/ Person2/Phone2: one-to-many	,
+/ Phone3/PhoneDetails3	, Phone3bi/PhoneDetails3bi	, Phone3bi_2/PhoneDetails3bi_2: one-to-one
+
+/ het verschil tussen Phonebi_2/PhoneDetailsbi_2 en Phone3bi_2/PhoneDetails3bi_2 is dat het 1ste paar many-to-one is en de 2de one-to-one, beide zijn bidir,
+
+/ 7	. 
+
+/ we copy project aa-associations copy naar aa-associations-self-schema
+
+$ vi persistence.xml
+<!--             <property name="hibernate.hbm2ddl.auto" value="create" />
+ -->  
+ 
+/ many-to-one, bidir 
+/ Phonebi_2, PhoneDetailsbi_2, 
+
+$ vi Phonebi_2.java
+	@OneToMany(mappedBy="phone",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.LAZY)
+	private Set<PhoneDetailsbi_2> phoneDetails=new HashSet<>();
+
+$ vi PhoneDetailsbi_2.java
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Phonebi_2 phone;
+
+
+$ vi AssociationsTest.java
+
+	@Test
+	public void testUserguide2_7_1_bi_2() {
+		EntityManager entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		Phonebi_2 phone=new Phonebi_2("0612121212");
+		PhoneDetailsbi_2 phoneDetails=new PhoneDetailsbi_2("X", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		phoneDetails=new PhoneDetailsbi_2("Y", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		phoneDetails=new PhoneDetailsbi_2("Z", "GSM");
+		phone.addPhoneDetails(phoneDetails);
+		entityManager.persist(phone);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		int id=0;
+		Scanner s=new Scanner(System.in);			// (*)
+		if(s.hasNextInt())id=s.nextInt();
+		
+		entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		phone=entityManager.find(Phonebi_2.class, new Long(id));
+		phone.removePhoneDetails(phoneDetails);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager=entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		phone=entityManager.find(Phonebi_2.class, new Long(id));
+		entityManager.remove(phone);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+
+
+		
+		System.out.println("Done!");
+		
+		
+	}
+		
+/ doe eerst voordat je de test runs in H2 (al hoeft het niet perse),
+
+sql> delete from phonedetailsbi_2;
+(Update count: 3, 0 ms)
+sql> delete from phonebi_2;
+(Update count: 1, 0 ms)
+
+/ als in de test de 1ste tx is afgelopen, kijk in db naar de id van de Phonebi_2, en geef die in de console voor de 2de en 3de tx,
+
+/ 13	. 
+
+/ we rm de fk,
+
+/ lees, 
+https://stackoverflow.com/questions/10008476/dropping-unique-constraint-for-column-in-h2
+
+sql> select*from information_schema.constraints where table_name='PHONEDETAILSBI_2';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME             | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME       | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | FK3VJ71EIPG05C48086N50I3K07 | REFERENTIAL     | TEST          | PUBLIC       | PHONEDETAILSBI_2 | PRIMARY_KEY_6     | null             | PHONE_ID    |         | ALTER TABLE PUBLIC.PHONEDETAILSBI_2 ADD CONSTRAINT PUBLIC.FK3VJ71EIPG05C48086N50I3K07 FOREIGN KEY(PH | 87
+TEST               | PUBLIC            | CONSTRAINT_3C               | PRIMARY KEY     | TEST          | PUBLIC       | PHONEDETAILSBI_2 | PRIMARY_KEY_3C    | null             | ID          |         | ALTER TABLE PUBLIC.PHONEDETAILSBI_2 ADD CONSTRAINT PUBLIC.CONSTRAINT_3C PRIMARY KEY(ID) INDEX PUBLIC | 70
+(data is partially truncated)
+
+/ we moeten,
+
+sql> alter table phonedetailsbi_2 drop constraint FK3VJ71EIPG05C48086N50I3K07;
+(Update count: 0, 2 ms)
+sql> select*from information_schema.constraints where table_name='PHONEDETAILSBI_2';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME       | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_3C   | PRIMARY KEY     | TEST          | PUBLIC       | PHONEDETAILSBI_2 | PRIMARY_KEY_3C    | null             | ID          |         | ALTER TABLE PUBLIC.PHONEDETAILSBI_2 ADD CONSTRAINT PUBLIC.CONSTRAINT_3C PRIMARY KEY(ID) INDEX PUBLIC | 70
+(data is partially truncated)
+(1 row, 7 ms)
+/ inderdaad, hij is weg	,
+
+/ we moeten dus NIET	, 
+sql> delete from information_schema.constraints where constraint_name='FK3VJ71EIPG05C48086N50I3K07'
+
+/ en ook NIET '...' om de constraint_name, 
+alter table phonedetailsbi_2 drop constraint 'FK3VJ71EIPG05C48086N50I3K07';	
+
+/ 13	. 
+
+/ we rm de pk's,	
+
+sql> select*from information_schema.constraints where table_name='PHONEDETAILSBI_2';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME       | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_3C   | PRIMARY KEY     | TEST          | PUBLIC       | PHONEDETAILSBI_2 | PRIMARY_KEY_3C    | null             | ID          |         | ALTER TABLE PUBLIC.PHONEDETAILSBI_2 ADD CONSTRAINT PUBLIC.CONSTRAINT_3C PRIMARY KEY(ID) INDEX PUBLIC | 70
+(data is partially truncated)
+(1 row, 8 ms)
+sql> select*from information_schema.constraints where table_name='PHONEBI_2';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | CONSTRAINT_6    | PRIMARY KEY     | TEST          | PUBLIC       | PHONEBI_2  | PRIMARY_KEY_6     | null             | ID          |         | ALTER TABLE PUBLIC.PHONEBI_2 ADD CONSTRAINT PUBLIC.CONSTRAINT_6 PRIMARY KEY(ID) INDEX PUBLIC.PRIMARY | 58
+(data is partially truncated)
+(1 row, 10 ms)
+
+alter table phonebi_2 drop constraint constraint_3c;
+alter table phonedetailsbi_2 drop constraint constraint_6
+
+/ 13	. 
+
+/ google,
+hibernate @many-to-one tables no foreign key
+/ lees,
+https://stackoverflow.com/questions/16989733/hibernate-many-to-one-relationship-without-primary-key-or-join-table
+https://stackoverflow.com/questions/24040014/using-hibernate-to-map-flat-legacy-tables-with-no-foreign-key-composite-key-re
+https://stackoverflow.com/questions/11083132/hibernate-manytoone-without-foreign-key
+https://www.thoughts-on-java.org/hibernate-tips-model-association-dont-reference-primary-key-columns/
+
+/ google
+hibernate schema validation
+/ lees,
+https://stackoverflow.com/questions/2116625/how-to-validate-hibernate-mapping-against-database
+hibernate.hbm2ddl.auto=validate|update|create|create-drop
+
+/ 13	. 
+
+/ workspace-jee-hibernate
+/ project aa-associations-self-schema
+
+/ we hebben in db schema GEEN pk,
+/ in @Entity hebben we @Id property, en set deze in de tests zelf (we hebben GEEN @GeneratedValue	),
+
+/ als we in 1 tx 2 keer new Foo(1l,...)	, dan ERR, 
+/ maar als we 2 txs, en in elke tx new Foo(1l,...)	, dan OK,
+/ we zien dan in de db, in table foo:
+1 ...
+1 ...
+
+
+
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+	
+$ vi EntityTest.java
+
+	@Test
+	public void test1() throws Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"bar");
+		entityManager.persist(foo);
+		Foo foo2=new Foo(1l,"baz");
+		entityManager.persist(foo2); // (*)
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	
+/ GEEN ddl create,
+
+$ vi persistence.xml
+
+<persistence ...>
+
+    <persistence-unit name="org.hibernate.tutorial.jpa">
+       
+        <class>org.hibernate.tutorial.em.Foo</class>       
+                    
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver" />
+ 
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/h2/test"/>
+             
+            <property name="javax.persistence.jdbc.user" value="sa" />
+            <property name="javax.persistence.jdbc.password" value="sa" />
+
+            <property name="hibernate.show_sql" value="true" />
+			<!-- 
+            <property name="hibernate.hbm2ddl.auto" value="create" /> -->
+        </properties>
+
+    </persistence-unit>
+
+</persistence>
+
+$ vi EntityTests.java
+
+	@Test
+	public void test1() throws Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"bar");
+		entityManager.persist(foo);
+		Foo foo2=new Foo(1l,"baz");
+		entityManager.persist(foo2);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	
+sql> show columns from foo;
+FIELD | TYPE         | NULL | KEY | DEFAULT
+ID    | BIGINT(19)   | NO   |     | NULL
+NAME  | VARCHAR(255) | YES  |     | NULL
+(2 rows, 10 ms)
+
+sql> select*from information_schema.constraints where table_name='FOO';
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL | ID
+(0 rows, 2 ms)sql> show tables from information_schema;
+TABLE_NAME        | TABLE_SCHEMA
+CATALOGS          | INFORMATION_SCHEMA
+COLLATIONS        | INFORMATION_SCHEMA
+COLUMNS           | INFORMATION_SCHEMA
+COLUMN_PRIVILEGES | INFORMATION_SCHEMA
+CONSTANTS         | INFORMATION_SCHEMA
+CONSTRAINTS       | INFORMATION_SCHEMA
+CROSS_REFERENCES  | INFORMATION_SCHEMA
+DOMAINS           | INFORMATION_SCHEMA
+FUNCTION_ALIASES  | INFORMATION_SCHEMA
+FUNCTION_COLUMNS  | INFORMATION_SCHEMA
+HELP              | INFORMATION_SCHEMA
+INDEXES           | INFORMATION_SCHEMA
+IN_DOUBT          | INFORMATION_SCHEMA
+LOCKS             | INFORMATION_SCHEMA
+RIGHTS            | INFORMATION_SCHEMA
+ROLES             | INFORMATION_SCHEMA
+SCHEMATA          | INFORMATION_SCHEMA
+SEQUENCES         | INFORMATION_SCHEMA
+SESSIONS          | INFORMATION_SCHEMA
+SESSION_STATE     | INFORMATION_SCHEMA
+SETTINGS          | INFORMATION_SCHEMA
+TABLES            | INFORMATION_SCHEMA
+TABLE_PRIVILEGES  | INFORMATION_SCHEMA
+TABLE_TYPES       | INFORMATION_SCHEMA
+TRIGGERS          | INFORMATION_SCHEMA
+TYPE_INFO         | INFORMATION_SCHEMA
+USERS             | INFORMATION_SCHEMA
+VIEWS             | INFORMATION_SCHEMA
+(28 rows, 65 ms)
+sql>
+sql> show columns from  information_schema.columns;
+FIELD                    | TYPE                | NULL | KEY | DEFAULT
+TABLE_CATALOG            | VARCHAR(2147483647) | YES  |     | NULL
+TABLE_SCHEMA             | VARCHAR(2147483647) | YES  |     | NULL
+TABLE_NAME               | VARCHAR(2147483647) | YES  |     | NULL
+COLUMN_NAME              | VARCHAR(2147483647) | YES  |     | NULL
+ORDINAL_POSITION         | INTEGER(10)         | YES  |     | NULL
+COLUMN_DEFAULT           | VARCHAR(2147483647) | YES  |     | NULL
+IS_NULLABLE              | VARCHAR(2147483647) | YES  |     | NULL
+DATA_TYPE                | INTEGER(10)         | YES  |     | NULL
+CHARACTER_MAXIMUM_LENGTH | INTEGER(10)         | YES  |     | NULL
+CHARACTER_OCTET_LENGTH   | INTEGER(10)         | YES  |     | NULL
+NUMERIC_PRECISION        | INTEGER(10)         | YES  |     | NULL
+NUMERIC_PRECISION_RADIX  | INTEGER(10)         | YES  |     | NULL
+NUMERIC_SCALE            | INTEGER(10)         | YES  |     | NULL
+CHARACTER_SET_NAME       | VARCHAR(2147483647) | YES  |     | NULL
+COLLATION_NAME           | VARCHAR(2147483647) | YES  |     | NULL
+TYPE_NAME                | VARCHAR(2147483647) | YES  |     | NULL
+NULLABLE                 | INTEGER(10)         | YES  |     | NULL
+IS_COMPUTED              | BOOLEAN(1)          | YES  |     | NULL
+SELECTIVITY              | INTEGER(10)         | YES  |     | NULL
+CHECK_CONSTRAINT         | VARCHAR(2147483647) | YES  |     | NULL
+SEQUENCE_NAME            | VARCHAR(2147483647) | YES  |     | NULL
+REMARKS                  | VARCHAR(2147483647) | YES  |     | NULL
+SOURCE_DATA_TYPE         | SMALLINT(5)         | YES  |     | NULL
+(23 rows, 42 ms)
+
+sql> select*
+...> from information_schema.columns
+...> where table_name='FOO';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | COLUMN_NAME | ORDINAL_POSITION | COLUMN_DEFAULT | IS_NULLABLE | DATA_TYPE | CHARACTER_MAXIMUM_LENGTH | CHARACTER_OCTET_LENGTH | NUMERIC_PRECISION | NUMERIC_PRECISION_RADIX | NUMERIC_SCALE | CHARACTER_SET_NAME | COLLATION_NAME | TYPE_NAME | NULLABLE | IS_COMPUTED | SELECTIVITY | CHECK_CONSTRAINT | SEQUENCE_NAME | REMARKS | SOURCE_DATA_TYPE
+TEST          | PUBLIC       | FOO        | ID          | 1                | null           | NO          | -5        | 19                       | 19                     | 19                | 10                      | 0             | Unicode            | OFF            | BIGINT    | 0        | FALSE       | 50          |                  | null          |         | null
+TEST          | PUBLIC       | FOO        | NAME        | 2                | null           | YES         | 12        | 255                      | 255                    | 255               | 10                      | 0             | Unicode            | OFF            | VARCHAR   | 1        | FALSE       | 50          |                  | null          |         | null
+(2 rows, 15 ms)
+
+sql> update information_schema.columns
+...> set is_nullable='YES'
+...> where table_name='FOO'
+...> and column_name='ID';
+Error: org.h2.jdbc.JdbcSQLException: Feature not supported: "META"; SQL statement:
+
+/ net als bij 'drop constraint' moeten we alter table:
+/ lees,
+https://stackoverflow.com/questions/11672498/adding-the-not-null-constraint-to-an-sql-column
+
+sql>  alter table foo alter column id set null;
+(Update count: 0, 5 ms)
+sql> select * from information_schema.columns where table_name='FOO';
+TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | COLUMN_NAME | ORDINAL_POSITION | COLUMN_DEFAULT | IS_NULLABLE | DATA_TYPE | CHARACTER_MAXIMUM_LENGTH | CHARACTER_OCTET_LENGTH | NUMERIC_PRECISION | NUMERIC_PRECISION_RADIX | NUMERIC_SCALE | CHARACTER_SET_NAME | COLLATION_NAME | TYPE_NAME | NULLABLE | IS_COMPUTED | SELECTIVITY | CHECK_CONSTRAINT | SEQUENCE_NAME | REMARKS | SOURCE_DATA_TYPE
+TEST          | PUBLIC       | FOO        | ID          | 1                | null           | YES         | -5        | 19                       | 19                     | 19                | 10                      | 0             | Unicode            | OFF            | BIGINT    | 1        | FALSE       | 50          |                  | null          |         | null
+TEST          | PUBLIC       | FOO        | NAME        | 2                | null           | YES         | 12        | 255                      | 255                    | 255               | 10                      | 0             | Unicode            | OFF            | VARCHAR   | 1        | FALSE       | 50          |                  | null          |         | null
+(2 rows, 10 ms)
+
+/ Als we de test run, zien we dat het bij .persist (*) al fout (hoe de db schema ook is):
+javax.persistence.EntityExistsException: A different object with the same identifier value was already associated with the session : [org.hibernate.tutorial.em.Foo#1]
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.convert(AbstractEntityManagerImpl.java:1664)
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.convert(AbstractEntityManagerImpl.java:1602)
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.convert(AbstractEntityManagerImpl.java:1608)
+	at org.hibernate.jpa.spi.AbstractEntityManagerImpl.persist(AbstractEntityManagerImpl.java:1152)
+	at org.hibernate.tutorial.em.EntityTests.test1(EntityTests.java:70)
+	
+/ we komen namelijk in,
+/s,
+Thread [main] (Suspended)	
+	JpaPersistEventListener(AbstractSaveEventListener).performSave(Object, Serializable, EntityPersister, boolean, Object, EventSource, boolean) line: 165	
+	JpaPersistEventListener(AbstractSaveEventListener).saveWithGeneratedId(Object, String, Object, EventSource, boolean) line: 121	
+	JpaPersistEventListener.saveWithGeneratedId(Object, String, Object, EventSource, boolean) line: 67	
+	JpaPersistEventListener(DefaultPersistEventListener).entityIsTransient(PersistEvent, Map) line: 189	
+	JpaPersistEventListener(DefaultPersistEventListener).onPersist(PersistEvent, Map) line: 132	
+	JpaPersistEventListener(DefaultPersistEventListener).onPersist(PersistEvent) line: 58	
+	SessionImpl.firePersist(PersistEvent) line: 775	
+	SessionImpl.persist(String, Object) line: 748	
+	SessionImpl.persist(Object) line: 753	
+	EntityManagerImpl(AbstractEntityManagerImpl).persist(Object) line: 1146	
+	EntityTests.test1() line: 70	
+/ in meer detail	,
+/s,
+	JpaPersistEventListener(AbstractSaveEventListener).performSave(Object, Serializable, EntityPersister, boolean, Object, EventSource, boolean) line: 165	
+		if ( !useIdentityColumn ) {
+			key = source.generateEntityKey( id, persister );
+			Object old = source.getPersistenceContext().getEntity( key );
+			if ( old != null ) {
+				if ( source.getPersistenceContext().getEntry( old ).getStatus() == Status.DELETED ) {
+					source.forceFlush( source.getPersistenceContext().getEntry( old ) );
+				}
+				else {
+					throw new NonUniqueObjectException( id, persister.getEntityName() );				<-
+				}
+
+/ Ook, 
+/ Omdat we geen @GeneratedValue	, is de generator=org.hibernate.id.Assigned	,
+
+/ 13	. 
+
+/ fk,
+
+/ workspace-jee-hibernate
+/ project aa-associations-self-schema
+
+$ vi Foo.java
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+	
+$ vi Bar.java
+@Entity
+public class Bar {
+	
+	@Id
+	private Long id;
+	
+	@ManyToOne
+	private Foo foo;
+	
+$ vi EntityTests.java
+	@Test
+	public void test3() throws Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,foo);
+		entityManager.persist(foo);
+		entityManager.persist(bar);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	
+$ vi persistence.xml
+            <property name="hibernate.hbm2ddl.auto" value="create" />
+
+/ we zien,
+sql> select*from foo;
+ID | NAME
+1  | bar
+(1 row, 5 ms)
+sql> select*from bar;
+ID | FOO_ID
+1  | 1
+(1 row, 3 ms)
+sql> show columns from foo;
+FIELD | TYPE         | NULL | KEY | DEFAULT
+ID    | BIGINT(19)   | NO   | PRI | NULL
+NAME  | VARCHAR(255) | YES  |     | NULL
+(2 rows, 15 ms)
+sql> show columns from bar;
+FIELD  | TYPE       | NULL | KEY | DEFAULT
+ID     | BIGINT(19) | NO   | PRI | NULL
+FOO_ID | BIGINT(19) | YES  |     | NULL
+(2 rows, 12 ms)
+
+sql> select*from information_schema.constraints where table_name in ('FOO', 'BAR');
+CONSTRAINT_CATALOG | CONSTRAINT_SCHEMA | CONSTRAINT_NAME             | CONSTRAINT_TYPE | TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | UNIQUE_INDEX_NAME | CHECK_EXPRESSION | COLUMN_LIST | REMARKS | SQL                                                                                                  | ID
+TEST               | PUBLIC            | FK25G82YOBWD9R8QQQJVBE8HIMQ | REFERENTIAL     | TEST          | PUBLIC       | BAR        | PRIMARY_KEY_1     | null             | FOO_ID      |         | ALTER TABLE PUBLIC.BAR ADD CONSTRAINT PUBLIC.FK25G82YOBWD9R8QQQJVBE8HIMQ FOREIGN KEY(FOO_ID) INDEX P | 89
+TEST               | PUBLIC            | CONSTRAINT_F                | PRIMARY KEY     | TEST          | PUBLIC       | BAR        | PRIMARY_KEY_F     | null             | ID          |         | ALTER TABLE PUBLIC.BAR ADD CONSTRAINT PUBLIC.CONSTRAINT_F PRIMARY KEY(ID) INDEX PUBLIC.PRIMARY_KEY_F | 69
+TEST               | PUBLIC            | CONSTRAINT_1                | PRIMARY KEY     | TEST          | PUBLIC       | FOO        | PRIMARY_KEY_1     | null             | ID          |         | ALTER TABLE PUBLIC.FOO ADD CONSTRAINT PUBLIC.CONSTRAINT_1 PRIMARY KEY(ID) INDEX PUBLIC.PRIMARY_KEY_1 | 87
+(data is partially truncated)
+sql> alter table bar drop constraint FK25G82YOBWD9R8QQQJVBE8HIMQ;
+(Update count: 0, 2 ms)
+sql> alter table bar drop constraint constraint_f;
+(Update count: 0, 3 ms)
+sql> alter table foo drop  constraint constraint_1;
+(Update count: 0, 3 ms)
+
+sql> show columns from foo;
+FIELD | TYPE         | NULL | KEY | DEFAULT
+ID    | BIGINT(19)   | NO   |     | NULL
+NAME  | VARCHAR(255) | YES  |     | NULL
+(2 rows, 10 ms)
+sql> show columns from bar;
+FIELD  | TYPE       | NULL | KEY | DEFAULT
+ID     | BIGINT(19) | NO   |     | NULL
+FOO_ID | BIGINT(19) | YES  |     | NULL
+(2 rows, 5 ms)
+sql> alter table foo alter column id set null;
+(Update count: 0, 2 ms)
+sql> alter table bar alter column id set null;
+(Update count: 0, 0 ms)
+
+$ vi persistence.xml
+            <property name="hibernate.hbm2ddl.auto" value="validate" />
+
+/ 1313	. 
+
+sql> delete from foo;
+(Update count: 1, 0 ms)
+sql> delete from bar;
+(Update count: 1, 0 ms)
+
+/ run test3,
+
+/ 13	 .
+
+/ many-to-one, bidir, 
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+	
+	@OneToMany(mappedBy="foo",cascade=CascadeType.ALL,orphanRemoval=true)		/ nieuw	,
+	private List<Bar>bars=new ArrayList<Bar>();
+
+	
+$ vi Bar.java
+
+@Entity
+public class Bar {			/ onveranderd	,
+
+	
+	@Id
+	private Long id;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Foo foo;
+
+$ vi EntityTests.java
+
+	@Test
+	public void test3() throws Exception {										// onveranderd, als ware de Bar:Foo=N:1 uni, 
+																				// we use niet de bidir mogelijkheden	,
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,foo);
+		entityManager.persist(foo);
+		entityManager.persist(bar);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		bar=entityManager.find(Bar.class, 1l);
+		foo=bar.getFoo();
+		String name=foo.getName();
+		assertTrue(name!=null);
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+	
+	@Test
+	public void test4() throws Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(1l,foo);
+		Bar bar2=new Bar(2l,foo);
+		foo.getBars().add(bar);		// vanwege cascade moeten we dit doen zodat we alleen foo hoeven te persist,
+		foo.getBars().add(bar2);
+		entityManager.persist(foo);
+		
+		
+		entityManager.getTransaction().commit(); // insert into foo , insert into bar, insert into bar,
+		entityManager.close();
+		
+		entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		bar=entityManager.find(Bar.class, 1l); // select bar where id
+		foo=bar.getFoo();
+		assertTrue(foo.getName()!=null);	// select foo where id
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		foo=entityManager.find(Foo.class, 1l); // select foo where id
+		List<Bar>bars=foo.getBars();
+		assertTrue(bars.size()!=0);	// select bar where foo_id
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+
+/ 7	. 
+
+/ we willen foo en bar opruimen	,
+
+$ vi Foo.java
+
+@Entity
+public class Foo {
+
+	@Id
+	private Long id;
+
+	private String name;
+	
+	@OneToMany(mappedBy="foo",cascade=CascadeType.ALL,orphanRemoval=true)
+	private List<Bar>bars=new ArrayList<Bar>();
+	
+$ vi Bar.java
+
+@Entity
+public class Bar {
+	
+	@Id
+	private Long id;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	private Foo foo;
+	
+$ vi EntityTests.java
+
+	@After
+	public void end() throws Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Query q=entityManager.createQuery("select f from Foo f");
+		List<Foo>foos=q.getResultList();
+		foos.stream()
+			.forEach(f->entityManager.remove(f));
+// of,	
+//		Query q=entityManager.createQuery("delete from Foo f");
+//		q.executeUpdate();
+	
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManagerFactory.close();
+	}
+	
+/ lees,
+https://stackoverflow.com/questions/7825484/jpa-delete-where-does-not-delete-children-and-throws-an-exception
+A delete operation only applies to entities of the specified class and its subclasses. It does not cascade to related entities.
+
+/ Dus we moeten de 1ste versie doen,
+
+//		Query q=entityManager.createQuery("delete from Foo f");
+//		q.executeUpdate();
+/ verwijderd alleen alle entries in foo, NIET in bar,
+
+/ 13	 .
+
+/ native queries	,
+
+$ vi EntityTests.java
+
+	@Test
+	public void test6() throws Exception {
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Foo foo=new Foo(1l,"foo");
+		Bar bar=new Bar(11l,foo);
+		Bar bar2=new Bar(12l,foo);
+		foo.getBars().add(bar); 
+		foo.getBars().add(bar2);
+		entityManager.persist(foo); 
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		
+		entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		Query q=entityManager.createNativeQuery("select f.* from foo f");
+		List<Object[]>objects=q.getResultList();
+		objects.stream()
+			.forEach(o->System.out.println(o[0]+":"+o[1]));
+		
+		q=entityManager.createNativeQuery("select b.* from foo f join bar b on b.foo_id=f.id");
+		objects=q.getResultList();
+		objects.stream()
+			.forEach(o->System.out.println(o[0]+":"+o[1]));
+		
+		entityManager.getTransaction().commit();
+		entityManager.close();
+	}
+
+/ we zien,
+
+Hibernate: insert into Foo (name, id) values (?, ?)
+Hibernate: insert into Bar (foo_id, id) values (?, ?)
+Hibernate: insert into Bar (foo_id, id) values (?, ?)
+Hibernate: select f.* from foo f
+1:foo
+Hibernate: select b.* from foo f join bar b on b.foo_id=f.id
+11:1
+12:1
+
+/ Maar we zien ze niet in persistenceContext	,
+
+/ 1313	. 
+
+/ Maar als we dit doen,
+
+$ vi EntityTests.java
+		q=entityManager.createNativeQuery("select f.id,f.name from foo f",Foo.class);
+		List<Foo>foos=q.getResultList();
+		objects.stream()
+			.forEach(f->System.out.println(f));
+
+/ dan zien we de Foo en 2 Bars WEL in persistenceContext, 
+
+entityManager	EntityManagerImpl  (id=63)	
+	session	SessionImpl  (id=66)	
+		persistenceContext	StatefulPersistenceContext  (id=208)	
+			entityEntryContext	EntityEntryContext  (id=231)	
+				count	3	
+				nonEnhancedEntityXref	IdentityHashMap<K,V>  (id=243)	
+					[0]	AbstractMap$SimpleEntry<K,V>  (id=265)	
+						key	Bar  (id=270)	
+					[1]	AbstractMap$SimpleEntry<K,V>  (id=266)	
+						key	Foo  (id=273)	
+						value	EntityEntryContext$ManagedEntityImpl  (id=239)	
+					[2]	AbstractMap$SimpleEntry<K,V>  (id=267)	
+						key	Bar  (id=275)	
+						value	EntityEntryContext$ManagedEntityImpl  (id=276)	
+
+/ TODO
+/ In andere tx entityManager.find, en kijk, 
+
+
+/ HIER HIER HIER
+
+
+/ 7	. 
+
+/ google,
+jpa pagination
+/ lees,
+https://dzone.com/articles/pagination-in-springboot-applications
+https://dzone.com/articles/spring-data-part-5-paging-and-sorting
+https://www.thoughts-on-java.org/hibernate-tips-use-pagination-jpql/
+https://vladmihalcea.com/whats-new-in-jpa-2-2-stream-the-result-of-a-query-execution
+
+
+
+		
+
+
+
+/ 7	.
+
+/ aascratch
+
+$ vi pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>my.own</groupId>
+  <artifactId>scratch</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+  	<dependency>
+  		<groupId>junit</groupId>
+  		<artifactId>junit</artifactId>
+  		<version>4.12</version>
+  	</dependency>
+  	<dependency>
+	    <groupId>org.hibernate</groupId>
+	    <artifactId>hibernate-core</artifactId>
+	    <version>5.3.1.Final</version>
+	</dependency>
+  </dependencies>
+</project>
+
+/ doe in eclipse right click project aascratch, Maven, Update project...
+/ hiermee hebben we bijv annot javax.persistence.Entity,
+
+/ we maken package in src/main/java,
+
+package my.jpa;
+
+import javax.persistence.Entity;
+
+@Entity
+public class Person {
+
+}
+
+/ we maken in src/test/java,
+
+/ NATURALID
+
+/ 7	. 
+/ google,
+jpa naturalid
+/ lees,
+https://vladmihalcea.com/the-best-way-to-map-a-naturalid-business-key-with-jpa-and-hibernate/
+->
+https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+->
+https://vladmihalcea.com/hibernate-facts-equals-and-hashcode/
+->
+http://in.relation.to/2016/09/15/integration-tests-and-java-8-lambdas/
+
+
+/ lees,	
+https://stackoverflow.com/questions/14254083/jpa-equivalent-to-hibernates-naturalid
+No, there is not. You will have to use composite keys, so either EmbeddedId or IdClass depending what you prefer.
+
+/ lees,
+https://www.thoughts-on-java.org/naturalid-good-way-persist-natural-ids-hibernate/
+
+/ lees,
+https://stackoverflow.com/questions/9791931/remove-equal-item-from-java-list
+
+/ Einde NATURALID
+

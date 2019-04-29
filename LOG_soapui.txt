@@ -1,0 +1,178 @@
+/ 7	.
+
+/ lees,
+https://www.soapui.org/docs/functional-testing/properties/transferring-properties.html
+
+/ 7	. 
+
+/ links in menu,
+Documentation	,
+	Soap mocking,
+
+/ lees,
+https://www.soapui.org/soap-mocking/service-mocking-overview.html
+
+/ 13	. 
+
+/ we doen eerst zonder mocking, 
+right click Request1, en add to testcase,
+klik >
+/ we zien het antwoord,
+
+/ req in testcase,
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://www.dataaccess.com/webservicesserver/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <web:NumberToDollars>
+         <web:dNum>2</web:dNum>
+      </web:NumberToDollars>
+   </soapenv:Body>
+</soapenv:Envelope>
+
+/ antwoord,
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+   <soap:Body>
+      <m:NumberToDollarsResponse xmlns:m="http://www.dataaccess.com/webservicesserver/">
+         <m:NumberToDollarsResult>two dollars</m:NumberToDollarsResult>
+      </m:NumberToDollarsResponse>
+   </soap:Body>
+</soap:Envelope>
+
+/ 13	. 
+
+/ right klik soap interface en create mock service, 
+/ in het window van de mock service,
+/ klik configuration icon, radertje	,
+path: /mockNumberConversionSoapBinding
+port: 8088
+host: LBNL031514
+
+/ we maken: 
+host: localhost
+/ Toch hoeft dit niet: LBNL031514 is ook OK
+/ TODO
+
+/ in het window van de mockservice zien we 2 operations:
+NumberToDollars
+NumberToWords
+/ dubbelklik 1 van de 2, NumberToDollars, 
+/ we zien de intf, en de operation, en we zien een response,
+/ dubbelklik de response, 
+/ vervang ? door two dollars: we hebben de response def,
+
+
+
+
+/ 13	. 
+
+/ ga terug naar mock service window,
+/ klik >	, we start de mockservice
+
+/ 13	. 
+
+/ right click in het mock service window een operation, bijv NumberToDollars, en kies 'create request',
+/ we zien een nieuw window, we kiezen Request1, 
+/ we zien Request1 uit de soap interface,
+
+/ let op: we zien het voorlaatste request, en het voorlaatste antwoord, 
+/ voor een recente response moeten we > klik,
+
+/ klik >, we zien rechts het mock service antwoord,
+
+/ let op : je kunt een mock response alleen veranderen in een response	, (dubbelklik een operatie, dubbelklik Response en edit rechts)
+/ links zie je het request, niet op letten, rechts zie je de response,
+/ als je een request hebt, zie je rechts de response, edit deze heeft geen zin, klik > en je krijgt het mock response weer	,
+
+/ right click een response in een mock service,
+Open request			/ vuur de Request1 uit de soap interface af op de mock service,
+Add to test case		/ TODO Waarom een response toevoegen aan een testcase?
+Create test request	/ OK, je maakt zelf een req zoals Request1 in een test set, die de mock service queries	,
+
+/ 7	. 
+
+Documentation
+	SOAP Mocking
+		Workding with Mock Services
+/=
+/ lees,
+https://www.soapui.org/soap-mocking/working-with-mockservices.html
+
+/ we hebben 
+Import project 
+D:\Users\ervelden\bin\SoapUI-Tutorials\Sample-SOAP-Project-soapui-project.xml
+/ we zien dat hier gebruikt wordt: WSDL-WADL\sample-service.wsdl
+
+/ daarnaast hebben we, om hetzelfde zelf te doen,
+New SOAP Project,
+Initial WSDL: D:\Users\ervelden\bin\SoapUI-Tutorials\WSDL-WADL\sample-service.wsdl
+/ name: Sample SOAP Project Core My
+
+/ right click de soap interf SampleServiceSoapBinding, kies Generate SOAP Mock service
+
+/ iedere operation, zoals login, ..., heeft zijn eigen script	,
+
+/ de 
+
+
+
+
+
+
+
+/ 7	. 
+
+Resources
+	Tutorials
+		SOAP Sample project
+
+https://www.soapui.org/resources/tutorials/soap-sample-project.html
+
+/ 7	. 
+
+/ links in menu,
+Documentation	,
+	Rest mocking,
+
+https://www.soapui.org/rest-testing-mocking/service-mocking-overview.html
+
+
+
+	
+
+https://www.soapui.org/docs/functional-testing/properties/transferring-properties.html
+
+/ 7	. 
+
+/ links in menu 
+Resources,
+	Tutorials
+		Rest Sample project
+
+/ in de rest endpoint def kun je parameters toevoegen, niet in de req in een teststep,
+
+/ lees,
+https://www.soapui.org/soap-mocking/creating-dynamic-mockservices.html
+https://www.soapui.org/docs/functional-testing/properties/transferring-properties.html
+https://www.soapui.org/resources/tutorials/rest-sample-project.html
+soapui.org/learn/tutorials/rest-sample-project/web-service-example-projects.html
+getting-started/soap-test.html
+https://www.soapui.org/docs/functional-testing/working-with-teststeps.html
+soap-mocking/service-mocking-overview
+	
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+

@@ -1,0 +1,840 @@
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/bin/apache-activemq-5.15.0
+$ bin/activemq start
+INFO: Using default configuration
+      Configurations are loaded in the following order: /etc/default/activemq /c/Users/ervelden/.activemqrc /d/Users/ervelden/bin/apache-activemq-5.15.0//bin/env
+
+INFO: Using java 'C:\Program Files\Java\jdk1.8.0_144/bin/java'
+INFO: Starting - inspect logfiles specified in logging.properties and log4j.properties to get details
+INFO: pidfile created : '/d/Users/ervelden/bin/apache-activemq-5.15.0//data/activemq.pid' (pid '18024')
+
+/ we zien hierna in log file,
+$ less data/activemq.log
+...
+2019-03-14 20:58:32,466 | INFO  | Refreshing org.apache.activemq.xbean.XBeanBrokerFactory$1@380fb434: startup date [Thu
+ Mar 14 20:58:32 CET 2019]; root of context hierarchy | org.apache.activemq.xbean.XBeanBrokerFactory$1 | main
+2019-03-14 20:58:33,216 | INFO  | Using Persistence Adapter: KahaDBPersistenceAdapter[D:\Users\ervelden\bin\apache-activemq-5.15.0\data\kahadb] | org.apache.activemq.broker.BrokerService | main
+2019-03-14 20:58:33,259 | INFO  | KahaDB is version 6 | org.apache.activemq.store.kahadb.MessageDatabase | main
+2019-03-14 20:58:33,305 | INFO  | Recovering from the journal @1:2644 | org.apache.activemq.store.kahadb.MessageDatabase | main
+2019-03-14 20:58:33,310 | INFO  | Recovery replayed 36 operations from the journal in 0.047 seconds. | org.apache.activemq.store.kahadb.MessageDatabase | main
+2019-03-14 20:58:33,317 | INFO  | PListStore:[D:\Users\ervelden\bin\apache-activemq-5.15.0\data\localhost\tmp_storage] started | org.apache.activemq.store.kahadb.plist.PListStoreImpl | main
+2019-03-14 20:58:33,490 | INFO  | Apache ActiveMQ 5.15.0 (localhost, ID:LBNL031514-65216-1552593513328-0:1) is starting | org.apache.activemq.broker.BrokerService | main
+2019-03-14 20:58:33,509 | INFO  | Listening for connections at: tcp://LBNL031514:61616?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-14 20:58:33,511 | INFO  | Connector openwire started | org.apache.activemq.broker.TransportConnector | main
+2019-03-14 20:58:33,516 | INFO  | Listening for connections at: amqp://LBNL031514:5672?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-14 20:58:33,518 | INFO  | Connector amqp started | org.apache.activemq.broker.TransportConnector | main
+2019-03-14 20:58:33,522 | INFO  | Listening for connections at: stomp://LBNL031514:61613?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-14 20:58:33,523 | INFO  | Connector stomp started | org.apache.activemq.broker.TransportConnector | main
+2019-03-14 20:58:33,527 | INFO  | Listening for connections at: mqtt://LBNL031514:1883?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-14 20:58:33,529 | INFO  | Connector mqtt started | org.apache.activemq.broker.TransportConnector | main
+2019-03-14 20:58:33,629 | WARN  | ServletContext@o.e.j.s.ServletContextHandler@45d2ade3{/,null,STARTING} has uncovered http methods for path: / | org.eclipse.jetty.security.SecurityHandler | main
+2019-03-14 20:58:33,862 | INFO  | Listening for connections at ws://LBNL031514:61614?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.ws.WSTransportServer | main
+2019-03-14 20:58:33,863 | INFO  | Connector ws started | org.apache.activemq.broker.TransportConnector | main
+2019-03-14 20:58:33,864 | INFO  | Apache ActiveMQ 5.15.0 (localhost, ID:LBNL031514-65216-1552593513328-0:1) started | org.apache.activemq.broker.BrokerService | main
+2019-03-14 20:58:33,865 | INFO  | For help or more information please see: http://activemq.apache.org | org.apache.activemq.broker.BrokerService | main
+2019-03-14 20:58:34,308 | INFO  | No Spring WebApplicationInitializer types detected on classpath | /admin | main
+2019-03-14 20:58:34,400 | INFO  | ActiveMQ WebConsole available at http://0.0.0.0:8161/ | org.apache.activemq.web.WebConsoleStarter | main
+2019-03-14 20:58:34,401 | INFO  | ActiveMQ Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/ | org.apache.activemq.web.WebConsoleStarter | main
+2019-03-14 20:58:34,459 | INFO  | Initializing Spring FrameworkServlet 'dispatcher' | /admin | main
+2019-03-14 20:58:34,607 | INFO  | No Spring WebApplicationInitializer types detected on classpath | /api | main
+2019-03-14 20:58:34,849 | INFO  | jolokia-agent: Using policy access restrictor classpath:/jolokia-access.xml | /api | main
+
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/bin/apache-activemq-5.15.0/bin
+$ bin/activemq stop
+INFO: Using default configuration
+      Configurations are loaded in the following order: /etc/default/activemq /c/Users/ervelden/.activemqrc /d/Users/ervelden/bin/apache-activemq-5.15.0//bin/env
+
+INFO: Using java 'C:\Program Files\Java\jdk1.8.0_144/bin/java'
+INFO: Waiting at least  seconds for regular process termination of pid '18024' :
+./activemq: line 537: [: : integer expression expected
+
+INFO: Regular shutdown not successful,  sending SIGKILL to process
+Java Runtime: Oracle Corporation 1.8.0_144 C:\Program Files\Java\jdk1.8.0_144\jre
+  Heap sizes: current=121856k  free=119951k  max=1793536k
+    JVM args: -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=D:/Users/ervelden/bin/apache-activemq-5.15.0/conf/login.config -Dactivemq.classpath=D:\Users\ervelden\bin\apache-activemq-5.15.0\conf;D:\Users\ervelden\bin\lib\ -Dactivemq.home=D:/Users/ervelden/bin/apache-activemq-5.15.0/ -Dactivemq.base=D:/Users/ervelden/bin/apache-activemq-5.15.0/ -Dactivemq.conf=D:/Users/ervelden/bin/apache-activemq-5.15.0/conf -Dactivemq.data=D:/Users/ervelden/bin/apache-activemq-5.15.0/data
+Extensions classpath:
+  [D:\Users\ervelden\bin\apache-activemq-5.15.0\lib,D:\Users\ervelden\bin\apache-activemq-5.15.0\lib\camel,D:\Users\ervelden\bin\apache-activemq-5.15.0\lib\optional,D:\Users\ervelden\bin\apache-activemq-5.15.0\lib\web,D:\Users\ervelden\bin\apache-activemq-5.15.0\lib\extra]
+ACTIVEMQ_HOME: D:\Users\ervelden\bin\apache-activemq-5.15.0
+ACTIVEMQ_BASE: D:\Users\ervelden\bin\apache-activemq-5.15.0
+ACTIVEMQ_CONF: D:\Users\ervelden\bin\apache-activemq-5.15.0\conf
+ACTIVEMQ_DATA: D:\Users\ervelden\bin\apache-activemq-5.15.0\data
+Connecting to pid: 18024
+INFO: failed to resolve jmxUrl for pid:18024, using default JMX url
+java.util.ServiceConfigurationError: com.sun.tools.attach.spi.AttachProvider: Provider sun.tools.attach.WindowsAttachProvider could not be instantiated
+Connecting to JMX URL: service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
+INFO: sending SIGKILL to pid '18024'
+INFO: Broker not available at: service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
+
+/ TODO log files,
+
+/ 7	. 
+
+/ we kunnen 
+/ 7	. 
+
+/ lees,
+http://activemq.apache.org/examples.html
+
+/ in activemq zijn er ook voorbeelden: examples/	,
+
+/ 7	. 
+
+/ we hebben de voorbeelden uit het boek,
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$  pwd
+
+/ 7	. 
+
+/ lees,
+https://stackoverflow.com/questions/10355607/is-it-possible-to-start-activemq-with-a-configuration-file-thats-not-in-one-of
+->
+http://activemq.apache.org/activemq-command-line-tools-reference.html
+
+1. Start ActiveMQ: ${ACTIVEMQ_HOME}/bin/activemq xbean:src/main/resources/org/apache/activemq/book/ch2/activemq.xml
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ /d/Users/ervelden/bin/apache-activemq-5.15.0/bin/activemq xbean:file:./src/main/resources/org/apache/activemq/book/ch2/activemq.xml
+/ TODO
+
+/ lees,
+http://activemq.apache.org/getting-started.html#GettingStarted-InstallationProcedureforWindows
+/ ga naar
+localhost:8161
+/ log in met admin,admin
+
+/ 7	. 
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ mkdir ch2/jobs
+$ mkdir ch2/portfolio
+$ mkdir -p ch2/jobs/src/main/java
+$ mkdir -p ch2/jobs/src/main/resources
+$ mkdir -p ch2/jobs/src/main/webapp
+$ mkdir -p ch2/jobs/src/test/java
+$ mkdir -p ch2/jobs/src/test/resources
+$ cp chapter8/pom.xml ch2/jobs/
+$ mkdir -p ch2/portfolio/src/main/java
+$ mkdir -p ch2/portfolio/src/main/resources
+$ mkdir -p ch2/portfolio/src/main/webapp
+$ mkdir -p ch2/portfolio/src/test/java
+$ mkdir -p ch2/portfolio/src/test/
+$ cp chapter8/pom.xml ch2/portfolio/
+$ cp src/main/resources/log4j.xml ch2/jobs/src/main/resources/
+$ cp src/main/resources/log4j.xml ch2/portfolio/src/main/resources/
+
+
+/ workspace-jbosstools-jee-oxygen-spring
+/ we import ch2/jobs en ch2/portfolio	,
+
+/ 7	. 
+
+/ we start activemq in de foreground	,
+D:\Users\ervelden\bin\apache-activemq-5.15.8>bin\activemq start
+Java Runtime: Oracle Corporation 1.8.0_144 C:\Program Files\Java\jdk1.8.0_144\jre
+  Heap sizes: current=1005056k  free=989327k  max=1005056k
+    JVM args: -Dcom.sun.management.jmxremote -Xms1G -Xmx1G -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf\login.config -Dactivemq.classpath=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf;D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\../conf;D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\../conf; -Dactivemq.home=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\.. -Dactivemq.base=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\.. -Dactivemq.conf=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf -Dactivemq.data=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data -Djava.io.tmpdir=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\tmp
+Extensions classpath:
+  [D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\camel,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\optional,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\web,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\extra]
+ACTIVEMQ_HOME: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..
+ACTIVEMQ_BASE: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..
+ACTIVEMQ_CONF: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf
+ACTIVEMQ_DATA: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data
+Loading message broker from: xbean:activemq.xml
+ INFO | Refreshing org.apache.activemq.xbean.XBeanBrokerFactory$1@5bcab519: startup date [Sun Mar 17 12:09:20 CET 2019]; root of context hierarchy
+ INFO | Using Persistence Adapter: KahaDBPersistenceAdapter[D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\kahadb]
+ INFO | Page File: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\kahadb\db.data. Recovering pageFile free list due to prior unclean shutdown..
+ INFO | Page File: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\kahadb\db.data. Recovered pageFile free list of size: 0
+ INFO | KahaDB is version 6
+ INFO | PListStore:[D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\localhost\tmp_storage] started
+ INFO | Apache ActiveMQ 5.15.8 (localhost, ID:LBNL031514-60466-1552820961669-0:1) is starting
+ INFO | Listening for connections at: tcp://LBNL031514:61616?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector openwire started
+ INFO | Listening for connections at: amqp://LBNL031514:5672?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector amqp started
+ INFO | Listening for connections at: stomp://LBNL031514:61613?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector stomp started
+ INFO | Listening for connections at: mqtt://LBNL031514:1883?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector mqtt started
+ INFO | Starting Jetty server
+ INFO | Creating Jetty connector
+ WARN | ServletContext@o.e.j.s.ServletContextHandler@2ef14fe{/,null,STARTING} has uncovered http methods for path: /
+ INFO | Listening for connections at ws://LBNL031514:61614?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector ws started
+ INFO | Apache ActiveMQ 5.15.8 (localhost, ID:LBNL031514-60466-1552820961669-0:1) started
+ INFO | For help or more information please see: http://activemq.apache.org
+ INFO | No Spring WebApplicationInitializer types detected on classpath
+ INFO | ActiveMQ WebConsole available at http://0.0.0.0:8161/
+ INFO | ActiveMQ Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/
+ INFO | Initializing Spring FrameworkServlet 'dispatcher'
+ INFO | No Spring WebApplicationInitializer types detected on classpath
+ INFO | jolokia-agent: Using policy access restrictor classpath:/jolokia-access.xml
+ 
+/ dit zien we in de log file 
+
+$ less data/activemq.log
+
+2019-03-17 12:09:20,643 | INFO  | Refreshing org.apache.activemq.xbean.XBeanBrokerFactory$1@5bcab519: startup date [Sun Mar 17 12:09:20 CET 2019]; root of context hierarchy | org.apache.activemq.xbean.XBeanBrokerFactory$1 | main
+2019-03-17 12:09:21,477 | INFO  | Using Persistence Adapter: KahaDBPersistenceAdapter[D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\kahadb] | org.apache.activemq.broker.BrokerService | main
+2019-03-17 12:09:21,557 | INFO  | Page File: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\kahadb\db.data. Recovering pageFile free list due to prior unclean shutdown.. | org.apache.activemq.store.kahadb.disk.page.PageFile | KahaDB Index Free Page Recovery
+2019-03-17 12:09:21,563 | INFO  | Page File: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\kahadb\db.data. Recovered pageFile free list of size: 0 | org.apache.activemq.store.kahadb.disk.page.PageFile | KahaDB Index Free Page Recovery
+2019-03-17 12:09:21,565 | INFO  | KahaDB is version 6 | org.apache.activemq.store.kahadb.MessageDatabase | main
+2019-03-17 12:09:21,594 | INFO  | PListStore:[D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\localhost\tmp_storage] started | org.apache.activemq.store.kahadb.plist.PListStoreImpl | main
+2019-03-17 12:09:21,804 | INFO  | Apache ActiveMQ 5.15.8 (localhost, ID:LBNL031514-60466-1552820961669-0:1) is starting | org.apache.activemq.broker.BrokerService | main
+2019-03-17 12:09:21,871 | INFO  | Listening for connections at: tcp://LBNL031514:61616?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-17 12:09:21,873 | INFO  | Connector openwire started | org.apache.activemq.broker.TransportConnector | main
+2019-03-17 12:09:21,880 | INFO  | Listening for connections at: amqp://LBNL031514:5672?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-17 12:09:21,882 | INFO  | Connector amqp started | org.apache.activemq.broker.TransportConnector | main
+2019-03-17 12:09:21,887 | INFO  | Listening for connections at: stomp://LBNL031514:61613?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-17 12:09:21,890 | INFO  | Connector stomp started | org.apache.activemq.broker.TransportConnector | main
+2019-03-17 12:09:21,897 | INFO  | Listening for connections at: mqtt://LBNL031514:1883?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.TransportServerThreadSupport | main
+2019-03-17 12:09:21,899 | INFO  | Connector mqtt started | org.apache.activemq.broker.TransportConnector | main
+2019-03-17 12:09:21,905 | INFO  | Starting Jetty server | org.apache.activemq.transport.WebTransportServerSupport | main
+2019-03-17 12:09:21,935 | INFO  | Creating Jetty connector | org.apache.activemq.transport.WebTransportServerSupport | main
+2019-03-17 12:09:21,982 | WARN  | ServletContext@o.e.j.s.ServletContextHandler@2ef14fe{/,null,STARTING} has uncovered http methods for path: / | org.eclipse.jetty.security.SecurityHandler | main
+2019-03-17 12:09:22,020 | INFO  | Listening for connections at ws://LBNL031514:61614?maximumConnections=1000&wireFormat.maxFrameSize=104857600 | org.apache.activemq.transport.ws.WSTransportServer | main
+2019-03-17 12:09:22,021 | INFO  | Connector ws started | org.apache.activemq.broker.TransportConnector | main
+2019-03-17 12:09:22,022 | INFO  | Apache ActiveMQ 5.15.8 (localhost, ID:LBNL031514-60466-1552820961669-0:1) started | org.apache.activemq.broker.BrokerService | main
+2019-03-17 12:09:22,023 | INFO  | For help or more information please see: http://activemq.apache.org | org.apache.activemq.broker.BrokerService | main
+2019-03-17 12:09:22,557 | INFO  | No Spring WebApplicationInitializer types detected on classpath | /admin | main
+2019-03-17 12:09:23,060 | INFO  | ActiveMQ WebConsole available at http://0.0.0.0:8161/ | org.apache.activemq.web.WebConsoleStarter | main
+2019-03-17 12:09:23,061 | INFO  | ActiveMQ Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/ | org.apache.activemq.web.WebConsoleStarter | main
+2019-03-17 12:09:23,146 | INFO  | Initializing Spring FrameworkServlet 'dispatcher' | /admin | main
+2019-03-17 12:09:23,368 | INFO  | No Spring WebApplicationInitializer types detected on classpath | /api | main
+2019-03-17 12:09:23,671 | INFO  | jolokia-agent: Using policy access restrictor classpath:/jolokia-access.xml | /api | main
+
+/ 7. 
+
+/ workspace-jbosstools-jee-oxygen-spring
+/ we import ch2/jobs en ch2/portfolio	,
+
+/ in eclipse hebben we rechts 'Display selected console'	, je kunt kiezen tussen Producer en Consumer	,
+
+/ start de Consumer, deze start de async Listener	, die blijft draaien	, 
+/ de producer runs en stops	,
+
+/ als je Producer runs, zien we,
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Sending: id: 1000000 on queue: queue://JOBS.delete
+Sending: id: 1000001 on queue: queue://JOBS.delete
+Sending: id: 1000002 on queue: queue://JOBS.delete
+Sending: id: 1000003 on queue: queue://JOBS.delete
+Sending: id: 1000004 on queue: queue://JOBS.suspend
+Sending: id: 1000005 on queue: queue://JOBS.delete
+Sending: id: 1000006 on queue: queue://JOBS.delete
+Sending: id: 1000007 on queue: queue://JOBS.delete
+Sending: id: 1000008 on queue: queue://JOBS.suspend
+Sending: id: 1000009 on queue: queue://JOBS.suspend
+Sent '10' of '10' job messages
+
+/ in de console van de Consumer zien we dat de Listener print:
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+delete id:1000000
+delete id:1000001
+delete id:1000002
+delete id:1000003
+delete id:1000004
+delete id:1000005
+delete id:1000006
+delete id:1000007
+delete id:1000008
+suspend id:1000009
+delete id:1000000
+delete id:1000001
+delete id:1000002
+delete id:1000003
+suspend id:1000004
+delete id:1000005
+delete id:1000006
+delete id:1000007
+suspend id:1000008
+suspend id:1000009
+
+/ we zien dat de Producer 2 keer runs heeft	,
+
+/ 7	. 
+
+/ We stop de Consumer,
+/ we run de Producer,
+
+/ ga naar 
+http://localhost:8161/admin/queues.jsp
+
+Name ↑			Number Of Pending Messages  	Number Of Consumers  	Messages Enqueued  	Messages Dequeued  	Views  				Operations  
+JOBS.delete		7								0						35					28					Browse Active Consumers
+																												Active Producers
+																																	Send To Purge Delete
+JOBS.suspend	3								0						15					12					Browse Active Consumers
+																												Active Producers
+																																	Send To Purge Delete
+																																	
+/ als er een consumer is als de producer runs,	 dan is Messages Enqueued = messages dequeued	, bijv 28 = 28
+/ we zien in deze 2 kolommen dus niet 0	,
+
+/ maar als we geen consumer runs, is Enqueued > Dequeued, en het het verschil is Number of Pending messages	,
+
+/ we zien ook : number of consumers =0
+
+/ Start nu de consumer,
+/ we zien de output in de console in eclipse, maar in de admin web console zien we nu,
+
+JOBS.delete	0	1	35	35	Browse Active Consumers
+							Active Producers
+														Send To Purge Delete
+JOBS.suspend	0	1	15	15	Browse Active Consumers
+								Active Producers
+								Send To Purge Delete
+
+/ dus we zien pending = 0 en enqueued= dequeued	,
+/ en we zien: number of consumers=1
+
+/ 7	. 
+
+/ een queue houdt de msgs dus vast  als er geen consumers zijn	, 
+/ en als we (op een gegeven moment, of waren er al) consumers zijn, geeft elke msg aan 1 consumer,
+
+/ een topic geeft de msgs aan alle consumers, 	
+/ een topic geeft de msgs alleen aan een durable subscription consumer,
+
+/ 7	. 
+
+/ pub/sub
+
+/ de publisher en subscriber moeten args hebben : CSCO en ORCL	,
+
+/ run 2 consumers, 
+/ run 1 producer, we zien,
+
+Name ↑			Number Of Consumers  	Messages Enqueued  	Messages Dequeued  	Operations  
+STOCKS.CSCO		2						3					6					Send To Active Subscribers
+																				Active Producers
+																				Delete
+STOCKS.ORCL		2						7					14					Send To Active Subscribers
+																				Active Producers
+																				Delete
+																				
+/ klopt	, 	
+
+/ we zien in eclipse bij selected consoles:
+
+publisher:
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Sending: {offer=44.254112499573665, price=44.20990259697669, up=false, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=89.58494494786092, price=89.49544949836256, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=44.396462591009175, price=44.35211048052865, up=true, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=44.750210736810814, price=44.70550523157924, up=true, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=90.24854771483572, price=90.15838932551023, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=90.23961633936868, price=90.14946687249619, up=false, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=90.47865167708338, price=90.38826341366972, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=91.17643626090613, price=91.08535090999614, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=91.13733588868774, price=91.04628959908867, up=false, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=91.7373257853499, price=91.64568010524467, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Published '10' of '10' price messages
+
+consumer:
+CSCO	44,21	44,25	down
+ORCL	89,50	89,58	up
+CSCO	44,35	44,40	up
+CSCO	44,71	44,75	up
+ORCL	90,16	90,25	up
+ORCL	90,15	90,24	down
+ORCL	90,39	90,48	up
+ORCL	91,09	91,18	up
+ORCL	91,05	91,14	down
+ORCL	91,65	91,74	up
+
+consumer:
+CSCO	44,21	44,25	down
+ORCL	89,50	89,58	up
+CSCO	44,35	44,40	up
+CSCO	44,71	44,75	up
+ORCL	90,16	90,25	up
+ORCL	90,15	90,24	down
+ORCL	90,39	90,48	up
+ORCL	91,09	91,18	up
+ORCL	91,05	91,14	down
+ORCL	91,65	91,74	up
+
+/ we zien dat beide consumers hetzelfde krijgen: bij pub/sub wordt een msg naar alle consumers gestuurd	,
+
+/ 13	.
+
+/ we kill beide consumers, en run publisher,
+
+/ we zien,
+enqueued		dequeued
+8				6
+12				14
+
+/ klopt, de enqueued waren samen 10, nu 20	, 
+/ de dequeued zijn onveranderd	,
+
+/ start een consumer, hij krijgt niets: 
+
+/ 13	 .
+
+/ verschil queue en pub/sub,
+
+/ producer/ publisher:
+/ beide doen:
+		producer = session.createProducer(null);
+		producer.send(destination, message);
+/ het verschil is:
+		Destination destination = session.createQueue("JOBS." + job);
+		Destination destination = session.createTopic("STOCKS." + stock);
+		
+/ in ons voorbeeld zien we ook, maar dat heeft niets met verschil queue en pub/sub te maken:
+		Message message = session.createObjectMessage(id++);
+		MapMessage message = session.createMapMessage();
+		
+
+/ 13	. 
+
+		enqueued		dequeued
+CSCO		8				6
+ORCL		12				14
+
+/ we hebben 2 subscribers, 
+/ publish,
+
+		enqueued		dequeued
+CSCO		11				12
+ORCL}		19				28
+
+/ klopt, 3 CSCO msg published, dus 6 dequeued, omdat er 2 subscribers zijn,
+7 ORCL enqueued, dus 14 dequeued,
+
+/ nog een keer,
+		enqueued		dequeued
+CSCO		13				16
+ORCL}		27				44
+
+
+/ 13	. 
+
+/ durable/non-durable
+
+/google,
+activemq create durable topic subscriber
+/ lees,
+http://www.javanbeyond.com/activemq/create-durable-topic-subscriber/
+
+
+
+/ purge in amq admin console
+
+/ zet de consumers uit,
+/ run de producer
+/ we zien pending msgs, en enqueued>dequeued,
+/ als we purge, dan wordt enqueued=dequeued, en pending msgs=0, dus de enqueued msgs die nog niet waren consumed, de pending msgs dus,  worden weggegooid	,					
+
+/ we zien hier dus dat er geen consumers hoeven te zijn; te msgs worden bewaard, en als de consumers er komen, worden ze gepakt,	
+/ net als mail,
+
+/ 7	. 
+
+/ we start in eclipse 2 consumers,
+/ we start vooraf de consumers, anders pakt de 1ste consumer WH alle msgs,
+/ we laten de producer 2 keer 10 msgs post	,
+/ we zien in eclipse bij 'Display selected console' 2 consumer consoles	,
+
+/ in de 1ste zien we,
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+suspend id:1000001
+suspend id:1000003
+suspend id:1000006
+suspend id:1000008
+suspend id:1000002
+suspend id:1000007
+suspend id:1000008
+delete id:1000000
+delete id:1000002
+delete id:1000004
+delete id:1000005
+delete id:1000007
+delete id:1000009
+delete id:1000000
+delete id:1000001
+delete id:1000003
+delete id:1000004
+delete id:1000005
+delete id:1000006
+delete id:1000009
+delete id:1000000
+suspend id:1000001
+delete id:1000004
+suspend id:1000006
+delete id:1000007
+delete id:1000009
+
+/ in de 2de zien we,
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+suspend id:1000002
+delete id:1000003
+delete id:1000005
+delete id:1000008
+
+/ 7	. 
+
+/ in de amq admin console kunnen we de queues delete,
+
+/ run de producer, 
+/ we zien de queues weer terug, en wel zo,
+
+JOBS.delete		9	0	9	0	Browse Active Consumers
+								Active Producers
+													Send To Purge Delete
+JOBS.suspend	1	0	1	0	Browse Active Consumers
+								Active Producers
+													Send To Purge Delete
+													
+/ run een consumer,
+
+
+Name ↑	Number Of Pending Messages  	Number Of Consumers  	Messages Enqueued  	Messages Dequeued  	Views  	Operations  
+JOBS.delete	0	1	9	9	Browse Active Consumers
+Active Producers
+  	Send To Purge Delete
+JOBS.suspend	0	1	1	1	Browse Active Consumers
+Active Producers
+  	Send To Purge Delete
+
+
+/ 7	. 
+
+/ pub/sub
+
+/ we moeten de 
+
+/ bij queue voorbeeld ch2/jobs doet de producer:
+
+		Message message = session.createObjectMessage(id++);
+		
+/ het message ziet er dan zo uit:
+message
+	object = Integer 7
+	
+/ bij pub/sub voorbeeld ch2/portfolio doet de producer:
+
+		MapMessage message = session.createMapMessage();
+		message.setString("stock", stock);
+		message.setDouble("price", price);
+		message.setDouble("offer", offer);
+		message.setBoolean("up", up);
+
+/ het message ziet er dan zo uit:
+
+message	ActiveMQMapMessage  (id=118)	
+	map	HashMap<K,V>  (id=120)	
+		[0]	HashMap$Node<K,V>  (id=131)	offer=90.3291239426823
+		[1]	HashMap$Node<K,V>  (id=132)	price=90.23888505762469
+		[2]	HashMap$Node<K,V>  (id=133)	up=false
+		[3]	HashMap$Node<K,V>  (id=134)	stock=CSCO
+		
+/ we zien in de console van publisher	,
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Sending: {offer=90.78080594685679, price=90.69011583102578, up=false, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=90.3291239426823, price=90.23888505762469, up=false, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=87.85037667076246, price=87.76261405670576, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=87.69288813506785, price=87.60528285221564, up=false, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=87.73592346440608, price=87.64827518921687, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=89.68363897051638, price=89.59404492559081, up=false, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=86.91165814061387, price=86.82483330730656, up=false, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=89.1299353663454, price=89.04089447187354, up=false, stock=CSCO} on destination: topic://STOCKS.CSCO
+Sending: {offer=87.06736513938002, price=86.9803847546254, up=true, stock=ORCL} on destination: topic://STOCKS.ORCL
+Sending: {offer=86.62542364578518, price=86.53888476102416, up=false, stock=ORCL} on destination: topic://STOCKS.ORCL
+Published '10' of '10' price messages
+
+/ we zien op localhost:8161/topics.jsp
+
+Name ↑		Number Of Consumers  	Messages Enqueued  	Messages Dequeued  	Operations  
+STOCKS.CSCO	0						4					0					Send To Active Subscribers
+																			Active Producers
+																			Delete
+STOCKS.ORCL	0						6					0					Send To Active Subscribers
+																			Active Producers
+																			Delete
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ 13	. 
+
+/ ch2/jobs
+
+$ vi Producer.java
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ 7	. 
+
+/ activemq in jboss,
+
+/ lees,
+https://docs.jboss.org/author/display/WFLY10/Messaging+configuration
+
+D:\Users\ervelden\bin\wildfly-16.0.0.Final>bin\standalone.bat -help
+    -c <config>, -c=<config>            Name of the server configuration file
+                                        to use (default is "standalone.xml")
+                                        (Same as --server-config)
+										
+D:\Users\ervelden\bin\wildfly-16.0.0.Final> bin\standalone.bat -c standalone-full.xml
+...
+
+
+/ 13	. 
+
+/ start activemq altijd vanuit de cmd, niet vanuit git-bash	,
+
+/ copy activemq.xml,
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ cp ./src/main/resources/org/apache/activemq/book/ch2/activemq.xml ch2/jobs/
+
+/ dit kunnnen we in git-bash doen, maar starten van activemq moet in command,
+
+/ in linux we use $ activemq console xbean:activemq.xml, in command > activemq start xbean:activemq.xml
+
+D:\Users\ervelden\zip_codebase\amq-in-action-example-src\ch2\jobs>\Users\ervelden\bin\apache-activemq-5.15.8\bin\activemq start xbean:activemq.xml
+Java Runtime: Oracle Corporation 1.8.0_144 C:\Program Files\Java\jdk1.8.0_144\jre
+  Heap sizes: current=1005056k  free=989327k  max=1005056k
+    JVM args: -Dcom.sun.management.jmxremote -Xms1G -Xmx1G -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf\login.config -Dactivemq.classpath=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf;D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\../conf;D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\../conf; -Dactivemq.home=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\.. -Dactivemq.base=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\.. -Dactivemq.conf=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf -Dactivemq.data=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data -Djava.io.tmpdir=D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\tmp
+Extensions classpath:
+  [D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\camel,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\optional,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\web,D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\lib\extra]
+ACTIVEMQ_HOME: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..
+ACTIVEMQ_BASE: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..
+ACTIVEMQ_CONF: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\conf
+ACTIVEMQ_DATA: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data
+Loading message broker from: xbean:activemq.xml
+ INFO | Refreshing org.apache.activemq.xbean.XBeanBrokerFactory$1@5700d6b1: startup date [Mon Mar 18 21:53:15 CET 2019]; root of context hierarchy
+ WARN | Memory Usage for the Broker (1024mb) is more than the maximum available for the JVM: 981 mb - resetting to 70% of maximum available: 687 mb
+ INFO | Using Persistence Adapter: KahaDBPersistenceAdapter[D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\localhost\KahaDB]
+ INFO | JMX consoles can connect to service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
+ INFO | Page File: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\localhost\KahaDB\db.data. Recovering pageFile free list due to prior unclean shutdown..
+ INFO | Page File: D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\localhost\KahaDB\db.data. Recovered pageFile free list of size: 0
+ INFO | KahaDB is version 6
+ INFO | PListStore:[D:\Users\ervelden\bin\apache-activemq-5.15.8\bin\..\data\localhost\tmp_storage] started
+ INFO | Apache ActiveMQ 5.15.8 (localhost, ID:LBNL031514-54949-1552942396061-0:1) is starting
+ INFO | Listening for connections at: tcp://127.0.0.1:61616
+ INFO | Connector openwire started
+ INFO | Apache ActiveMQ 5.15.8 (localhost, ID:LBNL031514-54949-1552942396061-0:1) started
+ INFO | For help or more information please see: http://activemq.apache.org
+
+/ 1313	. 
+
+
+								
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ cp src/main/resources/org/apache/activemq/book/ch6/* ch6/src/main/resources/amq/book/ch6/
+
+/ maakt het uit die subdir in src/main/resources ?  Of kunnen we ook,
+$ cp src/main/resources/org/apache/activemq/book/ch6/* ch6/src/main/resources/
+/ TODO
+
+/ 1313	. 
+
+/ we zien log4j.xml in src/main/resources
+/ TODO
+
+/ 1313	. 
+
+/ we hebben ook nodig	,
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ cp src/main/java/org/apache/activemq/book/ch2/portfolio/Listener.java ch6//src/main/java/amq/book/ch6/
+
+/ we moeten de pkg veranderen van de java classes, en import van de Listener,
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ find ch6
+ch6
+ch6/pom.xml
+ch6/src
+ch6/src/main
+ch6/src/main/java
+ch6/src/main/java/amq
+ch6/src/main/java/amq/book
+ch6/src/main/java/amq/book/ch6
+ch6/src/main/java/amq/book/ch6/AuthorizationPolicy.java
+ch6/src/main/java/amq/book/ch6/broker
+ch6/src/main/java/amq/book/ch6/broker/Broker.java
+ch6/src/main/java/amq/book/ch6/broker/Factory.java
+ch6/src/main/java/amq/book/ch6/broker/readme.txt
+ch6/src/main/java/amq/book/ch6/Consumer.java
+ch6/src/main/java/amq/book/ch6/IPAuthenticationBroker.java
+ch6/src/main/java/amq/book/ch6/IPAuthenticationPlugin.java
+ch6/src/main/java/amq/book/ch6/readme.txt
+ch6/src/main/java/amq/book/ch6/spring
+ch6/src/main/java/amq/book/ch6/spring/readme.txt
+ch6/src/main/java/amq/book/ch6/spring/SpringBroker.java
+ch6/src/main/java/amq/book/ch6/spring/SpringClient.java
+ch6/src/main/java/amq/book/ch6/spring/SpringPublisher.java
+ch6/src/main/java/amq/book/ch6/spring/StockMessageCreator.java
+ch6/src/main/resources
+ch6/src/main/resources/amq
+ch6/src/main/resources/amq/book
+ch6/src/main/resources/amq/book/ch6
+ch6/src/main/resources/amq/book/ch6/activemq-authorization.xml
+ch6/src/main/resources/amq/book/ch6/activemq-custom.xml
+ch6/src/main/resources/amq/book/ch6/activemq-jaas.xml
+ch6/src/main/resources/amq/book/ch6/activemq-policy.xml
+ch6/src/main/resources/amq/book/ch6/activemq-simple.xml
+ch6/src/main/resources/amq/book/ch6/activemq-ssl.xml
+ch6/src/main/resources/amq/book/ch6/consumer_cert
+ch6/src/main/resources/amq/book/ch6/groups.properties
+ch6/src/main/resources/amq/book/ch6/login.config
+ch6/src/main/resources/amq/book/ch6/mybroker.ts
+ch6/src/main/resources/amq/book/ch6/myconsumer.ks
+ch6/src/main/resources/amq/book/ch6/myproducer.ks
+ch6/src/main/resources/amq/book/ch6/producer_cert
+ch6/src/main/resources/amq/book/ch6/spring-1.0.xml
+ch6/src/main/resources/amq/book/ch6/spring-2.0.xml
+ch6/src/main/resources/amq/book/ch6/spring-client.xml
+ch6/src/main/resources/amq/book/ch6/users.properties
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/zip_codebase/amq-in-action-example-src
+$ head ch6/pom.xml
+<project ...>
+        <groupId>amq.book.ch6</groupId>
+        <artifactId>amq-ch6-sec</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <packaging>jar</packaging>
+		
+
+
+/ 7	. 
+
+/ google,
+jms/RemoteConnectionFactory @Jmslistener username password
+/ lees,
+https://stackoverflow.com/questions/38828082/how-to-listen-jms-queue-from-remote-server		
+				
+
+i have implemented jms queue and listner in spring application. I am not able to listen jms queue from remote system. I have configured Queue in server application util-sevice.xml file.
+					
+<bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
+            <property name="environment">
+                <props>
+                    <prop key="java.naming.provider.url">http-remoting://182.18.177.115:80</prop>
+
+                    <prop key="java.naming.factory.initial">org.jboss.naming.remote.client.InitialContextFactory
+                    </prop>
+                    <prop key="java.naming.security.principal">user</prop>
+                    <prop key="java.naming.security.principal">pwd</prop>
+
+            </property>
+        </bean>
+
+<bean id="connectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiTemplate">
+            <ref bean="jndiTemplate" />
+        </property>
+        <property name="jndiName" value="jms/RemoteConnectionFactory">
+        </property>
+    </bean>
+<bean id="credentialsconnectionfactory"
+        class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+        <property name="targetConnectionFactory" ref="connectionFactory" />
+        <property name="username" value="use" />
+        <property name="password" value="pwd" />
+    </bean>
+<bean id="genricDbSyncDestination" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiTemplate" ref="jndiTemplate" />
+        <property name="jndiName" value="java:/jms/queue/GenricDbSyncQueue" />
+    </bean>
+
+        <bean id="genricDbSyncTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="credentialsconnectionfactory" />
+        <property name="defaultDestination" ref="genricDbSyncDestination" />
+    </bean>
+	
+standalone-full.xml in remote server
+
+<jms-queue name="GenricDbSyncQueue">
+                        <entry name="jms/queue/GenricDbSyncQueue"/>
+                        <entry name="java:jboss/exported/jms/queue/GenricDbSyncQueue"/>
+                    </jms-queue>
+					
+and my local system spring application util-service.xml config file for listening that queue
+
+<bean id="genricDbSyncListener" class="com.ayotta.genericdbsync.GenericDbSyncConsumer" />
+
+    <bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
+        <property name="environment">
+            <props>
+                <prop key="java.naming.provider.url">http-remoting://182.18.177.115:80</prop>
+                <prop key="java.naming.factory.initial">org.jboss.naming.remote.client.InitialContextFactory
+                </prop>
+                 <property name="username" value="use" />
+        <property name="password" value="pwd" />
+            </props>
+        </property>
+    </bean>
+
+    <bean id="connectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiTemplate">
+            <ref bean="jndiTemplate" />
+        </property>
+        <property name="jndiName" value="jms/RemoteConnectionFactory">
+        </property>
+    </bean>
+    <bean id="credentialsconnectionfactory"
+        class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+        <property name="targetConnectionFactory" ref="connectionFactory" />
+         <property name="username" value="use" />
+        <property name="password" value="pwd" />
+    </bean>
+
+    <jms:listener-container connection-factory="credentialsconnectionfactory"
+        concurrency="1" acknowledge="auto" destination-type="queue">
+<jms:listener destination="GenricDbSyncQueue" ref="genricDbSyncListener"
+            method="onMessage" />
+    </jms:listener-container>
+										
+How to listen that remote jms queue from local system application
+
+/ 7	. 
+
+https://www.ibm.com/support/knowledgecenter/en/SSEQTP_8.5.5/com.ibm.websphere.base.doc/ae/tjn0012_.html
+https://www.novell.com/documentation/extend5/Docs/help/MP/jms/tutorial/durable-1.htm
+
+
+
+

@@ -1,0 +1,38 @@
+webmail: outlook.office.com
+
+outlook:
+cisco anyconnect secure mobility client
+CG World Backup
+
+Vraag via MobilePass passcode
+klik copy passcode
+Vul dat in cisco window
+
+/ op windows,
+/ op selfportal.capgemini.com klik 'Assign MobilePass token'
+/ fill in start date, manager name, 
+/ click se... link
+/ we komen op https://se.safenet-inc.com/selfEnrollment/Success.aspx
+/ we zien: install MobilePass app, en enroll	, 
+/ klik op enroll, we hadden de app al installed op windows,
+/ we krijgen email, met daarin:
+https://se.safenet-inc.com/selfEnrollment/index.aspx?code=O7CxHdkdeJCODNm8v006a6ejw
+/ nu wordt hij echt enrolled (op de server),
+
+/ als we weer naar selfportal.capgemini.com gaan komen we op,
+https://selfportal.capgemini.com/selfPortal/portals/std/index-portal.jsp / lijst met tokens
+
+/ stuur de email die we op windows kregen na enroll naar ericjvandervelden@gmail.com, en klik op telefoon ook op:
+https://se.safenet-inc.com/selfEnrollment/index.aspx?code=O7CxHdkdeJCODNm8v006a6ejw
+/ nu wordt hij echt enrolled (op de server)
+
+/ op windows en telefoon
+Token2
+1926
+/ geeft passcode voor in Cisco anyconnect secure mobility client
+CG World Backup
+
+https://www3.lenovo.com/us/en/laptops/thinkpad/thinkpad-p/c/thinkpadp
+
+
+

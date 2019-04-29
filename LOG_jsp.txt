@@ -1,0 +1,215 @@
+/ 7	. 
+
+/ JBossTools3,	 
+/ proj abctomcatappl	, 
+
+$ vi pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>my.own</groupId>
+  <artifactId>abctomcatappl</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <dependencies>
+	<dependency>
+	    <groupId>javax.servlet</groupId>
+	    <artifactId>javax.servlet-api</artifactId>
+	    <version>3.0.1</version>
+	    <scope>provided</scope>
+	</dependency>
+  </dependencies>
+</project>
+
+$ vi src/main/java/my/User.java
+
+package my;
+
+public class User {
+	private String name;
+	
+	public User(){
+		name="Gee Hee";
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+}
+
+$ vi src/main/webapp/index.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<jsp:useBean id="user" class="my.User" scope="request"></jsp:useBean>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h1><jsp:getProperty property="name" name="user"/></h1>
+	<h2>or,</h2>
+	<h1>${user.name}</h1>
+</body>
+</html>
+
+$ vi src/main/webapp/WEB-INF/web.xml
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+	      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	      version="3.0">
+</web-app>
+
+/ tomcat server config in eclipse	,
+/ we hebben deze appl add, right click server config in servers view, 	click Add and Remove	,
+/ start de server in eclipse	,
+
+ 8567  6292  8548  8458 pts/3     8548 Sl+   1000   0:03 /usr/java/jdk1.7.0_65/bin/java -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:38533 -Dcatalina.base=/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0 -Dcatalina.home=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54 -Dwtp.deploy=/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps -Djava.endorsed.dirs=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/endorsed -Dfile.encoding=UTF-8 -classpath /home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/bin/bootstrap.jar:/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/bin/tomcat-juli.jar:/usr/java/jdk1.7.0_65/lib/tools.jar org.apache.catalina.startup.Bootstrap start
+
+/ de catalina base	,
+[eric@walnut apache-tomcat-7.0.54]$  ls /home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0
+conf  logs  temp  webapps  work  wtpwebapps
+
+[eric@walnut apache-tomcat-7.0.54]$  ls /home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/
+Catalina/            context.xml          web.xml
+catalina.policy      server.xml           
+catalina.properties  tomcat-users.xml   
+
+[eric@walnut apache-tomcat-7.0.54]$  less /home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/conf/server.xml 
+...
+      <Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="tru
+e">
+
+        <!-- SingleSignOn valve, share authentication between web applications
+             Documentation at: /docs/config/valve.html -->
+        <!--
+        <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+        -->
+        <!-- Access log processes all example.
+             Documentation at: /docs/config/valve.html
+             Note: The pattern used is equivalent to using pattern="common" -->
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs" pattern="%h %l %u %t &quot;%r&quot; %s %b" prefix="localhost_access_log." suffix=".txt"/>
+
+      	<Context docBase="/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/ROOT" path="" reloadable="false"/>
+				<Context docBase="/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/abctomcatappl" path="/abctomcatappl" reloadable="true" source="org.eclipse.jst.jee.server:abctomcatappl"/>
+			</Host>
+    </Engine>
+  </Service>
+</Server>
+
+/we zien wtpwebapps/ in de docbase van de contexts=webapps	, dat is de plaats waar wtpwebapps voorkomt	, 
+
+[eric@walnut apache-tomcat-7.0.54]$  ls /home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/
+abctomcatappl  ROOT
+[eric@walnut tmp0]$ ls wtpwebapps/abctomcatappl/
+index.jsp  META-INF/  WEB-INF/   
+
+[eric@walnut apache-tomcat-7.0.54]$  ls /home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/logs/
+localhost_access_log.2017-09-19.txt
+/ de logs moeten beter	,
+
+/ Dus we zien dat als we een server start in eclipse, hij autodeploy is	, 
+
+/ Als we edit
+$ vi src/main/java/own/User.java
+
+public class User {
+	private String name;
+	
+	public User(){
+		name="Gee Hee";
+	}
+...
+/ en we vragen	, 
+http://localhost:8080/abctomcatappl/
+/ dan zien we Gee Hee	, 
+
+/ 7	. 
+
+/ docBase	,
+
+[eric@walnut apache-tomcat-7.0.54]$ ls
+bin   lib      logs    RELEASE-NOTES  temp     work
+conf  LICENSE  NOTICE  RUNNING.txt    webapps
+/ en	,
+[eric@walnut apache-tomcat-7.0.54]$  ls /home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0
+conf  logs  temp  webapps  work  wtpwebapps
+
+/ Als we tomcat start zoals altijd	, 
+$ bin/catalina.sh run	, 
+/ dan is de docBase apache-tomcat-7.0.54/	, 
+/ maar als we tomcat in eclipse start	, dan is de docBase	,
+/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0
+
+/ Als we tomcat in eclipse start	, dan wordt apache-tomcat-7.0.54/log/catalina.2017-09-19.log NIET write	, maar als we tomcat met catalina.sh start, wel	,
+
+/ als we catalina.sh 
+set -x
+/ dan zien we 	,
+
+++ exec /usr/bin/java -Djava.util.logging.config.file=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djava.endorsed.dirs=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/endorsed -classpath /home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/bin/bootstrap.jar:/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/bin/tomcat-juli.jar -Dcatalina.base=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54 -Dcatalina.home=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54 -Djava.io.tmpdir=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/temp org.apache.catalina.startup.Bootstrap start
+
+/ als we in eclipse start, zien we 	,
+
+ 8567  9129  8548  8458 pts/3     8548 Sl+   1000   0:03 /usr/java/jdk1.7.0_65/bin/java -Dcatalina.base=/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0 -Dcatalina.home=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54 -Dwtp.deploy=/home/eric/Devel/Eclipse/JBossTools3/jboss-quickstarts/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps -Djava.endorsed.dirs=/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/endorsed -Dfile.encoding=UTF-8 -classpath /home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/bin/bootstrap.jar:/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54/bin/tomcat-juli.jar:/usr/java/jdk1.7.0_65/lib/tools.jar org.apache.catalina.startup.Bootstrap start
+
+/ Dus we zien dezelfde catalina.home	, maar een andere catalina.base	,
+
+/ 13	. 
+
+/ lees over jsp	, 
+http://www.studytonight.com/jsp/setproperty-tag.php
+
+/ 13	. 
+
+[eric@walnut apache-tomcat-7.0.54]$ pwd
+/home/eric/Devel/Java/Tomcat/apache-tomcat-7.0.54
+[eric@walnut apache-tomcat-7.0.54]$ find bin -name "*.jar" | xargs -I % bash -c "echo jar tvf %;jar tvf %| grep ClassLoaderLogManager"
+jar tvf bin/commons-daemon.jar
+jar tvf bin/bootstrap.jar
+jar tvf bin/tomcat-juli.jar
+  1336 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$1.class
+  1343 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$2.class
+  1020 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$3.class
+  1113 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$ClassLoaderLogInfo.class
+   993 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$Cleaner.class
+  2781 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$LogNode.class
+   492 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager$RootLogger.class
+ 13718 Mon May 19 22:30:50 CEST 2014 org/apache/juli/ClassLoaderLogManager.class
+
+/ 13	. 
+
+/ In tomcat's base's conf/server.xml zien we in <Host> GEEN <Context>s	, 
+/ Via eclipse, in de base in  conf/server.xml zien we <Context>s in <Host>
+
+/ Als mvn clean niet lukt, dan misschien een command line open op de target\	, 
+
+/ 13	. 
+
+/ lees	, 
+http://tomcat.apache.org/tomcat-7.0-doc/config/context.html
+/ Ze hebben het over META-INF/context.xml	, 
+
+/ lees	, 
+https://stackoverflow.com/questions/9617036/how-to-specify-path-in-meta-inf-context-xml-for-tomcat
+
+/ lees	,
+https://stackoverflow.com/questions/26585462/what-is-the-correct-meta-inf-directory-location-for-context-xml-in-tomcat
+It is src/main/webapp/META-INF since the file needs to end up deployed in the web root/META-INF folder, not in WEB-INF/classes/META-INF.
+
+/ lees	,
+https://stackoverflow.com/questions/1802245/set-the-path-of-web-app-in-meta-inf-context-xml
+/->
+http://archive.oreilly.com/pub/a/java/archive/tomcat-tips.html
+
+
+

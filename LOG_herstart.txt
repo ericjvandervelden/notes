@@ -1,0 +1,228 @@
+/ 20180309
+
+eclipse\jbosstools-jee-oxygen
+workspace-jbosstools-jee-oxygen
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen> forge
+/ we moeten forge in deze dir start, want hier zijn alle projects,
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> standalone.bat
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> jboss-cli.bat
+
+C:\Program Files\PostgreSQL\9.6\bin>psql -Ueric test
+vi_lang17
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>java -classpath modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/~/h2/test -user sa -password sa
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>java -classpath modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Server -tcp
+
+/ open on notepad++
+LOG_angular.txt
+LOG_jpa.txt
+LOG_arquillian.txt
+LOG_postgresql.txt
+LOG_wildfly-swarm.txt
+LOG_rest-assured.txt
+LOG_arquillian-tmp.txt
+
+NativeQueriesWithHibernate-ThoughtsOnJavaLibrary2.pdf
+
+/ 20180309
+
+/ open in notepad++
+LOG_angular.txt
+LOG_jpa.txt
+LOG_arquillian.txt
+LOG_postgresql.txt
+LOG_wildfly-swarm.txt
+LOG_rest-assured.txt
+LOG_arquillian-tmp.txt
+LOG_herstart.txt
+LOG_sogeti.txt
+LOG_open.txt
+
+/ open in command,
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>	/ om te zoeken	,
+C:\Users\ervelden\java\wildfly-source-jars>copy d:\Users\ervelden\Downloads\h2-1.3.173-sources.jar
+
+C:\Program Files\PostgreSQL\9.6\bin>psql -Ueric test
+vi_lang17
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>java -classpath modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/~/h2/test -user sa -password sa
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>java -classpath modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Server -tcp
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> standalone.bat --debug
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> jboss-cli.bat -c
+
+eclipse\jbosstools-jee-oxygen
+workspace-jbosstools-jee-oxygen
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen> forge
+/ we moeten forge in deze dir start, want hier zijn alle projects,
+
+
+
+/ 20180329
+
+/ open in notepad++
+LOG_angular.txt
+LOG_jpa.txt
+LOG_arquillian.txt
+LOG_postgresql.txt
+LOG_wildfly-swarm.txt
+LOG_rest-assured.txt
+LOG_arquillian-tmp.txt
+LOG_herstart.txt
+LOG_sogeti.txt
+LOG_open.txt
+
+/ open in command,
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>	/ om te zoeken	,
+C:\Users\ervelden\java\wildfly-source-jars>copy d:\Users\ervelden\Downloads\h2-1.3.173-sources.jar
+C:\Users\ervelden\java\hibernate-orm>findstr /s EntityInsertAction *.java
+
+C:\Program Files\PostgreSQL\9.6\bin>psql -Ueric test
+vi_lang17
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>java -classpath modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/~/h2/test -user sa -password sa
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>java -classpath modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Server -tcp
+
+C:\Users\ervelden\bin\for_wildfly
+	call_psql.bat
+	h2_server.bat
+	h2_client.bat
+	
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> standalone.bat --debug
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin> jboss-cli.bat -c
+
+eclipse\jbosstools-jee-oxygen	, workspace-jbosstools-jee-oxygen
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen> forge
+/ we moeten forge in deze dir start, want hier zijn alle projects,
+
+/ 7	. 
+
+/ jpa study met eclipse\jbosstools-jee-oxygen	, workspace-jee-hibernate, dit is quickstart examples	,
+/ we hebben project aa-associations	,
+C:\Users\ervelden\bin\for_wildfly>h2_client_with_args.bat is voor h2database voor aa-associations	,
+/ er is ook workspace-jbosstools-jee-oxygen-hibernate	, dat is guide examples,
+
+/ 7	. 
+
+/ 20180622
+
+/ workspace-jee-hibernate	,
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+C:\Users\ervelden\bin\for_wildfly>h2_client_with_args.bat
+
+/ workspace-jbosstools-jee-oxygen-spring-boot
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo>java -jar target\demo-0.0.1-SNAPSHOT.jar
+
+/ 20180821
+
+/ workspace-jbosstools-jee-oxygen-spring-boot
+/ proj serving-web-content-thymeleaf
+
+/ git-bash
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/serving-web-content-thymeleaf
+$ mvn spring-boot:run
+$ java -jar target/serving-web-content-thymeleaf-0.0.1-SNAPSHOT.jar
+$ mvn -DskipTests clean package
+
+/ een andere git-bash voor curl,
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-spring-boot
+$ curl localhost:8080/greeting?name=foo
+$ curl localhost:8080/WEB-INF/greeting.jsp?name=foo
+$ curl localhost:8080/WEB-INF/jsp/greeting.jsp?name=foo
+
+/ in cmd,
+C:\Users\ervelden>psql -Ueric test
+/ in cmd,
+C:\Users\ervelden\bin\for_wildfly>h2_client_with_args.bat
+/ in cmd,
+C:\Users\ervelden\bin\ProcessExplorer>procexp.exe
+/ in cmd,
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+TCP server running at tcp://192.168.43.94:9092 (only local connections)
+/ in cmd,
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\sbia_examples\ch05> type ch06\grails\gradle.properties
+
+/ 20190131
+
+/ deze hadden we open,
+/ workspace-jbosstools-jee-oxygen: arquillian
+/ workspace-jbosstools-jee-oxygen-cxf-binary
+
+/ 7	. 
+
+/ 13	. 
+
+C:\Users\ervelden\java\quickstart: wildfly quickstart
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\jboss-cli.bat
+/ deploy in wildfly
+[standalone@localhost:9990 /] deploy c:\Users\ervelden\java\quickstart\abc-wsgen-wsimport\mkyong\WebServices\dist\war\WebServiceExample-20190207.war
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
+[arquillian-getting_started]$ pwd
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\arquillian-getting_started
+
+/ 13	. 
+
+C:\Users\ervelden\bin\for_wildfly>type h2_server.bat
+@echo off
+set DIR=C:\Users\ervelden\bin\wildfly-10.1.0.Final
+java -classpath %DIR%\modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Server -tcp
+
+/ bij h2 bepaalt de client waar de database is,
+
+C:\Users\ervelden\bin\for_wildfly>type h2_client_with_args1.bat
+@echo off
+set DIR=C:\Users\ervelden\bin\wildfly-10.1.0.Final
+java -classpath %DIR%\modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/h2/test -user sa -password sa
+
+C:\Users\ervelden\bin\for_wildfly>type h2_client1.bat
+@echo off
+set DIR=C:\Users\ervelden\bin\wildfly-10.1.0.Final
+java -classpath %DIR%\modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/~/h2/test -user sa -password sa
+
+/ Dit zijn 2 andere databases	,
+/ de 1ste is WH in C:\Users\ervelden\bin\for_wildfly, waar je de h2 client start,
+/ de 2de is in C:\Users\ervelden, 
+/ in beide is er een h2 dir,	 met een test.h2.db	,
+
+/ 13	. 
+
+C:\Users\ervelden>psql -U eric test
+
+/ 13	. 
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen\arquillian-getting_started>type src\test\resources\arquillian.xml
+
+
+/ 7	. 
+
+C:\Users\ervelden\eclipse>java -jar target\jaxwsprimenumberrpc2-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+
+/ 7		. 
+
+C:\Users\ervelden\bin\apache-tomcat-7.0.82>bin\catalina.bat  start
+/ en deploy in GUI	,
+http://localhost:8080/manager
+
+/ 7. 
+workspace-arquillian,
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart/tasks-rs (16.x)
+
+ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
+$ less standalone/log/server.log
+
+C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse>
+C:\Users\ervelden\bin\for_wildfly>h2_client1.bat
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+C:\Users\ervelden>psql -Ueric test
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin>jboss-cli.bat
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\standalone.bat --debug
+

@@ -1,0 +1,6 @@
+https://thoughts-on-java.org/flyway-getting-started/
+
+https://developer.okta.com/blog/2019/02/20/spring-boot-with-postgresql-flyway-jsonb	/ !
+
+https://vladmihalcea.com/hibernate-facts-integration-testing-strategies/ 
+

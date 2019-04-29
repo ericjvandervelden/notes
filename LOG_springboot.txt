@@ -1,0 +1,2819 @@
+/ VIDEO JOSH LONG
+
+/ kijk Josh Long, Spring boot,
+https://www.youtube.com/watch?v=sbPSjI4tt10&t=1860s
+
+/ 13	. 
+
+/ 15:33
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes=DemoApplication.class)
+@WebAppApplication
+public class DemoApplicationTests(){
+	@Test
+	public void contextLoads(){
+	}
+}
+
+/ 13	. 
+/ gen id,
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/s,
+                    transfer.writeInt(SessionRemote.SESSION_PREPARE_READ_PARAMS).writeInt(id).writeString(sql); 
+/ sql = call next val-ue for hibernate_sequence
+
+            ResultSet resultSet = ps.executeQuery();
+/s,
+                    transfer.writeInt(SessionRemote.COMMAND_EXECUTE_QUERY).writeInt(id).writeInt(objectId).writeInt(
+                            maxRows);
+/ id=5 klopt, net als bij prepare, objectId=6 TODO
+
+            ResultSet resultSet = ps.executeQuery();
+/d,
+20940:
+resultSet	org.h2.jdbc.JdbcResultSet  (id=20578)	
+	result	org.h2.result.ResultRemote  (id=20571)	
+		columns	org.h2.result.ResultColumn[1]  (id=20574)	
+			[0]	org.h2.result.ResultColumn  (id=20572)	
+				columnName	"NEXT VALUE FOR PUBLIC.HIBERNATE_SEQUENCE" (id=20617)	
+				columnType	5	
+		result	java.util.ArrayList<E>  (id=20573)	
+			elementData	java.lang.Object[4]  (id=20620)	
+				[0]	org.h2.value.Value[1]  (id=20622)	
+					[0]	org.h2.value.ValueLong  (id=20577)	
+						value	160
+/ 13	. 
+/ insert (met deze gen id)	,
+
+/ we zitten nog steeds in ps.executeUpdate()	,
+
+/ 7	. 
+
+/ start.spring.io	, 
+/ we include web, jpa, h2, postgresql, spring shell, actuator, thymeleaf
+
+/ we krijgen een demo.zip, en pakken deze uit en import deze als Maven project in eclipse	,
+/ de demo.zip is in Downloads, maar we extract hem in de workspace, C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\	,
+
+/ we kunnen in de pom.xml
+		<!-- 
+		<dependency>
+			<groupId>org.springframework.shell</groupId>
+			<artifactId>spring-shell-starter</artifactId>
+			<version>2.0.0.RELEASE</version>
+		</dependency>
+		-->
+/ en right click project, Maven, Update project, 
+/ we zien dat bij Run As, Java application niet meer de Spring shell,
+
+/ 7	. 
+
+/ eclipse: ctrl+shift+/ om in XML, bijv pom.xml een block te comment out	,
+/ ctrl+shift+L, om alle shortcuts te zien,
+
+/ 7	. 
+
+/ JpaRepository is naast MongoRepository , extends beide PagingAndSortingRepository	,
+
+/ 7	. 
+
+/ in een jpa query kun je ?1 en :name als parameters	,
+
+/ lees	,
+https://docs.oracle.com/html/E13946_04/ejb3_overview_query.html#ejb3_overview_query_params
+
+EntityManager em = ...
+Query q = em.createQuery ("SELECT x FROM Magazine x WHERE x.title = ?1 and x.price > ?2");
+q.setParameter (1, "JDJ").setParameter (2, 5.0);
+
+EntityManager em = ...
+Query q = em.createQuery ("SELECT x FROM Magazine x WHERE x.title = :titleParam and x.price > :priceParam");
+q.setParameter ("titleParam", "JDJ").setParameter ("priceParam", 5.0);
+
+/ 7	 
+
+/ CommandLineRunner.run wordt (als eerste) called door main: OK voor init commands	, 
+/ er kunnen meerdere CommandLineRunner beans zijn	,
+
+/ 7	. 
+
+/ 13	. 
+
+/ we deden altijd in eclipse, Run As, Java application,
+/ debug, en kijk in procexp	,
+/ we zien 
+java [groot classpath net als hieronder bij mvn clean package] DemoApplication
+
+/ 13	. 
+ 
+/ maar nu deden we $ mvn clean package (in eclipse)	, en dan zien we dat hij hem ook runs	, de test doet dit,
+/ TODO
+
+Reservation [id=1, name=foo]
+Reservation [id=2, name=bar]
+Reservation [id=3, name=gee]
+Reservation [id=4, name=bee]
+Reservation [id=2, name=bar]
+
+/ 13	. 
+
+/ dit komt door de @SpringBootTest op de test class en de CommandLineRunner bean	, 
+/ het komt dus NIET door de main method	, want we hebben de .run call commented out in de main method,
+
+
+/ lees, 
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-testing.html
+http://www.baeldung.com/spring-boot-testing
+https://stackoverflow.com/questions/46650268/how-to-test-main-class-of-spring-boot-application
+https://www.sylvainlemoine.com/2017/11/08/spring-boot-test-howto/
+
+https://courses.in28minutes.com/p/spring-boot-for-beginners-in-10-steps
+http://www.springboottutorial.com/spring-boot-unit-testing-and-mocking-with-mockito-and-junit
+
+https://stackoverflow.com/questions/29344313/prevent-application-commandlinerunner-classes-from-executing-during-junit-test
+
+$ vi DemoApplication.java
+
+@SpringBootApplication
+public class DemoApplication {
+
+	public static void main(String[] args) {
+//		SpringApplication.run(DemoApplication.class, args);
+	}
+	
+	
+	@Bean
+	CommandLineRunner __(ReservationRepository rr) {
+		return args->{
+			Arrays.asList("foo,bar,gee,bee".split(",")).forEach(n->rr.save(new Reservation(n)));
+			rr.findAll().forEach(System.out::println);
+			rr.findByName("bar").forEach(System.out::println);
+		};
+	}
+}
+
+$ vi DemoApplicationTests.java
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class DemoApplicationTests {
+
+	@Test
+	public void contextLoads() {
+	}
+
+}
+
+$ mvn clean package 
+/ of 
+$ mvn clean test
+
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building demo 0.0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:3.0.0:clean (default-clean) @ demo ---
+[INFO] Deleting C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target
+[INFO] 
+[INFO] --- maven-resources-plugin:3.0.1:resources (default-resources) @ demo ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.7.0:compile (default-compile) @ demo ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.0.1:testResources (default-testResources) @ demo ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] skip non existing resourceDirectory C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\src\test\resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.7.0:testCompile (default-testCompile) @ demo ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 1 source file to C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.21.0:test (default-test) @ demo ---
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.demo.DemoApplicationTests
+10:19:59.982 [main] DEBUG org.springframework.test.context.junit4.SpringJUnit4ClassRunner - SpringJUnit4ClassRunner constructor called with [class com.example.demo.DemoApplicationTests]
+10:19:59.989 [main] DEBUG org.springframework.test.context.BootstrapUtils - Instantiating CacheAwareContextLoaderDelegate from class [org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate]
+10:19:59.997 [main] DEBUG org.springframework.test.context.BootstrapUtils - Instantiating BootstrapContext using constructor [public org.springframework.test.context.support.DefaultBootstrapContext(java.lang.Class,org.springframework.test.context.CacheAwareContextLoaderDelegate)]
+10:20:00.013 [main] DEBUG org.springframework.test.context.BootstrapUtils - Instantiating TestContextBootstrapper for test class [com.example.demo.DemoApplicationTests] from class [org.springframework.boot.test.context.SpringBootTestContextBootstrapper]
+10:20:00.030 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Neither @ContextConfiguration nor @ContextHierarchy found for test class [com.example.demo.DemoApplicationTests], using SpringBootContextLoader
+10:20:00.033 [main] DEBUG org.springframework.test.context.support.AbstractContextLoader - Did not detect default resource location for test class [com.example.demo.DemoApplicationTests]: class path resource [com/example/demo/DemoApplicationTests-context.xml] does not exist
+10:20:00.033 [main] DEBUG org.springframework.test.context.support.AbstractContextLoader - Did not detect default resource location for test class [com.example.demo.DemoApplicationTests]: class path resource [com/example/demo/DemoApplicationTestsContext.groovy] does not exist
+10:20:00.033 [main] INFO org.springframework.test.context.support.AbstractContextLoader - Could not detect default resource locations for test class [com.example.demo.DemoApplicationTests]: no resource found for suffixes {-context.xml, Context.groovy}.
+10:20:00.034 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.example.demo.DemoApplicationTests]: DemoApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+10:20:00.066 [main] DEBUG org.springframework.test.context.support.ActiveProfilesUtils - Could not find an 'annotation declaring class' for annotation type [org.springframework.test.context.ActiveProfiles] and class [com.example.demo.DemoApplicationTests]
+10:20:00.077 [main] DEBUG org.springframework.core.env.StandardEnvironment - Adding PropertySource 'systemProperties' with lowest search precedence
+10:20:00.077 [main] DEBUG org.springframework.core.env.StandardEnvironment - Adding PropertySource 'systemEnvironment' with lowest search precedence
+10:20:00.077 [main] DEBUG org.springframework.core.env.StandardEnvironment - Initialized StandardEnvironment with PropertySources [MapPropertySource@339924917 {name='systemProperties', properties={java.runtime.name=Java(TM) SE Runtime Environment, sun.boot.library.path=C:\Program Files\Java\jdk1.8.0_144\jre\bin, java.vm.version=25.144-b01, user.country.format=NL, java.vm.vendor=Oracle Corporation, java.vendor.url=http://java.oracle.com/, path.separator=;, java.vm.name=Java HotSpot(TM) 64-Bit Server VM, file.encoding.pkg=sun.io, user.country=US, user.script=, sun.java.launcher=SUN_STANDARD, sun.os.patch.level=Service Pack 1, java.vm.specification.name=Java Virtual Machine Specification, user.dir=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo, java.runtime.version=1.8.0_144-b01, basedir=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo, java.awt.graphicsenv=sun.awt.Win32GraphicsEnvironment, java.endorsed.dirs=C:\Program Files\Java\jdk1.8.0_144\jre\lib\endorsed, os.arch=amd64, surefire.real.class.path=C:\Users\ervelden\AppData\Local\Temp\surefire3575544177763302702\surefirebooter2143723578171968712.jar, java.io.tmpdir=C:\Users\ervelden\AppData\Local\Temp\, line.separator=
+, java.vm.specification.vendor=Oracle Corporation, user.variant=, os.name=Windows 7, sun.jnu.encoding=Cp1252, java.library.path=C:\Program Files\Java\jdk1.8.0_144\jre\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin/server;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\Users\ervelden\bin\apache-maven-3.5.0\bin;C:\Users\ervelden\bin\apache-cxf-3.2.0\bin;C:\Users\ervelden\bin\apache-ant-1.10.1\bin;C:\Program Files\Gradle\gradle-4.2.1\bin;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Users\ervelden\AppData\Roaming\npm;C:\Program Files (x86)\Microsoft VS Code\bin;C:\Program Files\Notepad++;C:\Users\ervelden\bin\spring-1.5.6.RELEASE\bin;\Users\ervelden\bin\ProcessExplorer;\Users\ervelden\bin\curl-7.55.0-win64-mingw\bin;C:\Users\ervelden\bin\forge-distribution-3.7.2.Final\bin;C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse;;., surefire.test.class.path=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes;C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-data-jpa\2.0.2.RELEASE\spring-boot-starter-data-jpa-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter\2.0.2.RELEASE\spring-boot-starter-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot\2.0.2.RELEASE\spring-boot-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\2.0.2.RELEASE\spring-boot-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-logging\2.0.2.RELEASE\spring-boot-starter-logging-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-classic\1.2.3\logback-classic-1.2.3.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-core\1.2.3\logback-core-1.2.3.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.10.0\log4j-to-slf4j-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-api\2.10.0\log4j-api-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\slf4j\jul-to-slf4j\1.7.25\jul-to-slf4j-1.7.25.jar;C:\Users\ervelden\.m2\repository\javax\annotation\javax.annotation-api\1.3.2\javax.annotation-api-1.3.2.jar;C:\Users\ervelden\.m2\repository\org\yaml\snakeyaml\1.19\snakeyaml-1.19.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-aop\2.0.2.RELEASE\spring-boot-starter-aop-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aop\5.0.6.RELEASE\spring-aop-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\aspectj\aspectjweaver\1.8.13\aspectjweaver-1.8.13.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\2.0.2.RELEASE\spring-boot-starter-jdbc-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\zaxxer\HikariCP\2.7.9\HikariCP-2.7.9.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jdbc\5.0.6.RELEASE\spring-jdbc-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\hibernate\hibernate-core\5.2.17.Final\hibernate-core-5.2.17.Final.jar;C:\Users\ervelden\.m2\repository\org\jboss\logging\jboss-logging\3.3.2.Final\jboss-logging-3.3.2.Final.jar;C:\Users\ervelden\.m2\repository\org\hibernate\javax\persistence\hibernate-jpa-2.1-api\1.0.0.Final\hibernate-jpa-2.1-api-1.0.0.Final.jar;C:\Users\ervelden\.m2\repository\org\javassist\javassist\3.22.0-GA\javassist-3.22.0-GA.jar;C:\Users\ervelden\.m2\repository\antlr\antlr\2.7.7\antlr-2.7.7.jar;C:\Users\ervelden\.m2\repository\org\jboss\jandex\2.0.3.Final\jandex-2.0.3.Final.jar;C:\Users\ervelden\.m2\repository\com\fasterxml\classmate\1.3.4\classmate-1.3.4.jar;C:\Users\ervelden\.m2\repository\dom4j\dom4j\1.6.1\dom4j-1.6.1.jar;C:\Users\ervelden\.m2\repository\org\hibernate\common\hibernate-commons-annotations\5.0.1.Final\hibernate-commons-annotations-5.0.1.Final.jar;C:\Users\ervelden\.m2\repository\javax\transaction\javax.transaction-api\1.2\javax.transaction-api-1.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-jpa\2.0.7.RELEASE\spring-data-jpa-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-commons\2.0.7.RELEASE\spring-data-commons-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-orm\5.0.6.RELEASE\spring-orm-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-context\5.0.6.RELEASE\spring-context-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-expression\5.0.6.RELEASE\spring-expression-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-tx\5.0.6.RELEASE\spring-tx-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-beans\5.0.6.RELEASE\spring-beans-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\slf4j\slf4j-api\1.7.25\slf4j-api-1.7.25.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aspects\5.0.6.RELEASE\spring-aspects-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\h2database\h2\1.4.197\h2-1.4.197.jar;C:\Users\ervelden\.m2\repository\org\postgresql\postgresql\42.2.2\postgresql-42.2.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-test\2.0.2.RELEASE\spring-boot-starter-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test\2.0.2.RELEASE\spring-boot-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\2.0.2.RELEASE\spring-boot-test-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\jayway\jsonpath\json-path\2.4.0\json-path-2.4.0.jar;C:\Users\ervelden\.m2\repository\net\minidev\json-smart\2.3\json-smart-2.3.jar;C:\Users\ervelden\.m2\repository\net\minidev\accessors-smart\1.2\accessors-smart-1.2.jar;C:\Users\ervelden\.m2\repository\org\ow2\asm\asm\5.0.4\asm-5.0.4.jar;C:\Users\ervelden\.m2\repository\junit\junit\4.12\junit-4.12.jar;C:\Users\ervelden\.m2\repository\org\assertj\assertj-core\3.9.1\assertj-core-3.9.1.jar;C:\Users\ervelden\.m2\repository\org\mockito\mockito-core\2.15.0\mockito-core-2.15.0.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy\1.7.11\byte-buddy-1.7.11.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy-agent\1.7.11\byte-buddy-agent-1.7.11.jar;C:\Users\ervelden\.m2\repository\org\objenesis\objenesis\2.6\objenesis-2.6.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-library\1.3\hamcrest-library-1.3.jar;C:\Users\ervelden\.m2\repository\org\skyscreamer\jsonassert\1.5.0\jsonassert-1.5.0.jar;C:\Users\ervelden\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-core\5.0.6.RELEASE\spring-core-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jcl\5.0.6.RELEASE\spring-jcl-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-test\5.0.6.RELEASE\spring-test-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\xmlunit\xmlunit-core\2.5.1\xmlunit-core-2.5.1.jar;, java.specification.name=Java Platform API Specification, java.class.version=52.0, sun.management.compiler=HotSpot 64-Bit Tiered Compilers, os.version=6.1, user.home=C:\Users\ervelden, user.timezone=Europe/Berlin, java.awt.printerjob=sun.awt.windows.WPrinterJob, file.encoding=Cp1252, java.specification.version=1.8, java.class.path=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes;C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-data-jpa\2.0.2.RELEASE\spring-boot-starter-data-jpa-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter\2.0.2.RELEASE\spring-boot-starter-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot\2.0.2.RELEASE\spring-boot-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\2.0.2.RELEASE\spring-boot-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-logging\2.0.2.RELEASE\spring-boot-starter-logging-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-classic\1.2.3\logback-classic-1.2.3.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-core\1.2.3\logback-core-1.2.3.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.10.0\log4j-to-slf4j-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-api\2.10.0\log4j-api-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\slf4j\jul-to-slf4j\1.7.25\jul-to-slf4j-1.7.25.jar;C:\Users\ervelden\.m2\repository\javax\annotation\javax.annotation-api\1.3.2\javax.annotation-api-1.3.2.jar;C:\Users\ervelden\.m2\repository\org\yaml\snakeyaml\1.19\snakeyaml-1.19.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-aop\2.0.2.RELEASE\spring-boot-starter-aop-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aop\5.0.6.RELEASE\spring-aop-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\aspectj\aspectjweaver\1.8.13\aspectjweaver-1.8.13.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\2.0.2.RELEASE\spring-boot-starter-jdbc-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\zaxxer\HikariCP\2.7.9\HikariCP-2.7.9.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jdbc\5.0.6.RELEASE\spring-jdbc-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\hibernate\hibernate-core\5.2.17.Final\hibernate-core-5.2.17.Final.jar;C:\Users\ervelden\.m2\repository\org\jboss\logging\jboss-logging\3.3.2.Final\jboss-logging-3.3.2.Final.jar;C:\Users\ervelden\.m2\repository\org\hibernate\javax\persistence\hibernate-jpa-2.1-api\1.0.0.Final\hibernate-jpa-2.1-api-1.0.0.Final.jar;C:\Users\ervelden\.m2\repository\org\javassist\javassist\3.22.0-GA\javassist-3.22.0-GA.jar;C:\Users\ervelden\.m2\repository\antlr\antlr\2.7.7\antlr-2.7.7.jar;C:\Users\ervelden\.m2\repository\org\jboss\jandex\2.0.3.Final\jandex-2.0.3.Final.jar;C:\Users\ervelden\.m2\repository\com\fasterxml\classmate\1.3.4\classmate-1.3.4.jar;C:\Users\ervelden\.m2\repository\dom4j\dom4j\1.6.1\dom4j-1.6.1.jar;C:\Users\ervelden\.m2\repository\org\hibernate\common\hibernate-commons-annotations\5.0.1.Final\hibernate-commons-annotations-5.0.1.Final.jar;C:\Users\ervelden\.m2\repository\javax\transaction\javax.transaction-api\1.2\javax.transaction-api-1.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-jpa\2.0.7.RELEASE\spring-data-jpa-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-commons\2.0.7.RELEASE\spring-data-commons-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-orm\5.0.6.RELEASE\spring-orm-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-context\5.0.6.RELEASE\spring-context-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-expression\5.0.6.RELEASE\spring-expression-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-tx\5.0.6.RELEASE\spring-tx-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-beans\5.0.6.RELEASE\spring-beans-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\slf4j\slf4j-api\1.7.25\slf4j-api-1.7.25.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aspects\5.0.6.RELEASE\spring-aspects-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\h2database\h2\1.4.197\h2-1.4.197.jar;C:\Users\ervelden\.m2\repository\org\postgresql\postgresql\42.2.2\postgresql-42.2.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-test\2.0.2.RELEASE\spring-boot-starter-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test\2.0.2.RELEASE\spring-boot-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\2.0.2.RELEASE\spring-boot-test-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\jayway\jsonpath\json-path\2.4.0\json-path-2.4.0.jar;C:\Users\ervelden\.m2\repository\net\minidev\json-smart\2.3\json-smart-2.3.jar;C:\Users\ervelden\.m2\repository\net\minidev\accessors-smart\1.2\accessors-smart-1.2.jar;C:\Users\ervelden\.m2\repository\org\ow2\asm\asm\5.0.4\asm-5.0.4.jar;C:\Users\ervelden\.m2\repository\junit\junit\4.12\junit-4.12.jar;C:\Users\ervelden\.m2\repository\org\assertj\assertj-core\3.9.1\assertj-core-3.9.1.jar;C:\Users\ervelden\.m2\repository\org\mockito\mockito-core\2.15.0\mockito-core-2.15.0.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy\1.7.11\byte-buddy-1.7.11.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy-agent\1.7.11\byte-buddy-agent-1.7.11.jar;C:\Users\ervelden\.m2\repository\org\objenesis\objenesis\2.6\objenesis-2.6.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-library\1.3\hamcrest-library-1.3.jar;C:\Users\ervelden\.m2\repository\org\skyscreamer\jsonassert\1.5.0\jsonassert-1.5.0.jar;C:\Users\ervelden\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-core\5.0.6.RELEASE\spring-core-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jcl\5.0.6.RELEASE\spring-jcl-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-test\5.0.6.RELEASE\spring-test-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\xmlunit\xmlunit-core\2.5.1\xmlunit-core-2.5.1.jar;, user.name=ERVELDEN, java.vm.specification.version=1.8, sun.java.command=C:\Users\ervelden\AppData\Local\Temp\surefire3575544177763302702\surefirebooter2143723578171968712.jar C:\Users\ervelden\AppData\Local\Temp\surefire3575544177763302702 2018-06-13T10-19-58_768-jvmRun1 surefire8381783754264721302tmp surefire_07923412037784578607tmp, java.home=C:\Program Files\Java\jdk1.8.0_144\jre, sun.arch.data.model=64, user.language=en, java.specification.vendor=Oracle Corporation, user.language.format=nl, awt.toolkit=sun.awt.windows.WToolkit, java.vm.info=mixed mode, java.version=1.8.0_144, java.ext.dirs=C:\Program Files\Java\jdk1.8.0_144\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext, sun.boot.class.path=C:\Program Files\Java\jdk1.8.0_144\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_144\jre\classes, java.vendor=Oracle Corporation, localRepository=C:\Users\ervelden\.m2\repository, file.separator=\, java.vendor.url.bug=http://bugreport.sun.com/bugreport/, sun.io.unicode.encoding=UnicodeLittle, sun.cpu.endian=little, sun.desktop=windows, sun.cpu.isalist=amd64}}, SystemEnvironmentPropertySource@520022247 {name='systemEnvironment', properties={PATH=C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin/server;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\Users\ervelden\bin\apache-maven-3.5.0\bin;C:\Users\ervelden\bin\apache-cxf-3.2.0\bin;C:\Users\ervelden\bin\apache-ant-1.10.1\bin;C:\Program Files\Gradle\gradle-4.2.1\bin;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Users\ervelden\AppData\Roaming\npm;C:\Program Files (x86)\Microsoft VS Code\bin;C:\Program Files\Notepad++;C:\Users\ervelden\bin\spring-1.5.6.RELEASE\bin;\Users\ervelden\bin\ProcessExplorer;\Users\ervelden\bin\curl-7.55.0-win64-mingw\bin;C:\Users\ervelden\bin\forge-distribution-3.7.2.Final\bin;C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse;, PROCESSOR_LEVEL=6, SYSTEMDRIVE=C:, FP_NO_HOST_CHECK=NO, SESSIONNAME=Console, ALLUSERSPROFILE=C:\ProgramData, PROCESSOR_ARCHITECTURE=AMD64, CXF_HOME=C:\Users\ervelden\bin\apache-cxf-3.2.0, MAVEN_HOME=C:\Users\ervelden\bin\apache-maven-3.5.0, PROGRAMFILES=C:\Program Files, =A:=A:\, PSMODULEPATH=C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules\, PROGRAMDATA=C:\ProgramData, USERNAME=ERVELDEN, USERDNSDOMAIN=CORP.CAPGEMINI.COM, ONEDRIVE=C:\Users\ervelden\OneDrive, PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC, WINDIR=C:\WINDOWS, HOMEPATH=\Users\ervelden, SPRING_HOME=C:\Users\ervelden\bin\spring-1.5.6.RELEASE, PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 60 Stepping 3, GenuineIntel, WINDOWS_TRACING_LOGFILE=C:\BVTBin\Tests\installpackage\csilogfile.log, M2_HOME=C:\Users\ervelden\bin\apache-maven-3.5.0, PUBLIC=C:\Users\Public, GPPT_INSTALLFOLDER=c:\Installers, =::=::\, LOCALAPPDATA=C:\Users\ervelden\AppData\Local, COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files, GPPT_CACHEFOLDER=D:\SCCM\Cache, USERDOMAIN=CORP, LOGONSERVER=\\WADNLDCA01, JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144, PROMPT=$P$G, PROGRAMFILES(X86)=C:\Program Files (x86), GRADLE_HOME=C:\Program Files\Gradle\gradle-4.2.1, ANT_HOME=C:\Users\ervelden\bin\apache-ant-1.10.1, WINDOWS_TRACING_FLAGS=3, =C:=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo, APPDATA=C:\Users\ervelden\AppData\Roaming, PROGRAMW6432=C:\Program Files, SYSTEMROOT=C:\WINDOWS, GPPT_LOGFOLDER=C:\SCCM_logs, OS=Windows_NT, COMMONPROGRAMW6432=C:\Program Files\Common Files, COMPUTERNAME=LBNL031514, COMMONPROGRAMFILES=C:\Program Files\Common Files, COMSPEC=C:\WINDOWS\system32\cmd.exe, PROCESSOR_REVISION=3c03, UATDATA=C:\WINDOWS\CCM\UATData\D9F8C395-CAB8-491d-B8AC-179A1FE1BE77, COMMPATH=C:\Program Files\Lenovo\Communications Utility, TEMP=C:\Users\ervelden\AppData\Local\Temp, HOMEDRIVE=C:, USERPROFILE=C:\Users\ervelden, TMP=C:\Users\ervelden\AppData\Local\Temp, NUMBER_OF_PROCESSORS=8}}]
+10:20:00.093 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver - Resolved classpath location [com/example/demo/] to resources [URL [file:/C:/Users/ervelden/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/demo/target/test-classes/com/example/demo/], URL [file:/C:/Users/ervelden/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/demo/target/classes/com/example/demo/]]
+10:20:00.093 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver - Looking for matching resources in directory tree [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes\com\example\demo]
+10:20:00.094 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver - Searching directory [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes\com\example\demo] for files matching pattern [C:/Users/ervelden/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/demo/target/test-classes/com/example/demo/*.class]
+10:20:00.097 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver - Looking for matching resources in directory tree [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes\com\example\demo]
+10:20:00.098 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver - Searching directory [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes\com\example\demo] for files matching pattern [C:/Users/ervelden/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/demo/target/classes/com/example/demo/*.class]
+10:20:00.098 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver - Resolved location pattern [classpath*:com/example/demo/*.class] to resources [file [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes\com\example\demo\DemoApplicationTests.class], file [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes\com\example\demo\DemoApplication.class], file [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes\com\example\demo\Reservation.class], file [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes\com\example\demo\ReservationRepository.class]]
+10:20:00.154 [main] DEBUG org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider - Identified candidate component class: file [C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes\com\example\demo\DemoApplication.class]
+10:20:00.162 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.DemoApplicationTests
+10:20:00.273 [main] DEBUG org.springframework.boot.test.context.SpringBootTestContextBootstrapper - @TestExecutionListeners is not present for class [com.example.demo.DemoApplicationTests]: using defaults.
+10:20:00.273 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Loaded default TestExecutionListener class names from location [META-INF/spring.factories]: [org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener, org.springframework.test.context.web.ServletTestExecutionListener, org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener, org.springframework.test.context.support.DependencyInjectionTestExecutionListener, org.springframework.test.context.support.DirtiesContextTestExecutionListener, org.springframework.test.context.transaction.TransactionalTestExecutionListener, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener]
+10:20:00.280 [main] DEBUG org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Skipping candidate TestExecutionListener [org.springframework.test.context.web.ServletTestExecutionListener] due to a missing dependency. Specify custom listener classes or make the default listener classes and their required dependencies available. Offending class: [javax/servlet/ServletContext]
+10:20:00.289 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper - Using TestExecutionListeners: [org.springframework.test.context.support.DirtiesContextBeforeModesTestExecutionListener@5bda8e08, org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener@1e800aaa, org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener@185a6e9, org.springframework.test.context.support.DirtiesContextTestExecutionListener@6f03482, org.springframework.test.context.transaction.TransactionalTestExecutionListener@9d5509a, org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener@179ece50, org.springframework.boot.test.mock.mockito.ResetMocksTestExecutionListener@3b0090a4, org.springframework.boot.test.autoconfigure.restdocs.RestDocsTestExecutionListener@3cd3e762, org.springframework.boot.test.autoconfigure.web.client.MockRestServiceServerResetTestExecutionListener@1fa121e2, org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrintOnlyOnFailureTestExecutionListener@7eac9008, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverTestExecutionListener@4116aac9]
+10:20:00.290 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved @ProfileValueSourceConfiguration [null] for test class [com.example.demo.DemoApplicationTests]
+10:20:00.290 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved ProfileValueSource type [class org.springframework.test.annotation.SystemProfileValueSource] for class [com.example.demo.DemoApplicationTests]
+10:20:00.291 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved @ProfileValueSourceConfiguration [null] for test class [com.example.demo.DemoApplicationTests]
+10:20:00.292 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved ProfileValueSource type [class org.springframework.test.annotation.SystemProfileValueSource] for class [com.example.demo.DemoApplicationTests]
+10:20:00.292 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved @ProfileValueSourceConfiguration [null] for test class [com.example.demo.DemoApplicationTests]
+10:20:00.292 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved ProfileValueSource type [class org.springframework.test.annotation.SystemProfileValueSource] for class [com.example.demo.DemoApplicationTests]
+10:20:00.295 [main] DEBUG org.springframework.test.context.support.AbstractDirtiesContextTestExecutionListener - Before test class: context [DefaultTestContext@752325ad testClass = DemoApplicationTests, testInstance = [null], testMethod = [null], testException = [null], mergedContextConfiguration = [MergedContextConfiguration@279fedbd testClass = DemoApplicationTests, locations = '{}', classes = '{class com.example.demo.DemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@481a15ff, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@545997b1, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@68ceda24, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@8b87145], contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map[[empty]]], class annotated with @DirtiesContext [false] with mode [null].
+10:20:00.296 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved @ProfileValueSourceConfiguration [null] for test class [com.example.demo.DemoApplicationTests]
+10:20:00.296 [main] DEBUG org.springframework.test.annotation.ProfileValueUtils - Retrieved ProfileValueSource type [class org.springframework.test.annotation.SystemProfileValueSource] for class [com.example.demo.DemoApplicationTests]
+10:20:00.299 [main] DEBUG org.springframework.test.context.support.DependencyInjectionTestExecutionListener - Performing dependency injection for test context [[DefaultTestContext@752325ad testClass = DemoApplicationTests, testInstance = com.example.demo.DemoApplicationTests@7bedc48a, testMethod = [null], testException = [null], mergedContextConfiguration = [MergedContextConfiguration@279fedbd testClass = DemoApplicationTests, locations = '{}', classes = '{class com.example.demo.DemoApplication}', contextInitializerClasses = '[]', activeProfiles = '{}', propertySourceLocations = '{}', propertySourceProperties = '{org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true}', contextCustomizers = set[org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@481a15ff, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@545997b1, org.springframework.boot.test.mock.mockito.MockitoContextCustomizer@0, org.springframework.boot.test.web.client.TestRestTemplateContextCustomizer@68ceda24, org.springframework.boot.test.autoconfigure.properties.PropertyMappingContextCustomizer@0, org.springframework.boot.test.autoconfigure.web.servlet.WebDriverContextCustomizerFactory$Customizer@8b87145], contextLoader = 'org.springframework.boot.test.context.SpringBootContextLoader', parent = [null]], attributes = map[[empty]]]].
+10:20:00.313 [main] DEBUG org.springframework.core.env.StandardEnvironment - Adding PropertySource 'systemProperties' with lowest search precedence
+10:20:00.313 [main] DEBUG org.springframework.core.env.StandardEnvironment - Adding PropertySource 'systemEnvironment' with lowest search precedence
+10:20:00.313 [main] DEBUG org.springframework.core.env.StandardEnvironment - Initialized StandardEnvironment with PropertySources [MapPropertySource@838449246 {name='systemProperties', properties={java.runtime.name=Java(TM) SE Runtime Environment, sun.boot.library.path=C:\Program Files\Java\jdk1.8.0_144\jre\bin, java.vm.version=25.144-b01, user.country.format=NL, java.vm.vendor=Oracle Corporation, java.vendor.url=http://java.oracle.com/, path.separator=;, java.vm.name=Java HotSpot(TM) 64-Bit Server VM, file.encoding.pkg=sun.io, user.country=US, user.script=, sun.java.launcher=SUN_STANDARD, sun.os.patch.level=Service Pack 1, java.vm.specification.name=Java Virtual Machine Specification, user.dir=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo, java.runtime.version=1.8.0_144-b01, basedir=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo, java.awt.graphicsenv=sun.awt.Win32GraphicsEnvironment, java.endorsed.dirs=C:\Program Files\Java\jdk1.8.0_144\jre\lib\endorsed, os.arch=amd64, surefire.real.class.path=C:\Users\ervelden\AppData\Local\Temp\surefire3575544177763302702\surefirebooter2143723578171968712.jar, java.io.tmpdir=C:\Users\ervelden\AppData\Local\Temp\, line.separator=
+, java.vm.specification.vendor=Oracle Corporation, user.variant=, os.name=Windows 7, sun.jnu.encoding=Cp1252, java.library.path=C:\Program Files\Java\jdk1.8.0_144\jre\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin/server;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\Users\ervelden\bin\apache-maven-3.5.0\bin;C:\Users\ervelden\bin\apache-cxf-3.2.0\bin;C:\Users\ervelden\bin\apache-ant-1.10.1\bin;C:\Program Files\Gradle\gradle-4.2.1\bin;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Users\ervelden\AppData\Roaming\npm;C:\Program Files (x86)\Microsoft VS Code\bin;C:\Program Files\Notepad++;C:\Users\ervelden\bin\spring-1.5.6.RELEASE\bin;\Users\ervelden\bin\ProcessExplorer;\Users\ervelden\bin\curl-7.55.0-win64-mingw\bin;C:\Users\ervelden\bin\forge-distribution-3.7.2.Final\bin;C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse;;., surefire.test.class.path=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes;C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-data-jpa\2.0.2.RELEASE\spring-boot-starter-data-jpa-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter\2.0.2.RELEASE\spring-boot-starter-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot\2.0.2.RELEASE\spring-boot-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\2.0.2.RELEASE\spring-boot-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-logging\2.0.2.RELEASE\spring-boot-starter-logging-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-classic\1.2.3\logback-classic-1.2.3.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-core\1.2.3\logback-core-1.2.3.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.10.0\log4j-to-slf4j-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-api\2.10.0\log4j-api-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\slf4j\jul-to-slf4j\1.7.25\jul-to-slf4j-1.7.25.jar;C:\Users\ervelden\.m2\repository\javax\annotation\javax.annotation-api\1.3.2\javax.annotation-api-1.3.2.jar;C:\Users\ervelden\.m2\repository\org\yaml\snakeyaml\1.19\snakeyaml-1.19.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-aop\2.0.2.RELEASE\spring-boot-starter-aop-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aop\5.0.6.RELEASE\spring-aop-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\aspectj\aspectjweaver\1.8.13\aspectjweaver-1.8.13.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\2.0.2.RELEASE\spring-boot-starter-jdbc-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\zaxxer\HikariCP\2.7.9\HikariCP-2.7.9.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jdbc\5.0.6.RELEASE\spring-jdbc-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\hibernate\hibernate-core\5.2.17.Final\hibernate-core-5.2.17.Final.jar;C:\Users\ervelden\.m2\repository\org\jboss\logging\jboss-logging\3.3.2.Final\jboss-logging-3.3.2.Final.jar;C:\Users\ervelden\.m2\repository\org\hibernate\javax\persistence\hibernate-jpa-2.1-api\1.0.0.Final\hibernate-jpa-2.1-api-1.0.0.Final.jar;C:\Users\ervelden\.m2\repository\org\javassist\javassist\3.22.0-GA\javassist-3.22.0-GA.jar;C:\Users\ervelden\.m2\repository\antlr\antlr\2.7.7\antlr-2.7.7.jar;C:\Users\ervelden\.m2\repository\org\jboss\jandex\2.0.3.Final\jandex-2.0.3.Final.jar;C:\Users\ervelden\.m2\repository\com\fasterxml\classmate\1.3.4\classmate-1.3.4.jar;C:\Users\ervelden\.m2\repository\dom4j\dom4j\1.6.1\dom4j-1.6.1.jar;C:\Users\ervelden\.m2\repository\org\hibernate\common\hibernate-commons-annotations\5.0.1.Final\hibernate-commons-annotations-5.0.1.Final.jar;C:\Users\ervelden\.m2\repository\javax\transaction\javax.transaction-api\1.2\javax.transaction-api-1.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-jpa\2.0.7.RELEASE\spring-data-jpa-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-commons\2.0.7.RELEASE\spring-data-commons-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-orm\5.0.6.RELEASE\spring-orm-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-context\5.0.6.RELEASE\spring-context-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-expression\5.0.6.RELEASE\spring-expression-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-tx\5.0.6.RELEASE\spring-tx-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-beans\5.0.6.RELEASE\spring-beans-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\slf4j\slf4j-api\1.7.25\slf4j-api-1.7.25.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aspects\5.0.6.RELEASE\spring-aspects-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\h2database\h2\1.4.197\h2-1.4.197.jar;C:\Users\ervelden\.m2\repository\org\postgresql\postgresql\42.2.2\postgresql-42.2.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-test\2.0.2.RELEASE\spring-boot-starter-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test\2.0.2.RELEASE\spring-boot-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\2.0.2.RELEASE\spring-boot-test-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\jayway\jsonpath\json-path\2.4.0\json-path-2.4.0.jar;C:\Users\ervelden\.m2\repository\net\minidev\json-smart\2.3\json-smart-2.3.jar;C:\Users\ervelden\.m2\repository\net\minidev\accessors-smart\1.2\accessors-smart-1.2.jar;C:\Users\ervelden\.m2\repository\org\ow2\asm\asm\5.0.4\asm-5.0.4.jar;C:\Users\ervelden\.m2\repository\junit\junit\4.12\junit-4.12.jar;C:\Users\ervelden\.m2\repository\org\assertj\assertj-core\3.9.1\assertj-core-3.9.1.jar;C:\Users\ervelden\.m2\repository\org\mockito\mockito-core\2.15.0\mockito-core-2.15.0.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy\1.7.11\byte-buddy-1.7.11.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy-agent\1.7.11\byte-buddy-agent-1.7.11.jar;C:\Users\ervelden\.m2\repository\org\objenesis\objenesis\2.6\objenesis-2.6.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-library\1.3\hamcrest-library-1.3.jar;C:\Users\ervelden\.m2\repository\org\skyscreamer\jsonassert\1.5.0\jsonassert-1.5.0.jar;C:\Users\ervelden\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-core\5.0.6.RELEASE\spring-core-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jcl\5.0.6.RELEASE\spring-jcl-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-test\5.0.6.RELEASE\spring-test-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\xmlunit\xmlunit-core\2.5.1\xmlunit-core-2.5.1.jar;, java.specification.name=Java Platform API Specification, java.class.version=52.0, sun.management.compiler=HotSpot 64-Bit Tiered Compilers, os.version=6.1, user.home=C:\Users\ervelden, user.timezone=Europe/Berlin, java.awt.printerjob=sun.awt.windows.WPrinterJob, file.encoding=Cp1252, java.specification.version=1.8, java.class.path=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\test-classes;C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\classes;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-data-jpa\2.0.2.RELEASE\spring-boot-starter-data-jpa-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter\2.0.2.RELEASE\spring-boot-starter-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot\2.0.2.RELEASE\spring-boot-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-autoconfigure\2.0.2.RELEASE\spring-boot-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-logging\2.0.2.RELEASE\spring-boot-starter-logging-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-classic\1.2.3\logback-classic-1.2.3.jar;C:\Users\ervelden\.m2\repository\ch\qos\logback\logback-core\1.2.3\logback-core-1.2.3.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-to-slf4j\2.10.0\log4j-to-slf4j-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\apache\logging\log4j\log4j-api\2.10.0\log4j-api-2.10.0.jar;C:\Users\ervelden\.m2\repository\org\slf4j\jul-to-slf4j\1.7.25\jul-to-slf4j-1.7.25.jar;C:\Users\ervelden\.m2\repository\javax\annotation\javax.annotation-api\1.3.2\javax.annotation-api-1.3.2.jar;C:\Users\ervelden\.m2\repository\org\yaml\snakeyaml\1.19\snakeyaml-1.19.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-aop\2.0.2.RELEASE\spring-boot-starter-aop-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aop\5.0.6.RELEASE\spring-aop-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\aspectj\aspectjweaver\1.8.13\aspectjweaver-1.8.13.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-jdbc\2.0.2.RELEASE\spring-boot-starter-jdbc-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\zaxxer\HikariCP\2.7.9\HikariCP-2.7.9.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jdbc\5.0.6.RELEASE\spring-jdbc-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\hibernate\hibernate-core\5.2.17.Final\hibernate-core-5.2.17.Final.jar;C:\Users\ervelden\.m2\repository\org\jboss\logging\jboss-logging\3.3.2.Final\jboss-logging-3.3.2.Final.jar;C:\Users\ervelden\.m2\repository\org\hibernate\javax\persistence\hibernate-jpa-2.1-api\1.0.0.Final\hibernate-jpa-2.1-api-1.0.0.Final.jar;C:\Users\ervelden\.m2\repository\org\javassist\javassist\3.22.0-GA\javassist-3.22.0-GA.jar;C:\Users\ervelden\.m2\repository\antlr\antlr\2.7.7\antlr-2.7.7.jar;C:\Users\ervelden\.m2\repository\org\jboss\jandex\2.0.3.Final\jandex-2.0.3.Final.jar;C:\Users\ervelden\.m2\repository\com\fasterxml\classmate\1.3.4\classmate-1.3.4.jar;C:\Users\ervelden\.m2\repository\dom4j\dom4j\1.6.1\dom4j-1.6.1.jar;C:\Users\ervelden\.m2\repository\org\hibernate\common\hibernate-commons-annotations\5.0.1.Final\hibernate-commons-annotations-5.0.1.Final.jar;C:\Users\ervelden\.m2\repository\javax\transaction\javax.transaction-api\1.2\javax.transaction-api-1.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-jpa\2.0.7.RELEASE\spring-data-jpa-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\data\spring-data-commons\2.0.7.RELEASE\spring-data-commons-2.0.7.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-orm\5.0.6.RELEASE\spring-orm-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-context\5.0.6.RELEASE\spring-context-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-expression\5.0.6.RELEASE\spring-expression-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-tx\5.0.6.RELEASE\spring-tx-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-beans\5.0.6.RELEASE\spring-beans-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\slf4j\slf4j-api\1.7.25\slf4j-api-1.7.25.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-aspects\5.0.6.RELEASE\spring-aspects-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\h2database\h2\1.4.197\h2-1.4.197.jar;C:\Users\ervelden\.m2\repository\org\postgresql\postgresql\42.2.2\postgresql-42.2.2.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-test\2.0.2.RELEASE\spring-boot-starter-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test\2.0.2.RELEASE\spring-boot-test-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-test-autoconfigure\2.0.2.RELEASE\spring-boot-test-autoconfigure-2.0.2.RELEASE.jar;C:\Users\ervelden\.m2\repository\com\jayway\jsonpath\json-path\2.4.0\json-path-2.4.0.jar;C:\Users\ervelden\.m2\repository\net\minidev\json-smart\2.3\json-smart-2.3.jar;C:\Users\ervelden\.m2\repository\net\minidev\accessors-smart\1.2\accessors-smart-1.2.jar;C:\Users\ervelden\.m2\repository\org\ow2\asm\asm\5.0.4\asm-5.0.4.jar;C:\Users\ervelden\.m2\repository\junit\junit\4.12\junit-4.12.jar;C:\Users\ervelden\.m2\repository\org\assertj\assertj-core\3.9.1\assertj-core-3.9.1.jar;C:\Users\ervelden\.m2\repository\org\mockito\mockito-core\2.15.0\mockito-core-2.15.0.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy\1.7.11\byte-buddy-1.7.11.jar;C:\Users\ervelden\.m2\repository\net\bytebuddy\byte-buddy-agent\1.7.11\byte-buddy-agent-1.7.11.jar;C:\Users\ervelden\.m2\repository\org\objenesis\objenesis\2.6\objenesis-2.6.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\ervelden\.m2\repository\org\hamcrest\hamcrest-library\1.3\hamcrest-library-1.3.jar;C:\Users\ervelden\.m2\repository\org\skyscreamer\jsonassert\1.5.0\jsonassert-1.5.0.jar;C:\Users\ervelden\.m2\repository\com\vaadin\external\google\android-json\0.0.20131108.vaadin1\android-json-0.0.20131108.vaadin1.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-core\5.0.6.RELEASE\spring-core-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-jcl\5.0.6.RELEASE\spring-jcl-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\springframework\spring-test\5.0.6.RELEASE\spring-test-5.0.6.RELEASE.jar;C:\Users\ervelden\.m2\repository\org\xmlunit\xmlunit-core\2.5.1\xmlunit-core-2.5.1.jar;, user.name=ERVELDEN, java.vm.specification.version=1.8, sun.java.command=C:\Users\ervelden\AppData\Local\Temp\surefire3575544177763302702\surefirebooter2143723578171968712.jar C:\Users\ervelden\AppData\Local\Temp\surefire3575544177763302702 2018-06-13T10-19-58_768-jvmRun1 surefire8381783754264721302tmp surefire_07923412037784578607tmp, java.home=C:\Program Files\Java\jdk1.8.0_144\jre, sun.arch.data.model=64, user.language=en, java.specification.vendor=Oracle Corporation, user.language.format=nl, awt.toolkit=sun.awt.windows.WToolkit, java.vm.info=mixed mode, java.version=1.8.0_144, java.ext.dirs=C:\Program Files\Java\jdk1.8.0_144\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext, sun.boot.class.path=C:\Program Files\Java\jdk1.8.0_144\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_144\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_144\jre\classes, java.vendor=Oracle Corporation, localRepository=C:\Users\ervelden\.m2\repository, file.separator=\, java.vendor.url.bug=http://bugreport.sun.com/bugreport/, sun.io.unicode.encoding=UnicodeLittle, sun.cpu.endian=little, sun.desktop=windows, sun.cpu.isalist=amd64}}, SystemEnvironmentPropertySource@1112414583 {name='systemEnvironment', properties={PATH=C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin/server;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/bin;C:/Program Files/Java/jdk1.8.0_144/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Git\cmd;C:\Users\ervelden\bin\apache-maven-3.5.0\bin;C:\Users\ervelden\bin\apache-cxf-3.2.0\bin;C:\Users\ervelden\bin\apache-ant-1.10.1\bin;C:\Program Files\Gradle\gradle-4.2.1\bin;C:\Program Files\Java\jdk1.8.0_144\bin;C:\Users\ervelden\AppData\Roaming\npm;C:\Program Files (x86)\Microsoft VS Code\bin;C:\Program Files\Notepad++;C:\Users\ervelden\bin\spring-1.5.6.RELEASE\bin;\Users\ervelden\bin\ProcessExplorer;\Users\ervelden\bin\curl-7.55.0-win64-mingw\bin;C:\Users\ervelden\bin\forge-distribution-3.7.2.Final\bin;C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse;, PROCESSOR_LEVEL=6, SYSTEMDRIVE=C:, FP_NO_HOST_CHECK=NO, SESSIONNAME=Console, ALLUSERSPROFILE=C:\ProgramData, PROCESSOR_ARCHITECTURE=AMD64, CXF_HOME=C:\Users\ervelden\bin\apache-cxf-3.2.0, MAVEN_HOME=C:\Users\ervelden\bin\apache-maven-3.5.0, PROGRAMFILES=C:\Program Files, =A:=A:\, PSMODULEPATH=C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules\, PROGRAMDATA=C:\ProgramData, USERNAME=ERVELDEN, USERDNSDOMAIN=CORP.CAPGEMINI.COM, ONEDRIVE=C:\Users\ervelden\OneDrive, PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC, WINDIR=C:\WINDOWS, HOMEPATH=\Users\ervelden, SPRING_HOME=C:\Users\ervelden\bin\spring-1.5.6.RELEASE, PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 60 Stepping 3, GenuineIntel, WINDOWS_TRACING_LOGFILE=C:\BVTBin\Tests\installpackage\csilogfile.log, M2_HOME=C:\Users\ervelden\bin\apache-maven-3.5.0, PUBLIC=C:\Users\Public, GPPT_INSTALLFOLDER=c:\Installers, =::=::\, LOCALAPPDATA=C:\Users\ervelden\AppData\Local, COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files, GPPT_CACHEFOLDER=D:\SCCM\Cache, USERDOMAIN=CORP, LOGONSERVER=\\WADNLDCA01, JAVA_HOME=C:\Program Files\Java\jdk1.8.0_144, PROMPT=$P$G, PROGRAMFILES(X86)=C:\Program Files (x86), GRADLE_HOME=C:\Program Files\Gradle\gradle-4.2.1, ANT_HOME=C:\Users\ervelden\bin\apache-ant-1.10.1, WINDOWS_TRACING_FLAGS=3, =C:=C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo, APPDATA=C:\Users\ervelden\AppData\Roaming, PROGRAMW6432=C:\Program Files, SYSTEMROOT=C:\WINDOWS, GPPT_LOGFOLDER=C:\SCCM_logs, OS=Windows_NT, COMMONPROGRAMW6432=C:\Program Files\Common Files, COMPUTERNAME=LBNL031514, COMMONPROGRAMFILES=C:\Program Files\Common Files, COMSPEC=C:\WINDOWS\system32\cmd.exe, PROCESSOR_REVISION=3c03, UATDATA=C:\WINDOWS\CCM\UATData\D9F8C395-CAB8-491d-B8AC-179A1FE1BE77, COMMPATH=C:\Program Files\Lenovo\Communications Utility, TEMP=C:\Users\ervelden\AppData\Local\Temp, HOMEDRIVE=C:, USERPROFILE=C:\Users\ervelden, TMP=C:\Users\ervelden\AppData\Local\Temp, NUMBER_OF_PROCESSORS=8}}]
+10:20:00.316 [main] DEBUG org.springframework.test.context.support.TestPropertySourceUtils - Adding inlined properties to environment: {spring.jmx.enabled=false, org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true, server.port=-1}
+10:20:00.316 [main] DEBUG org.springframework.core.env.StandardEnvironment - Adding PropertySource 'Inlined Test Properties' with highest search precedence
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.0.2.RELEASE)
+
+2018-06-13 10:20:00.502  INFO 15116 --- [           main] com.example.demo.DemoApplicationTests    : Starting DemoApplicationTests on LBNL031514 with PID 15116 (started by ERVELDEN in C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo)
+2018-06-13 10:20:00.504  INFO 15116 --- [           main] com.example.demo.DemoApplicationTests    : No active profile set, falling back to default profiles: default
+2018-06-13 10:20:00.521  INFO 15116 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@3e27ba32: startup date [Wed Jun 13 10:20:00 CEST 2018]; root of context hierarchy
+2018-06-13 10:20:01.282  INFO 15116 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2018-06-13 10:20:01.419  INFO 15116 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2018-06-13 10:20:01.474  INFO 15116 --- [           main] j.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2018-06-13 10:20:01.502  INFO 15116 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+	name: default
+	...]
+2018-06-13 10:20:01.597  INFO 15116 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.2.17.Final}
+2018-06-13 10:20:01.599  INFO 15116 --- [           main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2018-06-13 10:20:01.677  INFO 15116 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+2018-06-13 10:20:01.861  INFO 15116 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2018-06-13 10:20:02.540  INFO 15116 --- [           main] o.h.t.schema.internal.SchemaCreatorImpl  : HHH000476: Executing import script 'org.hibernate.tool.schema.internal.exec.ScriptSourceInputNonExistentImpl@65d8dff8'
+2018-06-13 10:20:02.543  INFO 15116 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2018-06-13 10:20:02.975  INFO 15116 --- [           main] com.example.demo.DemoApplicationTests    : Started DemoApplicationTests in 2.657 seconds (JVM running for 3.512)
+2018-06-13 10:20:03.057  INFO 15116 --- [           main] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+Reservation [id=1, name=foo]
+Reservation [id=2, name=bar]
+Reservation [id=3, name=gee]
+Reservation [id=4, name=bee]
+Reservation [id=2, name=bar]
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.576 s - in com.example.demo.DemoApplicationTests
+2018-06-13 10:20:03.396  INFO 15116 --- [       Thread-2] s.c.a.AnnotationConfigApplicationContext : Closing org.springframework.context.annotation.AnnotationConfigApplicationContext@3e27ba32: startup date [Wed Jun 13 10:20:00 CEST 2018]; root of context hierarchy
+2018-06-13 10:20:03.398  INFO 15116 --- [       Thread-2] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2018-06-13 10:20:03.399  INFO 15116 --- [       Thread-2] .SchemaDropperImpl$DelayedDropActionImpl : HHH000477: Starting delayed drop of schema as part of SessionFactory shut-down'
+2018-06-13 10:20:03.404  INFO 15116 --- [       Thread-2] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2018-06-13 10:20:03.406  INFO 15116 --- [       Thread-2] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- maven-jar-plugin:3.0.2:jar (default-jar) @ demo ---
+[INFO] Building jar: C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\demo-0.0.1-SNAPSHOT.jar
+[INFO] 
+[INFO] --- spring-boot-maven-plugin:2.0.2.RELEASE:repackage (default) @ demo ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 8.260 s
+[INFO] Finished at: 2018-06-13T10:20:04+02:00
+[INFO] Final Memory: 36M/269M
+[INFO] ------------------------------------------------------------------------
+
+
+
+/ 13	. 
+
+/ na $ mvn clean package is er een target\demo-0.0.1-SNAPSHOT.jar	, deze kunnen we run
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo>java -jar target\demo-0.0.1-SNAPSHOT.jar
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.0.2.RELEASE)
+
+2018-06-13 09:54:30.847  INFO 14048 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication v0.0.1-SNAPSHOT on LBNL031514 with PID 14048 (C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo\target\demo-0.0.1-SNAPSHOT.jar started by ERVELDEN in C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo)
+2018-06-13 09:54:30.853  INFO 14048 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to default profiles: default
+2018-06-13 09:54:30.941  INFO 14048 --- [           main] s.c.a.AnnotationConfigApplicationContext : Refreshing org.springframework.context.annotation.AnnotationConfigApplicationContext@5cbc508c: startup date [Wed Jun 13 09:54:30 CEST 2018]; root of context hierarchy
+2018-06-13 09:54:31.780  INFO 14048 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2018-06-13 09:54:31.998  INFO 14048 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2018-06-13 09:54:32.054  INFO 14048 --- [           main] j.LocalContainerEntityManagerFactoryBean : Building JPA container EntityManagerFactory for persistence unit 'default'
+2018-06-13 09:54:32.072  INFO 14048 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [
+        name: default
+        ...]
+2018-06-13 09:54:32.142  INFO 14048 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate Core {5.2.17.Final}
+2018-06-13 09:54:32.144  INFO 14048 --- [           main] org.hibernate.cfg.Environment            : HHH000206: hibernate.properties not found
+2018-06-13 09:54:32.189  INFO 14048 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.0.1.Final}
+2018-06-13 09:54:32.390  INFO 14048 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+2018-06-13 09:54:33.155  INFO 14048 --- [           main] o.h.t.schema.internal.SchemaCreatorImpl  : HHH000476: Executing import script 'org.hibernate.tool.schema.internal.exec.ScriptSourceInputNonExistentImpl@4f209819'
+2018-06-13 09:54:33.159  INFO 14048 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2018-06-13 09:54:33.753  INFO 14048 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Registering beans for JMX exposure on startup
+2018-06-13 09:54:33.754  INFO 14048 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Bean with name 'dataSource' has been autodetected for JMX exposure
+2018-06-13 09:54:33.761  INFO 14048 --- [           main] o.s.j.e.a.AnnotationMBeanExporter        : Located MBean 'dataSource': registering with JMX server as MBean [com.zaxxer.hikari:name=dataSource,type=HikariDataSource]
+2018-06-13 09:54:33.771  INFO 14048 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 3.251 seconds (JVM running for 3.713)
+2018-06-13 09:54:33.850  INFO 14048 --- [           main] o.h.h.i.QueryTranslatorFactoryInitiator  : HHH000397: Using ASTQueryTranslatorFactory
+Reservation [id=1, name=foo]
+Reservation [id=2, name=bar]
+Reservation [id=3, name=gee]
+Reservation [id=4, name=bee]
+Reservation [id=2, name=bar]
+2018-06-13 09:54:33.992  INFO 14048 --- [       Thread-2] s.c.a.AnnotationConfigApplicationContext : Closing org.springframework.context.annotation.AnnotationConfigApplicationContext@5cbc508c: startup date [Wed Jun 13 09:54:30 CEST 2018]; root of context hierarchy
+2018-06-13 09:54:33.994  INFO 14048 --- [       Thread-2] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans on shutdown
+2018-06-13 09:54:33.995  INFO 14048 --- [       Thread-2] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans
+2018-06-13 09:54:33.996  INFO 14048 --- [       Thread-2] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2018-06-13 09:54:33.997  INFO 14048 --- [       Thread-2] .SchemaDropperImpl$DelayedDropActionImpl : HHH000477: Starting delayed drop of schema as part of SessionFactory shut-down'
+2018-06-13 09:54:34.003  INFO 14048 --- [       Thread-2] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2018-06-13 09:54:34.005  INFO 14048 --- [       Thread-2] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\demo>
+
+/ 13	. 
+
+/ boek(78)
+
+/ ze use @SpringApplicationConfiguration	, maar dat is nu @SpringBootTest,
+
+/ @SpringBootTest doet meer als @ContextConfiguration: leest application.properties bijv,
+/ bij @ContextConfiguration moet je class=DemoApplication geven	, bij @SpringBootTest hoeft dat niet,
+
+/ 13	. 
+
+/ Tot nu toe hebben we, 
+
+$ vi DemoApplication.java
+
+package com.example.demo;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+@SpringBootApplication
+public class DemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+	
+//	@Bean
+//	CommandLineRunner _() {
+//		return new CommandLineRunner() {
+//			
+//			@Override
+//			public void run(String... args) throws Exception {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		};
+//	}
+	
+	@Bean
+	CommandLineRunner __(ReservationRepository rr) {
+		return args->{
+			Arrays.asList("foo,bar,gee,bee".split(",")).forEach(n->rr.save(new Reservation(n)));
+			rr.findAll().forEach(System.out::println);
+			rr.findByName("bar").forEach(System.out::println);
+//			rr.findAll().forEach(r->{
+//				boolean b=false;
+//				System.out.println(b);
+//			});
+		};
+	}
+}
+
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String name);
+}
+
+@Entity
+class Reservation{
+
+	@Id @GeneratedValue
+	private Long id;
+	
+	private String name;
+	
+	Reservation() {
+		super();
+	}
+
+	public Reservation(String name) {
+		super();
+		this.name = name;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation [id=" + id + ", name=" + name + "]";
+	}
+	
+}
+
+
+$ vi DemoApplicationTests.java
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+//@SpringBootTest(classes=DemoApplication.class)
+
+public class DemoApplicationTests {
+
+	@Test
+	public void contextLoads() {
+	}
+
+}
+
+/ 7	. 
+
+/ Voor REST api moeten we,
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+/ lees over field injection and unit tests	,
+https://dzone.com/articles/spring-di-patterns-the-good-the-bad-and-the-ugly
+
+https://stackoverflow.com/questions/16467685/difference-between-mock-and-injectmocks
+
+@RunWith(MockitoJUnitRunner.class)
+public class SomeManagerTest {
+
+    @InjectMocks
+    private SomeManager someManager;
+
+    @Mock
+    private SomeDependency someDependency; // this will be injected into someManager
+
+     //tests...
+
+}
+
+/ lees,
+http://www.baeldung.com/mockito-spy
+
+/ 7	. 
+
+/ rest	,
+
+$ vi DemoApplication.java
+
+@RestController
+class ReservationController{
+	@RequestMapping("/reservations")
+	Collection<Reservation>reservations(){
+		return reservationRepository.findAll();
+	}
+	@Autowired
+	private ReservationRepository reservationRepository;
+}
+
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String name);
+}
+
+@Entity
+class Reservation{
+
+	@Id @GeneratedValue
+	private Long id;
+	
+	private String name;
+	...
+
+/ geef 
+localhost:8080/reservations
+
+/ 13	. 
+
+/ we gaan het anders doen	,
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-rest</artifactId>
+		</dependency>
+		
+/ lees,
+http://www.baeldung.com/spring-data-rest-intro
+
+$ vi DemoApplication.java
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String name);
+//	Collection<Reservation>findByName(@Param("name")String name);
+
+}
+
+@Entity
+class Reservation{
+
+	@Id @GeneratedValue
+	private Long id;
+	
+	private String name;
+
+/ geef, 
+localhost:8080/reservations
+/ OK, 
+
+/ Zo te zien kunnen we @Param("name") rm
+/ TODO
+
+/ volgens
+http://www.baeldung.com/spring-data-rest-intro
+/ kunnen we @RepositoryRestResource rm, met deze kunnen we de rest endpoint aanpassen	, 
+/ omdat er staat JpaRepository<Reservation, Long>, maakt hij localhost:8080/reservations
+
+/ 13	. 
+
+/ lees,
+https://docs.spring.io/spring-data/rest/docs/2.0.0.M1/reference/html/paging-chapter.html
+
+
+/ als je 
+http://localhost:8080/reservations?page=0
+/ dan staan alle entries in _embedded
+/ WH is de default size 20
+/ TODO
+/ er is ook _links,
+/ als je,
+http://localhost:8080/reservations?page=1
+/ dan is _embedded leeg	, 
+/ maar _links is groter als bij page=0
+
+/ geef,
+http://localhost:8080/reservations?page=0&sort=name&size=2
+http://localhost:8080/reservations?page=1&sort=name&size=2
+/ hij sorts op name, dus bar, bee, ...
+/ we zien in _embedded 2 entries, 
+/ en we zien in _links meer links, first, next, ...
+
+http://localhost:8080/reservations/search/findByName?name=foo
+/ okay	,
+
+/ Intermezzo
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(@Param("name")String name);
+}
+
+/ dus achter search zien we de findByName mth terug	, 
+/ en de parametername	, deze was altijd "name"	, maar kunnen we veranderen naar "n":
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(@Param("n")String name);
+}
+
+/ dan moeten we geven,
+http://localhost:8080/reservations/search/findByName?n=foo
+
+/ Einde Intermezzo
+
+/ 13	. 
+
+/ er is een verschil tussen	,
+
+http://localhost:8080/reservations/?size=1
+
+http://localhost:8080/reservations/1?size=1
+
+/ 13	. 
+
+
+http://localhost:8080/reservations/?page=0&size=2
+/=
+http://localhost:8080/reservations/?size=2
+
+/ we zien foo en bar, en onderaan zien we links naar, 
+
+next: {
+	href: "http://localhost:8080/reservations?page=1&size=2"
+},
+
+/ 13	. 
+
+/ je kunt dus geven,
+
+http://localhost:8080/reservations/3
+
+/ we zien gee, met _links: self, reservation==self, profile_photo
+
+/ 13	. 
+
+/ in de links_ zien we,
+
+search: {
+href: "http://localhost:8080/reservations/search"
+}
+
+/ click daarop	, dan zien we ook weer links, zoals	,
+
+http://localhost:8080/reservations/search/findByName?n=foo
+
+/ 7	. 
+
+/ add links,
+
+
+@Component
+class ReservationResourceProcessor implements ResourceProcessor<Resource<Reservation>>{
+
+	@Override
+	public Resource<Reservation> process(Resource<Reservation> reservationResource) {
+		reservationResource.add(
+				new Link("http://s3.com/imgs/"+reservationResource.getContent().getId()+".jpg","profile_photo")
+		);
+		return null;
+	}
+}
+
+/ geef,
+http://localhost:8080/reservations?page=0&size=1
+/ of,
+http://localhost:8080/reservations/search/findByName?n=foo
+/ of,
+http://localhost:8080/reservations/1
+/ we zien,
+{
+	name: "foo",
+	_links: {
+		self: {
+				href: "http://localhost:8080/reservations/1"
+		},
+		reservation: {
+				href: "http://localhost:8080/reservations/1"
+		},
+		profile_photo: {
+			href: "http://s3.com/imgs/1.jpg"
+		}
+	}
+}
+
+
+/ NB	,
+
+/ Maak NIET de fout,
+http://localhost:8080/reservations/page=0
+/ maar doe,
+http://localhost:8080/reservations?page=0
+
+
+/ 7	. 
+
+/ Model: so we can do references from our view templates/,
+
+/ in src/main/resources zijn al static/ en templates/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ Einde VIDEO JOSH LONG
+
+/ SPRING BOOT GUIDE
+
+/ start.spring.io, en kies alleen web, 
+
+/ workspace-jbosstools-jee-oxygen-spring-boot,
+/ proj springboot-guide
+
+$ vi pom.xml
+
+<project ...>
+
+	<groupId>my.own.guide</groupId>
+	<artifactId>springboot-guide</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.3.RELEASE</version>
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	
+$ vi SpringBootGuideApplication.java
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class SpringBootGuideApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootGuideApplication.class, args);
+	}
+	public static final Logger logger=LoggerFactory.getLogger(SpringBootGuideApplication.class);
+	
+	@Bean
+	CommandLineRunner $() {
+		return args->{
+			logger.info("Foo Bar");
+			
+		};
+// of	,
+		return new CommandLineRunner() {
+			
+			@Override
+			public void run(String... args) throws Exception {
+				logger.info("Bar Gee");
+				
+			}
+		};
+	}
+}
+
+/ dit werkt al, 
+/we zien de log regel	, 
+
+/ we moeten, 
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/springboot-guide
+$ mvn clean package
+$ java -jar target/springboot-guide-0.0.1-SNAPSHOT.jar
+...
+2018-07-17 21:14:09.761  INFO 12160 --- [           main] m.o.s.SpringBootGuideApplication         : Foo Bar
+/ of,
+2018-07-17 21:33:15.412  INFO 13580 --- [           main] m.o.s.SpringBootGuideApplication         : Bar Gee
+
+/ 13	 .
+
+CommandLineRunner is een FunctionalInterface	, de mth commandLineRunner returns zo'n ding	,
+
+/ 13	. 
+
+/ we moeten de @Bean binnen de SpringBootGuideApplication def, want deze heeft de @Configuration, via @SpringBootApplication	,
+/ ook printen we alle beans in de ApplicationContext	, 
+/ we laten de ApplicationContext inject in de bean,
+
+/ 7	. 
+
+/ we maken een @RestController	, en omdat deze er nu is kunnen we localhost:8080 geven,
+
+$ vi SpringBootApplication.java
+
+@SpringBootApplication
+public class SpringBootGuideApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootGuideApplication.class, args);
+	}
+	public static final Logger logger=LoggerFactory.getLogger(SpringBootGuideApplication.class);
+	
+	@Bean
+	CommandLineRunner $(ApplicationContext applicationContext) {
+		return args->{
+			logger.info("Let's inspect the beans provided by Spring Boot");		
+			String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+			Arrays.sort(beanDefinitionNames);
+			for (String name : beanDefinitionNames) {
+//				logger.info(name);
+				System.out.println(name);
+				
+			}
+		};
+
+	}
+}
+
+@RestController
+class HelloController{
+	@RequestMapping("/")
+	public String index() {
+		return "Hello from Spring Boot";
+	}
+}
+
+/ we kunnen geven 
+localhost:8080
+/ we zien,
+Hello from Spring Boot
+
+/ we zien in de log van de server, als je $ mvn clean package doet al,
+
+$
+basicErrorController
+beanNameHandlerMapping
+beanNameViewResolver
+characterEncodingFilter
+conventionErrorViewResolver
+defaultServletHandlerMapping
+defaultValidator
+defaultViewResolver
+dispatcherServlet
+dispatcherServletRegistration
+error
+errorAttributes
+errorPageCustomizer
+errorPageRegistrarBeanPostProcessor
+faviconHandlerMapping
+faviconRequestHandler
+handlerExceptionResolver
+helloController
+hiddenHttpMethodFilter
+httpPutFormContentFilter
+httpRequestHandlerAdapter
+jacksonCodecCustomizer
+jacksonObjectMapper
+jacksonObjectMapperBuilder
+jsonComponentModule
+localeCharsetMappingsCustomizer
+mainDispatcherServletPathProvider
+mappingJackson2HttpMessageConverter
+mbeanExporter
+mbeanServer
+messageConverters
+methodValidationPostProcessor
+multipartConfigElement
+multipartResolver
+mvcContentNegotiationManager
+mvcConversionService
+mvcHandlerMappingIntrospector
+mvcPathMatcher
+mvcResourceUrlProvider
+mvcUriComponentsContributor
+mvcUrlPathHelper
+mvcValidator
+mvcViewResolver
+objectNamingStrategy
+org.springframework.boot.autoconfigure.AutoConfigurationPackages
+org.springframework.boot.autoconfigure.condition.BeanTypeRegistry
+org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration
+org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration
+org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration
+org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration$StringHttpMessageConverterConfiguration
+org.springframework.boot.autoconfigure.http.JacksonHttpMessageConvertersConfiguration
+org.springframework.boot.autoconfigure.http.JacksonHttpMessageConvertersConfiguration$MappingJackson2HttpMessageConverterConfiguration
+org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration
+org.springframework.boot.autoconfigure.http.codec.CodecsAutoConfiguration$JacksonCodecConfiguration
+org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration
+org.springframework.boot.autoconfigure.internalCachingMetadataReaderFactory
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$Jackson2ObjectMapperBuilderCustomizerConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$JacksonObjectMapperBuilderConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$JacksonObjectMapperConfiguration
+org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$ParameterNamesModuleConfiguration
+org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration
+org.springframework.boot.autoconfigure.security.reactive.ReactiveSecurityAutoConfiguration
+org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration
+org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
+org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration
+org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration$TomcatWebServerFactoryCustomizerConfiguration
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration$DispatcherServletConfiguration
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration$DispatcherServletRegistrationConfiguration
+org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedTomcat
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration$EnableWebMvcConfiguration
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration$WebMvcAutoConfigurationAdapter
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration$WebMvcAutoConfigurationAdapter$FaviconConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration$DefaultErrorViewResolverConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration$WhitelabelErrorViewConfiguration
+org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration
+org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration$TomcatWebSocketConfiguration
+org.springframework.boot.context.properties.ConfigurationBeanFactoryMetadata
+org.springframework.boot.context.properties.ConfigurationPropertiesBindingPostProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.event.internalEventListenerFactory
+org.springframework.context.event.internalEventListenerProcessor
+parameterNamesModule
+preserveErrorControllerTargetClassPostProcessor
+propertySourcesPlaceholderConfigurer
+requestContextFilter
+requestMappingHandlerAdapter
+requestMappingHandlerMapping
+resourceHandlerMapping
+restTemplateBuilder
+server-org.springframework.boot.autoconfigure.web.ServerProperties
+servletWebServerFactoryCustomizer
+simpleControllerHandlerAdapter
+spring.http.encoding-org.springframework.boot.autoconfigure.http.HttpEncodingProperties
+spring.info-org.springframework.boot.autoconfigure.info.ProjectInfoProperties
+spring.jackson-org.springframework.boot.autoconfigure.jackson.JacksonProperties
+spring.mvc-org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties
+spring.resources-org.springframework.boot.autoconfigure.web.ResourceProperties
+spring.security-org.springframework.boot.autoconfigure.security.SecurityProperties
+spring.servlet.multipart-org.springframework.boot.autoconfigure.web.servlet.MultipartProperties
+springBootGuideApplication
+standardJacksonObjectMapperBuilderCustomizer
+stringHttpMessageConverter
+tomcatServletWebServerFactory
+tomcatServletWebServerFactoryCustomizer
+tomcatWebServerFactoryCustomizer
+viewControllerHandlerMapping
+viewResolver
+webServerFactoryCustomizerBeanPostProcessor
+websocketContainerCustomizer
+welcomePageHandlerMapping
+
+/ 7	 .
+
+/ Maar zo kan het ook,
+
+@SpringBootApplication
+public class SpringBootGuideApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootGuideApplication.class, args);
+	}
+
+}
+
+@Component
+class My implements CommandLineRunner{
+	private static final Logger logger=LoggerFactory.getLogger(My.class);
+	
+	private ApplicationContext applicationContext;
+	@Autowired												// hoeft niet perse, als je 1 ctor hebt	, sinds Spring Boot 4.3	,
+	public My(ApplicationContext applicationContext) {
+		this.applicationContext=applicationContext;
+	}
+	
+	@Override
+	public void run(String... args) throws Exception {
+		logger.info("Let's inspect the beans provided by Spring Boot");		
+		String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+		Arrays.sort(beanDefinitionNames);
+		for (String name : beanDefinitionNames) {
+//			logger.info(name);
+			System.out.println(name);
+			
+		}
+		
+	}
+}
+
+@RestController
+class HelloController{
+	@RequestMapping("/")
+	public String index() {
+		return "Hello from Spring Boot";
+	}
+}
+
+$  pwd
+/c/Users/ervelden/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/springboot-guide
+$ mvn clean package
+/ we zien in de test al My.run()	,
+$ java -jar target/springboot-guide-0.0.1-SNAPSHOT.jar
+...
+$ curl localhost:8080
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    22  100    22    0     0     22      0  0:00:01 --:--:--  0:00:01   141Hello from Spring Boot
+/ in een andere console	,
+
+/ 7	 
+
+/ de enigste test die we hebben is test of de application context wordt build,
+
+$ vi SpringBootGuideApplicationTests.java
+
+
+package my.own.springbootguide;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class SpringBootGuideApplicationTests {
+
+	@Test
+	public void contextLoads() {
+	}
+
+}
+
+/ 7	. 
+
+/ In alle tests zien we het Spring Boot logo: WH een application context wordt build 	, altijd, of je nou MVC mock of niet,
+
+/ we mock Spring MVC
+
+/ straks hieronder een integratietest	, we mock MVC dan NIET,
+
+package my.own.springbootguide;
+
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.ContentResultMatchers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.result.StatusResultMatchers;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+
+public class SpringBootGuideApplicationTests {
+
+//	@Test
+//	public void contextLoads() {
+//	}
+	
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@Test
+	public void testHelloController() throws Exception {
+		MockHttpServletRequestBuilder mockHttpServletRequestBuilder = MockMvcRequestBuilders.get("/");
+		MockHttpServletRequestBuilder accept = mockHttpServletRequestBuilder.accept(MediaType.APPLICATION_JSON);
+		ResultActions perform = mockMvc.perform(accept);
+		
+		StatusResultMatchers status = MockMvcResultMatchers.status();
+		ResultMatcher ok = status.isOk();	// of statusis2xxSuccessful();
+		ResultActions andExpect = perform.andExpect(ok);
+		
+		ContentResultMatchers content = MockMvcResultMatchers.content();
+		Matcher<String> equalTo = Matchers.equalTo("Hello from Spring Boot");
+		ResultMatcher string = content.string(equalTo);
+		ResultActions andExpect2 = andExpect.andExpect(string);
+		
+	}
+
+}
+
+$ mvn clean test
+
+/ 7	. 
+
+/ integratie test , niet mock,
+
+package  my.own.springbootguide;
+
+import java.net.URL;
+
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Ignore
+public class SpringBootGuideIntegrationTests {
+	
+	@LocalServerPort
+	private int port;
+	
+	private URL base;
+	
+	@Autowired
+	private TestRestTemplate testRestTemplate;
+	
+	@Before
+	public void setUp()throws Exception {
+		this.base=new URL("http://localhost:"+port+"/");
+	}
+	@Test
+	public void testHelloController() throws Exception {
+		ResponseEntity<String> forEntity = testRestTemplate.getForEntity(this.base.toString(), String.class);
+		Matcher<String> equalTo = Matchers.equalTo("Hello from Spring Boot");
+		String body = forEntity.getBody();
+		Assert.assertThat(body, equalTo);
+	}
+
+}
+
+/ 7	 .
+
+/ actuator,
+
+/ lees,
+https://docs.spring.io/spring-boot/docs/2.0.3.RELEASE/reference/htmlsingle/#production-ready
+
+$ vi application.properties
+management.endpoints.web.exposure.include=*
+management.endpoint.shutdown.enabled=true
+
+/ alle properties zijn enabled, behalve shutdown, 
+/ dat is iets anders dan ze expose	,
+/ ze zijn nu allemaal enabled en exposed, 
+/ info en health waren al exposed, beans en metrics niet, maar nu wel,
+
+/ geef,
+http://localhost:8080/actuator/beans
+http://localhost:8080/actuator/info
+http://localhost:8080/actuator/health
+
+/ geef,
+http://localhost:8080/actuator/metrics
+/ je ziet allemaal properties, die je achter metrics kan geven	,
+
+/ geef,
+http://localhost:8080/actuator/metrics/http.server.requests
+
+{
+name: "http.server.requests",
+measurements: [
+{
+statistic: "COUNT",
+value: 98
+},
+{
+statistic: "TOTAL_TIME",
+value: 0.734425309
+},
+{
+statistic: "MAX",
+value: 0.038732522
+}
+],
+availableTags: [
+{
+tag: "exception",
+values: [
+"None"
+]
+},
+{
+tag: "method",
+values: [
+"GET"
+]
+},
+{
+tag: "uri",
+values: [
+"/actuator/metrics/{requiredMetricName}",
+"/actuator/info",
+"/**/favicon.ico",
+"/actuator/beans",
+"/actuator/metrics",
+"/"
+]
+},
+{
+tag: "status",
+values: [
+"404",
+"200"
+]
+}
+]
+}
+
+/ als we deze url http://localhost:8080/actuator/metrics/http.server.requests steeds refresh, zien we de COUNT met 2 ophogen	,
+/ TODO 
+/ waarom niet met 1	?
+
+/ doe ook, en refresh steeds, 
+http://localhost:8080/actuator/metrics/jvm.memory.used
+
+/ 7	. 
+
+/ de volgende properties kunnen we allemaal geven,
+
+http://localhost:8080/actuator/metrics
+
+{
+names: [
+"jvm.memory.max",
+"http.server.requests",
+"jvm.gc.memory.promoted",
+"tomcat.cache.hit",
+"tomcat.cache.access",
+"jvm.memory.used",
+"jvm.gc.max.data.size",
+"jvm.gc.pause",
+"jvm.memory.committed",
+"system.cpu.count",
+"logback.events",
+"tomcat.global.sent",
+"jvm.buffer.memory.used",
+"tomcat.sessions.created",
+"jvm.threads.daemon",
+"system.cpu.usage",
+"jvm.gc.memory.allocated",
+"tomcat.global.request.max",
+"tomcat.global.request",
+"tomcat.sessions.expired",
+"jvm.threads.live",
+"jvm.threads.peak",
+"tomcat.global.received",
+"process.uptime",
+"tomcat.sessions.rejected",
+"process.cpu.usage",
+"tomcat.threads.config.max",
+"jvm.classes.loaded",
+"jvm.classes.unloaded",
+"tomcat.global.error",
+"tomcat.sessions.active.current",
+"tomcat.sessions.alive.max",
+"jvm.gc.live.data.size",
+"tomcat.servlet.request.max",
+"tomcat.threads.current",
+"tomcat.servlet.request",
+"jvm.buffer.count",
+"jvm.buffer.total.capacity",
+"tomcat.sessions.active.max",
+"tomcat.threads.busy",
+"process.start.time",
+"tomcat.servlet.error"
+]
+}
+
+/ Einde SPRING BOOT GUIDE
+
+
+
+/ 7	. 
+
+/ MKYONG
+
+/ google	,
+spring boot application example
+https://www.mkyong.com/spring-boot/spring-boot-configurationproperties-example/
+https://www.boraji.com/spring-boot-configurationproperties-example
+
+/ een nested class heeft geen toegang tot properties van outer class, een innner class wel	,
+
+/ 7	. 
+
+/ workspace-jbosstools-jee-oxygen-spring-boot
+
+/ interne application.properties in src/main/resources,
+
+/ maakt executable jar,
+$ mvn clean package
+$ java -jar target/...
+/ als je in application.properties iets verandert, moet je eerst nieuwe jar maken
+/ maar in eclipse  als je run als appl doet, pakt hij meteen de nieuwe application.properties
+
+/ 13	. 
+
+
+/ als we
+
+	@Bean
+	private static CommandLineRunner __(Study study) {
+		return args->{
+			...
+			System.exit(0);
+			
+/ dan faalt de test, 
+/ TODO
+/ als we niet System.exit(0) doen, dan blijft er een process javaw.exe, onder eclipse, en moeten we hem met de hand verwijderen	,
+/ is dit wel zo?
+/ TODO
+
+/ als we in application.properties: logging.level.root=DEBUG, zien we op de console de DEBUG logging, 
+/ hoe in een file, behalve redirection in bash na?
+/ TODO
+
+
+$ vi PropApplication.java
+
+package my.own.propstudy;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
+
+@SpringBootApplication
+public class PropApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(PropApplication.class, args);
+	}
+	
+	@Bean
+	CommandLineRunner __(Study study) {
+		return args->{
+			System.out.println(study.getProps().getFoo());
+			System.out.println(study.getBarProps().getBaz());
+			System.out.println(study.getBarProps().getGee());
+			System.out.println(study.getProps().getMyThing());
+			System.out.println(study.getProps().getYourThing());
+			System.out.println(study.getBoyProps().getToys().getCar());
+			System.out.println(study.getBoyProps().getToys().getSkate());
+			System.out.println(study.getValueProps().getMyThing());
+			System.out.println(study.getValueProps().getYourThing());
+			
+		};
+	}
+}
+
+@Component
+class Study{
+	private Props props;
+	private BarProps barProps;
+	private BoyProps boyProps;
+	private ValueProps valueProps;
+	
+
+//	public Study(Props props) {
+//		this.props=props;
+//	}
+
+	public Props getProps() {
+		return props;
+	}
+	@Autowired
+	public void setProps(Props props) {
+		this.props = props;
+	}
+	
+	public BarProps getBarProps() {
+		return barProps;
+	}
+	@Autowired
+	public void setBarProps(BarProps barProps) {
+		this.barProps = barProps;
+	}
+	public BoyProps getBoyProps() {
+		return boyProps;
+	}
+	@Autowired
+	public void setBoyProps(BoyProps boyProps) {
+		this.boyProps = boyProps;
+	}
+
+	public ValueProps getValueProps() {
+		return valueProps;
+	}
+	@Autowired
+	public void setValueProps(ValueProps valueProps) {
+		this.valueProps = valueProps;
+	}
+	
+}
+
+@Component
+@ConfigurationProperties
+class Props{
+	private String foo;
+	private String myThing;
+	private String yourThing;
+
+	public String getFoo() {
+		return foo;
+	}
+
+	public void setFoo(String foo) {
+		this.foo = foo;
+	}
+
+	public String getMyThing() {
+		return myThing;
+	}
+
+	public void setMyThing(String myThing) {
+		this.myThing = myThing;
+	}
+
+	public String getYourThing() {
+		return yourThing;
+	}
+
+	public void setYourThing(String yourThing) {
+		this.yourThing = yourThing;
+	}
+}
+
+@Component
+@ConfigurationProperties("bar")
+class BarProps{
+	private String baz;
+	private String gee;
+	public String getBaz() {
+		return baz;
+	}
+	public void setBaz(String baz) {
+		this.baz = baz;
+	}
+	public String getGee() {
+		return gee;
+	}
+	public void setGee(String gee) {
+		this.gee = gee;
+	}
+	
+}
+
+@Component
+@ConfigurationProperties("boy")
+class BoyProps{
+	@Component					// kan, hoeft niet	,
+	static class Toys{
+		private String car;
+		private String skate;
+		public String getCar() {
+			return car;
+		}
+		public void setCar(String car) {
+			this.car = car;
+		}
+		public String getSkate() {
+			return skate;
+		}
+		public void setSkate(String skate) {
+			this.skate = skate;
+		}
+	}
+	private Toys toys;			//  TODO wordt injected, we hoeven niet @Component, @Autowired	,
+	public Toys getToys() {
+		return toys;
+	}
+	@Autowired			// kan, hoeft niet	,
+	public void setToys(Toys toys) {
+		this.toys = toys;
+	}	
+}
+
+@Component
+@PropertySource("classpath:/application.properties") // als application.properties intern in de jar,
+class ValueProps{
+	@Value("${my.thing}")
+	private String myThing;
+	
+	@Value("${your.thing}")
+	private String yourThing;
+
+	public String getMyThing() {
+		return myThing;
+	}
+
+	public void setMyThing(String myThing) {
+		this.myThing = myThing;
+	}
+
+	public String getYourThing() {
+		return yourThing;
+	}
+
+	public void setYourThing(String yourThing) {
+		this.yourThing = yourThing;
+	}
+}
+
+/ 7	. 
+
+/ outside application.properties
+
+/ workspace-jbosstools-jee-oxygen-spring-boot
+/ proj. propstudyoutside
+
+/ deze file moet staan waar je $ java doet, niet waar de jar staat,
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\propstudyoutside>dir
+...
+11-07-2018  08:49               195 application.properties
+11-07-2018  12:03    <DIR>          target
+
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-spring-boot\propstudyoutside>java -jar target\propstudyoutside-0.0.1-SNAPSHOT.jar
+/ OK,
+
+/ 7	. 
+
+/ properties file outside,
+
+/ google,
+java -jar spring.config.location
+/ lees,
+https://stackoverflow.com/questions/40573125/how-do-i-add-external-property-file-location-to-spring-boot-application-deployed
+->
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config-application-property-files
+
+/ we hebben application.properties in ~/temp gezet,	 
+$ java -jar target/propstudyoutside-0.0.1-SNAPSHOT.jar --spring.config.location=file:/c:/Users/ervelden/temp/application.properties
+/ OK,
+$ java -jar target/propstudyoutside-0.0.1-SNAPSHOT.jar --spring.config.location=file:/Users/ervelden/temp/application.properties
+/ OK
+/ omdat we op c: zitten,
+$ java -jar target/propstudyoutside-0.0.1-SNAPSHOT.jar --spring.config.location=file:/c:/Users/ervelden/temp/
+/ OK, 
+/ NB: / aan het eind	,
+
+/ op
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config-application-property-files
+/ lezen we dat de default path is classpath:/,classpath:/config/,file:./,file:./config/. Vandaar dat als we application.properties op het fs in de root zetten, dus in ~/eclipse/workspace-jbosstools-jee-oxygen-spring-boot/propstudyoutside, dat hij dan gevonden wordt,
+
+
+
+
+
+$ vi PropOutsideApplication.java
+
+@SpringBootApplication
+public class PropOutsideApplication {	   
+...
+@Component
+//@PropertySource("classpath:/application.properties")
+class ValueProps{
+	@Value("${my.thing}")
+	private String myThing;
+	
+	@Value("${your.thing}")
+	private String yourThing;
+
+	public String getMyThing() {
+		return myThing;
+	}
+
+	public void setMyThing(String myThing) {
+		this.myThing = myThing;
+	}
+
+	public String getYourThing() {
+		return yourThing;
+	}
+
+	public void setYourThing(String yourThing) {
+		this.yourThing = yourThing;
+	}
+}
+
+/ Einde  SPRING BOOT GUIDE
+
+/ SPRING BOOT LOGGING
+
+/ workspace-jbosstools-jee-oxygen-spring-boot
+/ proj myprops
+
+$ vi application.properties
+...
+logging.level.root=DEBUG
+
+/ Deze werkt OK,
+$ mvn clean package
+$ java -jar target/propstudy-0.0.1-SNAPSHOT.jar
+/ we zien DEBUG logging,
+
+
+
+
+
+
+/ Einde SPRING BOOT LOGGING
+
+/ MISC
+
+/ google,
+h2 console connect to in memory database
+/ lees,
+https://medium.com/@harittweets/how-to-connect-to-h2-database-during-development-testing-using-spring-boot-44bbb287570
+
+/ Einde MISC
+
+/ SERVING WEB CONTENT GUIDE
+
+/ lees,
+https://spring.io/guides/gs/serving-web-content/
+
+/ op start.spring.io maken we my.own.guide:serving-web-content in workspace-jbosstools-jee-oxygen-spring-boot,
+/ en import als existing maven proj,
+
+/ 7	 
+
+/ lees,
+https://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html
+
+$ vi application.properties
+logging.level.org.springframework.web=DEBUG
+
+/ dit is alles, we hebben een uitgebreide logging,
+
+/ 7	. 
+
+/ thymeleaf,
+
+$ vi GreetingController.java
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+public class GreetingController {
+	@GetMapping("/greeting")
+	public String handle(
+			@RequestParam(name = "name", required = false, defaultValue = "World") String name,
+			Model model) {
+		model.addAttribute("name", name);
+		return "greeting";
+	}
+}
+
+$ vi templates/greeting.html
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">		
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Getting started: serving web content</title>
+</head>
+<body>
+	<p th:text="'Hello '+${name}+'!'"/>			/ let op de '' TODO
+</body>
+</html>
+
+/ geef 2 keer	,
+$ curl localhost:8080/greeting?name=foo
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   245    0   245    0     0    245      0 --:--:-- --:--:-- --:--:--  239k
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Getting started: serving web content</title>
+</head>
+<body>
+        <p>Hello foo!</p>
+</body>
+</html>
+
+
+
+
+2018-07-25 21:41:59.314 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing servlet 'dispatcherServlet'
+2018-07-25 21:41:59.314  INFO 11524 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-07-25 21:41:59.314  INFO 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization started
+2018-07-25 21:41:59.314 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Using MultipartResolver [org.springframework.web.multipart.support.StandardServletMultipartResolver@a2e78b4]
+2018-07-25 21:41:59.314 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate LocaleResolver with name 'localeResolver': using default [org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver@7ea96b4e]
+2018-07-25 21:41:59.314 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate ThemeResolver with name 'themeResolver': using default [org.springframework.web.servlet.theme.FixedThemeResolver@41e6aed1]
+2018-07-25 21:41:59.314 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate RequestToViewNameTranslator with name 'viewNameTranslator': using default [org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@5d5bee41]
+2018-07-25 21:41:59.329 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate FlashMapManager with name 'flashMapManager': using default [org.springframework.web.servlet.support.SessionFlashMapManager@c35a11c]
+2018-07-25 21:41:59.329 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Published WebApplicationContext of servlet 'dispatcherServlet' as ServletContext attribute with name [org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcherServlet]
+2018-07-25 21:41:59.329  INFO 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization completed in 15 ms
+2018-07-25 21:41:59.329 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Servlet 'dispatcherServlet' configured successfully
+2018-07-25 21:41:59.329 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : DispatcherServlet with name 'dispatcherServlet' processing GET request for [/greeting]
+2018-07-25 21:41:59.329 DEBUG 11524 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-25 21:41:59.345 DEBUG 11524 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-25 21:41:59.345 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Last-Modified value for [/greeting] is: -1
+2018-07-25 21:41:59.360 DEBUG 11524 --- [nio-8080-exec-1] o.s.w.s.v.ContentNegotiatingViewResolver : Requested media types are [*/*] based on Accept header types and producible media types [*/*])
+2018-07-25 21:41:59.360 DEBUG 11524 --- [nio-8080-exec-1] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+2018-07-25 21:41:59.360 DEBUG 11524 --- [nio-8080-exec-1] o.s.w.s.v.ContentNegotiatingViewResolver : Returning [org.thymeleaf.spring5.view.ThymeleafView@b804411] based on requested media type '*/*'
+2018-07-25 21:41:59.376 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Rendering view [org.thymeleaf.spring5.view.ThymeleafView@b804411] in DispatcherServlet with name 'dispatcherServlet'
+2018-07-25 21:41:59.645 DEBUG 11524 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Successfully completed request
+
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : DispatcherServlet with name 'dispatcherServlet' processing GET request for [/greeting]
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Last-Modified value for [/greeting] is: -1
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.w.s.v.ContentNegotiatingViewResolver : Requested media types are [*/*] based on Accept header types and producible media types [*/*])
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.w.s.v.ContentNegotiatingViewResolver : Returning [org.thymeleaf.spring5.view.ThymeleafView@b804411] based on requested media type '*/*'
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Rendering view [org.thymeleaf.spring5.view.ThymeleafView@b804411] in DispatcherServlet with name 'dispatcherServlet'
+2018-07-25 21:42:05.947 DEBUG 11524 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Successfully completed request
+
+
+/ 7	. 
+
+/ jsp
+
+/ de controller voor jsp is gelijk aan die voor thymeleaf	,
+
+$ vi GreetingController.java
+
+package my.own.guide.servingwebcontent;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+public class GreetingController {
+	@GetMapping("/greeting")
+	public String handle(
+			@RequestParam(name = "name", required = false, defaultValue = "World") String name,
+			Model model) {
+		model.addAttribute("name", name);
+		return "greeting";
+	}
+	
+}
+
+/ Intermezzo 
+
+* <p>Specifically, {@code @GetMapping} is a <em>composed annotation</em> that
+ * acts as a shortcut for {@code @RequestMapping(method = RequestMethod.GET)}.
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@RequestMapping(method = RequestMethod.GET)
+public @interface GetMapping {
+
+/ Einde Intermezzo
+
+
+$ vi application.properties
+
+logging.level.org.springframework.web=DEBUG
+spring.mvc.view.prefix: /WEB-INF/jsp/
+spring.mvc.view.suffix: .jsp
+
+/ thymeleaf template is in src/main/resources/templates/,
+/ maar jsp is in src/main/webapp/WEB-INF/jsp/,
+/ TODO
+
+$ vi greeting.jsp
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Getting started: serving web content</title>
+</head>
+<body>
+	<c:out value="${name}"/>
+</body>
+</html>
+
+/ geef 2 keer,
+$ curl localhost:8080/greeting?name=foo
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   234  100   234    0     0    234      0  0:00:01 --:--:--  0:00:01  228k
+
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Getting started: serving web content</title>
+</head>
+<body>
+        foo
+</body>
+</html>
+
+/ in de logging zien we,
+
+2018-07-25 21:45:38.089 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing servlet 'dispatcherServlet'
+2018-07-25 21:45:38.089  INFO 5364 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-07-25 21:45:38.089  INFO 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization started
+2018-07-25 21:45:38.089 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Using MultipartResolver [org.springframework.web.multipart.support.StandardServletMultipartResolver@4f01a4e2]
+2018-07-25 21:45:38.089 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate LocaleResolver with name 'localeResolver': using default [org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver@3b434d46]
+2018-07-25 21:45:38.104 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate ThemeResolver with name 'themeResolver': using default [org.springframework.web.servlet.theme.FixedThemeResolver@25806f9d]
+2018-07-25 21:45:38.104 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate RequestToViewNameTranslator with name 'viewNameTranslator': using default [org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@2bf60d5c]
+2018-07-25 21:45:38.104 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate FlashMapManager with name 'flashMapManager': using default [org.springframework.web.servlet.support.SessionFlashMapManager@1043efd9]
+2018-07-25 21:45:38.104 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Published WebApplicationContext of servlet 'dispatcherServlet' as ServletContext attribute with name [org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcherServlet]
+2018-07-25 21:45:38.104  INFO 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization completed in 15 ms
+2018-07-25 21:45:38.104 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Servlet 'dispatcherServlet' configured successfully
+2018-07-25 21:45:38.120 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : DispatcherServlet with name 'dispatcherServlet' processing GET request for [/greeting]
+2018-07-25 21:45:38.120 DEBUG 5364 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-25 21:45:38.120 DEBUG 5364 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-25 21:45:38.120 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Last-Modified value for [/greeting] is: -1
+2018-07-25 21:45:38.135 DEBUG 5364 --- [nio-8080-exec-1] o.s.w.s.v.ContentNegotiatingViewResolver : Requested media types are [*/*] based on Accept header types and producible media types [*/*])
+2018-07-25 21:45:38.135 DEBUG 5364 --- [nio-8080-exec-1] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+2018-07-25 21:45:38.135 DEBUG 5364 --- [nio-8080-exec-1] o.s.w.s.v.ContentNegotiatingViewResolver : Returning [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [/WEB-INF/jsp/greeting.jsp]] based on requested media type '*/*'
+2018-07-25 21:45:38.135 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Rendering view [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [/WEB-INF/jsp/greeting.jsp]] in DispatcherServlet with name 'dispatcherServlet'
+2018-07-25 21:45:38.135 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.view.JstlView            : Added model object 'name' of type [java.lang.String] to request in view with name 'greeting'
+2018-07-25 21:45:38.135 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.view.JstlView            : Forwarding to resource [/WEB-INF/jsp/greeting.jsp] in InternalResourceView 'greeting'
+2018-07-25 21:45:38.624 DEBUG 5364 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Successfully completed request
+
+
+
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : DispatcherServlet with name 'dispatcherServlet' processing GET request for [/greeting]
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Last-Modified value for [/greeting] is: -1
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.w.s.v.ContentNegotiatingViewResolver : Requested media types are [*/*] based on Accept header types and producible media types [*/*])
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.w.s.v.ContentNegotiatingViewResolver : Returning [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [/WEB-INF/jsp/greeting.jsp]] based on requested media type '*/*'
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Rendering view [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [/WEB-INF/jsp/greeting.jsp]] in DispatcherServlet with name 'dispatcherServlet'
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.web.servlet.view.JstlView            : Added model object 'name' of type [java.lang.String] to request in view with name 'greeting'
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.web.servlet.view.JstlView            : Forwarding to resource [/WEB-INF/jsp/greeting.jsp] in InternalResourceView 'greeting'
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Successfully completed request
+
+/ 13	. 
+
+$ vi application.properties
+...
+management.endpoints.web.exposure.include=*
+management.endpoint.shutdown.enabled=true
+
+$ vi pom.xml
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+
+$ curl -X POST localhost:8080/actuator/shutdown
+
+/ 13	 .
+
+
+/ lees,	
+https://stackoverflow.com/questions/46848616/springboot-no-matching-bean-found-exception
+
+/ we kunnen ipv 
+
+$ vi application.properties
+
+spring.mvc.view.prefix: /WEB-INF/jsp/
+spring.mvc.view.suffix: .jsp
+
+/ dit doen,
+
+$ vi ServingWebContentApplication.java
+
+@SpringBootApplication
+public class ServingWebContentApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServingWebContentApplication.class, args);
+	}
+	
+	@Bean
+	public InternalResourceViewResolver viewResolver() {
+	    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+//	    viewResolver.setViewClass(JstlView.class);
+	    viewResolver.setPrefix("/WEB-INF/jsp/");
+	    viewResolver.setSuffix(".jsp");
+	    return viewResolver;
+	}
+}
+
+/ we hoeven inderdaad .setViewClass NIET te doen,
+/ lees comment op https://stackoverflow.com/questions/46848616/springboot-no-matching-bean-found-exception#comment80726556_46889018
+/ die ->
+https://github.com/spring-projects/spring-boot/blob/97c1365e248966e8e793091d59048573459d7600/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/servlet/WebMvcAutoConfiguration.java#L224-L230
+
+@Configuration
+@ConditionalOnWebApplication(type = Type.SERVLET)
+@ConditionalOnClass({ Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class })
+@ConditionalOnMissingBean(WebMvcConfigurationSupport.class)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)
+@AutoConfigureAfter({ DispatcherServletAutoConfiguration.class,
+		ValidationAutoConfiguration.class })
+public class WebMvcAutoConfiguration {
+		@Bean
+		@ConditionalOnMissingBean
+		public InternalResourceViewResolver defaultViewResolver() {
+			InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+			resolver.setPrefix(this.mvcProperties.getView().getPrefix());
+			resolver.setSuffix(this.mvcProperties.getView().getSuffix());
+			return resolver;
+		}
+		
+/ lees ook,
+https://stackoverflow.com/questions/36831477/how-to-configure-spring-boot-mvc-app-for-jsp
+
+/ we zien in de logging,
+
+2018-07-25 22:18:58.586 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing servlet 'dispatcherServlet'
+2018-07-25 22:18:58.586  INFO 2220 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring FrameworkServlet 'dispatcherServlet'
+2018-07-25 22:18:58.586  INFO 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization started
+2018-07-25 22:18:58.587 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Using MultipartResolver [org.springframework.web.multipart.support.StandardServletMultipartResolver@44e915c5]
+2018-07-25 22:18:58.591 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate LocaleResolver with name 'localeResolver': using default [org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver@3020864d]
+2018-07-25 22:18:58.595 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate ThemeResolver with name 'themeResolver': using default [org.springframework.web.servlet.theme.FixedThemeResolver@4432f239]
+2018-07-25 22:18:58.599 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate RequestToViewNameTranslator with name 'viewNameTranslator': using default [org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@354aadff]
+2018-07-25 22:18:58.607 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Unable to locate FlashMapManager with name 'flashMapManager': using default [org.springframework.web.servlet.support.SessionFlashMapManager@6acd1113]
+2018-07-25 22:18:58.607 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Published WebApplicationContext of servlet 'dispatcherServlet' as ServletContext attribute with name [org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcherServlet]
+2018-07-25 22:18:58.607  INFO 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : FrameworkServlet 'dispatcherServlet': initialization completed in 21 ms
+2018-07-25 22:18:58.607 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Servlet 'dispatcherServlet' configured successfully
+2018-07-25 22:18:58.637 DEBUG 2220 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-25 22:18:58.638 DEBUG 2220 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-25 22:18:58.641 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : DispatcherServlet with name 'dispatcherServlet' processing GET request for [/greeting]
+2018-07-25 22:18:58.645 DEBUG 2220 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-25 22:18:58.646 DEBUG 2220 --- [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-25 22:18:58.646 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Last-Modified value for [/greeting] is: -1
+2018-07-25 22:18:58.671 DEBUG 2220 --- [nio-8080-exec-1] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+2018-07-25 22:18:58.673 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Rendering view [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [/WEB-INF/jsp/greeting.jsp]] in DispatcherServlet with name 'dispatcherServlet'
+2018-07-25 22:18:58.674 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.view.JstlView            : Added model object 'name' of type [java.lang.String] to request in view with name 'greeting'
+2018-07-25 22:18:58.678 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.view.JstlView            : Forwarding to resource [/WEB-INF/jsp/greeting.jsp] in InternalResourceView 'greeting'
+2018-07-25 22:18:59.259 DEBUG 2220 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Successfully completed request
+
+
+/ 13	. 
+
+/ we zien ,
+
+2018-07-25 21:31:37.394 DEBUG 1956 --- [nio-8080-exec-2] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+
+/ we lezen in boek(137): BeanNameViewResolver zoekt naar een @Bean met ID "greeting" die een View is,
+/ TODO 
+
+/ lees,
+/ google: beannameviewresolver example in spring
+http://www.jcombat.com/spring/spring-mvc-beannameviewresolver-example
+https://javarevisited.blogspot.com/2017/08/what-does-internalresourceviewresolver-do-in-spring-mvc.html
+
+/ 13	. 
+
+/ lees over WEB-INF,
+https://stackoverflow.com/questions/19786142/what-is-web-inf-used-for-in-a-java-ee-web-application
+
+/ 13	 .
+
+/ src/main/webapp,
+
+/ lees,
+https://stackoverflow.com/questions/28725635/spring-boot-configure-it-to-find-the-webapp-folder
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-web-applications.html
+/ hier staat dat met jar deployment src/main/webapp niet werkt,	
+/ TODO
+
+/ lees,
+https://www.logicbig.com/tutorials/spring-framework/spring-boot/boot-exploded-war.html
+->
+https://www.logicbig.com/tutorials/spring-framework/spring-boot/boot-serve-dynamic.html
+->
+https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-developing-web-applications.html#boot-features-jsp-limitations
+->
+https://github.com/spring-projects/spring-boot/tree/v2.0.3.RELEASE/spring-boot-samples/spring-boot-sample-web-jsp
+
+/ we zagen dat in de jar er geen greeting.jsp is 	, 
+/ maar 
+
+/ 13	. 
+
+/ als je war deploys, dan zien we vrijwel alles in WEB-INF, als we jar deploy, zien we vrijwel alles in BOOT-INF	,
+
+
+/ lees,
+https://maven.apache.org/plugins/maven-war-plugin/examples/adding-filtering-webresources.html
+
+   
+$ jar tvf serving-web-content-jsp-0.0.1-SNAPSHOT.jar
+   584 Fri Jul 27 08:47:06 CEST 2018 META-INF/MANIFEST.MF
+  2688 Thu Jun 14 11:48:26 CEST 2018 org/springframework/boot/loader/data/RandomAccessDataFile$DataInputStream.class
+  ...
+   239 Fri Jul 27 08:47:04 CEST 2018 BOOT-INF/classes/application.properties
+   322 Fri Jul 27 08:47:04 CEST 2018 META-INF/resources/WEB-INF/jsp/greeting.jsp
+  1108 Fri Jul 27 08:47:04 CEST 2018 BOOT-INF/classes/my/own/guide/servingwebcontent/GreetingController.class
+   800 Fri Jul 27 08:47:04 CEST 2018 BOOT-INF/classes/my/own/guide/servingwebcontent/ServingWebContentApplication.class
+  1932 Fri Jul 27 08:46:52 CEST 2018 META-INF/maven/my.own.guide/serving-web-content-jsp/pom.xml
+   114 Fri Jul 27 08:47:04 CEST 2018 META-INF/maven/my.own.guide/serving-web-content-jsp/pom.properties
+   588 Thu Jun 14 12:00:42 CEST 2018 BOOT-INF/lib/spring-boot-starter-web-2.0.3.RELEASE.jar
+   ...
+   
+$ jar tvf serving-web-content-jsp-0.0.1-SNAPSHOT.war
+   582 Fri Jul 27 09:04:00 CEST 2018 META-INF/MANIFEST.MF
+  2688 Thu Jun 14 11:48:26 CEST 2018 org/springframework/boot/loader/data/RandomAccessDataFile$DataInputStream.class
+   239 Fri Jul 27 09:03:58 CEST 2018 WEB-INF/classes/application.properties
+ 66519 Tue Jun 12 11:55:18 CEST 2018 WEB-INF/lib/jackson-annotations-2.9.0.jar
+   322 Fri Jul 27 09:03:58 CEST 2018 WEB-INF/classes/META-INF/resources/WEB-INF/jsp/greeting.jsp		/ (*)
+   319 Thu Jul 26 17:18:02 CEST 2018 WEB-INF/jsp/greeting.jsp
+   800 Fri Jul 27 09:03:58 CEST 2018 WEB-INF/classes/my/own/guide/servingwebcontent/ServingWebContentApplication.class
+379277 Tue Jul 24 07:45:56 CEST 2018 WEB-INF/lib/spring-boot-actuator-autoconfigure-2.0.3.RELEASE.jar
+   114 Fri Jul 27 09:04:00 CEST 2018 META-INF/maven/my.own.guide/serving-web-content-jsp/pom.properties
+  1932 Fri Jul 27 09:03:48 CEST 2018 META-INF/maven/my.own.guide/serving-web-content-jsp/pom.xml
+646763 Fri Apr 27 21:24:52 CEST 2018 WEB-INF/lib-provided/tomcat-embed-jasper-8.5.31.jar
+2450404 Wed Mar 01 05:07:12 CET 2017 WEB-INF/lib-provided/ecj-3.12.3.jar
+
+/ (*) per ongeluk, maar we zien wel waar hij terecht komt,
+
+/ als we een WAR build, komt src/main/resources in WEB-INF/classes
+/ 						en komt src/main/webapp in WEB-INF/
+						de deps komen in WEB-INF/lib/	,
+/ als we een JAR build, komt src/main/resources in /
+
+
+
+   
+/ 13	. 
+
+/ verschil $ mvn spring-boot:run en java -jar
+/ google: mvn spring-boot:run META-INF/resources
+/ lees,
+https://stackoverflow.com/questions/47258695/mvn-spring-bootrun-vs-java-jar
+
+$ java -jar target/serving-web-content-jsp-0.0.1-SNAPSHOT.jar -cp $CLASSPATH:target/classes/
+/ OK
+$ curl localhost:8080/greeting?name=foo
+/ ERR,
+/ werkt NIET,
+
+/ 13	. 
+
+/ google: mvn spring-boot:run META-INF/resources
+/ lees,
+https://github.com/spring-projects/spring-boot/issues/8324
+Configure embedded containers to load static resources from fat jar's BOOT-INF/classes/META-INF/resources
+
+The change that has stopped this from working is intentional as it aligns Spring Boot more closely with the Servlet spec.
+
+The spec states that resources in META-INF/resources should be loaded from jars packaged in WEB-INF/lib but should not be loaded from META-INF/resources within the main archive. In 1.4.2 and earlier (and only with Tomcat (see #8299)) we loaded resources from META-INF/resources within the main archive (actually from BOOT-INF/classes/META-INF/resources). In 1.4.3 and later we now only load resources from META-INF/resources of a jar packaged in BOOT-INF/lib.
+
+The one significant difference between a jar and a war file is that a war project can use src/main/webapp to package resources in the root of the archive from where they will be accessible. This isn't an option with a jar. We can consider officially supporting BOOT-INF/classes/META-INF/resources as an extension to what the Servlet spec suggests, but I'm yet to convince myself that it's a good idea.
+
+In the meantime, you have two options here:
+
+Package your application as a war file and use src/main/webapp/ for your resources rather than src/main/resources/META-INF/resources/. You can still launch it using java -jar.
+Continue packaging your application as a jar file, but move your resources into a separate module and make your app depend on the module such that its jar is packaged in BOOT-INF/lib
+I'm going to close this in favour of #8299 which will make resource handling consistent across all three containers. We'll consider supporting BOOT-INF/classes/META-INF/resources as part of that.
+
+/ lees ook,
+https://github.com/spring-projects/spring-boot/issues/8299
+
+/ bij ons is META-INF/resources/WEB-INF/jsp/ in de root, niet in BOOT-INF/lib,
+
+/ probeer seperate module en in BOOT-INF/lib/,
+/ TODO
+
+/ 13	. 
+
+/ lees,
+http://www.baeldung.com/executable-jar-with-maven
+
+/ 13	. 
+
+/ Inderdaad	, 
+
+/ workspace-jbosstools-jee-oxygen-spring-boot
+/ proj. serving-web-content-jsp
+
+/ inderdaad, we hebben greeting.jsp 2 keer, in 
+src/main/resources/META-INF/resources/WEB-INF/jsp/ 			/ greeting.jsp heeft <p>JAR</p>
+src/main/webapp/WEB-INF/jsp/							/ greeting.jsp heeft <p>WAR</p>
+
+/ 1313	. 
+
+/ Als we in de pom <packaging>war</packaging>	, dan wordt er een WAR create, en kunnen we java -jar doen,
+
+$ java -jar target/serving-web-content-jsp-0.0.1-SNAPSHOT.war
+
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : DispatcherServlet with name 'dispatcherServlet' processing GET request for [/greeting]
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Looking up handler method for path /greeting
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Returning handler method [public java.lang.String my.own.guide.servingwebcontent.GreetingController.handle(java.lang.String,org.springframework.ui.Model)]
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Last-Modified value for [/greeting] is: -1
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.w.s.v.ContentNegotiatingViewResolver : Requested media types are [*/*] based on Accept header types and producible media types [*/*])
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.w.servlet.view.BeanNameViewResolver  : No matching bean found for view name 'greeting'
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.w.s.v.ContentNegotiatingViewResolver : Returning [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [WEB-INF/jsp/greeting.jsp]] based on requested media type '*/*'
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Rendering view [org.springframework.web.servlet.view.JstlView: name 'greeting'; URL [WEB-INF/jsp/greeting.jsp]] in DispatcherServlet with name 'dispatcherServlet'
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.web.servlet.view.JstlView            : Added model object 'name' of type [java.lang.String] to request in view with name 'greeting'
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.web.servlet.view.JstlView            : Forwarding to resource [WEB-INF/jsp/greeting.jsp] in InternalResourceView 'greeting'
+2018-07-27 17:24:13.936 DEBUG 13936 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Successfully completed request
+
+
+$ curl localhost:8080/greeting?name=foo
+...
+        foo
+        <p>WAR</p>
+
+/ 1313	. 
+
+/ Als we in de pom <packaging>jar</packaging>	, dan wordt er een JAR create, en kunnen we java -jar -cp target/classes doen,
+
+$ java -jar target/serving-web-content-jsp-0.0.1-SNAPSHOT.jar -cp $CLASSPATH:target/classes/
+/ TODO
+
+/ 13	 
+
+/ waarom WEB-INF?
+
+/ WEB-INF wordt niet gevonden met curl, of in de browser	,
+
+/ als we,
+$ java -jar target/serving-web-content-jsp-as-war-0.0.1-SNAPSHOT.war
+/ dan moeten we geven:
+$ curl localhost:8080/greeting?name=foo
+$ curl localhost:8080/WEB-INF/jsp/greeting.jsp?name=foo		/ werkt NIET,
+
+
+
+
+/ lees,
+https://stackoverflow.com/questions/19786142/what-is-web-inf-used-for-in-a-java-ee-web-application
+
+Spec:
+A special directory exists within the application hierarchy named  WEB-INF. This directory contains all things related to the application that aren’t in the document root of the application. The  WEB-INF node is not part of the public document tree of the application. No file contained in the WEB-INF directory may be served directly to a client by the container. However, the contents of the  WEB-INF directory are visible to servlet code using the getResource and getResourceAsStream method calls on the ServletContext, and may be exposed using the RequestDispatcher calls.
+
+This means that WEB-INF resources are accessible to the resource loader of your Web-Application and not directly visible for the public.
+
+This is why a lot of projects put their resources like JSP files, JARs/libraries and their own class files or property files or any other sensitive information in the WEB-INF folder. Otherwise they would be accessible by using a simple static URL (usefull to load CSS or Javascript for instance).
+
+Your JSP files can be anywhere though from a technical perspective. For instance in Spring you can configure them to be in WEB-INF explicitly:
+
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+    p:prefix="/WEB-INF/jsp/" 
+    p:suffix=".jsp" >
+</bean>
+The WEB-INF/classes and WEB-INF/lib folders mentioned in Wikipedia's WAR files article are examples of folders required by the Servlet specification at runtime.
+
+It is important to make the difference between the structure of a project and the structure of the resulting WAR file.
+
+The structure of the project will in some cases partially reflect the structure of the WAR file (for static resources such as JSP files or HTML and JavaScript files, but this is not always the case.
+
+The transition from the project structure into the resulting WAR file is done by a build process.
+
+While you are usually free to design your own build process, nowadays most people will use a standardized approach such as Apache Maven. Among other things Maven defines defaults for which resources in the project structure map to what resources in the resulting artifact (the resulting artifact is the WAR file in this case). In some cases the mapping consists of a plain copy process in other cases the mapping process includes a transformation, such as filtering or compiling and others.
+
+One example: The WEB-INF/classes folder will later contain all compiled java classes and resources (src/main/java and src/main/resources) that need to be loaded by the Classloader to start the application.
+
+Another example: The WEB-INF/lib folder will later contain all jar files needed by the application. In a maven project the dependencies are managed for you and maven automatically copies the needed jar files to the WEB-INF/lib folder for you. That explains why you don't have a lib folder in a maven project.
+
+/ 13	 
+
+/ we kunnen bij thymeleaf en bij war index.html in src/main/resoures/static set,
+
+/ bij thymeleaf,
+$ vi src/main/resources/static/index.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Serving web content</title>
+</head>
+<body>
+	<p>Get your greeting <a href="/greeting">here</a></p>
+</body>
+</html>
+
+/ we hebben greeting.jsp iets aangepast bij war,
+
+/ in thymeleaf,
+$ vi src/main/resources/templates/greeting.html
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Getting started: serving web content</title>
+</head>
+<body>
+	<p th:text="'Hello '+${name}+'!'"/>
+</body>
+</html>
+
+/ in war,
+$ vi src/main/webapps/WEB-INF/jsp/greeting.jsp
+
+/ 13	. 
+
+/ in war,
+/ we set greeting.jsp in src/main/webapp,
+/ en,
+$ vi src/main/resources/application.properties
+spring.mvc.view.prefix:/
+spring.mvc.view.suffix:.jsp
+
+/ we kunnen geven met curl,
+$ curl localhost:8080/greeting?name=foo
+/ OK,
+$ curl localhost:8080/greeting.jsp?name=foo			/ !
+/ OK,
+
+/ 1313	. 
+
+/ maar nu set we hem in WEB-INF/ 	, (is net als in WEB-INF/jsp/ , eig. geen verschil)	,
+/ en,
+$ vi src/main/resources/application.properties
+spring.mvc.view.prefix:/
+spring.mvc.view.suffix:.jsp
+
+/ we kunnen geven met curl,
+$ curl localhost:8080/greeting?name=foo
+/ OK,
+$ curl localhost:8080/WEB-INF/greeting.jsp?name=foo	
+/ ERR,
+
+/ 13	 ,
+
+/ spring-boot-devtools werkt alleen onder $ mvn spring-boot:run, NIET met $ java -jar,
+
+
+/ lees,
+http://www.baeldung.com/spring-boot-devtools
+
+/ lees,
+https://stackoverflow.com/questions/49386434/live-reload-not-working-in-spring-boot-devtools
+
+
+1
+down vote
+accepted
+Running the application from the IDE is not a constraint to make Developer tools working. Your problem is somewhere else.
+
+These commands :
+
+mvn clean package; 
+java -jar target\project-name-version.jar
+mean that you don't use the spring-boot maven plugin to run your application.
+You run the autobootable jar of your fully packaged application. Consequently, Spring Boot devtools are disabled as stated by the documentation :
+
+Developer tools are automatically disabled when running a fully packaged application. If your application is launched from java -jar or if it is started from a special classloader, then it is considered a “production application”. Flagging the dependency as optional is a best practice that prevents devtools from being transitively applied to other modules that use your project. Gradle does not support optional dependencies out-of-the-box, so you may want to have a look at the propdeps-plugin.
+
+To run the application from command line in exploded/dev mode, mvn clean package is not required and helpless.
+Just execute mvn spring-boot:run
+
+
+/ 13	 .
+/ lees,
+http://www.baeldung.com/spring-boot-war-tomcat-deploy
+
+@RestController
+public class TomcatController {
+ 
+    @GetMapping("/hello")
+    public Collection<String> sayHello() {
+        return IntStream.range(0, 10)
+          .mapToObj(i -> "Hello number " + i)
+          .collect(Collectors.toList());
+    }
+}
+
+/ 13	 .
+
+/ spring-boot-devtools werkt alleen met $ mvn spring-boot:run, NIET met java -jar,
+
+
+/ Einde SERVING WEB CONTENT GUIDE
+
+/ SPRING BOOT AND REACT
+
+/ lees,
+https://www.javacodegeeks.com/2018/07/react-spring-boot-build-crud-app.html
+
+
+/ Einde SPRING BOOT AND REACT
+
+/ SPRING BOOT VIDEO
+
+https://www.youtube.com/watch?v=jDchAEHIht0
+
+/ ze hebben het over spring boot test slicing	,
+https://spring.io/blog/2016/08/30/custom-test-slice-with-spring-boot-1-4
+https://www.baeldung.com/spring-tests
+->
+https://github.com/spring-projects/spring-boot/tree/master/spring-boot-project/spring-boot-test-autoconfigure/src/main/java/org/springframework/boot/test/autoconfigure
+/ in,
+https://github.com/spring-projects/spring-boot
+/ ihb,
+https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-test-autoconfigure/src/main/java/org/springframework/boot/test/autoconfigure/web/servlet/WebMvcTest.java
+
+https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples/spring-boot-sample-test/src/main/java/sample/test/web
+https://github.com/spring-projects/spring-boot/blob/master/spring-boot-samples/spring-boot-sample-test/src/test/java/sample/test/web/UserVehicleControllerTests.java
+
+https://docs.spring.io/spring/docs/5.1.2.RELEASE/spring-framework-reference/testing.html
+
+C:\Users\ervelden\java>git clone https://github.com/spring-projects/spring-boot.git
+/ er ging iets mis,
+/ TODO
+
+/ lees,
+https://stackoverflow.com/questions/47446529/what-is-the-difference-between-springjunit4classrunner-and-springrunner
+/ SpringRunner en SpringJUnit4ClassRunner zijn hetzelfde	,
+
+$ vi UserVehicleControllerTests.java
+
+package sample.test.web;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import sample.test.WelcomeCommandLineRunner;
+import sample.test.domain.VehicleIdentificationNumber;
+import sample.test.service.VehicleDetails;
+import sample.test.service.VehicleIdentificationNumberNotFoundException;
+
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@RunWith(SpringRunner.class)
+@WebMvcTest(UserVehicleController.class)
+public class UserVehicleControllerTests {
+
+	@Autowired
+	private MockMvc mvc;
+
+	@Autowired
+	private ApplicationContext applicationContext;
+
+	@MockBean
+	private UserVehicleService userVehicleService;
+
+	@Test
+	public void getVehicleWhenRequestingTextShouldReturnMakeAndModel() throws Exception {
+		given(this.userVehicleService.getVehicleDetails("sboot"))
+				.willReturn(new VehicleDetails("Honda", "Civic"));
+		this.mvc.perform(get("/sboot/vehicle").accept(MediaType.TEXT_PLAIN))
+				.andExpect(status().isOk()).andExpect(content().string("Honda Civic"));
+	}
+
+/ Dus BDDMockito	,
+
+/ 13	 .
+
+/ google,
+spring boot test slicing
+/ lees,
+https://dzone.com/articles/spring-boot-web-slice-test
+https://spring.io/blog/2016/08/30/custom-test-slice-with-spring-boot-1-4
+
+/ test slicing uses @ComponentScan door maar een gedeelte van de @Component beans te scan	, narrow	,
+
+/ google,
+spring boot componentscan enableautoconfiguration
+/ lees,
+https://stackoverflow.com/questions/35005158/what-is-the-difference-between-componentscan-and-enableautoconfiguration-in-sp
+https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-using-springbootapplication-annotation.html
+
+/ (13:50) boot kijkt eerst in user configuration, als daar al een ds is create, hoeft autoconf dat niet meer te doen,
+/ vandaar 2 delen	,
+
+/ (19:20) library? 
+/ TODO
+
+/ we moeten maken in src/main/resources/META-INF/spring.factories
+
+/ lees,
+https://www.ibm.com/developerworks/library/j-spring-boot-basics-perry/index.html
+Spring Boot has opinions. This is just another way of saying that Spring Boot has reasonable defaults, so you can build an application quickly using these commonly used values.
+
+/ lees,
+https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html
+Spring Boot auto-configuration attempts to automatically configure your Spring application based on the jar dependencies that you have added. For example, if HSQLDB is on your classpath, and you have not manually configured any database connection beans, then Spring Boot auto-configures an in-memory database.
+
+Auto-configuration is non-invasive. At any point, you can start to define your own configuration to replace specific parts of the auto-configuration. For example, if you add your own DataSource bean, the default embedded database support backs away.
+
+/ (18:27)
+/ hello_starter references hello_server, hello_app uses hello_starter,
+/ WH wordt hello_server in de auto configuration van hello_starter opgenomen	,
+
+/ (23:50) a auto configuration class should not be scanned, but provided in a META-INF/spring.factories file,
+
+/ omstreeks (25:00) we zien Hello ..., dus TODO
+/ (27:21) condition zodat de auto config bean alleen als de user config bean er niet is,
+/ (29:01) we zien Howdy World! , de user config bean,
+
+/ 7	.  
+
+/ proj ...
+
+/ 13	. 
+
+/ (4:37) 
+/ In module hello-app,		/ in pom dep on hello-service,
+
+$ vi HelloApp.java
+@SpringBootApplication
+public class HelloApp{		/ config class, dus hier create je de beans,		/ dit is user config!
+/main, 						/ callbacks CommandLineRunner.run
+@Bean
+public HelloService helloService(){
+	return new ConsoleHelloService("Howdy","!");
+}
+
+$ vi HelloCommandLineRunner.java
+@Component
+public class HelloCommandLineRunner implements CommandLineRunner{
+	/ ctor injects HelloService,
+	run() 
+		this.helloService.sayHello();
+
+
+/ 13	. 
+
+/ In module hello-service,
+	
+$ vi HelloService.java	/ interface,
+$ vi ConsoleHelloService.java	/ impl, met prefix en suffix,
+
+/ 13	. 
+
+@SpringBootApplication
+/=
+@SpringBootConfiguration	/ ~ @Configuration van Spring,
+@ComponentScan			/ user configuration,
+@EnableAutoConfiguration	/ auto configuration
+
+/ (11.33) 
+/ Ze vervangen 
+@SpringBootApplication
+/ door
+@Configuration
+@ComponentScan
+/ OK, alleen geen auto config,
+/ dus een spring boot app is 
+* een config class,
+* je kunt scan in de package en sub packages
+* auto config framework: a h2.jar in de classpath -> een h2 mem ds,
+
+/ als de user config een bean creates, hoeft de auto config dat niet meer te doen,
+/ dus als de user config een h2 ds creates, dan zal de auto config NIET de mem ds create,
+/ de auto config creates een mem h2 ds, als de user config een niet mem h2 ds config, dan zal WH de mem h2 ds van auto config niet create, ook al is dat een mem ds,
+/ TODO
+
+/ 13	. 
+
+/ module hello-starter,
+/ net als spring-boot-starter	,
+/ in de pom is hello-service / dit noemen ze de library TODO
+/ er is de auto config HelloAutoConfiguration	, 
+
+@Configuration
+public class HelloAutoConfiguration{
+	@Bean
+	public HelloService helloService(){
+		return new ConsoleHelloService();		/ geen args, dat is in de auto config, dus je ziet "Hello World", 
+	}
+}
+
+/ vergl deze met die in HelloApp, die ook een config class is,
+/ in hello-app/pom is ook dep hello-service,
+/ dit is een configuration class, die NIET moet worden gescanned	!!! daarom maken we spring.factories, die wordt gevonden door spring boot,
+/ (19:19) test in hello-starter, die de auto config test, de ConsoleHelloService in de auto config class,	
+/ maak src/main/resources/META-INF/spring.factories
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=hello.autoconfigure.HelloAutoConfiguration
+/ OK,
+/ (22:46) we hebben nu alleen nog een test gedaan in hello-starter, die test of de auto config werkt,
+
+/ 13	. 
+
+/ in hello-app module's pom, we vervangen hello-service door hello-starter,
+/ run app, we zien "Hello World", en niet "Howdy Hello!" uit de HelloApp met user config, dus we zien de HelloService uit hello-starter, met auto config,
+/ we zijn in hello-starter module,
+/ moeten we fix:
+/ (25:07) we gaan verder in de test, van (19:19), waar we de auto config hadden set, 
+/ we maken in de test een @Configuration, een user config	, met daarin een @Bean,  new ConsoleHelloService("Mine","**"), 
+/ en een test, die test of er "Hello Mine**" komt, dus de user config , de test die er al was testte de auto config,
+/ je moet dan this.contextRunner.withUserConfiguration(UserConfiguration.class)
+/ (29:04) met @ConditionalOn...s op de auto config class & mth we zien Howdy Hello!, dus de user config is weer first,
+/ ze hebben een test create met de user config!, op (25:34), new ConsoleHelloService("Mine","**")
+/ er zijn nu de 2 ConsoleHelloService @Beans	, ERR dus, 1 in de test created (user config) en 1 in de HelloAutoConfiguration.java, maar deze maken we @Conditional, de config class en de @Bean ConsoleHelloService,
+/ de nieuwe test in hello-starter, met de user config, geeft "Mine Works**	", 
+/ (29:04) run hello-app, HelloApp, we zien "Howdy Hello!"	, de user config,
+
+/ 13	. 
+
+/ (29:09) we gebruiken de auto config @Bean nog niet in de app, dus we gaan eerst de HelloService @Bean uit de HelloApp config class rm,
+/ het is zo dat de user config @Bean ConsoleHelloService dezelfde is als de auto config @Bean ConsoleHelloService, dus het is OK om de user config @Bean te rm, maar er is tot nu toe een verschil: de user config @Bean had een prefix en postfix, en de auto config @Bean niet,
+/ hoe kunnen we de prefix terugkrijgen, kunnen we de auto config @Bean tweak? Ja, met properties
+/ (29:26) hij verwijdert de HelloService @Bean uit de config class HelloApp in de hello-app module, en we zien weer "Hello World" van de auto config, omdat hello-app hello-starter als dep heeft, en dus op zijn classpath, en die heeft hello-service als dep, en dus op classpath, 
+/ maar is dan ook ConsoleHelloWorld uit hello-starter op classpath?
+/ TODO
+/ en zijn dus ConsoleHelloWorld en HelloService op classpath?, waarbij ConsoleHelloWorld uit hello-starter, en HelloService uit hello-service?
+/ TODO
+
+/ (31:31) auto config report,
+/ ze hebben in intellij "Spring boot settings", enable debug output: check, 
+/ maar je kunt ook: VM options: -Ddebug, of Program arguments: --debug
+
+/ (33:17)
+/ in de 1ste test, 
+this.contextRunner.withPropertyValues("hello.prefix=Test")....
+/ we maken in hello-starter, naast de HelloAutoConfiguration config class met de auto config @Bean, een class HelloProperties,
+@ConfigurationProperties("hello")
+public class HelloProperties{
+	private String prefix="Hello";
+	String postfix="!";
+}
+/ dan op de config class,
+@Configuration
+@ConditionalOnClass(HelloService.class)	/ HelloService noemen ze een library, only trigger when the library is actually there, on the classpath,
+@EnableConfigurationProperties(HelloProperties.class){
+	@Bean
+	@ConditionalOnMissingBean			/ alleen als de user NIET een opinion heeft gegeven	, provides an opinion,
+	public HelloService _(HelloProperties p){
+		return new ConsoleHelloService(p.getPrefix(),p.getSuffix());
+		
+/ dan in hello-app, in src/main/resources/application.properties
+hello.prefix=Howdy
+/ we zien Howdy World!
+/ dus de auto config bean is tweaked, en is net als de user config bean die we hadden,
+
+/ zoals: als h2.jar op classpath, dan is er een mem h2 ds,
+/ we hebben hello-starter.jar op classpath van hello-app, en we hebben een HelloService
+/ TODO 
+
+/ 13	 
+
+(37:49) in application.properties krijgen we geen code completion	, 
+/ we add dep org.springframework.boot:spring-boot-configuration-processor
+
+/ 13	. 
+
+/ MORGEN (44:41)	,
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ Einde SPRING BOOT VIDEO
+
+/ JOSH LONG VIDEO
+
+/ google,
+spring difference repository vs template
+/ lees,
+https://stackoverflow.com/questions/17008947/whats-the-difference-between-spring-datas-mongotemplate-and-mongorepository
+
+"Convenient" and "powerful to use" are contradicting goals to some degree. Repositories are by far more convenient that the templates but the latter of course give you more fine-grained control over what to execute.
+
+
+
+
+/ Einde JOSH LONG VIDEO
+
+/ SPRING BEAN
+
+/ lees,
+https://spring.io/guides/gs/consuming-rest/
+
+/ Einde SPRING BEAN
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,100 @@
+   public void enlist() throws SystemException
+   {
+      // This method is a bit convulted, but it has to be such because
+      // there is a race condition in the transaction manager where it
+      // unlocks during the enlist of the XAResource. It does this
+      // to avoid distributed deadlocks and to ensure the transaction
+      // timeout can fail a badly behaving resource during the enlist.
+      //
+      // When two threads in the same transaction are trying to enlist
+      // connections they could be from the same resource manager
+      // or even the same connection when tracking the connection by transaction.
+      //
+      // For the same connection, we only want to do the real enlist once.
+      // For two connections from the same resource manager we don't
+      // want the join before the initial start request.
+      //
+      // The solution is to build up a list of unenlisted resources
+      // in the TransactionSynchronizer and then choose one of the
+      // threads that is contending in the transaction to enlist them
+      // in order. The actual order doesn't really matter as it is the
+      // transaction manager that calculates the enlist flags and determines
+      // whether the XAResource was already enlisted.
+      //
+      // Once there are no unenlisted resources the threads are released
+      // to return the result of the enlistments.
+      //
+      // In practice, a thread just takes a snapshot to try to avoid one
+      // thread having to do all the work. If it did not do them all
+      // the next waiting thread will do the next snapshot until there
+      // there is either no snapshot or no waiting threads.
+      //
+      // A downside to this design is a thread could have its resource enlisted by
+      // an earlier thread while it enlists some later thread's resource.
+      // Since they are all a part of the same transaction, this is probably
+      // not a real issue.
+
+      // If we are already enlisted there is no reason to check again, as this method
+      // could be called multiple times during a transaction lifecycle.
+      // We know that we can only be inside this method if we are allowed to
+
+	  
+/ Herinner,
+			/*
+			 * For each transaction we maintain a list of resources registered
+			 * with it. Each element on this list also contains a list of
+			 * threads which have registered this resource, and what their XID
+			 * was for that registration.
+			 */
+			 
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 607
+
+< formatId=131077, gtrid_length=29, bqual_length=36, tx_uid=0:ffff0a26785d:22d14db8:5ae6b6ab:5a, node_name=1, branch_uid=0:ffff0a26785d:22d14db8:5ae6b6ab:69, subordinatenodename=null, eis_name=java:jboss/datasources/PostgreSQLDS >	
+
+                        // Pay attention now, this bit is hairy. We need to add a new AbstractRecord (XAResourceRecord)
+                        // to the BasicAction, which will thereafter drive its completion. However, the transaction
+                        // core is not directly XA aware, so it's our job to start the XAResource. Problem is, if
+                        // adding the record fails, BasicAction will never end the resource via the XAResourceRecord,
+                        // so we must do so directly.  start may fail due to dupl xid or other reason, and transactions
+                        // may rollback async, for which reasons we can't call add before start.
+                        // The xid will change on each pass of the loop, so we need to create a new record on each pass.
+                        // The add will fail in the case of multiple last resources being disallowed
+                        // see JBTM-362 and JBTM-363
+						
+    /**
+     * Preconditions:
+     * 1. flags must be one of TMNOFLAGS, TMRESUME or TMJOIN
+     * 2. xid != null
+     * 3. connection must not be associated with a transaction
+     * 4. the TM hasn't seen the xid before
+     *
+     * Implementation deficiency preconditions:
+     * 1. TMRESUME not supported.
+     * 2. if flags is TMJOIN, we must be in ended state,
+     *    and xid must be the current transaction
+     * 3. unless flags is TMJOIN, previous transaction using the 
+     *    connection must be committed or prepared or rolled back
+     * 
+     * Postconditions:
+     * 1. Connection is associated with the transaction
+     */
+PGXAConnection.class
+    public void start(Xid xid, int flags) throws XAException {
+        if (logger.logDebug())
+            debug("starting transaction xid = " + xid);
+
+        ...
+        if (state == STATE_ACTIVE)
+            throw new PGXAException(GT.tr("Connection is busy with another transaction"), XAException.XAER_PROTO);
+        // Preconditions are met, Associate connection with the transaction
+        state = STATE_ACTIVE;
+        currentXid = xid; / global & branch	,
+
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 664	
+                            xaRes.start(xid, xaStartNormal);
+                            if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {
+                                _resources.put(xaRes, new TxInfo(xid));  / in TxInfo zit de thread die de enlist doet	,
+								
+					
+		
+

@@ -1,0 +1,168 @@
+/ 7	. 
+
+https://github.com/oreillymedia/restful_java_jax-rs_2_0
+
+/ we hebben de zip file download, 
+/ we moesten 2 keer unzip (op de command line)	,
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/restful_java_jax-rs_2_0-master/resteasy-jaxrs-3.0.5.Final
+$ less examples/oreilly-workbook-as7/ex11_1/src/main/java/com/restfully/shop/services/CustomerResourceBean.java
+
+
+/ 7	. 
+
+/ ga local in browser naar:
+file://c/Users
+
+file:///C:/Users/ervelden/java/restful_java_jax-rs_2_0-master/resteasy-jaxrs-3.0.5.Final/docs/userguide/html/index.html
+
+file:///C:/Users/ervelden/java/restful_java_jax-rs_2_0-master/resteasy-jaxrs-3.0.5.Final/examples/
+
+
+/ SOAP UI
+
+/ 7	. 
+
+/ lees,
+https://www.soapui.org/getting-started/rest-testing.html
+
+/ een resource kan ook een file zijn, een json file, 
+New Rest project, URI: http://petstore.swagger.io/v2/swagger.json	
+/ dit is de uri van de resource,
+/ we zien	,
+Method			Endpoint						Resource
+GET				http://petstore.swagger.io		/v2/swagger.json
+
+/ als we de GET op deze resource exec, krijgen we de resource, een json file,
+
+/ 13	.
+
+/ right click Request1, Add to TestCase
+Missing TestSuite in project, enter name to create: TestSuite 1		/ er was nog geen testsuite	,
+/ ok
+Specify name of testcase: TestCase 1
+/ ok
+Add request to testcase: Swagger.json 1 - Request 1
+/ ok
+
+/ dus we hebben testsuite, testcase, test step=request,
+
+/ In deze request zien we 
+endpoint: http://petstore.swagger.io
+resource/method: GET swagger.json -> swagger.json [/v2/swagger.json]
+/ klik >
+
+/ klik Assertions, +	,
+/ klik Property Content, Contains,  Add
+Petstore
+/ we zien meteen of de assertion valid is of niet,	
+
+/ de -> is een service, een rest service,
+	 <-
+
+/ dubbel klik, we zien we wadl,
+
+<application xmlns="http://wadl.dev.java.net/2009/02">
+   <doc xml:lang="en" title="http://petstore.swagger.io"/>
+   <resources base="http://petstore.swagger.io">
+      <resource path="v2/swagger.json" id="Swagger.json">
+         <doc xml:lang="en" title="Swagger.json"/>
+         <method name="GET" id="Swagger.json 1">
+            <doc xml:lang="en" title="Swagger.json 1"/>
+            <request/>
+            <response status="200">
+               <representation mediaType="application/json" element="swag:Response" xmlns:swag="http://petstore.swagger.io/v2/swagger.json"/>
+            </response>
+         </method>
+      </resource>
+   </resources>
+</application>
+
+
+
+
+/ 7	. 
+
+/ we gaan nu alle pagina's lezen van Documentation, REST,
+https://www.soapui.org/rest-testing
+
+/ 7	. 
+
+/ lees,
+https://www.soapui.org/rest-testing/getting-started.html
+->
+http://petstore.swagger.io/
+
+/ new rest project, 
+https://petstore.swagger.io/v2/pet/findByStatus?status=available
+
+/ status=available moet bij deze resource, anders Empty JSON content,
+
+/ zonet	,
+/ new rest project, 
+http://petstore.swagger.io/v2/swagger.json
+
+/ we zien nu, in de service,
+
+<application xmlns="http://wadl.dev.java.net/2009/02">
+   <doc xml:lang="en" title="https://petstore.swagger.io"/>
+   <resources base="https://petstore.swagger.io">
+      <resource path="v2/pet/findByStatus" id="FindByStatus">
+         <doc xml:lang="en" title="FindByStatus"/>
+         <param name="status" default="available" type="xs:string" required="false" style="query" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+         <method name="GET" id="FindByStatus 1">
+            <doc xml:lang="en" title="FindByStatus 1"/>
+            <request/>
+         </method>
+      </resource>
+   </resources>
+</application>
+
+/ de resource is nu v2/pet/findByStatus,
+/ klik op > bij de Request 1	, (verander https in http, 
+
+/ links van Method, klik op V, Create new testsuite,
+SoapUI creates a test case with a corresponding REST Request test step,
+
+/ klik >
+/ OK,
+/ klik assertions,
+property content, jsonpath  count,  
+JSON path expression: [*]
+Select from current, we zien 157
+Save
+/ run nog een keer deze request, de assertion fails, moet 158 zijn, we passen aan	,
+/ run nog een keer, OK,
+
+/ 13	. 
+
+https://petstore.swagger.io/v2/pet
+
+/ wat kunnen we doen: een post of get, ...?
+/ TODO
+/ Hoe moet een request er uit zien?
+/ TODO
+
+/ 7	. 
+
+https://www.soapui.org/rest-testing/understanding-rest-parameters.html
+
+/ we pakken het oorspronkelijke project erbij,
+https://petstore.swagger.io/v2/pet/findByStatus?status=available
+
+/ klik Request 1	, 
+/ we zien onder de method, endpoint inderdaad:
+					style	level
+status 	available	QUERY	RESOURCE 
+
+/ als je er 1 toevoegt: ?status=available&offset=0
+
+
+
+
+
+
+
+
+
+

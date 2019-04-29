@@ -1,0 +1,182 @@
+https://www.youtube.com/watch?v=LYKMaj4XKvg / Antonio Goncalves
+https://www.youtube.com/watch?v=S1z50UbEdZw&t=46s / ~30 min docker
+
+https://www.youtube.com/watch?v=aSATsLG59Zs / Arun Gupta
+
+
+http://www.mastertheboss.com/articles/news/jakarta-ee-vs-java-ee-vs-ee4j
+https://javaee-guardians.io/2018/02/23/ee4j-an-opportunity-for-reconciliation-in-the-java-ecosystem/
+https://eclipse-foundation.blog/2018/02/26/and-the-name-is/
+
+https://martinfowler.com/articles/richardsonMaturityModel.html / hateos
+
+https://www.soapui.org/soap-and-wsdl/testing-asynchronous-services.html
+http://mnhmilu.com/2018/05/23/how-to-mock-a-async-soap-web-service-with-callback-in-soapui/
+
+/ OPEN 2018-11-11
+
+https://www.youtube.com/watch?v=f3acAsSZPhU&t=2672s	/ Reactive Programming in Java by Venkat Subramaniam
+
+https://www.youtube.com/watch?v=5q8B6lYhFvE					/ Cloud Native Java - Josh Long
+https://www.youtube.com/watch?v=LFp9wqBone0&t=1194s 		/ Reactive Spring by Josh Long
+https://www.youtube.com/watch?v=sbPSjI4tt10&t=1587s			/ Getting Started with Spring Boot
+https://www.youtube.com/watch?v=S1z50UbEdZw&t=1900s			/ When Java EE Micro Profile meets Angular by Antonio Goncalves
+https://www.youtube.com/watch?v=aA4tfBGY6jY&t=32s			/ From Zero to Hero with Spring Boot - Brian Clozel
+https://www.youtube.com/watch?v=jDchAEHIht0					/ It's a Kind of Magic: Under the Covers of Spring Boot - Brian Clozel, Stéphane Nicoll 
+
+https://www.youtube.com/watch?v=5q_4SvLAkyI&feature=push-u-sub&attr_tag=W_04I_5_nlrpcB57%3A6			
+	/ How PostgreSQL Extension APIs are Changing the Face of Relational Databases
+https://www.youtube.com/watch?v=EA-W6XitbZo&feature=push-u-sub&attr_tag=xwSIZry7-7cppDsI%3A6
+	/ Crashing Postgres for Fun and Laughs
+https://www.youtube.com/watch?v=VyQTVLJgJ60&feature=push-u-sub&attr_tag=nD0qEPZli9ZixBoS%3A6
+	/ ANSI, Schmansi!
+https://www.youtube.com/watch?v=4klaPUjbMZo
+	/ The Future of PostgreSQL Multi-Master Replication
+https://www.youtube.com/watch?v=ldOPon17uYE 	/ [Lab 36] PostgreSQL Tutorial - Master Slave Replication 		/ !
+https://www.youtube.com/watch?v=NaPnYQBBdyU		/ PostgreSQL Streaming Replication
+
+	
+https://www.youtube.com/watch?v=7YcW25PHnAA&t=239s			/ REST API concepts and examples
+
+https://www.youtube.com/watch?v=uHe7R_iZSLU	/ Jenkins X: Easy CI/CD for Kubernetes - James Strachan, CloudBees 
+
+https://www.youtube.com/watch?v=7MB6T9ewidI&t=646s	/ SVN Subversive Demo: Resolving conflicting changes
+
+
+https://www.javacodegeeks.com/2018/11/spring-microservices-docker-kubernetes.html
+https://examples.javacodegeeks.com/desktop-java/ide/eclipse/eclipse-wildfly-jboss-tools-example/
+https://www.javacodegeeks.com/2018/11/eclipse-rap-spring-boot.html
+
+http://static.javadoc.io/org.mockito/mockito-core/2.23.4/org/mockito/BDDMockito.html
+
+/ Einde OPEN 2018-11-11
+
+/ NOTIFICATIONS
+
+https://www.javacodegeeks.com/
+https://www.javacodegeeks.com/2018/11/volumes-database-containers-running-k8s.html
+https://www.javacodegeeks.com/2018/11/spring-microservices-docker-kubernetes-2.html
+https://github.com/spring-projects/spring-boot/blob/master/spring-boot-samples/spring-boot-sample-test/src/test/java/sample/test/web/UserVehicleControllerTests.java
+https://spring.io/blog/2016/08/30/custom-test-slice-with-spring-boot-1-4
+https://www.javacodegeeks.com/2018/11/incomprehensible-situation-scripting.html
+https://www.javacodegeeks.com/2018/12/functional-java-functions-parameters.html
+
+
+/ Einde NOTIFICATIONS
+
+/ DATASOURCES IN WILDFLY
+
+/ google
+
+/ 13	. 
+
+/ lees,
+http://www.mastertheboss.com/jboss-server/jboss-datasource/creating-a-datasource-batch-script
+
+module add --name=com.mysql --resources=/home/jboss/Downloads/mysql-connector-java-5.1.24-bin.jar --dependencies=javax.api,javax.transaction.api
+  
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql)
+ 
+data-source add --jndi-name=java:/jboss/MySQLDS --name=MySQLPool --connection-url=jdbc:mysql://localhost:3306/as7development --driver-name=mysql --user-name=jboss --password=jboss
+
+/ lees, 
+https://jdbc.postgresql.org/documentation/80/connect.html
+http://www.h2database.com/html/tutorial.html#connecting_using_jdbc
+/ hier is as7development de database (naam)	,
+
+/ dus jdbc-driver is de driver, en de datasource geeft via connection-url de server & database waar hij naar connect, 
+
+/ In mijn standalone.xml of jboss-cli zien we dat we bij h2 een url geven om de database en bij postgres een property	,
+
+        "xa-data-source" => {
+            "RemoteExampleDS" => {
+                "user-name" => "sa",
+                "xa-datasource-properties" => {"URL" => {"value" => "jdbc:h2:tcp://localhost/~/h2/test"}}
+				
+            "PostgreSQLDS" => {
+                "xa-datasource-properties" => {
+                    "ServerName" => {"value" => "localhost"},
+                    "DatabaseName" => {"value" => "test"},
+                    "User" => {"value" => "eric"},
+                    "Password" => {"value" => "vi_lang17"}
+                }
+
+
+ 
+
+
+/ Einde DATASOURCES IN WILDFLY
+
+/ BEANS
+
+/ google,
+beans.xml implicit
+/ lees,
+https://docs.oracle.com/javaee/7/tutorial/cdi-adv001.htm
+
+When you deploy a Java EE application, CDI looks for beans inside bean archives. A bean archive is any module that contains beans that the CDI runtime can manage and inject. There are two kinds of bean archives: explicit bean archives and implicit bean archives.
+
+An explicit bean archive is an archive that contains a beans.xml deployment descriptor, which can be an empty file, contain no version number, or contain the version number 1.1 with the bean-discovery-mode attribute set to all. For example:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+                           http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
+       version="1.1" bean-discovery-mode="all">
+    ...
+</beans>
+CDI can manage and inject any bean in an explicit archive, except those annotated with @Vetoed.
+
+An implicit bean archive is an archive that contains some beans annotated with a scope type, contains no beans.xml deployment descriptor, or contains a beans.xml deployment descriptor with the bean-discovery-mode attribute set to annotated.
+
+In an implicit archive, CDI can only manage and inject beans annotated with a scope type.
+
+For a web application, the beans.xml deployment descriptor, if present, must be in the WEB-INF directory. For EJB modules or JAR files, the beans.xml deployment descriptor, if present, must be in the META-INF directory.
+
+/ 7	. 
+
+https://stackoverflow.com/questions/18310388/meaning-of-bean-discovery-mode-annotated-in-cdi-1-1
+
+33
+
+As a practical matter, bean-discovery-mode="ALL" turns on scanning of all classes in an archive. This is called an "explicit archive".
+
+Omitting beans.xml, or setting bean-discovery-mode="ANNOTATED", makes the archive an implicit archive. In this case, the container will scan for beans with annotated scope types.
+
+This explains why LoggingClass isn't injected when you set bean-discovery-mode="ANNOTATED". As documented in the Java EE 7 Tutorial:
+
+CDI can only manage and inject beans annotated with a scope type in an implicit archive.
+
+Edit: so just to be absolutely clear, you need to add a scope type to LoggingClass. So something like this:
+
+@SessionScoped
+public class LoggingClass {
+    public Logger logger = Logger.getLogger("ALOGGER");
+}
+In Java EE 7 and CDI 1.1, we removed the requirement to include the beans.xml deployment descriptor to turn on CDI for an archive, bringing CDI 1.1 in line with most other Java EE APIs where deployment descriptors are optional. It also removed the binary on/off nature of including beans.xml or not. You can control which files are scanned by the container with the settings in bean-discovery-mode.
+
+See the JavaEE tutorial on packaging CDI applications here: http://docs.oracle.com/javaee/7/tutorial/cdi-adv001.htm
+
+/ dit is de page hierboven	,
+
+/ 7	. 
+
+/ google
+jee @webservice is singleton?
+/ lees,
+https://stackoverflow.com/questions/11096310/singleton-object-in-java-web-service
+
+7
+
+A JAX-WS web service is by itself a Singleton. This means that all the request will be handled using a single web service instance (like a Servlet).
+
+So, any member of the class will be 'shared' between all the request. In your case, you do not need to make your members (i.e. couponMap) an static attributes.
+
+Conclusion: Don't worry, all your threads (request) will be accessing the same 'couponMap'. Because you don't need the getCouponMapCreationTime anymore, I think that you can eliminate the SingletonMap abstraction and use directly a Map in your web service class.
+
+But I have something very important to add. If several threads (request) will be accessing your Map you have to make it thread-safe!!! There are a lot of way to do this, but I will give an idea: Use a ConcurrentHashMap instead of a HashMap. This will make all your get(), put(), remove() operations thread-safe! If you need a larger scope you can use synchronized blocks, but please avoid synchronize methods because the scoop is too large and always synchronize over this object.
+
+
+/ Einde BEANS
+

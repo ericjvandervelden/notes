@@ -1,0 +1,1327 @@
+/google	,
+java tutorial lambda streams
+
+/ google,
+java tutorial nested inner classes 
+/ lees	,
+https://stackoverflow.com/questions/70324/java-inner-class-and-static-nested-class
+http://www.baeldung.com/java-nested-classes
+https://www.programiz.com/java-programming/nested-inner-class
+
+/ 7	. 
+
+/ security vacature bij PostNL	,
+
+ISO27X, NIST, SANS
+certificaten van CISSP, CISM, CompTia Security+
+
+/ 7	. 
+
+/ lees,
+http://www.mkyong.com/java8/java-8-how-to-convert-string-to-localdate/
+/ we kunnen zonder formatter new LocalDate("2018-02-01")
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/RosterTest.java
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java
+
+$ vi LambdaAndStreamsTests.java
+
+package java8;
+
+import static org.junit.Assert.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import org.junit.Before;
+import org.junit.Test;
+
+public class LambdaAndStreamsTests {
+
+// https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
+	
+	private List<Person>persons;
+	
+	@Before
+	public void init() {
+		persons=new ArrayList<>();
+		persons.add(new Person("Foo",LocalDate.parse("1968-02-01"),Person.Gender.MALE,"foo@local.nl"));
+		persons.add(new Person("Bar",LocalDate.parse("1988-02-01"),Person.Gender.MALE,"bar@local.nl"));
+		persons.add(new Person("Baz",LocalDate.parse("2008-02-01"),Person.Gender.MALE,"baz@local.nl"));
+	}
+	@Test
+	public void testLambda() throws Exception {
+		for(Person p:persons) {
+			if(p.getAge()>20) {
+				p.println();
+			}
+		}		
+	}
+	// een interface is static, kan dus niet in een method	,
+	interface CheckPerson{
+		boolean test(Person p);
+	}
+	@Test
+	public void testLambda1() throws Exception {
+		// een (local) class kan wel in een method	, kan nooit static zijn	,
+		class CheckPersonForGenderAndAge implements CheckPerson{
+			@Override
+			public boolean test(Person p) {
+				return p.getGender()==Person.Gender.MALE &&
+						p.getAge()>20;
+			}
+		}
+		CheckPerson checkPerson=new CheckPersonForGenderAndAge();
+		for(Person p:persons) {
+			if(checkPerson.test(p)) {
+				p.println();
+			}
+		}		
+	}
+	@Test
+	public void testLambda2() throws Exception {
+		CheckPerson checkPerson=new CheckPerson() {
+			@Override
+			public boolean test(Person p) {
+				return p.getGender()==Person.Gender.FEMALE &&
+						p.getAge()>20;
+			}
+		};
+		
+		for(Person p:persons) {
+			if(checkPerson.test(p)) {
+				p.println();
+			}
+		}
+		
+	}
+	@Test
+	public void testLambda3() throws Exception {
+		CheckPerson checkPerson=(Person p)->p.getGender()==Person.Gender.FEMALE &&
+				p.getAge()>20;
+		for(Person p:persons) {
+			if(checkPerson.test(p)) {
+				p.println();
+			}
+		}
+		
+	}
+	@Test
+	public void testLambda3a() throws Exception {
+		CheckPerson checkPerson=p->p.getGender()==Person.Gender.FEMALE &&
+				p.getAge()>20;
+		for(Person p:persons) {
+			if(checkPerson.test(p)) {
+				p.println();
+			}
+		}
+		
+	}
+	@Test
+	public void testLambda4() throws Exception {
+		Predicate<Person>predicate=(Person p)->p.getGender()==Person.Gender.FEMALE &&
+				p.getAge()>20;
+		for(Person p:persons) {
+			if(predicate.test(p)) {
+				p.println();
+			}
+		}
+	}
+	@Test
+	public void testLambda4a() throws Exception {
+		Predicate<Person>predicate=p->p.getGender()==Person.Gender.FEMALE &&
+				p.getAge()>20;
+		for(Person p:persons) {
+			if(predicate.test(p)) {
+				p.println();
+			}
+		}
+	}
+	
+	@Test
+	public void testLambda5() throws Exception {
+		for(Person p:persons) {
+			if(((Predicate<Person>)(p2->p2.getGender()==Person.Gender.FEMALE &&
+					p2.getAge()>20)).test(p)) {
+				p.println();
+			}
+		}
+	}
+	
+	@Test
+	public void testLambda6() throws Exception {
+		Predicate<Person>predicate=p->p.getGender()==Person.Gender.FEMALE &&
+				p.getAge()>20;
+		Consumer<Person>consumer=p->p.println();
+		for(Person p:persons) {
+			if(predicate.test(p)) {
+				consumer.accept(p);
+			}
+		}
+	}
+	
+	@Test
+	public void testLambda7() throws Exception {
+		Predicate<Person>predicate=p->p.getGender()==Person.Gender.MALE &&
+				p.getAge()>20;
+		Function<Person, String>function=p->p.getMail();
+		Consumer<String>consumer=s->System.out.println(s);
+		for(Person p:persons) {
+			if(predicate.test(p)) {
+				String mail=function.apply(p);
+				consumer.accept(mail);
+			}
+			// of	,
+			if(predicate.test(p)) {
+				consumer.accept(function.apply(p));
+			}
+		}
+	}
+	
+	@Test
+	public void testLambda8() throws Exception {
+		persons
+			.stream() // Stream<Person> java.util.Collection.stream()
+			.filter(p->p.getGender()==Person.Gender.MALE&&p.getAge()>20) 
+				//	Stream<Person> java.util.stream.Stream.filter(Predicate<? super Person> predicate)
+			.map(p->p.getMail()) 
+				// <String> Stream<String> java.util.stream.Stream.map(Function<? super Person, ? extends String> mapper)
+			.forEach(m->System.out.println(m)); 
+				// void java.util.stream.Stream.forEach(Consumer<? super String> action)
+	}			
+	@Test
+	public void testLambda8a() throws Exception {
+		persons
+			.stream() 
+			.filter(p->p.getGender()==Person.Gender.MALE&&p.getAge()>20) 
+			.map(Person::getMail) 
+			.forEach(m->System.out.println(m)); 
+		
+	}
+				
+/ dus persons.stream() maakt van een Collection een Stream, 
+/ en de intermediate operators Stream.filter en Stream.map maken van een stream een stream, 
+/  de terminal operator Stream.forEach maakt van een Stream een void	, andere terminal operators maken van een Stream een int of een Collection,
+				
+/ Intermezzo
+
+/ er staat <R> voor Stream<R> map(...);
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/generics/methods.html
+https://docs.oracle.com/javase/tutorial/java/generics/bounded.html
+
+public interface Stream<T> extends BaseStream<T, Stream<T>> {
+    Stream<T> filter(Predicate<? super T> predicate);
+    <R> Stream<R> map(Function<? super T, ? extends R> mapper);
+
+
+
+
+/ Einde Intermezzo
+
+		
+/ 7	. 
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/collections/streams/#pipelines
+->
+https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/MethodReferencesTest.java
+
+/ java.util.function.Predicate en java.util.Comparator hebben beide @FunctionalInterface	, 
+/ Comparator zit niet in de java.util.function package, WH omdat zat al in de java.util package,
+
+/ je use of een lambda, of een method reference,
+
+/ in de tekst staat dan ook	,
+Because this lambda expression invokes an existing method, you can use a method reference instead of a lambda expression:
+
+$ vi Person.java
+
+public class Person {
+	public int compare(Person other) {
+		return this.getBirth().compareTo(other.getBirth());
+	}
+
+$ vi MethodReferenceTests.java
+
+public class MethodReferenceTests {
+
+// https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+	
+	private List<Person>persons;
+	
+	@Before
+	public void init() {
+		persons=new ArrayList<>();
+		persons.add(new Person("Baz",LocalDate.parse("2008-02-01"),Person.Gender.MALE,"baz@local.nl"));
+		persons.add(new Person("Bar",LocalDate.parse("1988-02-01"),Person.Gender.MALE,"bar@local.nl"));
+		persons.add(new Person("Foo",LocalDate.parse("1968-02-01"),Person.Gender.MALE,"foo@local.nl"));
+	}
+
+// 1	. Met lambda	,
+	static class PersonAgeComparator implements Comparator<Person>{
+		@Override
+		public int compare(Person o1, Person o2) {
+			return o1.getBirth().compareTo(o2.getBirth());
+		}
+	}
+	@Test
+	public void testMethodReference1a() throws Exception {
+		persons.stream()
+			.forEach(System.out::println);
+			
+		Person[]personsAsArray=persons.toArray(new Person[persons.size()]);
+		Arrays.sort(personsAsArray,new PersonAgeComparator());
+		
+		List<Person>personsSorted=new ArrayList<>(Arrays.asList(personsAsArray));
+		personsSorted.stream()
+			.forEach(System.out::println);
+		
+	}
+	@Test
+	public void testMethodReference1b() throws Exception {		
+		Person[]personsAsArray=persons.toArray(new Person[persons.size()]);
+		Comparator<Person>comparator=(p1,p2)->p1.getBirth().compareTo(p2.getBirth());
+		Arrays.sort(personsAsArray,comparator);
+		
+		List<Person>personsSorted=new ArrayList<>(Arrays.asList(personsAsArray));
+		personsSorted.stream()
+			.forEach(System.out::println);
+		
+	}
+	
+// 2 Met method reference	,
+	static class PersonAgeComparator2{
+		public  static int compare(Person o1, Person o2) {
+			return o1.getBirth().compareTo(o2.getBirth());
+		}
+		public  int compare2(Person o1, Person o2) {
+			return o1.getBirth().compareTo(o2.getBirth());
+		}
+	}
+	@Test
+	public void testMethodReference2a() throws Exception {
+		
+		Person[]personsAsArray=persons.toArray(new Person[persons.size()]);
+		Comparator<Person>comparator=new PersonAgeComparator2()::compare2;
+		Arrays.sort(personsAsArray,new PersonAgeComparator2()::compare2);
+		
+		List<Person>personsSorted=new ArrayList<>(Arrays.asList(personsAsArray));
+		personsSorted.stream()
+			.forEach(System.out::println);
+		
+	}
+	@Test
+	public void testMethodReference2b() throws Exception {
+		
+		Person[]personsAsArray=persons.toArray(new Person[persons.size()]);
+		Comparator<Person>comparator=PersonAgeComparator2::compare;
+		Arrays.sort(personsAsArray,PersonAgeComparator2::compare);
+		
+		List<Person>personsSorted=new ArrayList<>(Arrays.asList(personsAsArray));
+		personsSorted.stream()
+			.forEach(System.out::println);
+		
+	}
+	@Test
+	public void testMethodReference2c() throws Exception {
+		
+		Person[]personsAsArray=persons.toArray(new Person[persons.size()]);
+		Comparator<Person>comparator=Person::compare;
+		Arrays.sort(personsAsArray,Person::compare);
+		
+		List<Person>personsSorted=new ArrayList<>(Arrays.asList(personsAsArray));
+		personsSorted.stream()
+			.forEach(System.out::println);
+		
+	}
+	
+
+}
+/ MORGENOCHTEND
+/ Afmaken	,
+https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/MethodReferencesTest.java
+
+/ 7	. 
+
+/ streams,
+
+/ google
+java streams
+/ lees,
+http://www.oracle.com/technetwork/articles/java/ma14-java-se-8-streams-2177646.html
+/ google
+java streams tutorial
+https://docs.oracle.com/javase/tutorial/collections/streams/
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/collections/streams/examples/BulkDataOperationsExamples.java
+
+/ Intermezzo
+
+/ use IsoChronology	,
+
+$ vi Person.java
+	public int getAge() {
+		return Period.between(birth, LocalDate.now()).getYears();
+// of	,
+//		return birth.until(IsoChronology.INSTANCE.dateNow()).getYears();
+	}
+	
+$ vi StreamsTest.java
+
+	@Before
+	public void init() {
+		persons=new ArrayList<>();
+		persons.add(new Person("Baz",LocalDate.parse("2008-02-01"),Person.Gender.MALE,"baz@local.nl"));
+		persons.add(new Person("Bar",IsoChronology.INSTANCE.date(1988,2,1),Person.Gender.MALE,"bar@local.nl"));
+		persons.add(new Person("Foo",LocalDate.parse("1968-02-01"),Person.Gender.MALE,"foo@local.nl"));
+	}
+
+/ Einde Intermezzo
+
+$ vi Person.java
+
+public class Person {
+	public int getAge() {
+//		return Period.between(birth, LocalDate.now()).getYears();
+// of	,
+		return birth.until(IsoChronology.INSTANCE.dateNow()).getYears();
+	}
+
+$ vi StreamsTest.java
+
+	@Test
+	public void testStreams() throws Exception {
+		
+		persons.stream()
+			.filter(p->p.getGender()==Person.Gender.MALE)
+			.forEach(p->System.out.println(p.getAge()));
+		
+		double average=persons.stream()
+			.filter(p->p.getGender()==Person.Gender.MALE)
+			.mapToInt(Person::getAge)						// 'n IntStream	,
+			.average()										// 'n OptionalDouble	,
+			.getAsDouble();	
+		System.out.println(average);
+	}	
+
+/ Intermezzo
+
+public interface Stream<T> extends BaseStream<T, Stream<T>> {
+    IntStream mapToInt(ToIntFunction<? super T> mapper);
+	T reduce(T identity, BinaryOperator<T> accumulator);
+
+
+public interface IntStream extends BaseStream<Integer, IntStream> {
+    <U> Stream<U> mapToObj(IntFunction<? extends U> mapper);
+    int reduce(int identity, IntBinaryOperator op);
+    OptionalDouble average();						/ is er NIET in Stream<T>	,
+
+
+
+/ Einde Intermezzo
+
+/ Intermezzo
+
+/ een Collection kun je stream, een Map NIET,
+
+/ Einde Intermezzo
+
+/ 7	. 
+
+/ lees,
+
+https://docs.oracle.com/javase/tutorial/collections/streams/parallelism.html
+
+/ streams
+
+/ we hebben installed	, dat bijv de source code van https://vladmihalcea.com/a-beginners-guide-to-jpa-and-hibernate-cascade-types/ bevat,
+C:\Users\ervelden\java\jpa\hibernate-master-class
+
+/ we zitten steeds in 
+ws workspace-jee-hibernate
+project aa-assocations-self-schemaname
+
+/ nu naar
+project aa-scratch	, 
+/ in src/test/java package streams	,
+
+/ lees,
+http://www.baeldung.com/java-stream-findfirst-vs-findany
+http://www.baeldung.com/java-junit-hamcrest-guide
+
+$ vi StreamTests2.java
+
+	@Test
+	public void test1() throws Exception {
+		List<String>list=Arrays.asList("Foo","Bar","Baz","Gee","Hee");
+		Optional<String>result=list.stream().findAny();
+		assertTrue(result.isPresent());
+		assertThat(result.get(), anyOf(is("Foo"),is("Bar"),is("Baz"),is("Gee"),is("Hee")));
+		
+	}
+	
+	@Test
+	public void test2() throws Exception {
+		List<String>list=Arrays.asList("Foo","Bar","Baz","Gee","Hee");
+		list
+			.stream()
+			.findAny()
+			.ifPresent(i->System.out.println(i));
+		
+	}
+	
+	@Test
+	public void test3() throws Exception {
+		List<String>list=Arrays.asList();
+		list
+			.stream()
+			.findAny()
+			.ifPresent(i->System.out.println(i));
+		
+	}
+
+/ .findAny() pakt er 1	, als deze er is, findAny() returns een Optional<String> (als het een stream is op een List<String>	,
+
+/ RXJAVA BAELDUNG
+
+/ 7	.
+
+/ lees,
+https://www.baeldung.com/rx-java
+
+/ workspace-jbosstools-java-oxygen
+/ maven project rxjava-baeldung
+
+/ 7	.
+
+/ lees,
+https://github.com/ReactiveX/RxJava/blob/2.x/README.md
+
+Version 2.x and 1.x will live side-by-side for several years. They will have different group ids (io.reactivex.rxjava2 vs io.reactivex) and namespaces (io.reactivex vs rx).
+
+/ dat zien we ook in search.maven.org,
+io.reactivex.rxjava2:rxjava:2.2.3
+io.reactivex:rxjava:1.3.8
+
+/ workspace-jbosstools-java-oxygen
+/ proj. rxjava-baeldung
+
+
+/ we kiezen nu in de pom,
+
+<dependency>
+  <groupId>io.reactivex</groupId>
+  <artifactId>rxjava</artifactId>
+  <version>1.3.8</version>
+</dependency>
+
+$ vi C:\Users\ervelden\java\eugenp\tutorials\rxjava\src\test\java\com\baeldung\rxjava\ObservableUnitTest.java
+
+/ lees,
+http://alexsderkach.io/comparing-java-8-rxjava-reactor/
+/ reactor is van spring, 
+
+/ java8 heeft ook Observable, maar wij use die van rxjava,
+
+/ lees,
+https://github.com/ReactiveX/RxJava/blob/1.x/src/main/java/rx/Observable.java
+    public static <T> Observable<T> from(Future<? extends T> future) {
+    public static <T> Observable<T> from(Iterable<? extends T> iterable) {			/ Set, List, ...
+    public static <T> Observable<T> from(T[] array) {
+
+/ 13	. 
+
+/ workspace-jbosstools-java-oxygen
+/ proj. rxjava-baeldung
+
+/ kijk in fs op ~ervelden\java\eugenp, niet naar ~ervelden\java\baeldung-tutorials,
+
+/ 1313	 
+
+	static Observable<String>getTitle(){
+		return Observable.<String>from(Arrays.asList("title"));
+	}
+	@Test
+	public void test3a() {
+		Observable.<String>just("book1","book2")
+			.map(s->getTitle())
+			.subscribe(System.out::println);		
+	}
+rx.Observable@3f102e87
+rx.Observable@27abe2cd
+
+	@Test
+	public void test3a() {
+		Observable.<String>just("book1","book2")
+			.flatMap(s->getTitle())
+			.subscribe(System.out::println);		
+	}
+title
+title
+
+/ 1313	. 
+
+	@Test
+	public void test4() {
+		Observable.<String>from(new String[] {"a","b","c"})
+			.scan(new StringBuffer(),StringBuffer::append)
+			.subscribe(System.out::println);
+
+	}
+a
+ab
+abc
+
+/ hij zet ze naast elkaar	,
+
+	@Test
+	public void test4a() {
+		Observable.<String>from(new String[] {"a","b","c"})
+			.scan(new StringBuffer(),StringBuffer::append)
+			.subscribe(s->result+=s.toString());
+		System.out.println(result);
+
+	}
+aababc
+
+/ dit is onduidelijk, maar er zijn 2 vormen van scan, 1 met en 1 zonder een seed	, 
+/ deze hier is met een seed, 
+/ zonder seed is het .scan(fct)
+/ met seed is het .scan(seed, fct)	,
+
+/ lees,
+http://reactivex.io/documentation/operators/scan.html
+
+public class Observable<T> {
+    public static <T> Observable<T> from(Future<? extends T> future) {
+        return (Observable<T>)unsafeCreate(OnSubscribeToObservableFuture.toObservableFuture(future));
+    }
+/ TODO
+
+/ kijk,
+https://www.youtube.com/watch?v=0IKHxjkgop4
+
+/ 1313	. 
+
+/ we hebben ,
+	@Test
+	public void test4a() {
+		Observable.<String>from(new String[] {"a","b","c"})
+			.scan(new StringBuffer(),StringBuffer::append)
+			.subscribe(s->result+=s.toString());
+		System.out.println(result);
+
+	}
+/ en we willen getallen optellen ipv strings	, 
+/ maar in voorbeelden zien we dat we 3 
+
+	@Test
+	public void test4d() {
+
+		Observable.<Integer>just(1,2,3,4,5,6,7)
+			.scan(new Func2<Integer, Integer, Integer>() {
+				@Override
+				public Integer call(Integer sum, Integer item) {
+					return sum+item;
+				}
+			})
+			.subscribe(System.out::println);
+	}
+1
+3
+6
+10
+15
+21
+28
+/ of,
+
+	@Test
+	public void test4e() {
+
+		Observable.<Integer>just(1,2,3,4,5,6,7)
+			.scan((sum,item)->sum+item)
+			.subscribe(System.out::println);
+	}
+1
+3
+6
+10
+15
+21
+28
+
+/ of,
+
+
+	@Test
+	public void test4b() {
+		
+		Func2<Integer, Integer, Integer>acc=new Func2<Integer, Integer, Integer>() {
+			@Override
+			public Integer call(Integer sum, Integer item) {
+				return sum+item;
+			}
+		};
+		Subscriber<Integer>subscriber=new Subscriber<Integer>() {
+			@Override
+			public void onCompleted() {
+				System.out.println("onCompleted");
+				
+			}
+			@Override
+			public void onError(Throwable arg0) {
+				System.out.println("onError "+arg0);
+				
+			}
+			@Override
+			public void onNext(Integer arg0) {
+				System.out.println("onNext "+arg0);
+				
+			}
+		};
+		Observable.<Integer>just(1,2,3,4,5,6,7)
+			.scan(acc)
+			.subscribe(subscriber);
+	}
+/ of,
+	@Test
+	public void test4c() {
+
+		Observable.<Integer>just(1,2,3,4,5,6,7)
+			.scan(new Func2<Integer, Integer, Integer>() {
+				@Override
+				public Integer call(Integer sum, Integer item) {
+					return sum+item;
+				}
+			})
+			.subscribe(new Subscriber<Integer>() {
+				@Override
+				public void onCompleted() {
+					System.out.println("onCompleted");
+					
+				}
+				@Override
+				public void onError(Throwable arg0) {
+					System.out.println("onError "+arg0);
+					
+				}
+				@Override
+				public void onNext(Integer arg0) {
+					System.out.println("onNext "+arg0);
+					
+				}
+			});
+	}
+onNext 1
+onNext 3
+onNext 6
+onNext 10
+onNext 15
+onNext 21
+onNext 28
+onCompleted
+
+/ 13	. 
+
+		Observable.<Integer>range(0,10)
+			.subscribe(System.out::println);
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+/ 13	. 
+
+/ Observable.groupBy
+
+	@Test
+	public void test5() {
+		Observable.<Integer>range(0,10)
+			.groupBy(i->
+				if(0==(i%2))
+					return "even";
+				else 
+					return "odd";
+			)
+			.subscribe(g->
+				g.subscribe(j->
+					System.out.println(g.getKey()+":"+j)
+				)
+			);
+	}
+even:0
+odd:1
+even:2
+odd:3
+even:4
+odd:5
+even:6
+odd:7
+even:8
+odd:9
+
+/ Als we ->{...}, dan moeten we voor } ;
+/ we doen dat hieronder 2 keer	,
+
+			.subscribe(g->{
+				g.subscribe(j->{
+					System.out.println(g.getKey()+":"+j);
+				});
+			})
+/=
+			.subscribe(g->
+				g.subscribe(j->
+					System.out.println(g.getKey()+":"+j)
+				)
+			)
+
+/ In de groupBy moeten we {...}	, 
+
+	@Test
+	public void test5() {
+		Observable.<Integer>range(0,10)
+			.groupBy(i->
+			0==i%2?"even":"odd")
+			.subscribe(g->
+				g.subscribe(j->
+					System.out.println(g.getKey()+":"+j)
+				)
+			);
+	}
+	
+/ 13	. 
+
+/ Observable.filter
+
+	@Test
+	public void test6() {
+		Observable.<Integer>range(0,10)
+			.filter(i->1==i%2)
+			.subscribe(System.out::println);
+	}
+1
+3
+5
+7
+9
+
+/ 13	. 
+
+/ conditional operators, 
+
+/ defaultIfEmpty, takeWhile, Contain, SkipWhile, SkipUntil, TakeUntil,
+
+	@Test
+	public void test7() {
+		Observable.<String>empty()
+			.defaultIfEmpty("is empty")
+			.subscribe(s->result+=s);
+		System.out.println(result);
+	}
+is empty
+
+/ 13	. 
+
+/ connectables	,
+
+	@Test
+	public void test8a()throws InterruptedException {
+		ConnectableObservable<Long>connectable=Observable.interval(200,TimeUnit.MILLISECONDS)
+				.publish();
+		connectable.subscribe(l->result+=l);
+		System.out.println(result);
+		connectable.connect();
+		Thread.sleep(1000);
+		System.out.println(result);
+	}
+/ .interval geeft altijd 0,1,2,...	, bij ons om de 200 ms	,
+ 
+/ we zien 	, 
+01234
+/ klopt, op tijd 0, 200, 400, 600, 800 geeft .interval 0,1,2,3,4	, 
+
+/ 13	. 
+
+
+
+
+
+
+
+
+
+
+/ Einde RXJAVA BAELDUNG
+
+/ JAVA 8
+
+/ 13	. 
+
+/ waarom schrijven we Observable.<String>just("Hello");	? 
+/ omdat in een arg van just een generic zit	, 
+
+/ bij Observable van rxjava is dat zo bij .just en .from, 
+
+   public static <T> Observable<T> from(Future<? extends T> future, long timeout, TimeUnit unit) {
+   public static <T> Observable<T> just(final T value) {
+   
+/ .range heeft dat niet	, dus Observable.<Integer>range(0,10) is onnodig	, 
+   
+/ we oef zelf ook,
+
+	class X<W>{
+		<S, T, U> void f(S first, T second,U third) {
+			System.out.println(first+","+second);
+		}
+		void g(X<? extends W>x) {
+			System.out.println(x);
+		}
+	}
+	@Test
+	public void test9() {
+		X<Number> x=new X<>();
+		x.<String,Integer,Double>f("foo",13,3.7);
+		x.g(new X<Integer>());						// new X<String>() kan NIET, 
+	}
+   
+/ 13	. 
+
+/ Observable.create
+
+/ lees, 
+https://praveer09.github.io/technology/2016/02/21/rxjava-part-2-creating-an-observable/
+https://medium.com/@jagsaund/5-not-so-obvious-things-about-rxjava-c388bd19efbc	
+	
+/ Einde JAVA 8
+
+/ RXJAVA VENKAT
+
+/ kijk,
+https://www.youtube.com/watch?v=f3acAsSZPhU&t=2672s
+/ source code,
+https://github.com/gaborbata/rx-java-sample
+
+/ we doen,
+C:\Users\ervelden\java\venkat>git clone https://github.com/gaborbata/rx-java-sample.git
+/ we import dit Maven proj in eclipse	, 
+
+/ workspace-jbosstools-java-oxygen
+/ proj. rxjava-playground
+
+$ vi pom.xml
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.0.7.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.yahoofinance-api</groupId>
+            <artifactId>YahooFinanceAPI</artifactId>
+            <version>3.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.reactivex.rxjava2</groupId>
+            <artifactId>rxjava</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+
+/ lees,
+https://projectreactor.io/
+/ TODO
+
+
+
+
+/ Einde RXJAVA VENKAT
+
+/ LAMBDAS JAVA 8
+
+/ 7	 .
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
+
+/ 13	. 
+
+roster
+    .stream()
+    .filter(
+        p -> p.getGender() == Person.Sex.MALE
+            && p.getAge() >= 18
+            && p.getAge() <= 25)
+    .map(p -> p.getEmailAddress())
+    .forEach(email -> System.out.println(email));
+	
+/ vervangt de def van een fct en de call erop	, dus vervangt 2 dingen	,
+
+public static <X, Y> void processElements(
+    Iterable<X> source,
+    Predicate<X> tester,
+    Function <X, Y> mapper,
+    Consumer<Y> block) {
+    for (X p : source) {
+        if (tester.test(p)) {
+            Y data = mapper.apply(p);
+            block.accept(data);
+        }
+    }
+}
+
+processElements(
+    roster,
+    p -> p.getGender() == Person.Sex.MALE
+        && p.getAge() >= 18
+        && p.getAge() <= 25,
+    p -> p.getEmailAddress(),
+    email -> System.out.println(email)
+);
+
+https://docs.oracle.com/javase/8/docs/api/java/util/function/Consumer.html
+default Consumer<T> andThen(Consumer<? super T> after)
+/ TODO
+
+https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html
+	forEach(Consumer<? super T> action)
+	filter(Predicate<? super T> predicate)
+	map(Function<? super T,? extends R> mapper)		
+
+/ 7	 .
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
+The method reference Person::compareByAge is semantically the same as the lambda expression (a, b) -> Person.compareByAge(a, b). 
+
+/ lees,
+https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html
+sort(T[] a, Comparator<? super T> c)
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/MethodReferencesTest.java
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java
+
+  Arrays.sort(rosterAsArray, myComparisonProvider::compareByName);
+/ Waarom kan dit? Omdat Comparator<T> een functional interface is,
+
+/ lees,
+https://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html
+Functional Interface:
+This is a functional interface and can therefore be used as the assignment target for a lambda expression or method reference.
+
+/ 7	. 
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/collections/streams/index.html
+
+
+
+/ Einde LAMBDAS JAVA 8
+
+/ STREAMS JAVA 8
+
+/ workspace-jbosstools-java-oxygen
+/ project streams
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/collections/streams/index.html
+
+/ 13	. 
+
+/ google,
+java generate sequence of numbers
+/ lees,
+https://stackoverflow.com/questions/10242380/how-can-i-generate-a-list-or-array-of-sequential-integers-in-java
+List<Integer> range = IntStream.rangeClosed(start, end)
+    .boxed().collect(Collectors.toList());
+	
+/ IntStream is een stream van primitive ints,
+/ IntStream.boxed() maakt er een Stream<Integer> van,
+
+/**
+ * A sequence of primitive int-valued elements supporting sequential and parallel
+ * aggregate operations.  This is the {@code int} primitive specialization of
+ * {@link Stream}.
+ *
+ * <p>The following example illustrates an aggregate operation using
+ * {@link Stream} and {@link IntStream}, computing the sum of the weights of the
+ * red widgets:
+ *
+ * <pre>{@code
+ *     int sum = widgets.stream()
+ *                      .filter(w -> w.getColor() == RED)
+ *                      .mapToInt(w -> w.getWeight())
+ *                      .sum();
+ * }</pre>
+public interface IntStream extends BaseStream<Integer, IntStream> {
+
+
+public interface Stream<T> extends BaseStream<T, Stream<T>> {
+    Stream<T> filter(Predicate<? super T> predicate);
+    <R> Stream<R> map(Function<? super T, ? extends R> mapper);
+    IntStream mapToInt(ToIntFunction<? super T> mapper);
+    <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper);
+    void forEach(Consumer<? super T> action);
+    <R, A> R collect(Collector<? super T, A, R> collector);
+	
+/ 13	. 
+
+/ map, flatMap
+
+/ met flatMap 1 forEach minder,
+
+/ lees,
+https://www.mkyong.com/java8/java-8-flatmap-example/
+
+/ 1313	. 
+
+	@Test
+	public void test4a() {
+		String[][]data={{"a","b"},{"c","d"},{"e","f"}};
+		Arrays.stream(data)
+			.forEach(System.out::println);
+	}
+[Ljava.lang.String;@73a8dfcc
+[Ljava.lang.String;@ea30797
+[Ljava.lang.String;@7e774085
+
+/ 1313	. 
+
+	@Test
+	public void test4a() {
+		String[][]data={{"a","b"},{"c","d"},{"e","f"}};
+		Arrays.stream(data)
+			.map(a->Arrays.stream(a))			
+			.forEach(System.out::println);
+	}
+java.util.stream.ReferencePipeline$Head@1c655221
+java.util.stream.ReferencePipeline$Head@58d25a40
+java.util.stream.ReferencePipeline$Head@1b701da1
+/ .map() levert het begin van elk van de 3 Streams 	, of zoiets	,
+
+/ 1313	. 
+
+	@Test
+	public void test4a() {
+		String[][]data={{"a","b"},{"c","d"},{"e","f"}};
+		Arrays.stream(data)
+			.flatMap(a->Arrays.stream(a))			// of .flatMap(Collection::stream)
+			.forEach(System.out::println);
+	}
+a
+b
+c
+d
+e
+f
+
+/ 1313	. 
+
+	@Test
+	public void test4b() {
+		List<String>data=Arrays.asList("foo,bar,baz".split(","));
+		List<String>data2=Arrays.asList("1,3,5".split(","));
+		List<List<String>>list=new ArrayList<>();list.add(data);list.add(data2);
+		
+
+		list.stream()
+			.map(l->l.getClass())
+			.forEach(System.out::println);
+class java.util.Arrays$ArrayList
+class java.util.Arrays$ArrayList
+/ houd de cursor boven .map, we zien:
+<Class<? extends List>> Stream<Class<? extends List>> java.util.stream.Stream.map(Function<? super List<String>, ? extends Class<? extends List>> mapper)
+
+		list.stream()
+			.map(l->l.stream())
+			.forEach(System.out::println);
+java.util.stream.ReferencePipeline$Head@aec6354
+java.util.stream.ReferencePipeline$Head@1c655221
+/ houd de cursor boven .map, we zien,
+<Stream<String>> Stream<Stream<String>> java.util.stream.Stream.map(Function<? super List<String>, ? extends Stream<String>> mapper)
+
+		list.stream()
+			.flatMap(l->l.stream())
+			.forEach(System.out::println);
+	}
+class java.lang.String
+class java.lang.String
+class java.lang.String
+class java.lang.String
+class java.lang.String
+class java.lang.String
+/ houd de cursor boven .flatMap, we zien,
+<String> Stream<String> java.util.stream.Stream.flatMap(Function<? super List<String>, ? extends Stream<? extends String>> mapper)
+	
+/ 1313	. 
+
+/ we gaan expliciet uitschrijven	,
+		Stream<List<String>>stream=list.stream();
+		Stream<Stream<String>>stream2=stream.map(l->l.stream());
+		Stream<String>stream3=stream.flatMap(l->l.stream());
+
+/ maar nu krijgen we de fout: IllegalStateException: stream has already been operated upon or closed.
+/ dan komt omdat we op stream een .map doen en een .flatMap
+
+/ we moeten apart	,
+
+		Stream<List<String>>stream=list.stream();
+		Stream<String>stream3=stream.flatMap(l->l.stream());
+		stream3.forEach(System.out::print);
+		System.out.println();
+foobarbaz135
+
+		Stream<List<String>>stream=list.stream();
+		Stream<Stream<String>>stream2=stream.map(l->l.stream());
+		stream2.forEach(s->s.forEach(System.out::print));
+		System.out.println();
+foobarbaz135
+
+/ 1313	.
+
+/ Optional,
+
+/ lees, 
+
+class Optional{
+    public<U> Optional<U> map(Function<? super T, ? extends U> mapper) {
+    public<U> Optional<U> flatMap(Function<? super T, Optional<U>> mapper) {
+	
+/ dus .flatMap verwacht een fct die een Optional geeft	, 
+/ dus we moeten .flatMap alleen use, als we een fct hebben die een Optional returns,
+
+/ .map en .flatMap geven een Optional,
+
+/ voorbeed, gekunsteld	,
+	public void test8() {
+		List<String>data=Arrays.asList("foo,bar,baz".split(","));
+		Optional<String>optStr=data.stream().findFirst();
+		Optional<Integer>optInt=optStr.map(s->s.length());
+		
+		Optional<String>optStr2=data.stream().findFirst();
+		optStr.flatMap(s->Optional.of(s.length()));
+	}
+	
+/ lees,
+https://www.oracle.com/technetwork/articles/java/java8-optional-2175753.html
+
+/ als een prop van een class een optional is, use dan .flatMap, anders .map, je krijgt ook een optional terug	,
+/ TODO Afmaken,
+
+	
+
+/ 13	. 
+
+/ lees,
+https://www.baeldung.com/java-difference-map-and-flatmap
+https://www.baeldung.com/java-flatten-nested-collections
+/ over optionals
+/ over streams
+
+	@Test
+	public void test9() {
+		Stream<String>stream=Stream.<String>of("a","b");
+		Stream<String>stream2=stream.map(String::toUpperCase);
+		List<String>list=stream2.collect(Collectors.toList());
+	}
+/ houd cursor boven .toList,
+<String> Collector<String, ?, List<String>> java.util.stream.Collectors.toList()
+/ houd cursor boven .collect,
+<List<String>, Object> List<String> java.util.stream.Stream.collect(Collector<? super String, Object, List<String>> collector)
+
+
+/ ga naar,
+https://github.com/eugenp/tutorials/tree/master/java-streams
+/ kies	,
+Introduction to Java 8 Streams
+/ TODO
+
+/ of ga naar,
+https://www.baeldung.com/tag/java-streams/page/2/
+
+/ we hebben gedaan,
+C:\Users\ervelden\java\eugenp>git  clone https://github.com/eugenp/tutorials.git
+
+/ 1313	. 
+
+	@Test
+	public void test9() {
+		Stream<String>stream=Stream.<String>of("a","b");
+		Stream<String>stream2=stream.map(String::toUpperCase);
+		List<String>list=stream2.collect(Collectors.toList());
+		assertEquals(Arrays.asList("A","B"),list);
+	}
+/ OK	,
+
+	@Test
+	public void test10() {
+		List<List<String>>list=Arrays.asList(Arrays.asList("a"),Arrays.asList("b"));
+		List<String>flat=list.stream()
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
+		System.out.println(list);
+		System.out.println(flat);
+	}
+[[a], [b]]
+[a, b]
+
+/ 13	. 
+
+/ lees,
+https://www.baeldung.com/java-streams
+->
+https://www.baeldung.com/java-8-streams-introduction
+
+
+
+
+/ Einde STREAMS JAVA 8
+
+
+
+/ BACKUP AND SYNC
+
+https://support.google.com/a/answer/7491633?hl=en&ref_topic=7455083
+
+
+
+/ Einde BACKUP AND SYNC 
+
+/ JUNIT
+
+/ lees,
+https://www.baeldung.com/junit-5
+
+/ Einde JUNIT
+
+
+
+
+
+
+
+

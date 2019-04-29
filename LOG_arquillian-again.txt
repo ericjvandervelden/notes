@@ -1,0 +1,3783 @@
+/ See JBOSS LOGGING 
+/ See JCA
+/ DEBUG TX
+/ See ARQUILLIAN-JPA-STUDY2
+/ See TODO LOGGER
+/ See LEES
+/ See INSPECT SQL
+
+
+
+/ 7	. 
+
+/ ws workspace-jbosstools-jee-oxygen
+/ proj arquillian-getting_started
+
+/ deze heeft 4 configs,
+/ 1	. weld container,
+/ 2. glassfish ... TODO
+/ 3. test start wildfly vanuit mvn repo, wildfly-10.1.0/ verschijnt in target/,				/ wildfly-repo
+/ 4. test start wildfly vanuit self extracted bin C:\Users\ervelden\bin\wildfly-10.1.0.Final>		/ wildfly-managed
+
+/ testen tegen zelf gestarte bin, is bij rinse-and-repeat, / wildfly-remote
+
+/ 13	. 
+
+/ we hadden open: http://arquillian.org/guides/get_started_faster_with_forge/
+
+/ 13	. 
+
+/ lees,
+http://www.adam-bien.com/roller/abien/entry/the_only_one_dependency_you
+
+/ in LOG_angular20180124.txt,  bij ARQUILLIAN GETTING STARTED
+/ we use javax:javaee-api:7.0:provided ipv. org.jboss.spec:jboss-javaee-7.0:1.0.3.Final:pom:provided
+
+/ 13	. 
+
+/ weld-ee-embedded,
+			      <dependency>
+			        <groupId>org.jboss.arquillian.container</groupId>
+			        <artifactId>arquillian-weld-se-embedded-1.1</artifactId>
+			        <version>1.0.0.Final</version>
+			        <scope>test</scope>
+			      </dependency>
+			      <dependency>
+			        <groupId>org.jboss.weld</groupId>
+			        <artifactId>weld-core</artifactId>
+			        <version>2.4.5.Final</version>
+			        <scope>test</scope>
+			      </dependency>
+			      <dependency>
+			        <groupId>org.slf4j</groupId>
+			        <artifactId>slf4j-simple</artifactId>
+			        <version>1.7.25</version>
+			        <scope>test</scope>
+			      </dependency>
+				  
+/ wildfly-managed,
+				<dependency>
+				    <groupId>org.wildfly.arquillian</groupId>
+				    <artifactId>wildfly-arquillian-container-managed</artifactId>
+				    <version>2.1.0.Final</version>
+				    <scope>test</scope>
+				</dependency>
+				<dependency>
+				    <groupId>org.jboss.arquillian.protocol</groupId>
+				    <artifactId>arquillian-protocol-servlet</artifactId>
+				    <version>1.1.13.Final</version>
+				    <scope>test</scope>
+				</dependency>			      
+			    </dependencies>
+				
+/ TODO
+				
+/ 13	. 
+
+/ in arquillian.xml mag er maar 1 container default="true",	anders:
+Caused by: java.lang.IllegalStateException: Multiple Containers defined as default, only one is allowed:
+
+/ 13	. 
+
+/ het enige verschil in de pom tussen wildfly-managed-from-repo en wildfly-managed is dat wildfly-managed-from-repo de wildfly binary extract in target/ van het project,
+/ de zip is:  ~/.m2/repository/org/wildfly/wildfly-dist/10.1.0.Final/wildfly-dist-10.1.0.Final.zip
+/ dezelfde binary hebben we zelf al extract in /Users/ervelden/bin/wildfly-10.1.0.Final, die is voor wildfly-managed,
+
+/ in beide gevallen start de test wildfly,	 
+/ in rinse-and-repeat starten we eerst zelf wildfly, en test arquillian er tegen,
+
+$ vi pom.xml
+
+  	  <profile>
+  		<id>wildfly-managed-from-repo</id>
+		...
+  		<build>
+  			<plugins>
+  				<!--  hier staat de mvn wildfly gaat extr in target/ -->
+  				<!--  dit is het enigste verschil met wildfly-managed, waar we zelf wildfly al hebben extr -->
+  				<plugin>
+  					<groupId>org.apache.maven.plugins</groupId>
+  					<artifactId>maven-dependency-plugin</artifactId>
+  					<version>3.0.2</version>
+  					<executions>
+  						<execution>
+  							<id>unpack</id>
+							...
+							
+  	</profile>
+  	 	 <profile>
+  		<id>wildfly-managed</id>
+		...
+
+
+/ in pom is wildfly-managed de default profile, dus de test start wildfly binary zelf, (de zelf installed binary , niet de mvn repos)
+/ in arquillian.xml mag maar 1 container default, en de naam mag willekeurig, 
+
+$ vi arquillian.xml
+
+/ als je mvn profile wildfly-managed-from-repo kiest	,
+
+	<container qualifier="wildfly-managed-from-repo-foo" default="true">			/ ! default="true"
+		<configuration>
+			<property name="jbossHome">target/wildfly-10.1.0.Final</property>		
+				/ dat is omdat in de pom staat dat de wildfly bin in target/ komt,
+
+/ of als je mvn profile wildfly-managed kiest	,
+
+	<container qualifier="wildfly-managed-foo" default="true">				/ ! default="true"
+		<configuration>
+			<property name="jbossHome">/Users/ervelden/bin/wildfly-10.1.0.Final</property>
+			<!-- 
+				<property name="javaVmArguments">-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y</property>
+			-->
+		</configuration>
+	</container>
+	
+/ 13	. 
+
+/ In eclipse is er eig. maar 1 run config:  arquillian-getting_started-clean-test, voor wildfly-managed-from-repo en wildfly-managed,
+/ Je kunt in de run config bij Environment JBOSS_HOME=/Users/ervelden/bin/wildfly-10.1.0.Final, voor bij  wildfly-managed, maar wij def jbossHome in arquillian.xml,
+
+	
+/ 7	. 
+
+/ proj arquillian-rinse-and-repeat
+
+/ 13	. 
+
+/ @Local
+/ lees,
+https://stackoverflow.com/questions/3807662/ejbs-when-to-use-remote-and-or-local-interfaces
+https://docs.oracle.com/javaee/6/tutorial/doc/gipjf.html
+
+/ is @Remote de default?
+/ TODO
+
+/ 13	. 
+
+/ lees,
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
+
+/ een tx duurt bij een slsb zolang als de slsb' method duurt,
+/ een tx duurt bij een sfsb zolang als de jsf bean leeft,
+
+/ een slsb's method kan meerdere queries doen, maar dat is altijd, in een db kun je in een tx met BEGIN END meerdere dingen doen,
+
+/ 13	. 
+
+/ @Override interface methods kan niet in Java 1.5	, check buildpath in eclipse dat jdk 1.8 is,
+/ see OrderServiceImpl	,
+
+/ 13	. 
+
+/ proj arquillian-rinse_and_repeat	,
+
+/ we doen nu wildfly-remote, dus hij draait al, en vind services op port WH,
+/ dus in arquillian.xml hoeft NIET een property jbossHome te staan	,
+$ vi arquillian.xml
+...
+<container qualifier="wildfly-managed-foo" default="false">
+		<configuration>
+			<property name="jbossHome">/Users/ervelden/bin/wildfly-10.1.0.Final</property>			/ hoeft NIET,
+
+/ wat er wel in arquillian.xml staat, is waarheen we de WAR schrijven die ShrinkWrap heeft create:
+
+$ vi arquillian.xml
+
+<arquillian	...>
+
+	<engine>
+		<property name="deploymentExportPath">target/deployments</property>
+	</engine>
+	
+	<defaultProtocol type="Servlet 3.0"></defaultProtocol>		/ TODO
+
+/ 13	. 
+
+/ workspace-jbosstools-jee-oxygen-wildfly-quickstart
+
+/ we moeten met de test erbij op 3 plaatsen de ns goed gelijk zetten	,
+
+$ vi HelloWorldService.java
+
+@WebService(targetNamespace = "http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld")
+public interface HelloWorldService {
+
+
+$ vi HelloWorldServiceImpl.java
+
+@WebService(serviceName = "HelloWorldService", portName = "HelloWorld", name = "HelloWorld", endpointInterface = "org.jboss.as.quickstarts.wshelloworld.HelloWorldService",
+    targetNamespace = "http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld")
+public class HelloWorldServiceImpl implements HelloWorldService {
+
+$ vi Client.java
+
+    public Client(final URL wsdlUrl) {
+        QName serviceName = new QName("http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld", "HelloWorldService");
+
+
+/ we zagen hier en daar,
+targetNamespace = "http://www.jboss.org/eap/quickstarts/wshelloworld/HelloWorld"
+
+/ mvn clean test -Parq-wildfly-remote
+/ OK,
+
+/ 1313	. 
+
+/ we hoeven op de endpoint interface helemaal geen targetNamespace te geven, 
+
+@WebService
+public interface HelloWorldService {
+
+/ is OK,
+
+/ op impl HelloWorldServiceImpl moet het wel,
+
+
+/ 1313	. 
+
+/ geef	,
+http://localhost:8080/wildfly-helloworld-ws/HelloWorldService?wsdl	
+
+/ we zien de juiste ns, 
+
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="
+http://schemas.xmlsoap.org/soap/http" name="HelloWorldService" targetNamespace="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+...
+
+/ 1313	. 
+
+$ git status
+On branch 10.x
+Your branch is up-to-date with 'origin/10.x'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   src/main/java/org/jboss/as/quickstarts/wshelloworld/HelloWorldService.java
+        modified:   src/test/java/org/jboss/as/quickstarts/wshelloworld/Client.java
+        modified:   src/test/resources/arquillian.xml
+
+
+/ 13	. 
+
+/ In arquillian moeten we niet de jbossHome geven, want wildfly draait al,
+/ (We mogen WH wel jbossHome geven, maar wordt toch niet used,
+
+$ vi pom.xml
+
+        <profile>
+            <!-- An optional testing profile that executes tests in your
+                WildFly instance using Arquillian -->
+            <!-- This profile will start a new WildFly instance, and execute
+                the test, shutting it down when done -->
+            <!-- Run with: mvn clean test -Parq-wildfly-managed -->
+            <id>arq-wildfly-managed</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.wildfly.arquillian</groupId>
+                    <artifactId>wildfly-arquillian-container-managed</artifactId>
+                    <scope>test</scope>
+                </dependency>
+
+        <profile>
+            <!-- An optional Arquillian testing profile that executes tests
+                in a remote WildFly instance -->
+            <!-- Run with: mvn clean test -Parq-wildfly-remote -->
+            <id>arq-wildfly-remote</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.wildfly.arquillian</groupId>
+                    <artifactId>wildfly-arquillian-container-remote</artifactId>
+                    <scope>test</scope>
+                </dependency>
+
+/ we zien dus een andere container adapter, die controls and communicates with a container	, 
+/ die remote adapter kijkt WH niet naar jbossHome, maar naar de port,
+
+/ 13	. 
+
+/ print de SOAP messages	,
+
+/ we kunnen ook -Dorg.apache.cxf.logging.enabled=true,	 maar dan niet pretty geprint	, maar de payload staat op 1 regel	,
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\standalone.bat -Dorg.apache.cxf.logging.enabled=pretty
+
+----------------------------
+ID: 1
+Address: http://127.0.0.1:8080/wildfly-helloworld-ws/HelloWorldService?wsdl
+Http-Method: GET
+Content-Type:
+Headers: {Accept=[text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2], connection=[keep-alive], Content-Type=[null], Host=[127.0.0.1:8080], User-Agent=[Java/1.8.0_144]}
+--------------------------------------
+16:28:54,897 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-2) Inbound Message
+----------------------------
+ID: 2
+Address: http://localhost:8080/wildfly-helloworld-ws/HelloWorldService
+Encoding: UTF-8
+Http-Method: POST
+Content-Type: text/xml; charset=utf-8
+Headers: {Accept=[text/xml, multipart/related], connection=[keep-alive], Content-Length=[216], content-type=[text/xml; charset=utf-8], Host=[localhost:8080], SOAPAction=[""], User-Agent=[JAX-WS RI 2.2.9-b130926.1035 svn-revision#5f6196f2b90e9460065a4c2f4e30e065b245e51e]}
+Payload: <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+  <S:Body>
+    <ns2:sayHello xmlns:ns2="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld"/>
+  </S:Body>
+</S:Envelope>
+
+--------------------------------------
+16:28:54,975 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-2) Outbound Message
+---------------------------
+ID: 2
+Response-Code: 200
+Encoding: UTF-8
+Content-Type: text/xml
+Headers: {}
+Payload: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns2:sayHelloResponse xmlns:ns2="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+      <return>Hello World!</return>
+    </ns2:sayHelloResponse>
+  </soap:Body>
+</soap:Envelope>
+
+--------------------------------------
+16:28:55,022 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-3) Inbound Message
+----------------------------
+ID: 3
+Address: http://127.0.0.1:8080/wildfly-helloworld-ws/HelloWorldService?wsdl
+Http-Method: GET
+Content-Type:
+Headers: {Accept=[text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2], connection=[keep-alive], Content-Type=[null], Host=[127.0.0.1:8080], User-Agent=[Java/1.8.0_144]}
+--------------------------------------
+16:28:55,069 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-4) Inbound Message
+----------------------------
+ID: 4
+Address: http://localhost:8080/wildfly-helloworld-ws/HelloWorldService
+Encoding: UTF-8
+Http-Method: POST
+Content-Type: text/xml; charset=utf-8
+Headers: {Accept=[text/xml, multipart/related], connection=[keep-alive], Content-Length=[245], content-type=[text/xml; charset=utf-8], Host=[localhost:8080], SOAPAction=[""], User-Agent=[JAX-WS RI 2.2.9-b130926.1035 svn-revision#5f6196f2b90e9460065a4c2f4e30e065b245e51e]}
+Payload: <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+  <S:Body>
+    <ns2:sayHelloToName xmlns:ns2="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+      <arg0>John</arg0>
+    </ns2:sayHelloToName>
+  </S:Body>
+</S:Envelope>
+
+--------------------------------------
+16:28:55,069 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-4) Outbound Message
+---------------------------
+ID: 4
+Response-Code: 200
+Encoding: UTF-8
+Content-Type: text/xml
+Headers: {}
+Payload: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns2:sayHelloToNameResponse xmlns:ns2="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+      <return>Hello John!</return>
+    </ns2:sayHelloToNameResponse>
+  </soap:Body>
+</soap:Envelope>
+
+--------------------------------------
+16:28:55,100 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-5) Inbound Message
+----------------------------
+ID: 5
+Address: http://127.0.0.1:8080/wildfly-helloworld-ws/HelloWorldService?wsdl
+Http-Method: GET
+Content-Type:
+Headers: {Accept=[text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2], connection=[keep-alive], Content-Type=[null], Host=[127.0.0.1:8080], User-Agent=[Java/1.8.0_144]}
+--------------------------------------
+16:28:55,147 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-6) Inbound Message
+----------------------------
+ID: 6
+Address: http://localhost:8080/wildfly-helloworld-ws/HelloWorldService
+Encoding: UTF-8
+Http-Method: POST
+Content-Type: text/xml; charset=utf-8
+Headers: {Accept=[text/xml, multipart/related], connection=[keep-alive], Content-Length=[281], content-type=[text/xml; charset=utf-8], Host=[localhost:8080], SOAPAction=[""], User-Agent=[JAX-WS RI 2.2.9-b130926.1035 svn-revision#5f6196f2b90e9460065a4c2f4e30e065b245e51e]}
+Payload: <S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+  <S:Body>
+    <ns2:sayHelloToNames xmlns:ns2="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+      <arg0>John</arg0>
+      <arg0>Mary</arg0>
+      <arg0>Mark</arg0>
+    </ns2:sayHelloToNames>
+  </S:Body>
+</S:Envelope>
+
+--------------------------------------
+16:28:55,162 INFO  [org.apache.cxf.services.HelloWorldService.HelloWorld.HelloWorldService] (default task-6) Outbound Message
+---------------------------
+ID: 6
+Response-Code: 200
+Encoding: UTF-8
+Content-Type: text/xml
+Headers: {}
+Payload: <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ns2:sayHelloToNamesResponse xmlns:ns2="http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld">
+      <return>Hello John, Mary &amp; Mark!</return>
+    </ns2:sayHelloToNamesResponse>
+  </soap:Body>
+</soap:Envelope>
+
+--------------------------------------
+
+
+
+			
+
+
+
+
+/ 7	. 
+
+/ 
+
+/ 7	. 
+
+/ misc
+ 	
+
+/ 13	. 
+
+/ undertow	, 
+
+/ lees,
+https://www.upwork.com/hiring/development/the-http2-protocol-its-pros-cons-and-how-to-start-using-it/	
+https://developers.google.com/web/fundamentals/performance/http2/
+
+/ 7	. 
+
+/ we willen helloworld-ws beter bestuderen, en @Resource WebServiceContext add aan HelloWorldServiceImpl,
+
+/ we werken in de ws workspace-jbosstools-jee-oxygen-wildfly-quickstart, maar de src zijn in java/quickstart/	,
+
+/ we moeten niet in eclipse het project helloworld-ws copy , want dan komt hij in de workspace, en niet in java/quickstart/,
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/quickstart (10.x)
+$ cp -a helloworld-ws abc-helloworld-ws
+
+$ git status
+On branch 10.x
+Your branch is up-to-date with 'origin/10.x'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   helloworld-ws/src/main/java/org/jboss/as/quickstarts/wshelloworld/HelloWorldService.java
+        modified:   helloworld-ws/src/test/java/org/jboss/as/quickstarts/wshelloworld/Client.java
+        modified:   helloworld-ws/src/test/resources/arquillian.xml
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        abc-helloworld-ws/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/quickstart (10.x)
+$ git add .
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/quickstart (10.x)
+$ git status
+On branch 10.x
+Your branch is up-to-date with 'origin/10.x'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        new file:   abc-helloworld-ws/README.md
+        new file:   abc-helloworld-ws/pom.xml
+        new file:   abc-helloworld-ws/src/main/java/org/jboss/as/quickstarts/wshelloworld/HelloWorldService.java
+        new file:   abc-helloworld-ws/src/main/java/org/jboss/as/quickstarts/wshelloworld/HelloWorldServiceImpl.java
+        new file:   abc-helloworld-ws/src/main/webapp/WEB-INF/beans.xml
+        new file:   abc-helloworld-ws/src/main/webapp/index.html
+        new file:   abc-helloworld-ws/src/test/java/org/jboss/as/quickstarts/wshelloworld/Client.java
+        new file:   abc-helloworld-ws/src/test/java/org/jboss/as/quickstarts/wshelloworld/ClientArqTest.java
+        new file:   abc-helloworld-ws/src/test/java/org/jboss/as/quickstarts/wshelloworld/ClientTest.java
+        new file:   abc-helloworld-ws/src/test/resources/arquillian.xml
+        modified:   helloworld-ws/src/main/java/org/jboss/as/quickstarts/wshelloworld/HelloWorldService.java
+        modified:   helloworld-ws/src/test/java/org/jboss/as/quickstarts/wshelloworld/Client.java
+        modified:   helloworld-ws/src/test/resources/arquillian.xml
+
+$ git commit -m "helloworld-ws: ns ok set, copied naar abc-helloworld-ns"
+
+$ vi pom.xml
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.wildfly.quickstarts</groupId>
+    <artifactId>abc-wildfly-helloworld-ws</artifactId>				/  !
+    <version>10.0.0-SNAPSHOT</version>
+
+/ voordat we dit project kunnen import in eclipse, moeten we eerst de artifactId aanpassen, anders zegt eclipse dat het project wildfly-helloworld-ws al bestaat	,
+
+ERVELDEN@LBNL031514 MINGW64 ~/java/quickstart (10.x)
+$ git add .
+$ git commit -m "change artifactId to abc-wildfly-helloworld-ws voor eclipse"
+[10.x ebc9c885] change artifactId to abc-wildfly-helloworld-ws voor eclipse
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+/ nu abc-helloworld-ns import in eclipse,
+/ we maken een run config in eclipse: abchelloworld-ws-clean-test-Parq-wildfly-remote	, en die doet het meteen	,
+
+/ 13	. 
+
+/ wat doet in BVV:
+
+$ vi HelloWorldServiceImpl.java
+
+class HelloWorldServiceImpl{
+
+@Resource
+WebServiceContext context 
+
+MessageContext ctx=context.getMessageContext()
+HttpServletRequest req=(HttpServletRequest)ctx.get(MessageContext.SERVLET_REQUEST)
+HttpPortUtil.setPort(req.getLocalPort())
+
+/ 13	. 
+
+/ lees,
+https://www.baeldung.com/jax-ws
+https://www.mkyong.com/webservices/jax-ws/jax-ws-hello-world-example-document-style/
+
+/ de default @SoapBinding is Document/Literal	,
+
+/ als we geen params geven aan @Webservice 
+
+/ 13	. 
+
+/ we kunnen arquillian debug, of wildfly,
+
+/ 1313	. 
+
+/ als we wildfly willen debug, moeten we 
+$ >bin\standalone.bat -Dorg.apache.cxf.logging.enabled=pretty  --debug
+/ wacht niet echt, maar port 8787 TODO
+
+/ als we arquillian willen gaan debug, dan moeten we in de mvn run config,
+$ vi abc-helloworld-ws-clean-test-Parq-wildfly-remote
+-Dmaven.surefire.debug clean test -Parq-wildfly-remote													/ !
+/ als we deze start, zien we dat hij wacht: Listening for transport dt_socket at address: 5005
+
+/ 1313	. 
+
+/ als we aan willen haken op de arquillian debug, moeten we een debug config 'Remote Java Application' maken, geen mvn ding,
+$ vi abc-helloworld-ws-attach-arquillian
+project: abc-wildfly-helloworld-ws
+port: 5005
+
+
+/ als we aan wildfly aan willen haken,
+$ vi abc-helloworld-ws-attach-wildfly
+project: abc-wildfly-helloworld-ws
+port: 8787
+
+/ ga naar,
+http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl
+
+
+
+
+/ 1313	. 
+
+/ als we de test willen debug, moeten we,
+
+$ bin\standalone.bat	// --debug is NIET nodig	, want we willen niet wildfly debug,
+/ run de run config abc-helloworld-ws-clean-test-Parq-wildfly-remote	, met de -Dmaven.surefire.plugin, analoog aan standalone --debug,
+/ debug de debug config abc-helloworld-ws-attach-arquillian	, hij valt in de b's van de client	,
+
+/ 13	. 
+
+/ In ClientArqTest doen we,
+
+@RunWith(Arquillian.class)
+public class ClientArqTest {
+    /**
+     * The name of the WAR Archive that will be used by Arquillian to deploy the application.
+     */
+    private static final String APP_NAME = "wildfly-helloworld-ws2";
+    /**
+	
+/ want wildfly-helloworld-ws is al deployed (op de gewone manier)	, dus is er al,
+
+/ 1313	. 
+
+/ lees,
+http://arquillian.org/blog/tags/examples/	
+/ over Kubernetes	, 
+
+   @ArquillianResource       (3)
+    OpenShiftClient client;
+
+
+
+/ 13	. 
+
+/ @ArquillianResource	,
+
+/ als je iets anders wilt inject als met @Inject, of @Resource,
+
+/ lees,
+https://stackoverflow.com/questions/38852158/what-is-a-arquillian-resource
+
+
+Arquillian has support for multiple injection points like @EJB, @Resources and @Inject, but there are also non standard component model objects available within the Arquillian runtime that can be of useful during testing.
+Arquillian can expose these objects to the test case using the @ArquillianResource injection annotation.
+
+/ 1313	. 
+
+@ArquillianResource
+ private InitialContext context;
+
+ @Test
+ public void shouldBeAbleToGetContext() {
+      context.lookup("");
+ }
+ 
+/ of zo,
+
+/ 1313	. 
+ 
+Usage Example of Argument injection:
+
+ @Test
+ public void shouldBeAbleToGetContext(@ArquillianResource InitialContext context) {
+      context.lookup("");
+ }
+ 
+/ 13	 
+
+
+/ In 
+$ vi ClientArqTest.java
+
+    private static final String APP_NAME = "abc-wildfly-helloworld-ws2";
+
+    @Deployment(testable = false)
+    public static WebArchive createDeployment() {
+        return ShrinkWrap.create(WebArchive.class, APP_NAME + ".war").addPackage(HelloWorldService.class.getPackage());
+    }
+
+    @ArquillianResource
+    private URL deploymentUrl;
+	
+    @Before
+    public void setup() {
+        try {
+            client = new Client(new URL(deploymentUrl, WSDL_PATH));
+			
+   private static final String WSDL_PATH = "HelloWorldServiceX?wsdl";
+
+	
+/ In de debugger zien we dat deploymentUrl is: http://localhost:8080/abc-wildfly-helloworld-ws2	,
+/ dat klopt, want http://localhost:8080/abc-wildfly-helloworld-ws2/HelloWorldServiceX?wsdl is de url	,
+
+/ we maken hier context name = APP_NAME, in de ShrinkWrap.create call	, maar als we zelf deploy (en niet arq), dan is de context name de artifactId: abc-wildfly-helloworld-ws	,
+
+/ 13	. 
+
+/ 1313	. 
+
+/ De context name is de artifactId in de pom, de context path is dan: 
+http://localhost:8080/abc-wildfly-helloworld-ws
+
+
+/ we hebben geoefend met de args van @WebService, zodat de wsdl verandert. De client, hier de arq client, uses de wsdl via de URL hier vlakboven	,
+
+$ vi HelloWorldServiceImpl.java
+
+@WebService(serviceName = "HelloWorldServiceX", portName = "HelloWorldY", name = "HelloWorldZ", endpointInterface = "org.jboss.as.quickstarts.wshelloworld.HelloWorldService",
+    targetNamespace = "http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld")
+public class HelloWorldServiceImpl implements HelloWorldService {
+
+/ HelloWorldZ zien we NIET terug in de wsdl,
+/ TODO
+
+/ in de client moeten we op 2 plaatsen aanpassen:
+
+$ vi ClientArqTest.java
+
+    private static final String APP_NAME = "abc-wildfly-helloworld-ws2"; / heeft NIETS met wsdl te maken, maar dit is handig, omdat de appl 
+			/ deployed kan zijn in wildfly,	 en je kunt niet appl met dezelfde naam deploy,
+   
+   private static final String WSDL_PATH = "HelloWorldServiceX?wsdl";			/ !
+
+$ vi Client.java
+
+    public Client(final URL wsdlUrl) {
+        QName serviceName = new QName("http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld", "HelloWorldServiceX");	 / !
+
+        Service service = Service.create(wsdlUrl, serviceName);
+        helloWorldService = service.getPort(HelloWorldService.class);
+		
+/ een service is een collectie van ports, hier met service.getPort pakt hij er 1 van ,
+
+/ In,
+http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl=HelloWorldService.wsdl
+
+<wsdl:portType name="HelloWorldService">
+
+http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl
+
+<wsdl:import location="http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl=HelloWorldService.wsdl" namespace="http://wshelloworld.quickstarts.as.jboss.org/"> </wsdl:import>
+<wsdl:binding name="HelloWorldServiceXSoapBinding" type="ns1:HelloWorldService">
+
+<wsdl:service name="HelloWorldServiceX">
+<wsdl:port binding="tns:HelloWorldServiceXSoapBinding" name="HelloWorldY">
+		
+/ 13	 .
+
+/ we zien service.getPort(HelloWorldService.class)	, 
+
+$ vi http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl
+
+	<wsdl:import location="http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl=HelloWorldService.wsdl" namespace="			http://wshelloworld.quickstarts.as.jboss.org/"> </wsdl:import>
+	<wsdl:binding name="HelloWorldServiceXSoapBinding" type="ns1:HelloWorldService">
+	
+	<wsdl:service name="HelloWorldServiceX">
+		<wsdl:port binding="tns:HelloWorldServiceXSoapBinding" name="HelloWorldY">
+			<soap:address location="http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX"/>
+		</wsdl:port>
+	</wsdl:service>
+
+/ in de imported wsdl wordt de port type def, en wordt in de binding def used, hierboven: ns1:HelloWorldService	,
+
+$ vi http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl=HelloWorldService.wsdl
+
+<wsdl:portType name="HelloWorldService">
+	<wsdl:operation name="sayHello">
+		<wsdl:input message="ns1:sayHello" name="sayHello"> </wsdl:input>
+		<wsdl:output message="ns1:sayHelloResponse" name="sayHelloResponse"> </wsdl:output>
+	</wsdl:operation>
+
+
+
+/ 13	 .
+
+/ lees,
+http://arquillian.org/blog/tags/rest/
+
+/ lees,
+https://docs.jboss.org/author/display/WFLY10/Apache+CXF+integration / SOAP over JMS	,
+
+/ we zien in de arq client com.sun.xml.internal.ws types	, 
+/ maar dit is arq, niet wildfly,
+/ wildfly werkt WH met cxf, arq niet, 
+/ TODO
+
+    public Client(final URL wsdlUrl) {
+        QName serviceName = new QName("http://www.wildfly.org/quickstarts/wshelloworld/HelloWorld", "HelloWorldServiceX");
+
+        Service service = Service.create(wsdlUrl, serviceName);
+        helloWorldService = service.getPort(HelloWorldService.class);
+        assert (helloWorldService != null);
+    }
+	
+/ 13	. 
+
+/ google,
+soap service port difference
+/ lees,
+https://stackoverflow.com/questions/11561/what-is-the-difference-between-an-endpoint-a-service-and-a-port-when-working-w
+
+/ 1313	. 
+
+I'd hop over to http://www.w3.org/TR/wsdl.html which I think explains Port, Service and Endpoint reasonably well. A locator is an implementation specific mechanism that some WS stacks use to provide access to service endpoints.
+
+/ 1313	. 
+
+I would like to add that <port> and <endpoint> serve the same purpose, but port is used by WSDL 1.1 and endpoint by WSDL 2.0.
+
+/ 1313	. 
+
+I found the information based on Kevin Kenny's answer, but I figured I'd post it here for others.
+
+A WSDL document defines services as collections of network endpoints, or ports. In WSDL, the abstract definition of endpoints and messages is separated from their concrete network deployment or data format bindings. This allows the reuse of abstract definitions: messages, which are abstract descriptions of the data being exchanged, and port types which are abstract collections of operations. The concrete protocol and data format specifications for a particular port type constitutes a reusable binding. A port is defined by associating a network address with a reusable binding, and a collection of ports define a service. Hence, a WSDL document uses the following elements in the definition of network services:
+
+Types– a container for data type definitions using some type system (such as XSD).
+Message– an abstract, typed definition of the data being communicated.
+Operation– an abstract description of an action supported by the service.
+Port Type–an abstract set of operations supported by one or more endpoints.
+Binding– a concrete protocol and data format specification for a particular port type.
+Port– a single endpoint defined as a combination of a binding and a network address.
+Service– a collection of related endpoints
+
+/ 13	. 
+
+/ soap service multiple ports
+
+/ we willen de bestaande wsdl aanpassen, met multiple ports,
+
+https://stackoverflow.com/questions/15881256/multiple-port-service-defined-in-a-wsdl
+
+/ we hebben stored in ~\temp\hello\helloworld.wsdl
+ http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl 
+/ we hebben stored in ~\temp\hello\helloworldincl.wsdl
+ http://localhost:8080/abc-wildfly-helloworld-ws/HelloWorldServiceX?wsdl=HelloWorldService.wsdl
+ 
+/ en we hebben aangepast,
+~\temp\helloworld.wsdl
+<wsdl:import location="helloworldincl.wsdl" namespace="http://wshelloworld.quickstarts.as.jboss.org/"> </wsdl:import>
+
+/ doe,
+C:\Users\ervelden\temp\hello>wsimport -keep helloworld.wsdl
+/ TODO
+/ @WebServiceClient, @Endpoint,
+
+/ wsgen 
+/ TODO
+
+/ 1313	. 
+
+/ google
+@WebServiceClient
+/ lees,
+https://stackoverflow.com/questions/23071106/what-is-the-purpose-of-the-webserviceclient-annotation
+->
+https://coderanch.com/t/225027/Web-Services/java/WebService-WebServiceClient-Annotations
+->
+https://coderanch.com/t/224792/java/Confusion-writing-web-service-client#000003
+
+http://java.boot.by/ocewsd6-guide/ch06.html
+
+
+/google
+wsimport wsgen
+/ lees,
+https://coderanch.com/t/625764/certification/difference-wsimport-wsgen-command
+->
+http://www.mkyong.com/webservices/jax-ws/jax-ws-wsgen-tool-example/
+
+/ 7	. 
+
+/ proj arquillian-cdi-study
+
+/ 13. 
+
+/ forge: project-new heeft default --type war	, 
+/ als we geen --type geven, zien we in de pom.xml: <packaging>war</packaging>
+/ maar mvn heeft default packaging jar, dus als we project-new --type jar, dan zien we in de pom geen <packaging>	,
+
+/ 13	. 
+
+/ maak een arquillian test, 
+
+/ in LOG_angular20180124.txt,
+/ lees,
+/ SAMENVATTING FORGE ARQUILLIAN CREATE JPA PROJECT
+
+workspace-jbosstools-jee-oxygen]$ project-new --named arquillian-cdi-study --stack JAVA_EE_7 --type jar
+/ import in eclipse,
+/ --type war is de default,
+/ in src\main\java is er al een dir org\arquillian\jpa\study2
+/ in de pom zien we javax:javaee-api, provided,
+
+[arquillian-cdi-study]$ arquillian-setup --test-framework junit --container-adapter wildfly-remote
+/ in pom verschijnen van arquillian-junit en arquillian-chameleon <type>pom</type> <scope>import</scope>s, en de profile arquillian-wildfly-remote, 
+/ en er is een arquillian.xml met een property chameleonTarget 
+
+[arquillian-cdi-study]$ arquillian-container-configuration --container arquillian-wildfly-remote --container-option jbossHome --container-value C:\Users\ervelden\bin\wildfly-10.1.0.Final
+/ HOEFT NIET,
+
+[arquillian-jpa-study2]$ cdi-new-bean --named MyService --scoped SESSION
+/ @SessionScoped (managed) CDI bean src/main/java/org.arquillian.cdi.study.beans.MyService.java,
+
+[MyService.java]$ arquillian-create-test --targets org.arquillian.jpa.study2.beans.MyService
+/ er is src/test/java/MyServiceTest.java	,
+
+[MyServiceTest.java]$ jpa-setup --jpa-provider Hibernate
+/ er is src/main/resources/META-INF/persistence.xml, met ds java:jboss/datasources/ExampleDS
+/ Waarom deze ds? In jboss-cli: /subsystem=datasources/data-source=ExampleDS is enigste, de andere zijn /subsystem=datasources/xa-data-source
+/ TODO
+/ we edit deze: java:jboss/datasources/PostgreSQLDS en  org.hibernate.dialect.PostgreSQLDialect
+
+[persistence.xml]$ jpa-new-entity --named Language
+/ @Entity bean src/main/java/org.arquillian.cdi.study.model.Language.java
+/ is WH geen EJB bean, want wordt nooit injected	, 
+/ TODO
+
+[Language.java]$ jpa-new-field --named name
+
+[Language.java]$ jpa-generate-daos-from-entities --generator JPA_ENTITY --persistence-unit arquillian-jpa-persistence-unit
+-targets org.arquillian.jpa.model.Language
+/ er is src/main/java/org.arquillian.cdi.study.dao.LanguageDao	, is @Stateless	,
+
+[LanguageDao.java]$ arquillian-create-test --targets org.arquillian.jpa.dao.LanguageDao --enable-jpa
+/ creates src/test/java/org.arquillian.cdi.study.dao.LanguageDaoTest
+/ pas @Deployment method aan: addClasses(...,Language.class)
+/ forge completion kent LanguageDao niet,
+/ TODO
+
+$ build test
+
+/ Wanneer verschijnt src/main/resources/META-INF/beans.xml	?
+/ TODO
+
+/ wordt een @WebService ooit injected?
+/ TODO
+/ een @Entity wordt nooit injected? 
+/ TODO
+/ Wat is context?  Wat is een contextual bean? Is dat een CDI bean?
+/ TODO
+
+/ lees,
+https://github.com/tolis-e/arquillian-wildfly-example/blob/master/src/test/resources/arquillian.xml
+
+/ 7	. 
+
+/ em.persist , em.merge
+
+/ google,
+entitymananger merge persist
+/ lees,
+https://stackoverflow.com/questions/1069992/jpa-entitymanager-why-use-persist-over-merge
+https://vladmihalcea.com/jpa-persist-and-merge/
+
+/ 7	. 
+
+MyEntity e = new MyEntity();
+
+// scenario 1
+// tran starts
+em.persist(e); 
+e.setSomeField(someValue); 
+// tran ends, and the row for someField is updated in the database
+
+// scenario 2
+// tran starts
+e = new MyEntity();
+em.merge(e);
+e.setSomeField(anotherValue); 
+// tran ends but the row for someField is not updated in the database
+// (you made the changes *after* merging)
+
+// scenario 3
+// tran starts
+e = new MyEntity();
+MyEntity e2 = em.merge(e);
+e2.setSomeField(anotherValue); 
+// tran ends and the row for someField is updated
+// (the changes were made to e2, not e)
+
+/ 7	. 
+
+/ we gaan zelf verder	, 
+
+/ we rename MyService naar OuterService	, een @SessionScoped	,
+
+[LanguageDaoTest.java]$ ejb-new-bean --named InnerService --type
+MESSAGEDRIVEN  SINGLETON  STATEFUL  STATELESS
+[LanguageDaoTest.java]$ ejb-new-bean --named InnerService --type STATELESS
+/ created src/main/java/org.arquillian.cdi.study.service.InnerService	, een @Stateless @LocalBean	,
+
+/ lees,
+http://theopentutorials.com/tutorials/java-ee/ejb3/session-beans/client-view/no-interface-client-view-in-ejb-3-1/
+/ bij @Inject kun je de @LocalBean class geven, je hoeft niet een interface te maken, die de class moet implements, en die je bij @Inject dan zou use,
+
+
+
+/ 13	. 
+
+/ google
+@Local @LocalBean
+/ lees,
+https://stackoverflow.com/questions/7362257/inject-ejb-local-remote-localbean-etc-confused
+
+With Java EE 6, Java Enterprise has changed. A new JSR defines a so-called managed bean (don't confuse with JSF managed beans) as a sort of minimum component that can still benefit from the container in terms of dependency injection and lifecycle management. This means: If you have a component and "just" want to use DI and let the container control its lifecycle, you do not need to use EJBs for it. You'll end up using EJBs if - and only if - you explicitly need EJB functionality like transaction handling, pooling, passivation and clustering.
+
+This makes the answer to your question come in three parts:
+
+Use @Inject over @EJB, the concept of CDI (a) works for all managed beans (this includes EJBs) and (b) is stateful and therefore far superior over pure @EJB DI
+Are you sure that you need EJBs for your components?
+It's definitely worthwhile to have a look at the CDI documentation
+
+/ google
+implicit beans
+/ lees,
+https://docs.jboss.org/weld/reference/latest/en-US/html/ee.html#_implicit_bean_archive
+
+/ 13	.
+
+An explicit bean archive is an archive which contains a beans.xml file:
+
+with a version number of 1.1 (or later), with the bean-discovery-mode of all, or,
+like in CDI 1.0 – with no version number, or, that is an empty file.
+It behaves just like a CDI 1.0 bean archive – i.e. Weld discovers each Java class, interface or enum in such an archive.
+
+Note
+The beans.xml file must be located at:
+
+META-INF/beans.xml (for jar archives), or,
+WEB-INF/beans.xml or WEB-INF/classes/META-INF/beans.xml (for WAR archives).
+You should never place a beans.xml file in both of the WEB-INF and the WEB-INF/classes/META-INF directories. Otherwise your application would not be portable.
+
+/ 13	.  
+
+15.6.2. Implicit bean archive
+An implicit bean archive is an archive which contains one or more bean classes with a bean defining annotation, or one or more session beans. It can also contain a beans.xml file with a version number of 1.1 (or later), with the bean-discovery-mode of annotated. Weld only discovers Java classes with a bean defining annotation within an implicit bean archive.
+
+Note
+The set of bean defining annotations contains:
+
+@ApplicationScoped, @SessionScoped, @ConversationScoped and @RequestScoped annotations,
+all other normal scope types,
+@Interceptor and @Decorator annotations,
+all stereotype annotations (i.e. annotations annotated with @Stereotype),
+and the @Dependent scope annotation.
+However, @Singleton is not a bean defining annotation. See 2.5.1. Bean defining annotations to learn more.
+/ refs naar http://docs.jboss.org/cdi/spec/2.0/cdi-spec.html#bean_defining_annotations
+
+/ 13	. 
+
+/ google,
+arquillian test requestscoped
+/ lees,
+https://developer.jboss.org/thread/219867
+->
+https://stackoverflow.com/questions/13179180/isolated-testing-of-backing-bean-that-uses-requestparam-without-jsf-pages
+
+/ lees arquillian docs,
+https://docs.jboss.org/author/display/ARQ/Container+configuration
+
+/ 13	. 
+
+/ in forge,
+servlet-new-servlet
+soap-new service
+rest/
+
+/ google 
+forge rest service
+/ lees,
+http://www.mastertheboss.com/jboss-frameworks/resteasy/creating-a-rest-application-with-jboss-forge-in-a-minute
+
+[SoapService.java]$ jpa-new-entity --named Customer
+***SUCCESS*** JPA Entity org.arquillian.cdi.study.model.Customer was created
+[Customer.java]$ jpa-new-field --n
+--named  --not-insertable  --not-nullable  --not-updatable
+[Customer.java]$ jpa-new-field --named firstName
+***SUCCESS*** Field firstName created
+[Customer.java]$ jpa-new-field --named surName
+***SUCCESS*** Field surName created
+[Customer.java]$ jpa-new-field --named email
+***SUCCESS*** Field email created
+[Customer.java]$ cd ~~
+/ TODO moet dit per se ?
+[arquillian-cdi-study]$ rest-generate-endpoints-from-entities --targets org.arquillian.cdi.study.model.
+org.arquillian.cdi.study.model.Customer  org.arquillian.cdi.study.model.Language
+[arquillian-cdi-study]$ rest-generate-endpoints-from-entities --targets org.arquillian.cdi.study.model.Customer
+***SUCCESS*** JAX-RS has been installed.
+/ TODO
+***SUCCESS*** Endpoint created
+/ created subclass of javax.ws.rs.core.Application, created @Stateless CustomerEndpoint	,
+
+/ Intermezzo
+
+/ de Application class is ipv configuratie in web.xml,
+
+/ lees,
+https://stackoverflow.com/questions/12452064/how-to-configure-jax-rs-web-service-web-xml-properly
+
+3
+
+You've set the wrong servlet. Assuming that you're using Jersey, You need to specify your servlet as follows:
+
+<servlet>
+    <servlet-name>Rest</servlet-name>
+    <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+    <init-param>
+        <param-name>com.sun.jersey.config.property.packages</param-name>
+        <param-value>org.LMS.Controller.Test</param-value>
+    </init-param>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+    <servlet-name>Rest</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+</servlet-mapping>
+
+And when you want to access it, you use the following url
+
+http://(host)[:port]/(context path)/rest/test
+e.g. 
+http://localhost:8080/MyRestProject/rest/test
+
+/ blijkbaar is er ook altijd een servlet,
+/ bij ons ook?
+/ TODO 
+
+/ lees,
+https://stackoverflow.com/questions/5930795/difference-between-servlet-and-web-service
+
+
+/ Einde Intermezzo
+
+/ 13	. 
+
+/ in forge met build kun je alles doen wat je met mvn doet, behalve: clean, maar dat doet hij zelf al,
+$ build
+/ doet WH $ mvn clean install
+$ build package
+/ doet WH $ mvn clean package
+$ build wildfly:redeploy
+/ doet WH $ mvn clean wildfly:redeploy
+
+$ vi pom.xml
+	<packaging>war</packaging>
+...
+          <plugin>	<!--  self -->
+			  <groupId>org.wildfly.plugins</groupId>
+			  <artifactId>wildfly-maven-plugin</artifactId>
+			  <version>1.2.2.Final</version>
+			</plugin>
+        </plugins>
+
+/ Met de nieuwste versie 2.0.1.Final krijg ik een foutmelding bij
+$ mvn clean wildfly:deploy
+
+/ in jboss-cli kun je met $ deployment-info zien:
+[standalone@localhost:9990 /] deployment-info
+NAME                          RUNTIME-NAME                  PERSISTENT ENABLED STATUS
+arquillian-cdi-study.war      arquillian-cdi-study.war      true       true    OK	
+
+/ 13	. 
+
+/ verder op,
+http://www.mastertheboss.com/jboss-frameworks/resteasy/creating-a-rest-application-with-jboss-forge-in-a-minute
+
+/ we gaan verder in een git-bash console,
+
+$  curl -d '{ "firstName":"John","surName":"Doe","email":"john.doe@company.com" }' -H "Content-Type:application/json" -X POST http://localhost:8080/arquillian-cdi-study/rest/customers
+$  curl -d '{ "firstName":"Uncle ","surName":"Tom","email":"uncle.tom@company.com" }' -H "Content-Type:application/json" -X POST http://localhost:8080/arquillian-cdi-study/rest/customers
+
+
+/ geef in browser:
+http://localhost:8080/arquillian-cdi-study/rest/customers/
+[
+{
+id: 1,
+version: 0,
+firstName: "John",
+surName: "Doe",
+email: "john.doe@company.com"
+},
+{
+id: 2,
+version: 0,
+firstName: "Uncle ",
+surName: "Tom",
+email: "uncle.tom@company.com"
+}
+]
+/ of,
+http://localhost:8080/arquillian-cdi-study/rest/customers/1
+{
+id: 1,
+version: 0,
+firstName: "John",
+surName: "Doe",
+email: "john.doe@company.com"
+}
+
+/ of op de command line,
+
+ERVELDEN@LBNL031514 MINGW64 ~/eclipse/workspace-jbosstools-jee-oxygen/wildfly-swarm-examples (master)
+$  curl -d '{ "firstName":"Uncle ","surName":"Tom","email":"uncle.tom@company.com" }' -H "Content-Type:application/json" -X POST http://localhost:8080/arquillian-cdi-study/rest/customers
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    72    0     0  100    72      0     72  0:00:01 --:--:--  0:00:01   230
+
+$ curl http://localhost:8080/arquillian-cdi-study/rest/customers/
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   181  100   181    0     0    181      0  0:00:01 --:--:--  0:00:01   644[{"id":2,"version":0,"firstName":"Uncle ","surName":"Tom","email":"uncle.tom@company.com"},{"id":3,"version":0,"firstName":"Uncle ","surName":"Tom","email":"uncle.tom@company.com"}]
+
+$ curl http://localhost:8080/arquillian-cdi-study/rest/customers/3
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100    89  100    89    0     0     89      0  0:00:01 --:--:--  0:00:01   356{"id":3,"version":0,"firstName":"Uncle ","surName":"Tom","email":"uncle.tom@company.com"}
+
+
+/ we doen nu,
+
+$ curl -X DELETE http://localhost:8080/arquillian-cdi-study/rest/customers/1
+
+/ geef,
+http://localhost:8080/arquillian-cdi-study/rest/customers
+[
+{
+id: 2,
+version: 0,
+firstName: "Uncle ",
+surName: "Tom",
+email: "uncle.tom@company.com"
+}
+]
+
+/ 13	. 
+
+/ MORGEN 
+
+/ soap maken met forge,
+
+/ lees,
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/6/html/development_guide/sect-jax-ws_web_service_endpoints
+
+
+
+
+
+		
+
+
+
+/ 13	. 
+
+/ forge, 
+
+https://forge.jboss.org/documentation
+
+/ lees,
+https://forge.jboss.org/document/write-a-java-ee-rest-application---basic
+
+
+
+/ 13	. 
+
+/ google
+cdi contextual bean
+/ lees,
+https://stackoverflow.com/questions/15520424/what-is-a-cdi-bean
+
+PrintServlet.java
+
+@WebServlet("/printservlet")
+public class PrintServlet extends HttpServlet {
+    @Inject private Message message;
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.getWriter().print(message.get());
+    }
+}
+
+Message.java (This class is a CDI bean)
+
+@RequestScoped
+public class Message {
+    @Override
+    public String get() {
+        return "Hello World!";
+    }
+}
+
+/ 13	. 
+
+/ google,
+CDI annotations
+/ lees,
+http://www.sws.bfh.ch/~fischli/courses/info/javaee/doc/JavaEE7AnnotationsCheatSheet.pdf
+
+CDI: javax.inject
+CMF @Inject
+@Named(value=””)
+@Singleton
+
+CDI: javax.enterprise.context
+TMF @ApplicationScoped
+TMF @SessionScoped
+TMF @ConversationScoped
+TMF @RequestScoped
+TMF @Dependent
+
+CDI: javax.enterprise.inject
+TMF @New(value=Class.class)
+TMF @Alternative
+TMF @Any
+MF @Produces, @Disposes
+
+/ lees,	
+https://dzone.com/refcardz/contexts-and-depencency?chapter=3
+
+/ ook,
+@Interceptor and @Decorator annotations
+All stereotype annotations (i.e. annotations annotated with @Stereotype),
+The @Dependent scope annotation.
+
+
+/ 13	. 
+
+$ vi pom.xml
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>3.0.3.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+	  
+/ we zien in de effective pom,
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>javax.annotation</groupId>
+        <artifactId>jsr250-api</artifactId>
+        <version>1.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>1.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>1.0-SP4</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>jboss-interceptor-api</artifactId>
+            <groupId>org.jboss.interceptor</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>jsr250-api</artifactId>
+            <groupId>javax.annotation</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+	  
+	  
+/ als we in de Central repository,
+
+https://search.maven.org/artifact/org.jboss.spec/jboss-javaee-6.0/3.0.3.Final/pom
+
+/ dan zien we,
+
+    <version.javax.activation>1.1.1</version.javax.activation>
+    <version.javax.enterprise>1.0-SP4</version.javax.enterprise>
+    <version.javax.inject>1</version.javax.inject>
+    <version.javax.jws>1.0-MR1</version.javax.jws>
+
+ <dependencyManagement>
+
+    <dependencies>
+
+      <!-- External JavaEE spec APIs (not part of the JBoss JavaEE Specs 
+        project) -->
+      <dependency>
+        <groupId>javax.activation</groupId>
+        <artifactId>activation</artifactId>
+        <version>${version.javax.activation}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <version>${version.javax.enterprise}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jboss.interceptor</groupId>
+            <artifactId>jboss-interceptor-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+ 
+/ klopt precies	,
+
+/ 7	. 
+
+/ workspace-jbosstools-jee-oxygen
+/ proj 
+
+
+/ native query in ItemDao,
+/ TODO
+/ named query in ItemDao
+/ TODO
+	
+/ 7	 
+
+/ lees,
+https://www.postgresql.org/docs/9.5/ddl-constraints.html
+
+/ het verschil tussen een fk in create table en in alter table is dat je de woorden 'foreign key' alleen in alter table plaats,
+/ constraint gebruik je in create table en alter table alleen als je de fk een naam wilt geven, anders wordt deze gen; dat is makkelijk als je een fk wilt drop	,
+
+/ on delete cascade
+
+test=> create table order_(i int primary key,s text);
+test=> create table item_(i int primary key,j int references order_ on delete cascade,s text);
+/ of, voor als je een fk later wilt veranderen geef je de fk een naam, 
+test=> create table item_(i int primary key,j int constraint order_fk references order_ on delete cascade,s text);
+test=> insert into order_ values(1,'foo');
+test=> insert into item_ values(11,1,'bar');
+test=> delete from order_;
+DELETE 1
+test=> select * from item_;
+ i | j | s
+---+---+---
+(0 rows)
+
+/ on delete restrict
+
+test=> alter table item_ drop constraint ord;
+test=> alter table item_ add constraint order_fk foreign key(j)references order_ on delete restrict;
+test=> insert into order_ values(1,'foo');
+test=> insert into item_ values(11,1,'bar');
+test=> delete from order_;
+ERROR:  update or delete on table "order_" violates foreign key constraint "order_fk" on table "item_"
+DETAIL:  Key (i)=(1) is still referenced from table "item_".
+
+/ on delete no action
+
+test=> alter table item_ drop constraint ord;
+test=> alter table item_ add constraint order_fk foreign key(j)references order_ on delete no action;
+/=
+test=> alter table item_ add constraint order_fk foreign key(j)references order_;
+
+test=> delete from order_;
+ERROR:  update or delete on table "order_" violates foreign key constraint "order_fk" on table "item_"
+DETAIL:  Key (i)=(1) is still referenced from table "item_".
+
+Restricting and cascading deletes are the two most common options. RESTRICT prevents deletion of a referenced row. NO ACTION means that if any referencing rows still exist when the constraint is checked, an error is raised; this is the default behavior if you do not specify anything. (The essential difference between these two choices is that NO ACTION allows the check to be deferred until later in the transaction, whereas RESTRICT does not.) 
+
+/ 7	 .
+
+@Entity
+public class Item implements Serializable {
+	@OneToMany(mappedBy = "item",cascade=CascadeType.ALL)
+	private Set<Bid> bids = new HashSet<>();
+/ cascade TODO
+
+/ 7	. 
+
+/ google,
+hibernate import.sql
+/ lees,
+https://stackoverflow.com/questions/673802/how-to-import-initial-data-to-database-with-hibernate
+	  
+Hibernate will create the database when the entity manager factory is created (actually when Hibernate's SessionFactory is created by the entity manager factory). If a file named import.sql exists in the root of the class path ('/import.sql') Hibernate will execute the SQL statements read from the file after the creation of the database schema. It is important to remember that before Hibernate creates the schema it empties it (delete all tables, constraints, or any other database object that is going to be created in the process of building the schema).
+
+/ we doen nu @BeforeClass in BidDaoTest.java, 
+/ maar vervang door import.sql, 
+/ en vervang in persistence.xml dat het schema niet door H. wordt create,
+/ de arq test pakt WH src/test/resources/META-INF/test-persistence.xml TODO
+
+/ 13	. 
+
+/ we moeten een Item() ctor 	, want,
+
+foo(org.arquillian.jpa.study2.dao.BidDaoTest)  Time elapsed: 0.345 sec  <<< ERROR!
+javax.ejb.EJBException: javax.persistence.PersistenceException: org.hibernate.InstantiationException: No default constructor for entity:  : org.arquillian.jpa.study2.model.Item
+        at org.hibernate.tuple.PojoInstantiator.instantiate(PojoInstantiator.java:84)
+        at org.hibernate.tuple.PojoInstantiator.instantiate(PojoInstantiator.java:100)
+        at org.hibernate.tuple.entity.AbstractEntityTuplizer.instantiate(AbstractEntityTuplizer.java:636)
+        at org.hibernate.persister.entity.AbstractEntityPersister.instantiate(AbstractEntityPersister.java:4627)
+        at org.hibernate.internal.SessionImpl.instantiate(SessionImpl.java:1470)
+        at org.hibernate.internal.SessionImpl.instantiate(SessionImpl.java:1454)
+        at org.hibernate.loader.Loader.instanceNotYetLoaded(Loader.java:1646)
+        at org.hibernate.loader.Loader.getRow(Loader.java:1544)
+        at org.hibernate.loader.Loader.getRowFromResultSet(Loader.java:727)
+        at org.hibernate.loader.Loader.processResultSet(Loader.java:972)
+        at org.hibernate.loader.Loader.doQuery(Loader.java:930)
+        at org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections(Loader.java:336)
+        at org.hibernate.loader.Loader.doQueryAndInitializeNonLazyCollections(Loader.java:306)
+        at org.hibernate.loader.Loader.loadEntity(Loader.java:2204)
+        at org.hibernate.loader.entity.AbstractEntityLoader.load(AbstractEntityLoader.java:60)
+        at org.hibernate.loader.entity.AbstractEntityLoader.load(AbstractEntityLoader.java:50)
+        at org.hibernate.persister.entity.AbstractEntityPersister.load(AbstractEntityPersister.java:3967)
+        at org.hibernate.event.internal.DefaultLoadEventListener.loadFromDatasource(DefaultLoadEventListener.java:508)
+        at org.hibernate.event.internal.DefaultLoadEventListener.doLoad(DefaultLoadEventListener.java:478)
+        at org.hibernate.event.internal.DefaultLoadEventListener.load(DefaultLoadEventListener.java:219)
+        at org.hibernate.event.internal.DefaultLoadEventListener.proxyOrLoad(DefaultLoadEventListener.java:278)
+        at org.hibernate.event.internal.DefaultLoadEventListener.doOnLoad(DefaultLoadEventListener.java:121)
+        at org.hibernate.event.internal.DefaultLoadEventListener.onLoad(DefaultLoadEventListener.java:89)
+        at org.hibernate.internal.SessionImpl.fireLoad(SessionImpl.java:1129)
+        at org.hibernate.internal.SessionImpl.access$2600(SessionImpl.java:164)
+        at org.hibernate.internal.SessionImpl$IdentifierLoadAccessImpl.load(SessionImpl.java:2696)
+        at org.hibernate.internal.SessionImpl.get(SessionImpl.java:980)
+        at org.hibernate.event.internal.DefaultMergeEventListener.entityIsDetached(DefaultMergeEventListener.java:290)
+        at org.hibernate.event.internal.DefaultMergeEventListener.onMerge(DefaultMergeEventListener.java:170)
+        at org.hibernate.event.internal.DefaultMergeEventListener.onMerge(DefaultMergeEventListener.java:69)
+        at org.hibernate.internal.SessionImpl.fireMerge(SessionImpl.java:840)
+        at org.hibernate.internal.SessionImpl.merge(SessionImpl.java:822)
+        at org.hibernate.internal.SessionImpl.merge(SessionImpl.java:827)
+        at org.hibernate.jpa.spi.AbstractEntityManagerImpl.merge(AbstractEntityManagerImpl.java:1161)
+        at org.jboss.as.jpa.container.AbstractEntityManager.merge(AbstractEntityManager.java:565)
+        at org.arquillian.jpa.study2.dao.BidDao.create(BidDao.java:23)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.as.ee.component.ManagedReferenceMethodInterceptor.processInvocation(ManagedReferenceMethodInterceptor.java:52)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext$Invocation.proceed(InterceptorContext.java:437)
+        at org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.doMethodInterception(Jsr299BindingsInterceptor.java:82)
+        at org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(Jsr299BindingsInterceptor.java:93)
+        at org.jboss.as.ee.component.interceptors.UserInterceptorFactory$1.processInvocation(UserInterceptorFactory.java:63)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.invocationmetrics.ExecutionTimeInterceptor.processInvocation(ExecutionTimeInterceptor.java:43)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.jpa.interceptor.SBInvocationInterceptor.processInvocation(SBInvocationInterceptor.java:47)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext$Invocation.proceed(InterceptorContext.java:437)
+        at org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor.aroundInvoke(AbstractEJBRequestScopeActivationInterceptor.java:64)
+        at org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor.processInvocation(EjbRequestScopeActivationInterceptor.java:83)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(ConcurrentContextInterceptor.java:45)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InitialInterceptor.processInvocation(InitialInterceptor.java:21)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.interceptors.ComponentDispatcherInterceptor.processInvocation(ComponentDispatcherInterceptor.java:52)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(PooledInstanceInterceptor.java:51)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(CMTTxInterceptor.java:275)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.required(CMTTxInterceptor.java:327)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(CMTTxInterceptor.java:239)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(CurrentInvocationContextInterceptor.java:41)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.invocationmetrics.WaitTimeInterceptor.processInvocation(WaitTimeInterceptor.java:47)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.security.SecurityContextInterceptor.processInvocation(SecurityContextInterceptor.java:100)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.deployment.processors.StartupAwaitInterceptor.processInvocation(StartupAwaitInterceptor.java:22)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.ShutDownInterceptorFactory$1.processInvocation(ShutDownInterceptorFactory.java:64)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.LoggingInterceptor.processInvocation(LoggingInterceptor.java:67)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ee.component.NamespaceContextInterceptor.processInvocation(NamespaceContextInterceptor.java:50)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.AdditionalSetupInterceptor.processInvocation(AdditionalSetupInterceptor.java:54)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(ContextClassLoaderInterceptor.java:64)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext.run(InterceptorContext.java:356)
+        at org.wildfly.security.manager.WildFlySecurityManager.doChecked(WildFlySecurityManager.java:636)
+        at org.jboss.invocation.AccessCheckingInterceptor.processInvocation(AccessCheckingInterceptor.java:61)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext.run(InterceptorContext.java:356)
+        at org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(PrivilegedWithCombinerInterceptor.java:80)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.ViewService$View.invoke(ViewService.java:198)
+        at org.jboss.as.ee.component.ViewDescription$1.processInvocation(ViewDescription.java:185)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.ProxyInvocationHandler.invoke(ProxyInvocationHandler.java:73)
+        at org.arquillian.jpa.study2.dao.BidDao$$$view11.create(Unknown Source)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.weld.util.reflection.Reflections.invokeAndUnwrap(Reflections.java:433)
+        at org.jboss.weld.bean.proxy.EnterpriseBeanProxyMethodHandler.invoke(EnterpriseBeanProxyMethodHandler.java:128)
+        at org.jboss.weld.bean.proxy.EnterpriseTargetBeanInstance.invoke(EnterpriseTargetBeanInstance.java:56)
+        at org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance.invoke(InjectionPointPropagatingEnterpriseTargetBeanInstance.java:67)
+        at org.jboss.weld.bean.proxy.ProxyMethodHandler.invoke(ProxyMethodHandler.java:100)
+        at org.arquillian.jpa.study2.dao.BidDao$Proxy$_$$_Weld$EnterpriseProxy$.create(Unknown Source)
+        at org.arquillian.jpa.study2.dao.BidDaoTest.init(BidDaoTest.java:45)
+
+foo(org.arquillian.jpa.study2.dao.BidDaoTest)  Time elapsed: 0.566 sec  <<< ERROR!
+javax.ejb.EJBException: java.lang.IllegalArgumentException: Removing a detached instance org.arquillian.jpa.study2.model.Item#5
+        at org.hibernate.jpa.event.internal.core.JpaDeleteEventListener.performDetachedEntityDeletionCheck(JpaDeleteEventListener.java:52)
+        at org.hibernate.event.internal.DefaultDeleteEventListener.onDelete(DefaultDeleteEventListener.java:89)
+        at org.hibernate.event.internal.DefaultDeleteEventListener.onDelete(DefaultDeleteEventListener.java:56)
+        at org.hibernate.internal.SessionImpl.fireDelete(SessionImpl.java:921)
+        at org.hibernate.internal.SessionImpl.delete(SessionImpl.java:860)
+        at org.hibernate.jpa.spi.AbstractEntityManagerImpl.remove(AbstractEntityManagerImpl.java:1179)
+        at org.jboss.as.jpa.container.AbstractEntityManager.remove(AbstractEntityManager.java:655)
+        at org.arquillian.jpa.study2.dao.ItemDao.delete(ItemDao.java:28)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.as.ee.component.ManagedReferenceMethodInterceptor.processInvocation(ManagedReferenceMethodInterceptor.java:52)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext$Invocation.proceed(InterceptorContext.java:437)
+        at org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.doMethodInterception(Jsr299BindingsInterceptor.java:82)
+        at org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(Jsr299BindingsInterceptor.java:93)
+        at org.jboss.as.ee.component.interceptors.UserInterceptorFactory$1.processInvocation(UserInterceptorFactory.java:63)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.invocationmetrics.ExecutionTimeInterceptor.processInvocation(ExecutionTimeInterceptor.java:43)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.jpa.interceptor.SBInvocationInterceptor.processInvocation(SBInvocationInterceptor.java:47)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext$Invocation.proceed(InterceptorContext.java:437)
+        at org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor.aroundInvoke(AbstractEJBRequestScopeActivationInterceptor.java:64)
+        at org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor.processInvocation(EjbRequestScopeActivationInterceptor.java:83)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(ConcurrentContextInterceptor.java:45)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InitialInterceptor.processInvocation(InitialInterceptor.java:21)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.interceptors.ComponentDispatcherInterceptor.processInvocation(ComponentDispatcherInterceptor.java:52)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(PooledInstanceInterceptor.java:51)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(CMTTxInterceptor.java:275)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.required(CMTTxInterceptor.java:327)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(CMTTxInterceptor.java:239)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(CurrentInvocationContextInterceptor.java:41)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.invocationmetrics.WaitTimeInterceptor.processInvocation(WaitTimeInterceptor.java:47)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.security.SecurityContextInterceptor.processInvocation(SecurityContextInterceptor.java:100)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.deployment.processors.StartupAwaitInterceptor.processInvocation(StartupAwaitInterceptor.java:22)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.ShutDownInterceptorFactory$1.processInvocation(ShutDownInterceptorFactory.java:64)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.LoggingInterceptor.processInvocation(LoggingInterceptor.java:67)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ee.component.NamespaceContextInterceptor.processInvocation(NamespaceContextInterceptor.java:50)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.AdditionalSetupInterceptor.processInvocation(AdditionalSetupInterceptor.java:54)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(ContextClassLoaderInterceptor.java:64)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext.run(InterceptorContext.java:356)
+        at org.wildfly.security.manager.WildFlySecurityManager.doChecked(WildFlySecurityManager.java:636)
+        at org.jboss.invocation.AccessCheckingInterceptor.processInvocation(AccessCheckingInterceptor.java:61)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext.run(InterceptorContext.java:356)
+        at org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(PrivilegedWithCombinerInterceptor.java:80)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.ViewService$View.invoke(ViewService.java:198)
+        at org.jboss.as.ee.component.ViewDescription$1.processInvocation(ViewDescription.java:185)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.ProxyInvocationHandler.invoke(ProxyInvocationHandler.java:73)
+        at org.arquillian.jpa.study2.dao.ItemDao$$$view16.delete(Unknown Source)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.weld.util.reflection.Reflections.invokeAndUnwrap(Reflections.java:433)
+        at org.jboss.weld.bean.proxy.EnterpriseBeanProxyMethodHandler.invoke(EnterpriseBeanProxyMethodHandler.java:128)
+        at org.jboss.weld.bean.proxy.EnterpriseTargetBeanInstance.invoke(EnterpriseTargetBeanInstance.java:56)
+        at org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance.invoke(InjectionPointPropagatingEnterpriseTargetBeanInstance.java:67)
+        at org.jboss.weld.bean.proxy.ProxyMethodHandler.invoke(ProxyMethodHandler.java:100)
+        at org.arquillian.jpa.study2.dao.ItemDao$Proxy$_$$_Weld$EnterpriseProxy$.delete(Unknown Source)
+        at org.arquillian.jpa.study2.dao.BidDaoTest.fini(BidDaoTest.java:53)
+
+
+
+
+
+/ set b in GreeterTest.java
+
+
+/ 13	. 
+
+/ in dit quickstart voorbeeld (tasks-rs) worden geen Users rm	,
+
+/ let op dat je em.merge(user) weer toekent aan user, anders blijft user detached,
+
+public class Task implements Serializable {
+    @ManyToOne
+    private User owner;
+	
+public class User implements Serializable {
+    @OneToMany(cascade = ALL, mappedBy = "owner")
+    @Column(updatable = false)
+    private List<Task> tasks = new ArrayList<>();
+	
+@Stateful
+public class TaskDaoImpl implements TaskDao {
+    @Override
+    public void createTask(User user, Task task) {
+        if (!em.contains(user)) {
+            user = em.merge(user);					/ !
+        }
+        user.getTasks().add(task);
+        task.setOwner(user);
+        em.persist(task);
+    }
+    @Override
+    public void deleteTask(Task task) {
+        if (!em.contains(task)) {
+            task = em.merge(task);
+        }
+        em.remove(task);
+    }
+
+@Stateful
+public class UserDaoImpl implements UserDao {
+    public void createUser(User user) {
+        em.persist(user);
+    }
+
+/ 13	. 
+
+/ we hebben,
+
+@Entity
+public class Item implements Serializable {
+...
+	@OneToMany(mappedBy = "item",cascade=CascadeType.ALL)
+	@Column(updatable=false)
+	private Set<Bid> bids = new HashSet<>();
+	
+@Entity
+public class Bid implements Serializable {
+...
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Item item;
+	
+/ toch werkt de cascade niet:
+	
+
+/ we krijgen	,
+
+2019-03-27 07:56:40,441 DEBUG [org.jboss.as.jpa] (default task-103) default task-103:transaction scoped EntityManager [9c24d8aa-cb89-485f-9cb1-45b189c8ac07.war#arquillian-jpa-study2-persistence-unit]: closing e
+ntity managersession
+2019-03-27 07:56:40,443 ERROR [org.jboss.as.ejb3.invocation] (default task-103) WFLYEJB0034: EJB Invocation failed on component ItemDao for method public void org.arquillian.jpa.study2.dao.ItemDao.delete(org.ar
+quillian.jpa.study2.model.Item): javax.ejb.EJBTransactionRolledbackException: Transaction rolled back
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.handleEndTransactionException(CMTTxInterceptor.java:137)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.endTransaction(CMTTxInterceptor.java:117)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(CMTTxInterceptor.java:279)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.required(CMTTxInterceptor.java:327)
+        at org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(CMTTxInterceptor.java:239)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(CurrentInvocationContextInterceptor.java:41)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.invocationmetrics.WaitTimeInterceptor.processInvocation(WaitTimeInterceptor.java:47)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.security.SecurityContextInterceptor.processInvocation(SecurityContextInterceptor.java:100)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.deployment.processors.StartupAwaitInterceptor.processInvocation(StartupAwaitInterceptor.java:22)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.ShutDownInterceptorFactory$1.processInvocation(ShutDownInterceptorFactory.java:64)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.LoggingInterceptor.processInvocation(LoggingInterceptor.java:67)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ee.component.NamespaceContextInterceptor.processInvocation(NamespaceContextInterceptor.java:50)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.as.ejb3.component.interceptors.AdditionalSetupInterceptor.processInvocation(AdditionalSetupInterceptor.java:54)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(ContextClassLoaderInterceptor.java:64)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext.run(InterceptorContext.java:356)
+        at org.wildfly.security.manager.WildFlySecurityManager.doChecked(WildFlySecurityManager.java:636)
+        at org.jboss.invocation.AccessCheckingInterceptor.processInvocation(AccessCheckingInterceptor.java:61)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.InterceptorContext.run(InterceptorContext.java:356)
+        at org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(PrivilegedWithCombinerInterceptor.java:80)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.ViewService$View.invoke(ViewService.java:198)
+        at org.jboss.as.ee.component.ViewDescription$1.processInvocation(ViewDescription.java:185)
+        at org.jboss.invocation.InterceptorContext.proceed(InterceptorContext.java:340)
+        at org.jboss.invocation.ChainedInterceptor.processInvocation(ChainedInterceptor.java:61)
+        at org.jboss.as.ee.component.ProxyInvocationHandler.invoke(ProxyInvocationHandler.java:73)
+        at org.arquillian.jpa.study2.dao.ItemDao$$$view34.delete(Unknown Source)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+		at org.jboss.weld.util.reflection.Reflections.invokeAndUnwrap(Reflections.java:433)
+        at org.jboss.weld.bean.proxy.EnterpriseBeanProxyMethodHandler.invoke(EnterpriseBeanProxyMethodHandler.java:128)
+        at org.jboss.weld.bean.proxy.EnterpriseTargetBeanInstance.invoke(EnterpriseTargetBeanInstance.java:56)
+        at org.jboss.weld.bean.proxy.ProxyMethodHandler.invoke(ProxyMethodHandler.java:100)
+        at org.arquillian.jpa.study2.dao.ItemDao$Proxy$_$$_Weld$EnterpriseProxy$.delete(Unknown Source)
+        at org.arquillian.jpa.study2.dao.BidDaoTest.fini(BidDaoTest.java:53)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+        at org.junit.internal.runners.statements.RunAfters.invokeMethod(RunAfters.java:46)
+        at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:33)
+        at org.jboss.arquillian.junit.Arquillian$StatementLifecycleExecutor.invoke(Arquillian.java:468)
+        at org.jboss.arquillian.container.test.impl.execution.AfterLifecycleEventExecuter.on(AfterLifecycleEventExecuter.java:35)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.invokeObservers(EventContextImpl.java:103)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:85)
+        at org.jboss.arquillian.testenricher.cdi.CreationalContextDestroyer.destory(CreationalContextDestroyer.java:44)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.test.impl.TestContextHandler.createTestContext(TestContextHandler.java:130)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.test.impl.TestContextHandler.createSuiteContext(TestContextHandler.java:73)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.test.impl.TestContextHandler.createClassContext(TestContextHandler.java:92)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.core.impl.ManagerImpl.fire(ManagerImpl.java:143)
+        at org.jboss.arquillian.core.impl.ManagerImpl.fire(ManagerImpl.java:114)
+        at org.jboss.arquillian.test.impl.EventTestRunnerAdaptor.after(EventTestRunnerAdaptor.java:122)
+		at org.jboss.arquillian.junit.Arquillian$5$1.evaluate(Arquillian.java:265)
+        at org.jboss.arquillian.junit.Arquillian.multiExecute(Arquillian.java:431)
+        at org.jboss.arquillian.junit.Arquillian.access$200(Arquillian.java:55)
+        at org.jboss.arquillian.junit.Arquillian$5.evaluate(Arquillian.java:260)
+        at org.jboss.arquillian.junit.Arquillian$7$1.invoke(Arquillian.java:324)
+        at org.jboss.arquillian.container.test.impl.execution.BeforeLifecycleEventExecuter.on(BeforeLifecycleEventExecuter.java:35)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.invokeObservers(EventContextImpl.java:103)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:85)
+        at org.jboss.arquillian.test.impl.TestContextHandler.createTestContext(TestContextHandler.java:130)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.test.impl.TestContextHandler.createSuiteContext(TestContextHandler.java:73)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.test.impl.TestContextHandler.createClassContext(TestContextHandler.java:92)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.jboss.arquillian.core.impl.ObserverImpl.invoke(ObserverImpl.java:96)
+        at org.jboss.arquillian.core.impl.EventContextImpl.proceed(EventContextImpl.java:92)
+        at org.jboss.arquillian.core.impl.ManagerImpl.fire(ManagerImpl.java:143)
+        at org.jboss.arquillian.core.impl.ManagerImpl.fire(ManagerImpl.java:114)
+        at org.jboss.arquillian.test.impl.EventTestRunnerAdaptor.fireCustomLifecycle(EventTestRunnerAdaptor.java:159)
+        at org.jboss.arquillian.junit.Arquillian$7.evaluate(Arquillian.java:317)
+        at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:365)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+        at org.junit.runners.ParentRunner$4.run(ParentRunner.java:330)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:78)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:328)
+        at org.junit.runners.ParentRunner.access$100(ParentRunner.java:65)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:292)
+        at org.jboss.arquillian.junit.Arquillian$2.evaluate(Arquillian.java:205)
+        at org.jboss.arquillian.junit.Arquillian.multiExecute(Arquillian.java:431)
+        at org.jboss.arquillian.junit.Arquillian.access$200(Arquillian.java:55)
+        at org.jboss.arquillian.junit.Arquillian$3.evaluate(Arquillian.java:219)
+        at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:305)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:412)
+        at org.jboss.arquillian.junit.Arquillian.run(Arquillian.java:167)
+        at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+        at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+		at org.jboss.arquillian.junit.container.JUnitTestRunner.execute(JUnitTestRunner.java:66)
+        at org.jboss.arquillian.protocol.servlet.runner.ServletTestRunner.executeTest(ServletTestRunner.java:170)
+        at org.jboss.arquillian.protocol.servlet.runner.ServletTestRunner.execute(ServletTestRunner.java:135)
+        at org.jboss.arquillian.protocol.servlet.runner.ServletTestRunner.doGet(ServletTestRunner.java:98)
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:687)
+        at javax.servlet.http.HttpServlet.service(HttpServlet.java:790)
+        at io.undertow.servlet.handlers.ServletHandler.handleRequest(ServletHandler.java:85)
+        at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62)
+        at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36)
+        at org.wildfly.extension.undertow.security.SecurityContextAssociationHandler.handleRequest(SecurityContextAssociationHandler.java:78)
+        at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+        at io.undertow.servlet.handlers.security.SSLInformationAssociationHandler.handleRequest(SSLInformationAssociationHandler.java:131)
+        at io.undertow.servlet.handlers.security.ServletAuthenticationCallHandler.handleRequest(ServletAuthenticationCallHandler.java:57)
+        at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+        at io.undertow.security.handlers.AbstractConfidentialityHandler.handleRequest(AbstractConfidentialityHandler.java:46)
+        at io.undertow.servlet.handlers.security.ServletConfidentialityConstraintHandler.handleRequest(ServletConfidentialityConstraintHandler.java:64)
+        at io.undertow.security.handlers.AuthenticationMechanismsHandler.handleRequest(AuthenticationMechanismsHandler.java:60)
+        at io.undertow.servlet.handlers.security.CachedAuthenticatedSessionHandler.handleRequest(CachedAuthenticatedSessionHandler.java:77)
+        at io.undertow.security.handlers.NotificationReceiverHandler.handleRequest(NotificationReceiverHandler.java:50)
+        at io.undertow.security.handlers.AbstractSecurityContextAssociationHandler.handleRequest(AbstractSecurityContextAssociationHandler.java:43)
+        at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+        at org.wildfly.extension.undertow.security.jacc.JACCContextIdHandler.handleRequest(JACCContextIdHandler.java:61)
+        at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+        at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43)
+        at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:292)
+        at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:81)
+        at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:138)
+        at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:135)
+        at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48)
+        at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43)
+        at io.undertow.servlet.api.LegacyThreadSetupActionWrapper$1.call(LegacyThreadSetupActionWrapper.java:44)
+        at io.undertow.servlet.api.LegacyThreadSetupActionWrapper$1.call(LegacyThreadSetupActionWrapper.java:44)
+        at io.undertow.servlet.api.LegacyThreadSetupActionWrapper$1.call(LegacyThreadSetupActionWrapper.java:44)
+        at io.undertow.servlet.api.LegacyThreadSetupActionWrapper$1.call(LegacyThreadSetupActionWrapper.java:44)
+        at io.undertow.servlet.api.LegacyThreadSetupActionWrapper$1.call(LegacyThreadSetupActionWrapper.java:44)
+        at io.undertow.servlet.api.LegacyThreadSetupActionWrapper$1.call(LegacyThreadSetupActionWrapper.java:44)
+        at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:272)
+        at io.undertow.servlet.handlers.ServletInitialHandler.access$000(ServletInitialHandler.java:81)
+        at io.undertow.servlet.handlers.ServletInitialHandler$1.handleRequest(ServletInitialHandler.java:104)
+        at io.undertow.server.Connectors.executeRootHandler(Connectors.java:202)
+        at io.undertow.server.HttpServerExchange$1.run(HttpServerExchange.java:805)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: org.postgresql.util.PSQLException: ERROR: update or delete on table "item" violates foreign key constraint "fkofartcioobwpek3qex4cmturt" on table "bid"
+  Detail: Key (id)=(1) is still referenced from table "bid".
+        at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2182)
+        at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:1911)
+        at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:173)
+        at org.postgresql.jdbc2.AbstractJdbc2Statement.execute(AbstractJdbc2Statement.java:615)
+        at org.postgresql.jdbc2.AbstractJdbc2Statement.executeWithFlags(AbstractJdbc2Statement.java:465)
+        at org.postgresql.jdbc2.AbstractJdbc2Statement.executeUpdate(AbstractJdbc2Statement.java:411)
+        at sun.reflect.GeneratedMethodAccessor110.invoke(Unknown Source)
+        at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.lang.reflect.Method.invoke(Method.java:498)
+        at org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler.invoke(AbstractJdbc23PooledConnection.java:453)
+        at com.sun.proxy.$Proxy210.executeUpdate(Unknown Source)
+        at org.jboss.jca.adapters.jdbc.WrappedPreparedStatement.executeUpdate(WrappedPreparedStatement.java:537)
+        at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:204)
+        ... 220 more
+
+/ 13	. 
+
+/ lees,
+https://vladmihalcea.com/a-beginners-guide-to-jpa-and-hibernate-cascade-types/
+@OneToOne(mappedBy = "post",
+        cascade = CascadeType.ALL, orphanRemoval = true)
+    private PostDetails details;
+ 
+
+/ 13	. 
+
+/ google,
+jboss.jdbc.spy show transcations
+/ lees,	
+https://gist.github.com/rafaeltuelho/1540b3c708c6ddfa9019
+->
+https://docs.jboss.org/author/display/WFLY/JPA+Reference+Guide#JPAReferenceGuide-Troubleshooting
+
+/ 13	. 
+
+/ JBOSS LOGGING
+
+/ see ook LOG_arquillian-tmp.txt, JBOSS LOGGING
+
+/ google,
+jboss logging WARN DEBUG
+/ lees	,
+https://docs.jboss.org/author/display/WFLY10/Logging+Configuration
+https://docs.jboss.org/author/display/WFLY10/How+To
+https://developer.jboss.org/thread/176398
+https://github.com/wildfly/quickstart/tree/master/logging
+
+https://developer.jboss.org/thread/229857?start=15&tstart=0
+
+/ 13	. 
+
+/ we zien in server.log,
+2019-03-29 17:33:19,619 WARN  [org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$AS7DataSourceDeployer] (MSC service thread 1-7) IJ020016: Missing <recovery> element. XA recovery disabled for: java:jboss/datasources/H2DS
+2019-03-29 17:33:19,619 WARN  [org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$AS7DataSourceDeployer] (MSC service thread 1-3) IJ020016: Missing <recovery> element. XA recovery disabled for: java:jboss/datasources/PostgreSQLDS
+
+/ 7	 
+
+/ JCA
+
+/ lees,
+https://developer.jboss.org/thread/229857
+http://www.ironjacamar.org/doc/userguide/1.1/en-US/html/ch05.html
+
+/ lees,
+http://www.ironjacamar.org/doc/userguide/1.1/en-US/html/ch01.html
+
+The Java Connector Architecture (JCA) defines a standard architecture for connecting the Java EE platform to heterogeneous Enterprise Information Systems (EIS). Examples of EISs include Enterprise Resource Planning (ERP), mainframe transaction processing (TP), databases and messaging systems.
+
+/ 13	. 
+
+/ google,
+XA recovery disabled for: java:jboss/datasources
+/ lees ,
+https://developer.jboss.org/thread/248652
+->
+https://developer.jboss.org/wiki/HowToUseOutOfProcessActiveMQWithWildFly
+/ over externe amq	,
+
+/ google,
+wildfly external activemq
+/ lees,
+https://stackoverflow.com/questions/39284009/how-to-send-jms-messages-from-wildfly-10-to-remote-activemq
+->
+https://docs.jboss.org/author/display/WFLY10/Connect+a+pooled-connection-factory+to+a+Remote+Artemis+Server
+
+/ lees,
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/5/html/hornetq_user_guide/xa-recovery
+
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/4.3/html/transactions_failure_recovery_guide/
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/4.3/html/transactions_failure_recovery_guide/sect-transactions_failure_recovery_guide-architecture_of_the_recovery_manager-recovery_modules
+
+/ lees,
+http://narayana.io//docs/project/index.html#d0e2553
+
+/ 13	. 
+
+/ @ManyToMany(cascade=true)
+/ TODO
+
+/ 13	. 
+
+/ we willen testen of we een Set kunnen persist,
+
+/ Zo kan het NIET:
+
+$ vi SetDaoTest.java
+
+@RunWith(Arquillian.class)
+public class SetDaoTest {
+
+	@Inject 
+	private CategoryDao categoryDao;
+
+	@Deployment
+	public static WebArchive createDeployment() {
+		return ShrinkWrap.create(WebArchive.class)
+				.addAsWebInfResource(new File("src/main/webapp","beans.xml"))
+				.addAsResource("META-INF/persistence.xml")
+				.addClasses(Category.class,CategoryDao.class,Item.class,Bid.class);
+	}
+// we moeten inderdaad de hele keten aan classes in de WAR opnemen: een Category heeft een Set van Item, en een Item heeft weer een Set van Bid	,
+	
+	@PersistenceContext(unitName = "arquillian-jpa-study2-persistence-unit")
+	private EntityManager em;
+	
+	private Category clothing;
+	private Category furniture;
+	private Category red;
+	private Category blue;
+	
+
+	@Before
+	public  void init() {
+		
+		// Dit is OK,
+		clothing=new Category("clothing");
+		categoryDao.create(clothing);
+		furniture=new Category("furniture");
+		categoryDao.create(furniture);
+		red=new Category("red");
+		categoryDao.create(red);
+		blue=new Category("blue");
+		categoryDao.create(blue);
+		
+		// Dit kan NIET: moet binnen tx,
+		Set<Category>categories=new HashSet<>();
+		categories.add(clothing);
+		categories.add(red);
+		em.persist(categories);
+		
+/ javax.persistence.TransactionRequiredException: WFLYJPA0060: Transaction is required to perform this operation (either use a transaction or extended persistence context)
+
+/ 1313	. 
+
+/ we hebben dit opgelost	, maar we zien dat we een Set niet kunnen em.persist:
+
+$ vi CategoryDao.java
+
+@Stateless
+public class CategoryDao {
+	@PersistenceContext(unitName = "arquillian-jpa-study2-persistence-unit")
+	private EntityManager em;
+
+	public void create(Category entity) {
+		em.persist(entity);
+	}
+	
+	public void create(Set<Category>categories) {
+		em.persist(categories);
+	}
+
+$ vi SetDaoTest.java
+
+@RunWith(Arquillian.class)
+public class SetDaoTest {
+
+	
+	@Inject 
+	private CategoryDao categoryDao;
+
+	@Deployment
+	public static WebArchive createDeployment() {
+		return ShrinkWrap.create(WebArchive.class)
+				.addAsWebInfResource(new File("src/main/webapp","beans.xml"))
+				.addAsResource("META-INF/persistence.xml")
+				.addClasses(Category.class,CategoryDao.class,Item.class,Bid.class);
+				
+		
+	}
+	
+	
+	private Category clothing;
+	private Category furniture;
+	private Category red;
+	private Category blue;
+	
+	
+	
+	@Before
+	public  void init() {
+		
+		clothing=new Category("clothing");
+//		categoryDao.create(clothing);
+		furniture=new Category("furniture");
+//		categoryDao.create(furniture);
+		red=new Category("red");
+//		categoryDao.create(red);
+		blue=new Category("blue");
+//		categoryDao.create(blue);
+		
+		Set<Category>categories=new HashSet<>();
+		categories.add(clothing);
+		categories.add(red);
+		categoryDao.create(categories);
+/ ERR	,
+Caused by: java.lang.IllegalArgumentException: Unknown entity: java.util.HashSet
+        at org.hibernate.jpa.spi.AbstractEntityManagerImpl.persist(AbstractEntityManagerImpl.java:1149)
+        at org.jboss.as.jpa.container.AbstractEntityManager.persist(AbstractEntityManager.java:580)
+        at org.arquillian.jpa.study2.dao.CategoryDao.create(CategoryDao.java:25)
+
+/	7	. 
+
+@ManyToMany
+
+/ lees, 
+https://vladmihalcea.com/the-best-way-to-use-the-manytomany-annotation-with-jpa-and-hibernate/		
+https://www.baeldung.com/jpa-many-to-many
+https://hellokoding.com/jpa-many-to-many-relationship-mapping-example-with-spring-boot-maven-and-mysql/
+
+/ 7	 .
+
+/ google,	
+junit initialize once
+/ lees,
+https://stackoverflow.com/questions/12087959/junit-run-set-up-method-once
+
+/ voor iedere @Test wordt er een nieuwe inst van de test class gemaakt, en wordt @Before called,
+
+/ workspace-jbosstools-jee-oxygen,
+/ proj abc-collection-study,
+
+public class JUnitTest {
+	
+	private static boolean isInit=false;
+	
+	@Before
+	public void init() {
+		if(isInit==false) {
+			System.out.println("isInit="+isInit);
+			isInit=true;
+		}
+		System.out.println("in init, test class inst="+this);
+
+	}
+	@Test
+	public void t1() {
+		System.out.println("in t1, test class inst="+this);
+	}
+	@Test
+	public void t2() {
+		System.out.println("in t2, test class inst="+this);
+	}
+	
+/ we zien,
+
+Running set.JUnitTest
+isInit=false
+in init, test class inst=set.JUnitTest@5aaa6d82
+in t1, test class inst=set.JUnitTest@5aaa6d82
+in init, test class inst=set.JUnitTest@69222c14
+in t2, test class inst=set.JUnitTest@69222c14
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.064 sec
+
+/ 13	. 
+
+/ we kunnen dit doen, maar de objs die je creates in init moeten static, want voor iedere test worden er een nieuwe test class inst create,
+
+/ we kunnen het op 2 manieren doen	,
+
+
+$ vi ManyToManyTest.java
+
+public class ManyToManyTest {
+
+	private static Item dress;
+	private static Item chair;
+	private static Category clothing;
+	private static Category furniture;
+	private static Category red;
+	private static Category blue;
+
+	private static boolean isInit = false;
+
+	@BeforeClass
+	public static void init() {
+		
+			System.out.println("isInit="+isInit);
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			furniture = new Category();
+			furniture.setName("furniture");
+			red = new Category();
+			red.setName("red");
+			blue = new Category();
+			blue.setName("blue");
+
+			dress = new Item();
+			dress.setName("dress");
+			dress.addCategory(clothing);
+			dress.addCategory(red);
+
+			chair = new Item();
+			chair.addCategory(furniture);
+			chair.addCategory(blue);
+		
+
+	}
+
+	@Test
+	public void sizeCollections() {
+		Assert.assertTrue(dress.getCategories().contains(red));
+		Assert.assertEquals(2, dress.getCategories().size());
+		System.out.println("test class inst: "+this);
+	}
+	@Test
+	public void sizeCollectionsAgain() {
+		Assert.assertTrue(chair.getCategories().contains(blue));
+		Assert.assertEquals(2, dress.getCategories().size());
+		System.out.println("test class inst: "+this);
+
+	}
+}
+
+/ of,
+
+public class ManyToManyTest {
+
+	private static Item dress;
+	private static Item chair;
+	private static Category clothing;
+	private static Category furniture;
+	private static Category red;
+	private static Category blue;
+
+	private static boolean isInit = false;
+
+	@Before
+	public void init() {
+		if (isInit == false) {
+			System.out.println("isInit="+isInit);
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			...
+			
+			
+
+
+/ 13	. 
+
+/ HIER HIER HIER
+
+No marketplace entries found to handle maven-dependency-plugin:3.0.2:unpack in Eclipse.  Please see Help for more information.
+
+
+
+/ 13	. 
+
+/ we hebben een runconfig gemaakt,	
+name: abc-collection-study-clean-test-debuggable
+base dir: ${project_loc:abc-collection-study}
+goals: -Dmaven.surefire.debug clean test
+
+/ we hebben een debug gemaakt,
+name: abc-collection-study-attach
+project: abc-collection-study
+host: localhost
+port: 5005
+
+/ TODO Hij valt niet in de b's
+/ ook niet als je een JUnit debug config hebt	, via Debug As, Junit,
+
+
+
+
+
+/ 13	. 
+
+/ 13	. 
+
+/ DEBUG TX
+
+/ de 2de debugs wildfly, dus de test 	, en we moeten eerst  op de command line:
+$ standalone.bat --debug
+/ daarna in eclipse: 
+aquillian-forge4-remote-wildfly	/ localhost 8787
+/ daarna in forge:
+$ build test
+
+/ WH de proj met forge moeten we met build test run of met mvn clean test, maar niet in eclipse met Run as Junit 
+/ rinse_and_repeat is niet met forge, en dus niet met chameleon, en die kan wel in eclipse met Run as,
+
+/ 13	. 
+
+/ dit doen we niet,
+
+/ wat is in de run config arquillian-forge4-clean-test-debuggable:
+-Dmaven.surefire.debug clean test
+
+/ 1313	 .
+
+/ lees op getting started	,
+If you’re using a remote container, Debug As does not cause breakpoints to be activated. Instead, you needto start the container in debug mode and attach the debugger. That’s because the test is run in a different JVM than the original test runner.
+
+/ we hebben create /d/Users/ervelden/misc_codebase/ en daarin copied uit /c/Users/ervelden/eclipse/workspace-jbosstools-jee-oxygen:
+arquillian-getting_started
+arquillian-jpa-study2
+arquillian-rinse_and_repeat
+
+/ we hebben een nieuwe workspace gemaakt in /d/Users/ervelden/workspaces: workspace-arquillian, 
+/ open /c/Users/ervelden/eclipse/jbosstools-jee-oxygen/eclipse hierop, 
+
+/ add in arquillian-getting_started/pom.xml de remote profile,	en edit arquillian.xml
+
+/ maak in eclipse een remote application debug config, 
+naam: arquillian-getting_started-attach
+project: arquillian-getting_started
+host: localhost
+port: 8787
+
+/ start 
+$ standalone.bat --debug
+/ set b, 
+run debug config arquillian-getting_started
+/ doe in forge: build test
+/ hij valt in b,
+
+@RunWith(Arquillian.class)
+public class GreeterTest {
+...
+	@Test
+	public void shouldCreateGreeting() {
+		String s=greeter.createGreeting("Earthling");
+
+$ vi pom.xml
+	
+		<profile>
+			<id>wildfly-remote</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencyManagement>
+				<dependencies>
+					<dependency>
+						<groupId>org.wildfly.arquillian</groupId>
+						<artifactId>wildfly-arquillian-container-remote</artifactId>
+						<version>2.1.0.Final</version>
+						<scope>test</scope>
+					</dependency>
+					<dependency>
+						<groupId>org.jboss.arquillian.protocol</groupId>
+						<artifactId>arquillian-protocol-servlet</artifactId>
+						<version>1.1.13.Final</version>
+						<scope>test</scope>
+					</dependency>
+				</dependencies>
+			</dependencyManagement>
+			<dependencies>
+				<dependency>
+					<groupId>org.wildfly.arquillian</groupId>
+					<artifactId>wildfly-arquillian-container-remote</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>org.jboss.arquillian.protocol</groupId>
+					<artifactId>arquillian-protocol-servlet</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+
+$ vi arquillian.xml
+
+<arquillian	...>
+	<engine>
+		<property name="deploymentExportPath">target/deployments</property>
+	</engine>
+	<defaultProtocol type="Servlet 3.0"></defaultProtocol>
+</arquillian>
+
+/ 7	 
+
+/ debug unit test,
+
+/ we hebben project abc-collection-study, standalone, niet deployed in wildfly,
+/ deze draait in dezelfde jvm als ... TODO
+/ we kunnen right click, Debug as, JUnit 
+/ maar we kunnen ook een run config maken,
+name: abc-collection-study
+base dir: ${project_loc:abc-collection-study}
+goals: -Dmaven.surefire.debug clean test
+/ en maak de debug config 'Remote Java application'
+name : abc-collection-study-attach
+project: abc-collection-study
+host: localhost
+port: 5005
+/ start eerst de run config abc-collection-study
+/ deze wacht, op port 5005	,
+/ run dan de debug config 'abc-collection-study-attach	', 
+/ je valt in een b,
+
+/ Einde DEBUG TX
+
+/ ARQUILLIAN-JPA-STUDY2
+
+/ we debug BidDaoTest,
+
+/ 7	. 
+
+/ 13	. 
+
+/c
+/s
+BidDaoTest.init() line: 136	
+			itemDao.create(dress);
+			
+/ na dit command heeft dress een id, en de 2 cat ook,
+this	BidDaoTest  (id=348)	
+	dress	Item  (id=372)	
+		bids	PersistentSet  (id=434)	
+		categories	PersistentSet  (id=438)	
+			[0]	Category  (id=367)	
+				id	Long  (id=446)				2
+				items	PersistentSet  (id=447)	
+					[0]	Item  (id=372)				/= dress
+				name	"clothing" (id=448)	
+				version	0	
+			[1]	Category  (id=369)	
+				id	Long  (id=449)				3
+				items	PersistentSet  (id=450)	
+					[0]	Item  (id=372)				/= dress
+				name	"red" (id=451)	
+				version	0	
+		id	Long  (id=439)			1
+		name	"dress" (id=442)	
+		version	0	
+
+/ deze is nog transient	,
+furniture	Category  (id=368)	
+	id	null	
+	items	HashSet<E>  (id=671)	/ []	
+	name	"furniture" (id=672)	
+	version	0	
+
+/ de txs zijn al afgesloten,
+
+test=> select*from item_category;
+ item_id | category_id
+---------+-------------
+       1 |           2
+       1 |           3
+(2 rows)
+
+
+test=> select*from item;
+ id | name  | version
+----+-------+---------
+  1 | dress |       0
+(1 row)
+
+
+test=> select*from category;
+ id |   name   | version
+----+----------+---------
+  2 | clothing |       0
+  3 | red      |       0
+(2 rows)
+
+/ persistent in H. betekent WH dat ze in de persistence context zitten; ze hebben dan WH een id, 
+/ maar ze hoeven nog niet zijn flush naar de db, dat gebeurt pas als de tx commits, 
+/ TODO
+/ maar hier zijn de txs al commit,
+
+/ 13	 .
+
+			chair.addCategory(blue);
+/ chair heeft id=null, en heeft 2 cats, die ook id=null hebben, 
+
+			itemDao.create(chair);
+/ nu hebben chair en de 2 cats een id,
+
+/ 13	. 
+
+/ we geven cont, we vallen in de 1ste test,
+
+	@Test
+	public void should_be_deployed() {
+		Assert.assertNotNull(bidDao);
+bidDao	BidDao$Proxy$_$$_Weld$EnterpriseProxy$  (id=373)	
+
+/ 13	 
+
+/c,
+BidDaoTest.size_collections() line: 165	
+
+/ 7	. 
+
+/c
+/s,
+ItemDao.create(Item) line: 24
+/cb,
+BidDaoTest.init() line: 134	
+		em.persist(item);
+this	org.arquillian.jpa.study2.dao.ItemDao  (id=508)	
+	em	org.jboss.as.jpa.container.TransactionScopedEntityManager  (id=526)	
+/c
+/s,
+ItemDao.create(Item) line: 24	
+/cb,
+BidDaoTest.init() line: 140	
+this	org.arquillian.jpa.study2.dao.ItemDao  (id=508)	
+	em	org.jboss.as.jpa.container.TransactionScopedEntityManager  (id=526)	
+
+/c,
+/s,
+BidDaoTest.should_be_deployed() line: 157	
+
+/c,
+/s,
+BidDaoTest.size_collections() line: 176	
+		for(Item item:red.getItems()) {
+			Assert.assertTrue(red.getItems().contains(item));		/ deze is false, waarom?
+/s,
+/ we zien Edit source lookup path,
+/ Add...
+/ kies External archive,
+hibernate-core-5.0.10.Final-sources
+/ OK,
+/s,
+PersistentSet.contains(Object) line: 154	
+		final Boolean exists = readElementExistence( object );
+null
+		return exists == null
+				? set.contains( object )
+				: exists;
+/s,
+HashSet<E>.contains(Object) line: 203	
+        return map.containsKey(o);
+/s,
+HashMap<K,V>.containsKey(Object) line: 595	
+        return getNode(hash(key), key) != null;
+/s,
+    static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+/t,
+/s,
+HashMap<K,V>.getNode(int, Object) line: 568	
+hash=32
+
+/ 7	. 
+
+/ lees,
+https://thoughts-on-java.org/ultimate-guide-to-implementing-equals-and-hashcode-with-hibernate/
+
+https://thoughts-on-java.org/naturalid-good-way-persist-natural-ids-hibernate/
+/ we hebben @NaturalId niet echt nodig,
+
+/ als we dat wel hebben, kunnen we in de pom van arquillian-jpa-study2's:
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.0.1.Final</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+/ nu kunnen we,
+
+import org.hibernate.annotations.NaturalId;
+class Item{ 
+		@NaturalId
+		private String name
+
+/ 7	. 
+ 
+
+/ workspace-arquillian
+/ proj arquillian-jpa-study2
+
+/ bij many to many is er een active en een passieve kant,
+/ we moeten eerst de passive kant save, en als laatste de active kant, anders wordt de relatietabel niet geschreven	,
+
+/ we doen in A, B zonder cascade persist, en in C met cascade persist,
+/ in A is category de actieve kant, in B en C item,
+
+/ 13	.  
+
+/ A	,
+
+@Entity
+public class Item implements Serializable {
+	@ManyToMany(mappedBy="items")
+	private Set<Category>categories=new HashSet<>();
+}
+
+@Entity
+public class Category implements Serializable {
+	@ManyToMany
+	private Set<Item> items = new HashSet<>();
+	
+	public void addItem(Item item) {
+		items.add(item);
+		item.getCategories().add(this);
+	}
+	public void removeItem(Item item) {
+		items.remove(item);
+		item.getCategories().remove(this);
+	}
+}
+	
+/ 1313	. 
+
+/ B,
+
+@Entity
+public class Item implements Serializable {
+	@ManyToMany
+	private Set<Category>categories=new HashSet<>();
+	
+	public void addCategory(Category category) {
+		categories.add(category);
+		category.getItems().add(this);
+	}
+	public void removeCategory(Category category) {
+		categories.remove(category);
+		category.getItems().remove(this);
+	}
+}
+	
+@Entity
+public class Category implements Serializable {
+	@ManyToMany(mappedBy="categories")
+	private Set<Item> items = new HashSet<>();
+}	
+
+/ C,
+
+@Entity
+public class Category implements Serializable {
+	@ManyToMany(mappedBy="categories")
+	private Set<Item> items = new HashSet<>();
+
+@Entity
+public class Item implements Serializable {
+	@ManyToMany(cascade=CascadeType.PERSIST)
+	private Set<Category>categories=new HashSet<>();
+	
+
+/ A,
+
+@RunWith(Arquillian.class)
+public class ItemCategoryDaoTest {
+	@Before
+	public void init2a() {
+		if (isInit == false) {
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			furniture = new Category();
+			furniture.setName("furniture");
+			red = new Category();
+			red.setName("red");
+			blue = new Category();
+			blue.setName("blue");
+
+			dress = new Item();
+			dress.setName("dress");
+
+			chair = new Item();
+			chair.setName("chair");
+			
+			
+			clothing.addItem(dress);
+			red.addItem(dress);
+			furniture.addItem(chair);
+			blue.addItem(chair);
+// of,		
+//			dress.addCategory(clothing);
+//			dress.addCategory(red);
+//			chair.addCategory(furniture);
+//			chair.addCategory(blue);
+			
+			itemDao.create(dress);
+			itemDao.create(chair);
+			
+			categoryDao.create(clothing);
+			categoryDao.create(furniture);
+			categoryDao.create(red);
+			categoryDao.create(blue);
+
+			
+
+		}
+
+	}
+
+/ B,
+
+@RunWith(Arquillian.class)
+public class ItemCategoryDaoTest {
+	@Before
+	public void initb() {
+		if (isInit == false) {
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			furniture = new Category();
+			furniture.setName("furniture");
+			red = new Category();
+			red.setName("red");
+			blue = new Category();
+			blue.setName("blue");
+
+			dress = new Item();
+			dress.setName("dress");
+			chair = new Item();
+			chair.setName("chair");
+			
+			dress.addCategory(clothing);
+			dress.addCategory(red);
+			chair.addCategory(furniture);
+			chair.addCategory(blue);
+// of,
+//			clothing.addItem(dress);
+//			red.addItem(dress);
+//			furniture.addItem(chair);
+//			blue.addItem(chair);
+			
+			categoryDao.create(clothing);
+			categoryDao.create(furniture);
+			categoryDao.create(red);
+			categoryDao.create(blue);
+			
+			itemDao.create(dress);
+			itemDao.create(chair);
+
+		}
+
+	}
+	
+/ C,
+
+@RunWith(Arquillian.class)
+public class ItemCategoryDaoTest {
+	 @Before
+	public void initc() {
+		if (isInit == false) {
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			furniture = new Category();
+			furniture.setName("furniture");
+			red = new Category();
+			red.setName("red");
+			blue = new Category();
+			blue.setName("blue");
+
+			dress = new Item();
+			dress.setName("dress");
+			chair = new Item();
+			chair.setName("chair");
+			
+			dress.addCategory(clothing);
+			dress.addCategory(red);
+			chair.addCategory(furniture);
+			chair.addCategory(blue);
+			
+			itemDao.create(dress);
+			itemDao.create(chair);
+		}
+	}
+	
+
+
+	
+
+
+/ 13	. 
+
+/ met cascade persist
+
+/ de @ManyToMany(cascade=CascadeType.PERSIST en de @ManyToMany(mappedBy kunnen maar aan 1 kant staan, 
+/ de @ManyToMany(cascade=CascadeType.PERSIST staat aan de kant die we persist,
+
+class DaoTest{
+
+	@Before
+	public void init() {
+		if (isInit == false) {
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			furniture = new Category();
+			furniture.setName("furniture");
+			red = new Category();
+			red.setName("red");
+			blue = new Category();
+			blue.setName("blue");
+
+			dress = new Item();
+			dress.setName("dress");
+			dress.addCategory(clothing);
+			dress.addCategory(red);
+			itemDao.create(dress);
+
+			chair = new Item();
+			chair.setName("chair");
+			chair.addCategory(furniture);
+			chair.addCategory(blue);
+			itemDao.create(chair);
+		}
+	}
+	
+class Item{
+
+	@ManyToMany(cascade=CascadeType.PERSIST)
+	@JoinTable(joinColumns = { @JoinColumn(name = "item_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "category_id") })
+	private Set<Category>categories=new HashSet<>();
+	
+class Category{
+	@ManyToMany(mappedBy="categories")
+	private Set<Item> items = new HashSet<>();
+	
+/ 13	. 
+
+/ zonder cascade persist,
+
+/ de @ManyToMany(cascade=CascadeType.PERSIST en de @ManyToMany(mappedBy kunnen aan beide kanten staan, want beide kanten worden persist,
+
+class DaoTest{
+
+	@Before
+	public void init() {
+		if (isInit == false) {
+			isInit = true;
+
+			clothing = new Category();
+			clothing.setName("clothing");
+			furniture = new Category();
+			furniture.setName("furniture");
+			red = new Category();
+			red.setName("red");
+			blue = new Category();
+			blue.setName("blue");
+
+			categoryDao.create(clothing);
+			categoryDao.create(furniture);
+			categoryDao.create(red);
+			categoryDao.create(blue);
+
+			dress = new Item();
+			dress.setName("dress");
+			dress.addCategory(clothing);
+			dress.addCategory(red);
+			itemDao.create(dress);
+
+			chair = new Item();
+			chair.setName("chair");
+			chair.addCategory(furniture);
+			chair.addCategory(blue);
+			itemDao.create(chair);
+
+		}
+
+	}
+	
+/ of,
+	
+@Entity
+class Item{
+	@ManyToMany
+	@JoinTable(joinColumns = { @JoinColumn(name = "item_id") }, inverseJoinColumns = {
+		@JoinColumn(name = "category_id") })
+	private Set<Category>categories=new HashSet<>();
+
+@Entity
+public class Category implements Serializable {
+	@ManyToMany(mappedBy="categories")
+	private Set<Item> items = new HashSet<>();
+	
+/ of,
+
+@Entity
+class Item implements Serializable {	
+	@ManyToMany(mappedBy="items")
+	private Set<Category>categories=new HashSet<>();
+
+@Entity
+public class Category implements Serializable {	
+	@ManyToMany
+	@JoinTable(joinColumns = { @JoinColumn(name = "category_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "item_id") })
+	private Set<Item> items = new HashSet<>();
+
+
+
+
+
+
+
+
+/ Einde ARQUILLIAN-JPA-STUDY2
+
+/ DEBUG TX
+
+/ 7	. 
+
+/ hier zijn alle source jars,
+/ d:\Users\ervelden\java\wildfly-source-jars
+
+
+/ 7	. 
+
+/s,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 579	
+/cb,
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21
+
+package org.jboss.as.jpa.container;
+
+import static org.jboss.as.jpa.messages.JpaLogger.ROOT_LOGGER;
+
+public abstract class AbstractEntityManager implements EntityManager {
+
+  private final transient boolean isTraceEnabled = ROOT_LOGGER.isTraceEnabled();
+
+    protected abstract EntityManager getEntityManager();
+	
+
+    public void persist(Object entity) {
+        long start = 0;
+        if (isTraceEnabled)
+            start = System.currentTimeMillis();
+        try {
+            transactionIsRequired();
+            getEntityManager().persist(entity);
+        } finally {
+            if (isTraceEnabled) {
+                long elapsed = System.currentTimeMillis() - start;
+                ROOT_LOGGER.tracef("persist entityClass '%s' took %dms", entity.getClass().getName(), elapsed);
+            }
+        }
+    }
+/ maak logging voor mekaar	,
+
+/ lees,
+https://thoughts-on-java.org/hibernate-logging-guide/
+https://docs.jboss.org/author/display/WFLY10/JPA+Reference+Guide#JPAReferenceGuide-Troubleshooting
+
+https://docs.wildfly.org/16/Admin_Guide.html
+/subsystem=logging/root-logger=ROOT:change-root-log-level(level=WARN)
+/ TODO set op TRACE
+
+/ 7	.
+
+/ in mijn test doen we,
+			categoryDao.create(clothing);
+/ er wordt dan een tx gemaakt, en we komen in 
+@Stateless
+public class CategoryDao {
+	@PersistenceContext(unitName = "arquillian-jpa-study2-persistence-unit")
+	private EntityManager em;
+	public void create(Category entity) {
+		em.persist(entity);						<-
+	}
+
+/ in meer detail,
+
+/s,
+org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261	
+			categoryDao.create(clothing);
+...
+/s,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+                case REQUIRED:
+                    return required(invocation, component, timeoutInSeconds);
+component=StatelessSessionComponent CategoryDao
+/s,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+        final Transaction tx = tm.getTransaction();
+        if (tx == null) {
+/j,
+            return invokeInOurTx(invocation, tm, component);
+/s,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+            tm.begin();
+            Transaction tx = tm.getTransaction();
+TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e status: ActionStatus.RUNNING >
+            try {
+                return invocation.proceed();
+...
+/s,
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+		
+/ 7	. 
+
+/c,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1059	
+		final BasicAction current = BasicAction.Current();
+		if (current != null)
+		{
+			final Uid txid = current.get_uid();
+
+			tx = (TransactionImple) _transactions.get(txid);
+/cb,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple.getTransaction() line: 52		/ WH base class tx
+		return TransactionImple.getTransaction();
+/cb,	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).getTransaction() line: 109
+   /**
+     * Get the transaction associated with the thread.
+    public Transaction getTransaction()
+        return transactionManager.getTransaction() ;
+/cb,	 
+org.jboss.as.jpa.transaction.TransactionUtil.getTransaction(javax.transaction.TransactionManager) line: 93	
+org.jboss.as.jpa.transaction.TransactionUtil.isInTx(javax.transaction.TransactionManager) line: 56	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.isInTx() line: 105	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).transactionIsRequired() line: 876	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 579	
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+
+/ 7	. 
+
+/ je wilt een tx scoped em hebben,
+
+
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+            transactionIsRequired();
+/d,
+            getEntityManager().persist(entity);
+/s,
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getEntityManager() line: 87	
+        isInTx = TransactionUtil.isInTx(transactionManager);
+
+        if (isInTx) {
+            entityManager = getOrCreateTransactionScopedEntityManager(emf, puScopedName, properties, synchronizationType);
+...
+/s,
+org.jboss.as.jpa.transaction.TransactionUtil.getEntityManagerInTransactionRegistry(java.lang.String, javax.transaction.TransactionSynchronizationRegistry) line: 116	
+        return (EntityManager)tsr.getResource(scopedPuName);
+/s,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.getResource(java.lang.Object) line: 106	
+/**
+ * Most of this implementation delegates down to the underlying transactions implementation to provide the services of the
+ * TransactionSynchronizationRegistry. The one area it modifies is the registration of the interposed Synchronizations. The
+ * reason this implementation needs to differ is because the JCA Synchronization and JPA Synchronizations are both specified as
+ * Interposed however there are defined ordering requirements between them both.
+ *
+ * The current implementation orders JCA relative to all other Synchronizations. For beforeCompletion, it would be possible to
+ * restrict this to the one case where JCA is ordered before JPA, however it is possible that other interposed Synchronizations
+ * would require the services of JCA and as such if the JCA is allowed to execute delistResource during beforeCompletion as
+ * mandated in JCA spec the behaviour of those subsequent interactions would be broken. For afterCompletion the JCA
+ * synchronizations are called last as that allows JCA to detect connection leaks from frameworks that have not closed the JCA
+ * managed resources. This is described in (for example)
+ * http://docs.oracle.com/javaee/5/api/javax/transaction/TransactionSynchronizationRegistry
+ * .html#registerInterposedSynchronization(javax.transaction.Synchronization) where it says that during afterCompletion
+ * "Resources can be closed but no transactional work can be performed with them".
+ *
+ * One implication of this approach is that if the underlying transactions implementation has special handling for various types
+ * of Synchronization that can also implement other interfaces (i.e. if interposedSync instanceof OtherInterface) these
+ * behaviours cannot take effect as the underlying implementation will never directly see the actual Synchronizations.
+ */
+public class TransactionSynchronizationRegistryWrapper implements TransactionSynchronizationRegistry {
+    @Override
+    public Object getResource(Object key) throws IllegalStateException {
+        return delegate.getResource(key);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getResource(java.lang.Object) line: 116	
+        if (jtaLogger.logger.isTraceEnabled()) {
+/j,
+        return transactionImple.getTxLocalResource(key);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTxLocalResource(java.lang.Object) line: 1090	
+		return _txLocalResources.get(key);
+{}
+/ key=8fad5696-b932-4054-a142-f024a75c4efd.war#arquillian-jpa-study2-persistence-unit
+
+
+/ 7	. 
+
+/ jta logging,
+
+/ lees,
+https://stackoverflow.com/questions/24903118/enable-useful-transaction-logging-in-jboss-7-1-x
+
+<logger category="com.arjuna.ats.jta">
+    <level name="TRACE"/>
+</logger>
+<logger category="com.arjuna">
+    <level name="WARN"/>
+</logger>
+/ TODO LOGGER
+/ we hebben "com.arjuna"	, 
+/ TODO Misschien teveel?
+
+/ 7	. 
+
+/ LEES,
+/ tx bound to thread
+
+/ lees,
+https://developer.jboss.org/thread/279662
+
+it depends on what you want to achieve. Do the two methods (starttx and the account) run on two different JVMs? Do I understand correctly you want to start a JTA transaction on one JVM (let's say a microservice) and you want the other JVM would join the same transaction? The JTA transactions are associated with one thread in one JVM. If you want to get multiple JVMs to run with one transaction you need to propagate context over the remote call. In this case you expect the transaction context is propagated over HTTP REST calls. Narayana provides for the propagation the subproject REST-AT (atomic transactions for REST) and you need to configure it to your project for propagation to start working. Please take a look at the Narayana quickstart quickstart/rts/at at master · jbosstm/quickstart · GitHub for this purpose.
+
+/ 7	. 
+
+/ hibernate logging,
+
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 157	
+        EntityManager entityManager = TransactionUtil.getTransactionScopedEntityManager(puScopedName, transactionSynchronizationRegistry);
+        if (entityManager == null) {
+/j,
+           entityManager = createEntityManager(emf, properties, synchronizationType);
+...
+/s,
+org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession() line: 1317
+
+package org.hibernate.internal;
+public final class SessionFactoryImpl implements SessionFactoryImplementor {
+	private static final CoreMessageLogger LOG = CoreLogging.messageLogger( SessionFactoryImpl.class );
+	public SessionFactoryImpl(final MetadataImplementor metadata, SessionFactoryOptions options) {
+		LOG.debug( "Building session factory" );
+...
+	static class SessionBuilderImpl implements SessionBuilderImplementor {
+		private static final Logger log = CoreLogging.logger( SessionBuilderImpl.class );
+		@Override
+		public Session openSession() {
+			log.tracef( "Opening Hibernate Session.  tenant=%s, owner=%s", tenantIdentifier, sessionOwner );
+/ log=org.jboss.logging.JBossLogManagerLogger@c58de09
+/ LOG= 'n CoreMessageLogger_$logger
+/ TODO LOGGER
+
+/ lees,
+https://thoughts-on-java.org/hibernate-logging-guide/
+
+The better way to activate the logging of executed SQL statements is to set the log level of the org.hibernate.SQL category to DEBUG (or the corresponding log level of your log framework). Hibernate will write the SQL statements without any information about the values bound to the JDBC parameters or extracted from the query result. If you also want to get this information, you have to set the log level of org.hibernate.type.descriptor.sql to DEBUG (see the development recommendation for an example).
+
+/ lees,
+https://medium.com/@scadge/how-to-enable-hibernate-logging-dc11545efd3d
+
+...
+/s,
+org.hibernate.internal.SessionImpl.<init>(java.sql.Connection, org.hibernate.internal.SessionFactoryImpl, org.hibernate.engine.spi.SessionOwner, org.hibernate.resource.transaction.TransactionCoordinator, org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl, org.hibernate.Transaction, org.hibernate.engine.spi.ActionQueue$TransactionCompletionProcesses, boolean, long, org.hibernate.Interceptor, org.hibernate.resource.jdbc.spi.StatementInspector, boolean, boolean, org.hibernate.ConnectionReleaseMode, java.lang.String) line: 278	
+			this.currentHibernateTransaction = getTransaction();
+/s,
+org.hibernate.internal.SessionImpl(org.hibernate.internal.AbstractSessionImpl).getTransaction() line: 315	
+			this.currentHibernateTransaction = new TransactionImpl( getTransactionCoordinator() );
+/s,
+org.hibernate.engine.transaction.internal.TransactionImpl.<init>(org.hibernate.resource.transaction.TransactionCoordinator) line: 36	
+/ TODO Wat is dit voor een ding, vergl met arjuna's TransactionImple?
+/t,
+/s,
+org.hibernate.internal.SessionImpl(org.hibernate.internal.AbstractSessionImpl).getTransaction() line: 315	
+			this.currentHibernateTransaction = new TransactionImpl( getTransactionCoordinator() );
+/d,
+		getTransactionCoordinator().pulse();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.pulse() line: 132	
+		if ( synchronizationRegistered ) {
+/j,
+			return;
+		}
+...
+/ anders,
+		joinJtaTransaction();
+/t,
+org.hibernate.internal.SessionImpl.<init>(java.sql.Connection, org.hibernate.internal.SessionFactoryImpl, org.hibernate.engine.spi.SessionOwner, org.hibernate.resource.transaction.TransactionCoordinator, org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl, org.hibernate.Transaction, org.hibernate.engine.spi.ActionQueue$TransactionCompletionProcesses, boolean, long, org.hibernate.Interceptor, org.hibernate.resource.jdbc.spi.StatementInspector, boolean, boolean, org.hibernate.ConnectionReleaseMode, java.lang.String) line: 347	
+...
+		if ( TRACE_ENABLED ) {
+/n,
+			LOG.tracef( "Opened session at timestamp: %s", timestamp );
+		}
+/ TODO LOGGER
+LOG is een org.hibernate.internal.CoreMessageLogger_$logger@67b59e01
+...
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 158	
+            entityManager = createEntityManager(emf, properties, synchronizationType);
+/d,
+/ deze moeten we te pakken zien te krijgen straks,
+entityManager	EntityManagerImpl  (id=4545)	
+	session	SessionImpl  (id=4610)	
+		persistenceContext	StatefulPersistenceContext  (id=4621)	
+			entityEntryContext	EntityEntryContext  (id=4631)	
+
+            if (ROOT_LOGGER.isDebugEnabled()) {
+                ROOT_LOGGER.debugf("%s: created entity manager session %s", TransactionUtil.getEntityManagerDetails(entityManager, scopedPuName),
+                        TransactionUtil.getTransaction(transactionManager).toString());
+            }
+/ in org.jboss.as.jpa.container.TransactionScopedEntityManager,
+import static org.jboss.as.jpa.messages.JpaLogger.ROOT_LOGGER;
+/ deze hebben we, WH omdat we org.jboss.as.jpa hebben in jboss-cli,
+
+            TransactionUtil.registerSynchronization(entityManager, scopedPuName, transactionSynchronizationRegistry, transactionManager);
+            TransactionUtil.putEntityManagerInTransactionRegistry(scopedPuName, entityManager, transactionSynchronizationRegistry);
+/s,
+    /**
+     * Save the specified EntityManager in the local threads active transaction.  The TransactionSynchronizationRegistry
+     * will clear the reference to the EntityManager when the transaction completes.
+     *
+org.jboss.as.jpa.transaction.TransactionUtil.putEntityManagerInTransactionRegistry(java.lang.String, javax.persistence.EntityManager, javax.transaction.TransactionSynchronizationRegistry) line: 127	
+/=
+    public static void putEntityManagerInTransactionRegistry(String scopedPuName, EntityManager entityManager, TransactionSynchronizationRegistry tsr) {
+        tsr.putResource(scopedPuName, entityManager);
+    }
+/ Intermezzo
+
+    /**
+     * Get current persistence context.  Only call while a transaction is active in the current thread.
+     *
+     * @param puScopedName
+     * @return
+     */
+    public static EntityManager getTransactionScopedEntityManager(String puScopedName, TransactionSynchronizationRegistry tsr) {
+        return getEntityManagerInTransactionRegistry(puScopedName, tsr);
+    }
+
+    private static EntityManager getEntityManagerInTransactionRegistry(String scopedPuName, TransactionSynchronizationRegistry tsr) {
+        return (EntityManager)tsr.getResource(scopedPuName);
+    }
+
+
+/ Einde Intermezzo
+
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.putResource(java.lang.Object, java.lang.Object) line: 109	
+        if (jtaLogger.logger.isTraceEnabled()) {
+/j,
+            jtaLogger.logger.trace("TransactionSynchronizationRegistryImple.putResource");
+        }
+...
+        TransactionImple transactionImple = getTransactionImple();
+        transactionImple.putTxLocalResource(key, value);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.putResource(java.lang.Object, java.lang.Object) line: 109	
+        TransactionImple transactionImple = getTransactionImple();
+...
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1059	
+/=
+	public static final TransactionImple getTransaction()
+/ dit is een static method, tx zal de Transaction zijn (TransactionImple is een Transcation),
+		TransactionImple tx = null;
+
+		final BasicAction current = BasicAction.Current();
+/s,
+com.arjuna.ats.arjuna.coordinator.BasicAction.Current() line: 1256	
+        return ThreadActionData.currentAction();
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.currentAction() line: 56	
+/=
+public class ThreadActionData
+	private static ThreadLocal<Deque<BasicAction>> _threadList = new ThreadLocal<Deque<BasicAction>>();
+
+	public static BasicAction currentAction ()
+	{
+...
+		Deque<BasicAction> txs = _threadList.get();
+txs	ArrayDeque<E>  (id=5124)	
+	elements	Object[16]  (id=5125)	
+		[15]	AtomicAction  (id=1906)	
+			_childThreads	Hashtable<K,V>  (id=5133)	{TSThread:6b=Thread[default task-72,5,main]}
+/ klopt, dat is de thread waar alles in gebeurt,
+			objectUid	Uid  (id=1908)	0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e
+
+		if (txs != null && !txs.isEmpty())
+		{
+			return txs.peekFirst();
+...
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.putResource(java.lang.Object, java.lang.Object) line: 110	
+        TransactionImple transactionImple = getTransactionImple();
+/d,
+        transactionImple.putTxLocalResource(key, value);
+key	"8fad5696-b932-4054-a142-f024a75c4efd.war#arquillian-jpa-study2-persistence-unit" (id=1912)	
+value	EntityManagerImpl  (id=4545)	
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.putTxLocalResource(java.lang.Object, java.lang.Object) line: 1096	
+		_txLocalResources.put(key, value);
+...
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+            getEntityManager().persist(entity);
+/pd,
+...
+/s,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 73	
+		final SessionImplementor source = event.getSession();
+		final Object object = event.getObject();
+source	SessionImpl  (id=4610)	
+object	Category  (id=538)	
+	id	null	
+	items	HashSet<E>  (id=1891)	
+		map	HashMap<K,V>  (id=5205)	
+{Item =java.lang.Object@6e3e5f0e}
+	name	"clothing" (id=1892)	
+/ Wat gaat .persist met het Item doen?
+
+		final EntityEntry entityEntry = source.getPersistenceContext().getEntry( entity );
+null
+		EntityState entityState = getEntityState( entity, entityName, entityEntry, source );
+TRANSIENT, want id=null,		
+/s,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).getEntityState(java.lang.Object, java.lang.String, org.hibernate.engine.spi.EntityEntry, org.hibernate.engine.spi.SessionImplementor) line: 488	
+		final boolean traceEnabled = LOG.isTraceEnabled();
+false
+this	JpaPersistEventListener  (id=5188)	
+	log	JBossLogManagerLogger  (id=5190)	
+	LOG	CoreMessageLogger_$logger  (id=5191)	org.hibernate.internal.CoreMessageLogger_$logger@7b658aa3
+	LOG	CoreMessageLogger_$logger  (id=5192)	
+	log	JBossLogManagerLogger  (id=5193)	
+/ TODO LOGGER
+/ Geef LOG trace enabled,
+
+		if ( ForeignKeys.isTransient( entityName, entity, getAssumedUnsaved(), source ) ) {
+
+/t,
+/s,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 185	
+		LOG.trace( "Saving transient instance" );
+/ TODO LOGGING check of deze in de log komt,
+
+/c,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 94
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+select nextval ('hibernate_sequence')
+/cb,	
+org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40	
+org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+		return optimizer.generate( databaseStructure.buildCallback( session ) );
+/cb,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101	
+		EntityPersister persister = source.getEntityPersister( entityName, entity );
+		Serializable generatedId = persister.getIdentifierGenerator().generate( source, entity );
+/cb,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 67	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72	
+		return buildPreparedStatementPreparationTemplate( sql, false ).prepareStatement();
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).<init>(org.hibernate.engine.jdbc.internal.StatementPreparerImpl, java.lang.String) line: 158	
+/=
+	private abstract class StatementPreparationTemplate {
+		protected final String sql;
+
+		protected StatementPreparationTemplate(String incomingSql) {
+			final String inspectedSql = jdbcCoordinator.getJdbcSessionOwner()
+					.getJdbcSessionContext()
+					.getStatementInspector()
+					.inspect( incomingSql );		/ doet niets, TODO
+			this.sql = inspectedSql == null ? incomingSql : inspectedSql;
+/ hier gaat hij de sql inspect, see cursus security,
+/ INSPECT SQL
+/t,
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72	
+		return buildPreparedStatementPreparationTemplate( sql, false ).prepareStatement();
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+					preparedStatement = doPrepare();
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 85	
+/=
+	private StatementPreparationTemplate buildPreparedStatementPreparationTemplate(String sql, final boolean isCallable) {
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )			
+						: connection().prepareStatement( sql );	<-
+/s,
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+         WrappedConnection wc = (WrappedConnection) cm.allocateConnection(mcf, defaultCRI);
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl@62df5cf9
+/cb,
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.obtainConnection() line: 386	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.acquireConnectionIfNeeded() line: 87	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.getPhysicalConnection() line: 112	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 398	
+      return super.getManagedConnection(trackByTransaction, subject, cri);
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590	
+         return pool.getConnection(transaction, subject, cri);
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getManagedConnectionPool(java.lang.Object, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 295	
+         ManagedConnectionPool mcp = mcpPools.get(key);
+mpc={false=SemaphoreConcurrentLinkedQueueManagedConnectionPool@15a2d2d7[pool=PostgreSQLDS]}
+key=false
+/t,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 584	
+      // Get managed connection pool
+      ManagedConnectionPool mcp = getManagedConnectionPool(key, subject, cri);
+/d,
+      // Are we doing track by transaction ?
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+/ deze zie je bij JPA en JCA 
+/ TODO
+      Object transactionKey = tsr != null ? tsr.getTransactionKey() : null;
+
+/ 13	. 
+
+
+/ we komen via jdbc in jca,
+/c,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTxLocalResource(java.lang.Object) line: 1090	
+		return _txLocalResources.get(key);
+/cb,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getResource(java.lang.Object) line: 126
+        return transactionImple.getTxLocalResource(key);
+/cb,	
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.getResource(java.lang.Object) line: 106	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionOldConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 659	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 593	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429
+/cb, (1)	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 747	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122
+		return useCredentials ? dataSource.getConnection( user, pass ) : dataSource.getConnection();
+/cb,	
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.obtainConnection() line: 386	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.acquireConnectionIfNeeded() line: 87	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.getPhysicalConnection() line: 112	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72	
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 94	
+org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40	
+org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 67	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+org.hibernate.internal.SessionImpl.persist(java.lang.Object) line: 753	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1146	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21
+	
+/ in meer detail,
+/ we zijn dus in,
+/ s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTxLocalResource(java.lang.Object) line: 1090
+		return _txLocalResources.get(key);
+	
+this	TransactionImple  (id=1746)	
+	_transactions	ConcurrentHashMap<K,V>  (id=1751)
+{0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e status: ActionStatus.RUNNING >}	
+	_theTransaction	AtomicAction  (id=1906)	
+BasicAction: 0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e status: ActionStatus.RUNNING
+	_txLocalResources	Collections$SynchronizedMap<K,V>  (id=1937)	
+{
+ 8fad5696-b932-4054-a142-f024a75c4efd.war#arquillian-jpa-study2-persistence-unit=org.hibernate.jpa.internal.EntityManagerImpl@6718656,
+ SemaphoreConcurrentLinkedQueueManagedConnectionPool@15a2d2d7[pool=PostgreSQLDS]=org.jboss.jca.core.connectionmanager.listener.TxConnectionListener@5d1a99dc[state=NORMAL managed connection=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@7f9e35b6 connection handles=0 lastReturned=1555846503672 lastValidated=1555846503672 lastCheckedOut=1555846503672 trackByTx=true pool=org.jboss.jca.core.connectionmanager.pool.strategy.OnePool@da8ad16 mcp=SemaphoreConcurrentLinkedQueueManagedConnectionPool@15a2d2d7[pool=PostgreSQLDS] xaResource=XAResourceWrapperImpl@998be1d[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@7f9e35b6 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS] txSync=null], 
+ 
+ org.jboss.jca.core.connectionmanager.transaction.LockKey@2a=java.util.concurrent.locks.ReentrantLock@ef8b4a0[Locked by thread default task-72], 
+ 
+ __TX_LISTENERS=[org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@181ab6a3]}
+			
+}
+/ hij vraagt hier om de TxConnectionListener	,
+
+
+/ 1313	. 
+
+
+
+/ lees,
+https://www.baeldung.com/java-threadlocal
+
+/ hierboven bij 
+/cb, (1) 
+/ gaan we verder, bij cb, (2)
+
+/c,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.currentAction() line: 59
+/cb,		
+com.arjuna.ats.arjuna.coordinator.BasicAction.Current() line: 1256	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1059	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple.getTransaction() line: 52	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).getTransaction() line: 109	
+org.jboss.jca.core.tx.jbossts.TransactionManagerDelegator.getTransaction() line: 85	
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 286	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.managedConnectionReconnected(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 553	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).reconnectManagedConnection(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 928	
+/ cb, (2)
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+
+/ in meer detail,
+/s,
+com.arjuna.ats.arjuna.coordinator.BasicAction.Current() line: 1256	
+/**
+ * BasicAction does most of the work of an atomic action, but does not manage
+ * thread scoping. This is the responsibility of any derived classes.
+ *
+public class BasicAction extends StateManager
+    /**
+     * @return the thread's notion of the current transaction.
+     */
+
+    public static BasicAction Current ()
+    {
+        return ThreadActionData.currentAction();
+    }
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.currentAction() line: 59
+/=
+/**
+ * This class maintains a mapping between a thread and its notion of the current
+ * transaction. Essentially this is a stack of transactions.
+ * 
+public class ThreadActionData
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private static ThreadLocal<Deque<BasicAction>> _threadList = new ThreadLocal<Deque<BasicAction>>();
+
+		Deque<BasicAction> txs = _threadList.get();
+[BasicAction: 0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e status: ActionStatus.RUNNING]
+
+		if (txs != null && !txs.isEmpty())
+		{
+			return txs.peekFirst();
+		}
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1060	
+		final BasicAction current = BasicAction.Current();
+/ is thread local,
+		if (current != null)
+		{
+			final Uid txid = current.get_uid();
+0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e	, in feite ook thread local,
+			tx = (TransactionImple) _transactions.get(txid);
+/ in feite dan ook thread local,
+			if (tx == null)
+				tx = new TransactionImple(current);
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 344	
+            synchronizer =
+               TransactionSynchronizer.getRegisteredSynchronizer(threadTx,
+                  getConnectionManager().getTransactionIntegration());
+/s,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.getRegisteredSynchronizer(javax.transaction.Transaction, org.jboss.jca.core.spi.transaction.TransactionIntegration) line: 198
+/=	
+/**
+ * Organizes transaction synchronization done by JCA.
+ * 
+ * <p> 
+ * This class exists to make sure all Tx synchronizations
+ * are invoked before the cached connection manager closes any
+ * closed connections.
+ *
+public class TransactionSynchronizer implements Synchronization
+   public static TransactionSynchronizer getRegisteredSynchronizer(Transaction tx, 
+                                                                   TransactionIntegration ti)
+throws SystemException, RollbackException
+      Object id = ti.getIdentifier(tx);
+      Record record = records.get(id);
+      return record.getTransactionSynchronizer();
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 357	
+            synchronizer =
+               TransactionSynchronizer.getRegisteredSynchronizer(threadTx,
+                  getConnectionManager().getTransactionIntegration());
+        
+         // First time through, create a transaction synchronization
+         if (transactionSynchronization == null)
+         {
+            TransactionSynchronization synchronization = new TransactionSynchronization(threadTx, isTrackByTx());
+            synchronizer.addUnenlisted(synchronization);
+			transactionSynchronization = synchronization;
+synchronizer=org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer@22add46a
+synchronization=org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization@1765488939{tx=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e status: ActionStatus.RUNNING > wasTrackByTx=true enlisted=false cancel=false}
+           
+      // Perform the enlistment(s)
+      List<Synchronization> unenlisted = synchronizer.getUnenlisted();
+	  ...
+               TransactionSynchronization sync = (TransactionSynchronization) unenlisted.get(i);
+               if (sync.enlist())
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization.enlist() line: 986	
+            XAResource resource = getXAResource();
+XAResourceWrapperImpl@998be1d[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@7f9e35b6 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]
+/ dus de resource is de connection naar pg	,
+
+            if (!currentTx.enlistResource(resource))
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource) line: 423	
+		return enlistResource(xaRes, null);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 430	
+		if (jtaLogger.logger.isTraceEnabled()) {
+/j,
+            jtaLogger.logger.trace("TransactionImple.enlistResource ( " + xaRes + " )");
+/ TODO LOGGING WH is jtaLogger een class,
+
+				xid = createXid(branchRequired, theModifier, xaRes);
+branchRequired=true
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.createXid(boolean, com.arjuna.ats.jta.xa.XAModifier, javax.transaction.xa.XAResource) line: 1529	
+        if(branch) {
+/j,
+            if(_xaResourceRecordWrappingPlugin != null) {
+                eisName = _xaResourceRecordWrappingPlugin.getEISName(xaResource);
+/s,
+com.arjuna.ats.internal.jbossatx.jta.XAResourceRecordWrappingPluginImpl.getEISName(javax.transaction.xa.XAResource) line: 70	
+			String jndiName = ((XAResourceWrapper) xaResource).getJndiName();
+java:jboss/datasources/PostgreSQLDS
+			Integer key = nameToKey.get(jndiName);
+2
+nameToKey={java:jboss/datasources/RemoteExampleDS=3, java:jboss/datasources/ExampleDS=1, java:jboss/datasources/PostgreSQLDS=2}
+	return key;
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.createXid(boolean, com.arjuna.ats.jta.xa.XAModifier, javax.transaction.xa.XAResource) line: 1535	
+                 eisName = _xaResourceRecordWrappingPlugin.getEISName(xaResource);
+2
+		Xid xid = new XidImple(_theTransaction.get_uid(), branch, eisName);
+_theTransaction.get_uid()=0:ffffc0a82b5e:39439cb1:5ca6e6b0:a35e
+/s,
+com.arjuna.ats.jta.xa.XATxConverter.getXid(com.arjuna.ats.arjuna.common.Uid, boolean, java.lang.Integer) line: 60	
+        if (branch)
+            return getXid(uid, new Uid(), FORMAT_ID, eisName);
+
+/ de conn met pg is de branch, wel logisch	,
+/ TODO Afmaken,
+
+
+
+		
+		
+		
+		
+	
+
+/ 7	. 
+
+/ we hadden hibernate-core als maven dep opgenomen voor @NaturalId,
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>5.0.1.Final</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
+/ we zijn aan het debug, en we doen een F3 op CoreLogging, dan zien we,
+Change attached source...
+C:/Users/ervelden/.m2/repository/org/hibernate/hibernate-core/5.0.1.Final/hibernate-core-5.0.1.Final-sources.jar
+/ deze is er, maar toch ...
+/ TODO
+
+/ vaker krijgen we:
+Edit source lookup path,
+Add...
+kies External archive,
+hibernate-core-5.0.10.Final-sources
+
+/ dus je hebt (als mvn dep, maar vindt sources niet),
+Change attached source...
+/ en (WH als mvn dep er niet is),
+Edit source lookup path,
+
+$ find -name "*.jar" | grep hibernate-core
+./modules/system/layers/base/org/hibernate/main/hibernate-core-5.0.10.Final.jar
+
+/ die 5.0.1.Final was fout, 
+/ maar halen de dep weg,
+/ TODO (probeer met 5.0.10.Final, en kijk of CoreLogging F3 nog fout geeft),
+
+/ 7	 .
+
+
+
+
+
+
+
+
+
+
+/ Einde DEBUG TX
+
+
+
+
+

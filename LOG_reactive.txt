@@ -1,0 +1,33 @@
+/ josh long reactive
+https://www.youtube.com/watch?v=EDB24onZxsA&t=1155s
+
+/ event based,
+/ reactive stream initiative,
+/ publisher, produces
+/ values
+/ subscriber, listens to 
+/ processor: both a publisher and a subscriber	,
+
+/ google,	
+h2 reactive
+/ lees	,
+https://code.massoudafrashteh.com/spring-boot-webflux-with-RDBMS/
+https://spring.io/blog/2016/11/28/going-reactive-with-spring-data
+https://medium.com/netifi/spring-webflux-and-rxjava2-jdbc-83a94e71ba04
+
+/ 7	. 
+
+/ kijk	Josh Long,
+https://www.youtube.com/watch?v=EDB24onZxsA&t=1155s
+
+/ lees,
+https://mongodb.github.io/mongo-java-driver-reactivestreams/
+/ lees,
+http://www.reactive-streams.org/
+
+/ lees,
+https://blog.takipi.com/reactive-streams-and-the-weird-case-of-back-pressure/
+/ we hebben download	,
+D:\Users\ervelden\Documents\My Documents\java9_10_11.pdf
+D:\Users\ervelden\Documents\My Documents\why_reactive.pdf
+

@@ -1,0 +1,4483 @@
+/ 7. 
+
+/ copy from command line:
+
+/ right click, mark,
+/ select tekst, 
+/ right click ergens in het scherm, of click enter (doe NIET link click), 
+/ geeft ctrl-v
+
+
+/ 7 .
+
+/ we kunnen ook een Administrator command prompt open, voor npm	, 
+
+/ Administrator command prompt:
+
+C:\Users\ervelden>path
+PATH=C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Clien
+t\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\W
+indowsPowerShell\v1.0\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Fi
+les\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel
+\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Manag
+ement Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Eng
+ine Components\IPT;C:\Program Files\nodejs\;C:\WINDOWS\System32\WindowsPowerShel
+l\v1.0\;C:\Users\ervelden\AppData\Roaming\npm
+
+C:\Users\ervelden>where node
+C:\Program Files\nodejs\node.exe
+
+C:\Users\ervelden>where npm
+C:\Program Files\nodejs\npm
+C:\Program Files\nodejs\npm.cmd
+
+
+/ Node.js command prompt:
+
+C:\Users\ervelden>path
+PATH=C:\Users\ervelden\AppData\Roaming\npm;C:\Program Files\nodejs\;C:\Program F
+iles (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\WINDOWS\sys
+tem32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\
+v1.0\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R
+) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Managem
+ent Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Comp
+onents\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IP
+T;C:\Program Files\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Users\
+ervelden\AppData\Roaming\npm
+
+/ Wat de Node.js promt doet is vooraan het path set, maar ze staan er allebei al in: 
+PATH=C:\Users\ervelden\AppData\Roaming\npm;C:\Program Files\nodejs\
+
+C:\Users\ervelden>where node
+C:\Program Files\nodejs\node.exe
+
+C:\Users\ervelden>where npm
+C:\Program Files\nodejs\npm
+C:\Program Files\nodejs\npm.cmd
+
+
+/ 7	.
+
+/ Lees	,
+https://angular.io/guide/quickstart
+
+npm install -g @angular/cli
+
+/ Waar hebben we installed?
+
+C:\Users\ervelden>dir AppData\Roaming\npm
+...
+03-08-2017  15:19    <DIR>          etc
+03-08-2017  15:56               329 ng
+03-08-2017  15:56               206 ng.cmd
+03-08-2017  15:56    <DIR>          node_modules
+
+C:\Users\ervelden>dir AppData\Roaming\npm\node_modules
+...
+03-08-2017  15:56    <DIR>          @angular
+
+C:\Users\ervelden>dir AppData\Roaming\npm\node_modules\@angular
+...
+03-08-2017  15:56    <DIR>          cli
+
+
+
+C:\Users\ervelden>dir AppData\Roaming\npm\node_modules\@angular\cli
+ Volume in drive C is System
+ Volume Serial Number is 90D0-8A5A
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli
+
+03-08-2017  15:56    <DIR>          .
+03-08-2017  15:56    <DIR>          ..
+03-08-2017  15:55    <DIR>          bin
+03-08-2017  15:55    <DIR>          blueprints
+03-08-2017  15:55    <DIR>          commands
+03-08-2017  15:55            11.747 CONTRIBUTING.md
+03-08-2017  15:55    <DIR>          ember-cli
+03-08-2017  15:55    <DIR>          lib
+03-08-2017  15:55             1.073 LICENSE
+03-08-2017  15:55    <DIR>          models
+03-08-2017  15:56    <DIR>          node_modules
+03-08-2017  15:56             4.160 package.json
+03-08-2017  15:56    <DIR>          plugins
+03-08-2017  15:55             7.980 README.md
+03-08-2017  15:56    <DIR>          tasks
+03-08-2017  15:56    <DIR>          upgrade
+03-08-2017  15:56    <DIR>          utilities
+
+/ 13	. 
+
+/ Hoe kwamen we hierachter?
+
+C:\Users\ervelden> dir *angular*/s
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules
+
+03-08-2017  15:56    <DIR>          @angular
+               0 File(s)              0 bytes
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\blueprints\ng\files
+
+03-08-2017  15:55             1.735 angular-cli.json
+               1 File(s)          1.735 bytes
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\node_modules\sprintf-js\demo
+
+03-08-2017  15:55               690 angular.html
+               1 File(s)            690 bytes
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\node_modules\sprintf-js\dist
+
+03-08-2017  15:55               449 angular-sprintf.min.js
+03-08-2017  15:55               429 angular-sprintf.min.js.map
+03-08-2017  15:55               429 angular-sprintf.min.map
+               3 File(s)          1.307 bytes
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\node_modules\sprintf-js\src
+
+03-08-2017  15:55               490 angular-sprintf.js
+               1 File(s)            490 bytes
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm-cache
+
+03-08-2017  15:55    <DIR>          @angular
+               0 File(s)              0 bytes
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm-cache\registry.npmjs.org
+
+03-08-2017  15:55    <DIR>          _40angular_252fcli
+               0 File(s)              0 bytes
+
+/ 13
+
+
+C:\Users\ervelden\my-ng-apps>ng new my-app
+installing ng
+  create .editorconfig
+  create README.md
+  create src\app\app.component.css
+  create src\app\app.component.html
+  create src\app\app.component.spec.ts
+  create src\app\app.component.ts
+  create src\app\app.module.ts
+  create src\assets\.gitkeep
+  create src\environments\environment.prod.ts
+  create src\environments\environment.ts
+  create src\favicon.ico
+  create src\index.html
+  create src\main.ts
+  create src\polyfills.ts
+  create src\styles.css
+  create src\test.ts
+  create src\tsconfig.app.json
+  create src\tsconfig.spec.json
+  create src\typings.d.ts
+  create .angular-cli.json
+  create e2e\app.e2e-spec.ts
+  create e2e\app.po.ts
+  create e2e\tsconfig.e2e.json
+  create .gitignore
+  create karma.conf.js
+  create package.json
+  create protractor.conf.js
+  create tsconfig.json
+  create tslint.json
+Installing packages for tooling via npm.
+Installed packages for tooling via npm.
+Project 'my-app' successfully created.
+
+/ 13	 .
+
+/ Lees
+https://angular.io/guide/quickstart
+
+/ 13	. 
+
+C:\Users\ervelden\my-ng-apps\my-app>ng serve
+** NG Live Development Server is listening on localhost:4200, open your browser on http://localhost:4200 **
+Hash: 8027d633a01ef6fcffb3
+Time: 9912ms
+chunk    {0} polyfills.bundle.js, polyfills.bundle.js.map (polyfills) 177 kB {4} [initial] [rendered]
+chunk    {1} main.bundle.js, main.bundle.js.map (main) 5.36 kB {3} [initial] [rendered]
+chunk    {2} styles.bundle.js, styles.bundle.js.map (styles) 10.5 kB {4} [initial] [rendered]
+chunk    {3} vendor.bundle.js, vendor.bundle.js.map (vendor) 2.19 MB [initial] [rendered]
+chunk    {4} inline.bundle.js, inline.bundle.js.map (inline) 0 bytes [entry] [rendered]
+webpack: Compiled successfully.
+
+/ start Visual Studio Code
+
+/ Om command in de editor, 
+View, integrated Terminal
+
+/ click het File icon, we krijgen Open Folder, kies de folder waarvan we de files willen zien,
+\Users\ervelden\my-ng-apps\my-app
+
+/ 13	. 
+
+/ je kunt 
+File
+	Open Folder
+	Close Folder
+
+/ 13	. 
+
+http://www.hoejetypt.nl/letter/Kleine%20letter%20i%20met%20umlaut
+
+/ we kunnen ï geven door 
+/ 1. Num lock aan te set, en links Alt ingedrukt te houden en 139 te geven
+/ 2. "i achter elkaar in te typen,          dit heet dodeletter type, dodetoetsmethode	,
+
+/ soms kan ook dit:
+/ 3. rechts Alt ingedrukt te houden, en i in te typen: í
+
+/ 13	. 
+
+http://www.hoejetypt.nl/uitleg.php
+
+Hoe typ je een `ò` met de dodetoetsenmethode? 
+1. Typ ^ 
+2. Typ o. De ô verschijnt. 
+
+1. Typ ' 
+2. Typ o. De ó verschijnt. 
+
+1. Typ ` 
+2. Typ o. De ò verschijnt. 
+
+1. Typ " 
+2. Typ o. De ö verschijnt. 
+
+1. Typ ~ 
+2. Typ o. De õ verschijnt.
+
+
+/ 13	.
+
+C:\Users\ervelden\my-ng-apps\my-app>ng build
+Hash: 741e708f8f2c5b141d1a
+Time: 7046ms
+chunk    {0} polyfills.bundle.js, polyfills.bundle.js.map (polyfills) 177 kB {4} [initial] [rendered]
+chunk    {1} main.bundle.js, main.bundle.js.map (main) 5.45 kB {3} [initial] [rendered]
+chunk    {2} styles.bundle.js, styles.bundle.js.map (styles) 10.5 kB {4} [initial] [rendered]
+chunk    {3} vendor.bundle.js, vendor.bundle.js.map (vendor) 1.89 MB [initial] [rendered]
+chunk    {4} inline.bundle.js, inline.bundle.js.map (inline) 0 bytes [entry] [rendered]
+
+/ de app is in app.component.ts
+/ de test is in app.component.spec.ts
+
+/ als we ng test, verschijnt er een chrome window, en daarin zien we de tests,
+/ als we app.component.ts edit, en save, worden de tests opnieuw run in hetzelfde browser window, 
+/ de app zelf wordt ook update,
+
+/ als de tests OK,
+
+AppComponent
+should create the app
+should have as title 'app'
+should render title in a h1 tag
+
+
+/ als de tests fout,
+
+C:\Users\ervelden\my-ng-apps\my-app>ng test
+ 10% building modules 1/1 modules 0 active08 08 2017 14:44:59.730:WARN [karma]: No captured browser, open http://localhost:9876/
+08 08 2017 14:44:59.746:INFO [karma]: Karma v1.7.0 server started at http://0.0.0.0:9876/
+08 08 2017 14:44:59.746:INFO [launcher]: Launching browser Chrome with unlimited concurrency
+08 08 2017 14:44:59.746:INFO [launcher]: Starting browser Chrome
+08 08 2017 14:45:05.801:WARN [karma]: No captured browser, open http://localhost:9876/
+08 08 2017 14:45:06.407:INFO [Chrome 59.0.3071 (Windows 7 0.0.0)]: Connected on socket YR80MF1v6LisgfHdAAAA with id 17068396
+Chrome 59.0.3071 (Windows 7 0.0.0) AppComponent should have as title 'app' FAILED
+        Expected 'My Third Angular App' to equal 'app'.
+            at Object.<anonymous> C:/Users/ervelden/my-ng-apps/my-app/src/app/app.component.spec.ts:23:23)
+            at ZoneDelegate.webpackJsonp.../../../../zone.js/dist/zone.js.ZoneDelegate.invoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/zone.js:391:1)
+            at AsyncTestZoneSpec.webpackJsonp.../../../../zone.js/dist/async-test.js.AsyncTestZoneSpec.onInvoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/async-test.js:49:1)
+            at ProxyZoneSpec.webpackJsonp.../../../../zone.js/dist/proxy.js.ProxyZoneSpec.onInvoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/proxy.js:76:1)
+Chrome 59.0.3071 (Windows 7 0.0.0): Executed 2 of 3 (1 FAILED) (0 secs / 0.319 secs)
+Chrome 59.0.3071 (Windows 7 0.0.0) AppComponent should have as title 'app' FAILED
+        Expected 'My Third Angular App' to equal 'app'.
+            at Object.<anonymous> C:/Users/ervelden/my-ng-apps/my-app/src/app/app.component.spec.ts:23:23)
+            at ZoneDelegate.webpackJsonp.../../../../zone.js/dist/zone.js.ZoneDelegate.invoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/zone.js:391:1)
+            at AsyncTestZoneSpec.webpackJsonp.../../../../zone.js/dist/async-test.js.AsyncTestZoneSpec.onInvoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/async-test.js:49:1)
+Chrome 59.0.3071 (Windows 7 0.0.0) AppComponent should render title in a h1 tag FAILED
+        Expected '
+            Welcome to My Third Angular App!
+          ' to contain 'Welcome to app!'.
+            at Object.<anonymous> C:/Users/ervelden/my-ng-apps/my-app/src/app/app.component.spec.ts:30:54)
+            at ZoneDelegate.webpackJsonp.../../../../zone.js/dist/zone.js.ZoneDelegate.invoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/zone.js:391:1)
+            at AsyncTestZoneSpec.webpackJsonp.../../../../zone.js/dist/async-test.js.AsyncTestZoneSpec.onInvoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/async-test.js:49:1)
+            at ProxyZoneSpec.webpackJsonp.../../../../zone.js/dist/proxy.js.ProxyZoneSpec.onInvoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/proxy.js:76:1)
+Chrome 59.0.3071 (Windows 7 0.0.0): Executed 3 of 3 (2 FAILED) (0 secs / 0.355 secs)
+Chrome 59.0.3071 (Windows 7 0.0.0) AppComponent should render title in a h1 tag FAILED
+        Expected '
+            Welcome to My Third Angular App!
+          ' to contain 'Welcome to app!'.
+            at Object.<anonymous> C:/Users/ervelden/my-ng-apps/my-app/src/app/app.component.spec.ts:30:54)
+            at ZoneDelegate.webpackJsonp.../../../../zone.js/dist/zone.js.ZoneDelegate.invoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/zone.js:391:1)
+            at AsyncTestZoneSpec.webpackJsonp.../../../../zone.js/dist/async-test.js.AsyncTestZoneSpec.onInvoke C:/Users/ervelden/my-ng-apps/my-app/~/zone.js/dist/async-test.js:49:1)
+Chrome 59.0.3071 (Windows 7 0.0.0): Executed 3 of 3 (2 FAILED) (0.379 secs / 0.355 secs)
+
+/ 13	. 
+
+/ er zien in visual studio code, in output onderin, naast terminal
+
+Alternatively you can disable ESLint for this workspace by executing the 'Disable ESLint for this workspace' command.
+
+[Info  - 14:51:09] 
+
+Failed to load the ESLint library for the document c:\Users\ervelden\my-ng-apps\my-app\protractor.conf.js
+
+
+To use ESLint in this workspace please install eslint using 'npm install eslint' or globally using 'npm install -g eslint'.
+You need to reopen the workspace after installing eslint.
+
+
+C:\Users\ervelden\my-ng-apps\my-app>npm install -g eslint
+
+C:\Users\ervelden\my-ng-apps\my-app>dir C:\Users\ervelden\AppData\Roaming\npm\node_modules
+ Volume in drive C is System
+ Volume Serial Number is 90D0-8A5A
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules
+
+08-08-2017  15:07    <DIR>          .
+08-08-2017  15:07    <DIR>          ..
+03-08-2017  15:56    <DIR>          @angular
+08-08-2017  15:07    <DIR>          eslint
+
+/ 13	. 
+
+/ Lees over karma , en jasmine,
+http://accraze.info/testing-an-angularjs-app-using-jasmine-and-karma/
+http://yeoman.io/codelab/run-unit-tests.html
+https://angular.io/guide/testing                    / onder Fundamentals , (naast Getting started, Tutorial)
+https://mochajs.org/#getting-started
+
+/ 13.
+
+/ we install java,
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+/ in,
+C:\Users\ervelden>dir "\Program Files\Java\jdk1.8.0_144"
+
+/ Lees,
+http://docs.oracle.com/javase/8/docs/
+
+/ 13	. 
+
+/ we use de installer,
+/ geef Sogeti username, password
+/ trek je niets aan van dat hij versie 7 verwacht,
+
+/ we hebben workspace-java,
+
+C:\Users\ervelden\eclipse>dir
+
+08-08-2017  16:30    <DIR>          java-oxygen
+09-08-2017  10:47    <DIR>          jee-oxygen
+09-08-2017  10:44    <DIR>          workspace-java
+               0 File(s)              0 bytes
+               5 Dir(s)  54.255.771.648 bytes free
+
+/ we kunnen ook op de commandline,
+
+C:\Users\ervelden\eclipse\jee-oxygen>eclipse\eclipse.exe
+
+/ 13	.
+
+/ we maken een Maven project, 
+/ we add junit:junit:4.12 dependency,
+/ run mvn test
+[ERROR] No compiler is provided in this environment. Perhaps you are running on a JRE rather than a JDK?
+
+/ ga naar build path, libraries
+/ we zien JRE System Library [J2SE-1.5]
+/ het enigste wat we moeten doen is hem vervangen door JavaSE-1.8(jre1.8.0_144), via Edit,
+
+/ 13	.
+
+/ de downloaded files komen op D:	, dus D:\Users\ervelden\Downloads
+
+C:\Users\ervelden\eclipse\jee-oxygen>dir d:\Users\ervelden\Downloads
+ Volume in drive D is Data
+ Volume Serial Number is 6ED1-C17D
+
+ Directory of d:\Users\ervelden\Downloads
+
+
+08-08-2017  16:25        48.691.144 eclipse-inst-win64.exe
+08-08-2017  16:26       186.651.590 eclipse-java-oxygen-R-win32-x86_64.zip
+08-08-2017  16:18       207.382.584 jdk-8u144-windows-x64.exe
+03-08-2017  13:38        12.603.392 node-v6.11.2-x64.msi
+04-08-2017  10:25         3.053.480 npp.7.4.2.Installer.x64 (1).exe
+04-08-2017  10:24         3.053.480 npp.7.4.2.Installer.x64.exe
+04-08-2017  10:38        36.408.224 VSCodeSetup-ia32-1.14.2.exe
+              12 File(s)    547.065.470 bytes
+               2 Dir(s)  144.057.913.344 bytes free
+
+/ Ook Desktop\ zit hier, D:\Users\ervelden\Desktop\
+
+/ 13	.
+
+/ we used de installer, eclipse-inst-win64.exe, maar nu willen we de zip extract, 
+/ right click de zip in Computer, en kies 7-Zip, open archive,
+/ en daar kies je Extract, en kies Copy to : C:\Users\ervelden\eclipse\tmp\
+/ dan is tmp\ precies als java-oxygen of jee-oxygen
+/ en we kunnen ,
+C:\Users\ervelden\eclipse>tmp\eclipse\eclipse.exe
+/ en we rm tmp weer,
+C:\Users\ervelden\eclipse>rmdir tmp/s
+
+/ 13	.
+
+/ jboss tools,
+
+/ lees,
+http://tools.jboss.org/blog/4.5.0.am2-for-oxygen.0.html
+
+/ install jbosstools, 
+/ use eclipse installer, anders error met proxy,
+
+HTTP Proxy Authentication Required: http://download.jboss.org/jbosstools/oxygen/development/updates/compositeContent.xml
+Proxy Authentication Required
+
+/ we hebben ,
+
+C:\Users\ervelden\eclipse>dir
+ Volume in drive C is System
+ Volume Serial Number is 90D0-8A5A
+
+ Directory of C:\Users\ervelden\eclipse
+
+09-08-2017  12:19    <DIR>          .
+09-08-2017  12:19    <DIR>          ..
+09-08-2017  12:19    <DIR>          java-oxygen
+09-08-2017  12:19    <DIR>          jbosstools-java-oxygen
+09-08-2017  11:27    <DIR>          jbosstools-jee-oxygen
+09-08-2017  12:04    <DIR>          jee-oxygen
+09-08-2017  10:44    <DIR>          workspace-java-oxygen
+09-08-2017  12:21    <DIR>          workspace-jbosstools-java-oxygen
+09-08-2017  11:43    <DIR>          workspace-jbosstools-jee-oxygen
+09-08-2017  11:34    <DIR>          workspace-jee-oxygen
+               0 File(s)              0 bytes
+              11 Dir(s)  53.134.151.680 bytes free
+
+/ we gaan activemq samples in java-oxygen,
+/ extract de zip in C:\Users\ervelden\eclipse\workspace-java-oxygen
+/ import Maven project C:\Users\ervelden\eclipse\workspace-java-oxygen\amq-in-action-example-src in eclipse,
+/ je moet wachten tot alle deps zijn loaded, dan verschijnt de maven structuur in eclipse,
+/ de maven repo is C:\Users\ervelden\.m2\repository	, see windows,properties, maven, user settings
+
+/ 13	. 
+
+/ path edit: Computer, System properties, Advanced system settings, User variables for ervelden, click PATH, Edit
+/ voeg aan het eind toe: ;C:\Users\ervelden\bin
+
+/ start een nieuwe cmd	, die heeft het nieuwe path dan,
+
+/ 13	. 
+
+/ start activemq
+
+/ Lees ActiveMQ Getting started
+http://activemq.apache.org/getting-started.html
+
+
+
+C:\Users\ervelden\bin\apache-activemq-5.15.0>bin\activemq start
+
+Warning: JAVA_HOME environment variable is not set.
+
+Java Runtime: Oracle Corporation 1.8.0_144 C:\Program Files\Java\jre1.8.0_144
+  Heap sizes: current=1005056k  free=989327k  max=1005056k
+    JVM args: -Dcom.sun.management.jmxremote -Xms1G -Xmx1G -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=C:\Users\ervelden\bin\apache-activ
+Extensions classpath:
+  [C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\lib,C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\lib\camel,C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\lib\o
+ACTIVEMQ_HOME: C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..
+ACTIVEMQ_BASE: C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..
+ACTIVEMQ_CONF: C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\conf
+ACTIVEMQ_DATA: C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\data
+Loading message broker from: xbean:activemq.xml
+ INFO | Refreshing org.apache.activemq.xbean.XBeanBrokerFactory$1@5bcab519: startup date [Wed Aug 09 13:00:49 GMT+01:00 2017]; root of context hierarchy
+ INFO | Using Persistence Adapter: KahaDBPersistenceAdapter[C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\data\kahadb]
+ INFO | PListStore:[C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\data\localhost\tmp_storage] started
+ INFO | Apache ActiveMQ 5.15.0 (localhost, ID:LBNL031514-65158-1502280050726-0:1) is starting
+ INFO | Listening for connections at: tcp://LBNL031514:61616?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector openwire started
+ INFO | Listening for connections at: amqp://LBNL031514:5672?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector amqp started
+ INFO | Listening for connections at: stomp://LBNL031514:61613?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector stomp started
+ INFO | Listening for connections at: mqtt://LBNL031514:1883?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector mqtt started
+ WARN | ServletContext@o.e.j.s.ServletContextHandler@6057aebb{/,null,STARTING} has uncovered http methods for path: /
+ INFO | Listening for connections at ws://LBNL031514:61614?maximumConnections=1000&wireFormat.maxFrameSize=104857600
+ INFO | Connector ws started
+ INFO | Apache ActiveMQ 5.15.0 (localhost, ID:LBNL031514-65158-1502280050726-0:1) started
+ INFO | For help or more information please see: http://activemq.apache.org
+ WARN | Store limit is 102400 mb (current store usage is 0 mb). The data directory: C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\data\kahadb only has 50501 mb of usable sp
+ WARN | Temporary Store limit is 51200 mb (current store usage is 0 mb). The data directory: C:\Users\ervelden\bin\apache-activemq-5.15.0\bin\..\data only has 50501 mb of usable
+ INFO | No Spring WebApplicationInitializer types detected on classpath
+ INFO | ActiveMQ WebConsole available at http://0.0.0.0:8161/
+ INFO | ActiveMQ Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/
+ INFO | Initializing Spring FrameworkServlet 'dispatcher'
+ INFO | No Spring WebApplicationInitializer types detected on classpath
+ INFO | jolokia-agent: Using policy access restrictor classpath:/jolokia-access.xml
+
+/ 13	. 
+
+/ verander in eclipse weer in Java build path, libraries: JRE System Library [JavaSE-1.8]
+/ we kunnen in org.apache.activemq.book.ch2.jobs op Consumer.java en Producer.java right click, run as Java application
+/ maar we kunnen ook mvn exec:java run config maken in eclipse, via right click pom.xml, Run as, Maven build...
+
+Name: org.apache.activemq.book.ch2.jobs.Producer-run
+Base directory: ${project_loc:amq-in-action-example-src}
+Goals: exec:java
+Parameter
+Name: exec.mainClass
+Value: org.apache.activemq.book.ch2.jobs.Producer
+
+Name: org.apache.activemq.book.ch2.jobs.Consumer-run
+Base directory: ${project_loc:amq-in-action-example-src}
+Goals: exec:java
+Parameter
+Name: exec.mainClass
+Value: org.apache.activemq.book.ch2.jobs.Consumer
+
+/ we zien onder Problems veel errors
+/ TODO
+
+/ 13	.
+
+/ activemq	, 
+/ wat is in 5.15.0 de maven dependency activemq-core ?
+/ TODO 
+
+/ 13. 
+
+/ spring in action,
+
+/ we download 
+09-08-2017  15:33         1.672.020 SpringiA4_SourceCode.zip
+/ en extract hem in workspace-java-oxygen\SpringiA4_SourceCode	/ we moeten zelf deze maken,
+
+/ buildship is al installed in eclipse oxygen,
+
+/ we maken eerst zelf een Gradle project,
+Project root directory: C:\Users\ervelden\eclipse\workspace-java-oxygen\FirstGradle
+Gradle user home directory: C:\Users\ervelden\.gradle
+Gradle distribution: Gradle wrapper from target build
+Gradle version: 3.5
+
+/ in eclipse ziet eruit als een maven project, met src/main/java etc, en met een build.gradle
+
+/ Onthoud:
+
+notepad C:\Users\ervelden\eclipse\workspace-java-oxygen\SpringiA4_SourceCode>notepad Chapter_02\stereo-autoconfig\gradle\wrapper\gradle-wrapper.properties
+...
+distributionUrl=http\://services.gradle.org/distributions/gradle-3.5-bin.zip
+
+/ Hier stond gradle-1.11-bin.zip
+
+/ en in build.gradle hoeft NIET,
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.11'
+}
+
+
+/ import in eclipse 
+C:\Users\ervelden\eclipse\workspace-java-oxygen\SpringiA4_SourceCode\Chapter_01\knight
+/ dit is een Gradle project,
+
+/ Einde Onthoud
+
+/ 13	. 
+
+/ we veranderen	, we laten hem expres falen,
+public class BraveKnightTest {
+  @Test
+  public void knightShouldEmbarkOnQuest() {
+    Quest mockQuest = mock(Quest.class);
+    BraveKnight knight = new BraveKnight(mockQuest);
+    knight.embarkOnQuest();
+    verify(mockQuest, times(1)).embark();
+    Assert.fail();                                 // <-
+  }
+
+/ In Gradle Tasks view , double click: test
+/ In Gradle executions we zien dat hij fails,
+
+/ 13	.
+
+/ we add aan PATH in Environment variables: C:\Program Files\Notepad++
+/ nu kunnen we op de commmand line:
+notepad++
+
+/ 13	. 
+
+/ Spring boot
+
+/ we doen,
+C:\Users\ervelden\eclipse\workspace-java-oxygen>mkdir sbia_examples
+/ hierin extract we de source code van het boek,
+
+/ ch02 is geen goede gradle project
+
+/ ga naar,
+
+https://start.spring.io/
+
+/ en maak een spring boot gradle app, joshlongvideo
+/ we voegen web en h2 toe,
+/ we download een zip
+/ deze extract we in de workspace-java-oxygen,
+
+/ we vergelijken ch02 met deze, en passen build.gradle aan, en copy uit joshlongvideo gradle\ 
+/ en gradlew en gradlew.bat
+/ Pas nu kunnen we deze gradle project import.
+
+/ 13	. 
+
+/ we zien in ch02 project in ReadingListApplicationTests.java 
+
+// WAS,
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@SpringApplicationConfiguration(classes = ReadingListApplication.class)  \
+//@WebAppConfiguration
+
+// IS,
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes=ReadingListApplication.class)
+public class ReadingListApplicationTests {
+
+	@Test
+	//@Ignore
+	public void contextLoads() {
+			Assert.assertTrue(true);
+	//		Assert.fail();
+	}
+}
+
+/ Als we Assert.assertTrue(true), dan passes de test, als we Assert.fail() , dan faalt de test.
+
+/ Lees,
+https://spring.io/blog/2016/04/15/testing-improvements-in-spring-boot-1-4
+
+/ 13	. 
+
+<hibernate-mapping ...>
+	<class name="..." table="...">
+		<id ...>
+		<property ...>
+		<many-to-one>...
+	</class>
+</hibernate-mapping>
+
+/ 13	. 
+
+/ install spring boot cli on windows
+/ lees,
+https://howtoprogram.xyz/2016/08/27/install-spring-boot-command-line-interface-on-windows/
+
+/ we download de zip van
+http://repo.spring.io/release/org/springframework/boot/spring-boot-cli/1.5.6.RELEASE/
+spring-boot-cli-1.5.6.RELEASE-bin.zip
+
+/ we maken de environment variables,
+User variables
+spring_home C:\Users\ervelden\bin\spring-1.5.6.RELEASE
+path ...;%spring_home%/bin
+
+/ open nieuwe command,
+C:\Users\ervelden>spring --version
+Spring CLI v1.5.6.RELEASE
+
+C:\Users\ervelden>spring shell
+/ tab geeft commands,
+
+/ 13	. 
+
+/ we kijken naar de video van josh,
+https://www.youtube.com/watch?v=sbPSjI4tt10
+
+/ we hadden joshlongvideo, een gradle proj, 
+
+/ we maken secondspringboot, een maven proj,
+web, jpa, h2, actuator
+/ we extract de zip in workspace-java-oxygen, en import in eclipse,
+
+$ vi pom.xml
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.6.RELEASE</version>
+	</parent>
+	
+/ kijk in de local repo,
+C:\Users\ervelden>dir \Users\ervelden\.m2\repository\org\springframework\boot
+
+10-08-2017  14:56    <DIR>          spring-boot
+10-08-2017  14:56    <DIR>          spring-boot-actuator
+10-08-2017  14:56    <DIR>          spring-boot-autoconfigure
+10-08-2017  14:56    <DIR>          spring-boot-dependencies         // !
+10-08-2017  14:56    <DIR>          spring-boot-maven-plugin
+10-08-2017  14:56    <DIR>          spring-boot-parent               // !
+10-08-2017  14:56    <DIR>          spring-boot-starter
+10-08-2017  14:56    <DIR>          spring-boot-starter-actuator
+10-08-2017  14:56    <DIR>          spring-boot-starter-aop
+10-08-2017  14:56    <DIR>          spring-boot-starter-data-jpa
+10-08-2017  14:56    <DIR>          spring-boot-starter-jdbc
+10-08-2017  14:56    <DIR>          spring-boot-starter-logging
+10-08-2017  14:56    <DIR>          spring-boot-starter-parent
+10-08-2017  14:56    <DIR>          spring-boot-starter-test
+10-08-2017  14:56    <DIR>          spring-boot-starter-tomcat
+10-08-2017  14:56    <DIR>          spring-boot-starter-web
+10-08-2017  14:56    <DIR>          spring-boot-starters
+10-08-2017  14:56    <DIR>          spring-boot-test
+10-08-2017  14:56    <DIR>          spring-boot-test-autoconfigure
+10-08-2017  14:56    <DIR>          spring-boot-tools
+ 
+C:\Users\ervelden>dir \Users\ervelden\.m2\repository\org\springframework\boot\spring-boot-starter-parent\1.5.6.RELEASE
+
+10-08-2017  14:56             7.486 spring-boot-starter-parent-1.5.6.RELEASE.pom
+10-08-2017  14:56                40 spring-boot-starter-parent-1.5.6.RELEASE.pom.sha1
+10-08-2017  14:56               196 _remote.repositories
+
+/ In de parent pom staan alle versions,
+
+$ vi spring-boot-starter-parent-1.5.6.RELEASE.pom
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-dependencies</artifactId>
+		<version>1.5.6.RELEASE</version>
+		<relativePath>../spring-boot-dependencies</relativePath>
+	</parent>
+
+$ vi spring-boot-dependencies-1.5.6.RELEASE.pom
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-actuator</artifactId>
+				<version>1.5.6.RELEASE</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-data-jpa</artifactId>
+				<version>1.5.6.RELEASE</version>
+			</dependency>
+
+/ en in onze pom, ook, maar dan zonder versies,
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+/ In build.gradle zien we helemaal geen versies,
+/ google: 
+/ lees: spring boot starter gradle no versions of dependencies
+https://stackoverflow.com/questions/41676534/how-are-some-gradle-dependencies-working-with-no-version-supplied
+The version of the spring-boot gradle plugin that you declare determines the version of the spring-boot-starter-parent bom that is imported (this ensures that builds are always repeatable). You should always set the version of the spring-boot gradle plugin to the actual Spring Boot version that you wish to use.
+
+/ 13	. 
+
+/ als we de deps in secondspringboot's pom.xml vergl met de deps in joshlongvideo's build.gradle, dan kunnen we ze afmaken
+
+$ vi build.gradle
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	runtime('com.h2database:h2')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+}
+
+/ voorlopig,
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	runtime('com.h2database:h2')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	/*
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	*/
+}
+
+@SpringBootApplication 
+/ doet,
+@Configuration
+@ComponentScan
+
+/ 13	. 
+
+/ ipv
+
+@SpringBootApplication
+public class joshlongvideoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(joshlongvideoApplication.class, args);
+	}
+	
+	@Bean CommandLineRunner runner(ReservationRepository rr) {
+		return new CommandLineRunner() {
+			
+			@Override
+			public void run(String... args) throws Exception {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+	}
+}
+
+/ doen we 
+	@Bean CommandLineRunner runner(ReservationRepository rr) {
+		return args ->{
+			
+		};
+	}
+/ TODO
+
+/ 13	. 			
+
+/ ipv
+	rr.findAll().forEach(r->System.out.println(r));
+/ we doen,
+	rr.findAll().forEach(System.out::println);
+	
+/ 13	.
+
+/ in gradle,
+	compile('org.springframework.boot:spring-boot-starter-web')
+	runtime('com.h2database:h2')
+	
+/ in maven,
+	<scope>compile</scope>		/ default
+	<scope>runtime</scope>
+	
+/ we zien op de video,
+
+<dependency>
+	<groupId>com.h2database</groupId>
+	<artifactId>h2</artifactId>
+	<scope>runtime</scope>
+	
+/ 13	.
+
+/ in de Gradle tasks view zien we,
+bootRun
+/ we zien de result in Console, 
+/ als niet compiles, dan zien we errors ook in Console,
+
+/ we kunnen ook right click joshlongvideoApplication.java, Run as, Java application
+
+/ er zijn ook
+build
+test
+
+$ vi joshlongvideoApplication.javapackage my.own.joshlongvideo;
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+@SpringBootApplication
+public class joshlongvideoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(joshlongvideoApplication.class, args);
+	}
+	
+	@Bean CommandLineRunner runner(ReservationRepository rr) {
+		return args ->{
+			Arrays.asList("Foo,Bar,Baz,Gee,Hee".split(","))
+				.forEach(n->rr.save(new Reservation(n)));
+			
+			rr.findAll().forEach(System.out::println);
+			rr.findByName("Foo").forEach(System.out::println);
+		};
+	}
+}
+	
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String name);
+}
+
+@Entity
+class Reservation{
+	@Id @GeneratedValue
+	private Long id;
+	
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation{id="+id+",name="+name+"}";
+	}
+	public Reservation() { // for JPA TODO
+	}
+	public Reservation(String name) {
+		this.name=name;
+	}
+	public Long getId() {
+		return id;
+	}
+
+}
+
+/ hoe gaat dat met 	
+
+public static void main(String[] args) {
+		SpringApplication.run(joshlongvideoApplication.class, args);
+	}
+	@Bean CommandLineRunner runner(ReservationRepository rr) {
+*		return args ->{			
+**			Arrays.asList("Foo,Bar,Baz,Gee,Hee".split(",")).forEach(n->rr.save(new Reservation(n)));
+			...
+			
+/ we kunnen een b set in * en in **
+
+/ set b in **,
+Thread [main] (Suspended (breakpoint at line 25 in joshlongvideoApplication))	
+	joshlongvideoApplication.lambda$0(ReservationRepository, String[]) line: 25	
+	356300643.run(String[]) line: not available	
+	SpringApplication.callRunner(CommandLineRunner, ApplicationArguments) line: 732	
+	SpringApplication.callRunners(ApplicationContext, ApplicationArguments) line: 716
+			for (Object runner : new LinkedHashSet<Object>(runners)) {
+			if (runner instanceof ApplicationRunner) {
+/n
+				callRunner((ApplicationRunner) runner, args);
+			}
+			if (runner instanceof CommandLineRunner) {
+/j
+				callRunner((CommandLineRunner) runner, args);
+/s
+	SpringApplication.afterRefresh(ConfigurableApplicationContext, ApplicationArguments) line: 703		
+		callRunners(context, args);
+	SpringApplication.run(String...) line: 304	
+	SpringApplication.run(Object[], String[]) line: 1118	
+	SpringApplication.run(Object, String...) line: 1107	
+	joshlongvideoApplication.main(String[]) line: 20	
+			SpringApplication.run(joshlongvideoApplication.class, args);
+
+
+
+/ als we b in *, dan zien we dat een @Bean een cglib object is,	
+		
+joshlongvideoApplication [Java Application]	
+	my.own.joshlongvideo.joshlongvideoApplication at localhost:64821	
+		Thread [main] (Suspended (breakpoint at line 24 in joshlongvideoApplication))	
+			owns: ConcurrentHashMap<K,V>  (id=55)	
+			owns: Object  (id=56)	
+			joshlongvideoApplication$$EnhancerBySpringCGLIB$$1b463d19(joshlongvideoApplication).runner(ReservationRepository) line: 24	
+			joshlongvideoApplication$$EnhancerBySpringCGLIB$$1b463d19.CGLIB$runner$0(ReservationRepository) line: not available	
+			joshlongvideoApplication$$EnhancerBySpringCGLIB$$1b463d19$$FastClassBySpringCGLIB$$e3164c3b.invoke(int, Object, Object[]) line: not available	
+			MethodProxy.invokeSuper(Object, Object[]) line: 228	
+			ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(Object, Method, Object[], MethodProxy) line: 358	
+			joshlongvideoApplication$$EnhancerBySpringCGLIB$$1b463d19.runner(ReservationRepository) line: not available	
+			NativeMethodAccessorImpl.invoke0(Method, Object, Object[]) line: not available [native method]	
+			NativeMethodAccessorImpl.invoke(Object, Object[]) line: not available	
+			DelegatingMethodAccessorImpl.invoke(Object, Object[]) line: not available	
+			Method.invoke(Object, Object...) line: not available	
+			CglibSubclassingInstantiationStrategy(SimpleInstantiationStrategy).instantiate(RootBeanDefinition, String, BeanFactory, Object, Method, Object...) line: 162	
+			ConstructorResolver.instantiateUsingFactoryMethod(String, RootBeanDefinition, Object[]) line: 588	
+			DefaultListableBeanFactory(AbstractAutowireCapableBeanFactory).instantiateUsingFactoryMethod(String, RootBeanDefinition, Object[]) line: 1173	
+			DefaultListableBeanFactory(AbstractAutowireCapableBeanFactory).createBeanInstance(String, RootBeanDefinition, Object[]) line: 1067	
+			DefaultListableBeanFactory(AbstractAutowireCapableBeanFactory).doCreateBean(String, RootBeanDefinition, Object[]) line: 513	
+			DefaultListableBeanFactory(AbstractAutowireCapableBeanFactory).createBean(String, RootBeanDefinition, Object[]) line: 483	
+			AbstractBeanFactory$1.getObject() line: 306	
+			DefaultListableBeanFactory(DefaultSingletonBeanRegistry).getSingleton(String, ObjectFactory<?>) line: 230	
+			DefaultListableBeanFactory(AbstractBeanFactory).doGetBean(String, Class<T>, Object[], boolean) line: 302	
+			DefaultListableBeanFactory(AbstractBeanFactory).getBean(String) line: 197	
+			DefaultListableBeanFactory.preInstantiateSingletons() line: 761	
+			AnnotationConfigApplicationContext(AbstractApplicationContext).finishBeanFactoryInitialization(ConfigurableListableBeanFactory) line: 867	
+			AnnotationConfigApplicationContext(AbstractApplicationContext).refresh() line: 543	
+			SpringApplication.refresh(ApplicationContext) line: 693	
+			SpringApplication.refreshContext(ConfigurableApplicationContext) line: 360	
+			SpringApplication.run(String...) line: 303	
+			SpringApplication.run(Object[], String[]) line: 1118	
+			SpringApplication.run(Object, String...) line: 1107	
+			joshlongvideoApplication.main(String[]) line: 20	
+		Daemon Thread [Tomcat JDBC Pool Cleaner[414493378:1502439119253]] (Running)	
+/ TODO
+
+/ we zien,
+
+Reservation{id=1,name=Foo}
+Reservation{id=2,name=Bar}
+Reservation{id=3,name=Baz}
+Reservation{id=4,name=Gee}
+Reservation{id=5,name=Hee}
+
+Reservation{id=1,name=Foo} / laatste query,
+
+/ 13	.
+
+/ rest api 
+
+/ in joshlongvideo
+
+/ voor rest api moeten we in build.gradle,
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	
+/ en doe in eclipse, 
+/ right click project, Gradle, Refresh Gradle project
+
+/ 13	. 
+
+/ we add to chrome de JSONView extention, 
+/ google: chrome json pretty print
+
+$ vi FirstspringbootApplication.java
+
+@RestController
+class ReservationController{
+	
+	@RequestMapping("/reservations")
+	public Collection<Reservation>reservations(){
+		return this.reservationRepository.findAll();
+		
+	}
+	@Autowired
+	private ReservationRepository reservationRepository;
+		
+	
+}
+
+/ Geef localhost:8080/reservations
+
+[
+{
+id: 1,
+name: "Foo"
+},
+{
+id: 2,
+name: "Bar"
+},
+{
+id: 3,
+name: "Baz"
+},
+{
+id: 4,
+name: "Gee"
+},
+{
+id: 5,
+name: "Hee"
+}
+]
+/ Welke functie print deze?
+/ TODO
+
+/ bij 
+rr.findAll().forEach(System.out::println);
+/ zien we 
+Reservation{id=1,name=Foo}
+Reservation{id=2,name=Bar}
+Reservation{id=3,name=Baz}
+Reservation{id=4,name=Gee}
+Reservation{id=5,name=Hee}
+Reservation{id=1,name=Foo}
+/ Dit is van de Reservation.toString() method, 
+
+/ 13	. 
+
+/ ipv field injection, kunnen we ook @Autowired op de setter set, NIET op de getter	,
+
+	private ReservationRepository reservationRepository;
+	
+	
+	public ReservationRepository getReservationRepository() {
+		return reservationRepository;
+	}
+	@Autowired
+	public void setReservationRepository(ReservationRepository reservationRepository) {
+		this.reservationRepository = reservationRepository;
+	}
+/ OK	,
+/ Deze setter kunnen we mock,
+
+/ 13	. 
+
+/ bootRun is ook een run config, net als bij maven,
+/ ook test, build, clean
+/ Hierin kunnen we program arguments geven,
+
+/ 13	. 
+
+
+/ we willen de source van de jre classes zien,
+/ Windows, preferences, Java, installed JREs
+/ add C:\Program Files\Java\jdk1.8.0_144
+/ en kies deze als default,
+
+/ right click existing project, build path, libraries
+/ edit JRE System Library[jre1.8.0_144]
+Alternate JRE: jdk1.8.0_144
+
+/ Geef nu F3 op Arrays, dan zien we de source code.
+
+/ 13	 .
+
+/ Uitgebreidere processes,
+/ google: windows 7 show java processes
+https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
+/ we extract in bin\ProcessExplorer, en set deze in mijn path,
+
+/ 13	. 
+
+/ google: bootRun arguments
+https://stackoverflow.com/questions/25079244/how-to-pass-jvm-options-from-bootrun
+
+$ vi build.gradle
+
+bootRun{
+	args=["foo","bar"]
+}
+/ OK
+/ TODO Anders 
+
+/ 	13	. 
+
+/ ipv rest die db queries doet via this.reservationRepository.findAll()
+/ we comment out de @RestController class ReservationController,
+
+$ vi build.gradle
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-data-rest')        // !
+	runtime('com.h2database:h2')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+/ 13	. 
+
+/ we veranderen,
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String name);
+}
+
+/ de annotatie is @RepositoryRestResource, NIET @RepositoryRestController
+/ Als je @RepositoryRestController, dan ERR:
+/ Lees over,
+This application has no explicit mapping for /error, so you are seeing this as a fallback.
+https://stackoverflow.com/questions/31134333/this-application-has-no-explicit-mapping-for-error
+
+/ Lees over @RepositoryRestController
+https://faithfull.me/overriding-spring-data-rest-repositories/
+
+/ 13	. 
+
+/ STRAKS
+
+
+/ 7	. 
+
+/ spring data rest
+
+/ lees,
+https://spring.io/guides/gs/accessing-data-rest/
+
+/ in eclipse, file import, git, projects from git, 
+/ geef url https://github.com/spring-guides/gs-accessing-data-rest.git
+/ en zet hem in de workspace-java-oxygen
+
+/ we zien 2 projects, complete en initial, beide zijn en Maven en Gradle projects, we nemen complete,
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-rest>dir
+ Volume in drive C is System
+ Volume Serial Number is 90D0-8A5A
+
+ Directory of C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-rest
+
+11-08-2017  17:42    <DIR>          .
+11-08-2017  17:42    <DIR>          ..
+11-08-2017  17:42               270 .gitignore
+11-08-2017  17:42               276 .travis.yml
+11-08-2017  17:42    <DIR>          complete
+11-08-2017  17:42               133 CONTRIBUTING.adoc
+11-08-2017  17:42    <DIR>          initial
+11-08-2017  17:42               721 LICENSE.code.txt
+11-08-2017  17:42               105 LICENSE.writing.txt
+11-08-2017  17:42            12.584 README.adoc
+11-08-2017  17:42    <DIR>          test
+               6 File(s)         14.089 bytes
+               5 Dir(s)  51.603.345.408 bytes free
+			   
+/ we edit in complete gradle\gradle-wrapper.properties, we set version 3.5
+#Mon Aug 29 13:03:41 CDT 2016
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-3.5-bin.zip
+
+/ Nu kunnen we het Gradle project import, 
+/ we zien in eclipse, 
+complete [ gs-accessing-data-rest master ]
+	src/main/java	lo
+	...
+/ en we zien met 
+Team, Switch to
+/ dat er maar 1 branch is: master
+
+/ start de app met bootRun,
+/ geef in browser,
+localhost:8080
+/ we zien
+{
+	_links: {
+		people: {
+			href: "http://localhost:8080/people{?page,size,sort}",
+			templated: true
+		},
+		profile: {
+			href: "http://localhost:8080/profile"
+		}
+	}
+}
+
+/ 13. 
+
+/ we install curl,
+https://curl.haxx.se/download.html#Win64
+
+/ we kiezen,
+in64 x86_64 7zip	7.55.0
+
+/ extract in \Users\ervelden\bin
+/ set C:\Users\ervelden\bin\curl-7.55.0-win64-mingw\bin in path,
+
+/ geef C:\Users\ervelden>curl localhost:8080
+{
+  "_links" : {
+    "people" : {
+      "href" : "http://localhost:8080/people{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/profile"
+    }
+  }
+}
+
+/ geef in chrome,
+http://localhost:8080/profile
+
+/ we zien,
+{
+	_links: {
+		self: {
+			href: "http://localhost:8080/profile"
+		},
+		people: {
+			href: "http://localhost:8080/profile/people"
+		}
+	}
+}
+
+/ geef,
+http://localhost:8080/profile/people
+
+/ we zien
+
+{
+	alps: {
+		version: "1.0",
+		descriptors: [
+			{
+				id: "person-representation",
+				href: "http://localhost:8080/profile/people",
+				descriptors: [
+					{
+					name: "firstName",
+					type: "SEMANTIC"
+					},
+					{
+					name: "lastName",
+					type: "SEMANTIC"
+					}
+				]
+				},
+			{
+			id: "get-people",
+			name: "people",
+			type: "SAFE",
+			rt: "#person-representation",
+			descriptors: [
+				{
+					name: "page",
+					doc: {
+						value: "The page to return.",
+						format: "TEXT"
+					},
+					type: "SEMANTIC"
+					},
+				{
+					name: "size",
+					doc: {
+						value: "The size of the page to return.",
+						format: "TEXT"
+					},
+					type: "SEMANTIC"
+				},
+				{
+					name: "sort",
+					doc: {
+						value: "The sorting criteria to use to calculate the content of the page.",
+						format: "TEXT"
+					},
+					type: "SEMANTIC"
+					}
+				]
+			},
+			{
+				id: "create-people",
+				name: "people",
+				type: "UNSAFE",
+				rt: "#person-representation"
+			},
+			{
+				id: "update-person",
+				name: "person",
+				type: "IDEMPOTENT",
+				rt: "#person-representation"
+			},
+			{
+				id: "get-person",
+				name: "person",
+				type: "SAFE",
+				rt: "#person-representation"
+			},
+			{
+				id: "patch-person",
+				name: "person",
+				type: "UNSAFE",
+				rt: "#person-representation"
+			},
+			{
+				id: "delete-person",
+				name: "person",
+				type: "IDEMPOTENT",
+				rt: "#person-representation"
+			},
+			{
+				name: "findByLastName",
+				type: "SAFE",
+				descriptors: [
+				{
+					name: "name",
+					type: "SEMANTIC"
+				}
+				]
+			}
+		]
+	}
+}
+
+/ 13	. 
+
+/ we add 2 people,
+
+/ we zijn nog op,
+https://spring.io/guides/gs/accessing-data-rest/
+
+C:\Users\ervelden> curl -i -X POST -H "Content-Type:application/json" -d "{  \"firstName\" : \"Frodo\",  \"lastName\" : \"Baggins\" }"http://localhost:8080/people
+
+HTTP/1.1 201
+Location: http://localhost:8080/people/1
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sun, 13 Aug 2017 13:04:59 GMT
+
+{
+  "firstName" : "Frodo",
+  "lastName" : "Baggins",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/people/1"
+    }
+  }
+}
+
+/ door -i zien we ook in de response de response headers,
+
+C:\Users\ervelden> curl -i -X POST -H "Content-Type:application/json" -d "{  \"firstName\" : \"Foo\",  \"lastName\" : \"Bar\" }"  http://localhost:8080/people
+HTTP/1.1 201
+Location: http://localhost:8080/people/2
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sun, 13 Aug 2017 13:08:17 GMT
+
+{
+  "firstName" : "Foo",
+  "lastName" : "Bar",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/2"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/people/2"
+    }
+  }
+}
+
+/ als we nu naar
+localhost:8080/people
+
+{
+	_embedded: {
+		people: [
+		{
+		firstName: "Frodo",
+		lastName: "Baggins",
+		_links: {
+			self: {
+				href: "http://localhost:8080/people/1"
+				},
+			person: {
+				href: "http://localhost:8080/people/1"
+				}
+			}
+		},
+		{
+		firstName: "Foo",
+		lastName: "Bar",
+		_links: {
+			self: {
+				href: "http://localhost:8080/people/2"
+			},
+			person: {
+				href: "http://localhost:8080/people/2"
+			}
+		}
+		}
+		]
+	},
+	_links: {
+	self: {
+	href: "http://localhost:8080/people{?page,size,sort}",
+	templated: true
+	},
+	profile: {
+	href: "http://localhost:8080/profile/people"
+	},
+	search: {
+	href: "http://localhost:8080/people/search"
+	}
+	},
+	page: {
+	size: 20,
+	totalElements: 2,
+	totalPages: 1,
+	number: 0
+	}
+}
+
+/ _links en page waren er al,
+
+/ 13	. 
+
+C:\Users\ervelden>  curl -X GET http://localhost:8080/people/search
+{
+  "_links" : {
+    "findByLastName" : {
+      "href" : "http://localhost:8080/people/search/findByLastName{?name}",
+      "templated" : true
+    },
+    "self" : {
+      "href" : "http://localhost:8080/people/search"
+    }
+  }
+}
+
+/ we moeten -X GET geven, NIET -X getC:\Users\ervelden>  curl -X GET http://localhost:8080/people/search/findByLastName?name=Bar
+{
+  "_embedded" : {
+    "people" : [ {
+      "firstName" : "Foo",
+      "lastName" : "Bar",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/people/2"
+        },
+        "person" : {
+          "href" : "http://localhost:8080/people/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/search/findByLastName?name=Bar"
+    }
+  }
+}
+
+/ 13	. 
+
+/ update,
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw> curl -i -X PUT -H "Content-Type:application/json" -d "{  \"firstName\" : \"Gee\",  \"lastName\" : \"Bar\" }"  http://localhost:8080/people/1
+HTTP/1.1 200
+Location: http://localhost:8080/people/1
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sun, 13 Aug 2017 19:10:32 GMT
+
+{
+  "firstName" : "Gee",
+  "lastName" : "Bar",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/people/1"
+    }
+  }
+}
+
+/ we zien dat we met PUT niet zoals in SQL 1 property kunnen update, we moeten ze allemaal geven	,
+/ als je er maar 1 geeft, zoals firstName, wordt de lastName null,
+
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw> curl -i -X PUT -H "Content-Type:application/json" -d "{  \"firstName\" : \"Foo\" }"  http://localhost:8080/people/1
+HTTP/1.1 200
+Location: http://localhost:8080/people/1
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sun, 13 Aug 2017 19:14:55 GMT
+
+{
+  "firstName" : "Foo",
+  "lastName" : null,
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/people/1"
+    }
+  }
+}
+
+/ we hadden eerst de verkeerde url gegeven people ipv people/1:
+
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw> curl -i -X PUT -H "Content-Type:application/json" -d "{  \"firstName\" : \"Gee\",  \"lastName\" : \"Bar\" }"  http://localhost:8080/people
+HTTP/1.1 404
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sun, 13 Aug 2017 19:09:38 GMT
+
+{"timestamp":1502651378752,"status":404,"error":"Not Found","message":"No message available","path":"/people"}
+
+
+/ 13	.
+
+/ maar met PATCH kun je wel 1 property update,
+
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw>  curl -X GET http://localhost:8080/people
+{
+  "_embedded" : {
+    "people" : [ {
+      "firstName" : "Gee",
+      "lastName" : "Bar",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/people/1"
+        },
+        "person" : {
+          "href" : "http://localhost:8080/people/1"
+        }
+      }
+    }, {
+	...
+	
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw> curl -i -X PATCH -H "Content-Type:application/json" -d "{  \"firstName\" : \"Foo\"  }"  http://localhost:8080/people/1
+HTTP/1.1 200
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Sun, 13 Aug 2017 21:02:09 GMT
+
+{
+  "firstName" : "Foo",
+  "lastName" : "Bar",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/people/1"
+    }
+  }
+}
+
+/ 13	. 
+
+
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw> curl -i -X DELETE http://localhost:8080/people/2
+HTTP/1.1 204
+Date: Sun, 13 Aug 2017 21:04:57 GMT
+
+
+C:\Users\ervelden\bin\curl-7.55.0-win64-mingw>  curl -X GET http://localhost:8080/people
+{
+  "_embedded" : {
+    "people" : [ {
+      "firstName" : "Foo",
+      "lastName" : "Bar",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/people/1"
+        },
+        "person" : {
+          "href" : "http://localhost:8080/people/1"
+        }
+      }
+    } ]
+  },
+  
+/ 13	. 
+Congratulations! You’ve just developed an application with a hypermedia-based RESTful front end and a JPA-based back end.
+
+/ Toch hebben we geen JpaRepository
+/ TODO
+
+/ 13	. 
+
+/ Motivatie Aon:
+
+Ik heb wiskunde gestudeerd, en in mijn vrije tijd neem in kansberekening & statistiek door en oefen met R, en bestudeer ik de algoritmen die gebruikt worden bij encryptie van computerberichten. Maa r vooral mijn kennis van kansberekening & statistiek hoop ik te kunnen gebruiken in uw business.
+Ik mijn vorige baan was ik full-stack web ontwikkelaar, en daar wil ik mee doorgaan. De zaak gebruikte Wicket; u gebruikt Spring-MVC. Maar gelukkig lijken op mekaar; beide zijn immers MVC frameworks. Thuis bestudeerde ik AngularJS, maar doordat ik op mijn werk Wicket gebruikte, ben ik Wicket gaan bestuderen. Nu heb ik Angular weer opgepakt. 
+Thuis bestudeer ik computer programma’s (omdat ik bang ben dat ik anders achterop raak), en een ervan is PL/pgSQL, de PostgreSQL variant van PL/SQL. Gradle gebruik ik bij het oefenen met Spring Boot. Ook met JavaScript heb ik veel geoefend, en jQuery heb ik op het werk gebruikt. Ook heb ik geoefend met Bootstrap. Maar de back-end vind ik ook interessant; thuis build ik Wildfly (met Git en Maven) en kijk hoe two-phase commit werkt en is gemaakt.
+Ik mis eerlijk gezegd Mockito in uw lijst van programma’s. 
+
+
+/ 7	. 
+
+/ we import de git project 
+https://github.com/spring-projects/spring-data-book.git
+/ en set hem in de workspace-java-oxygen.
+
+/ we import dit Maven project, en we zien 
+
+spring-data-book
+spring-data-book-gemfire
+spring-data-book-jdbc
+spring-data-book-jpa
+spring-data-book-mongodb
+spring-data-book-neo4j
+spring-data-book-querydsl
+spring-data-book-redis
+spring-data-book-rest
+
+spring-data-book is main project, en bevat de main pom,
+
+$ vi pom.xml
+	<build>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
+
+/ de version was 1.5, en daarom kregen we deze err:
+No marketplace entries found to handle Execution add-source, in /spring-data-book-jdbc/pom.xml in Eclipse.  Please see Help for more information.
+
+/ 13	. 
+
+/ In spring-data-book-jpa , 
+
+$ vi pom.xml
+		<plugins>
+			<plugin>
+				<groupId>com.mysema.maven</groupId>
+				<artifactId>apt-maven-plugin</artifactId>
+				<version>1.0.8</version>
+				<dependencies>
+					<dependency>
+						<groupId>com.mysema.querydsl</groupId>
+						<artifactId>querydsl-apt</artifactId>
+						<version>${querydsl.version}</version>
+					</dependency>
+				</dependencies>
+				<executions>
+					<execution>
+					
+/ maar we hebben ERR op <execution>	, 
+You need to run build with JDK or have tools.jar on the classpath.If this occures during eclipse build make sure you run 
+eclipse under JDK as well (com.mysema.maven:apt-maven-plugin:1.0.8:process:default:generate-sources) 
+org.apache.maven.plugin.MojoExecutionException: You need to run build with JDK or have tools.jar on the classpath.If this 
+occures during eclipse build make sure you run eclipse under JDK as well at 
+
+/ 13	. 
+
+https://www.petrikainulainen.net/programming/spring-framework/spring-data-jpa-tutorial-getting-the-required-dependencies/
+/ we zien:  get the example application of this blog post from Github.
+https://github.com/pkainulainen/spring-data-jpa-examples/tree/master/query-methods
+
+/ we import met eclipse van https://github.com/pkainulainen/spring-data-jpa-examples
+https://github.com/pkainulainen/spring-data-jpa-examples.git
+
+/ Deze heeft allemaal sub dirs en deze zijn de maven projects, die we apart moeten import in eclipse,
+/ we hebben in workspace-java-oxygen de dir spring-data-jpa-examples/ en deze heeft query-methods/, dit is de Maven project die we in eclipse import,	 
+
+/ we hebben build-helper-maven-plugin version 3.0.0: resolves ERRs,
+
+/ we zien in de pom van query-methods geen versions, maar dat doet hij zo in de pom:
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.spring.platform</groupId>
+                <artifactId>platform-bom</artifactId>
+                <version>1.1.2.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+	
+/ Deze kunnen we gewoon bekijken in search.maven.org, en we zien bijvoorbeeld	,
+
+	<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.2.3.RELEASE</version>
+        <relativePath/>
+    </parent>
+ 
+    <groupId>io.spring.platform</groupId>
+    <artifactId>platform-bom</artifactId>
+    <version>1.1.2.RELEASE</version>
+    <packaging>pom</packaging>
+	    
+	<properties>
+		<hibernate-jpa-api.version>1.0.1.Final</hibernate-jpa-api.version>
+		   <dependencyManagement>
+			<dependencies>
+		     <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate.javax.persistence</groupId>
+                <artifactId>hibernate-jpa-2.0-api</artifactId>
+                <version>${hibernate-jpa-api.version}</version>
+            </dependency>
+
+/ Kijken we ook in search.maven.org naar spring-boot-starter-parent:1.2.3.RELEASE's pom, dan zien we,
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>1.2.3.RELEASE</version>
+        <relativePath>../../spring-boot-dependencies</relativePath>
+    </parent>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <packaging>pom</packaging>
+
+/ Kijken we ook in search.maven.org naar spring-boot-dependencies:1.2.3.RELEASE's pom, dan zien we alle deps en versions,
+
+	<properties>
+	    <hibernate.version>4.3.8.Final</hibernate.version>
+        <hibernate-entitymanager.version>${hibernate.version}</hibernate-entitymanager.version>
+		
+		<log4j.version>1.2.17</log4j.version>
+        <log4j2.version>2.1</log4j2.version>
+
+    <dependencyManagement>
+        <dependencies>
+		    <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>         
+			
+			<dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>         
+			
+			<dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+			
+			
+			
+			
+			
+
+/ 13	. 
+
+/ lees,
+http://www.baeldung.com/the-persistence-layer-with-spring-data-jpa
+
+/ 13	. 
+
+/ lees, 
+https://www.mkyong.com/spring-boot/spring-boot-spring-data-jpa-oracle-example/
+
+/ 13	. 
+
+/ Lees, 
+
+https://spring.io/guides/gs/accessing-data-jpa/
+
+/ hierboven, 
+/ https://github.com/spring-guides/gs-accessing-data-rest.git
+
+/ nu import we in eclipse git project,
+https://github.com/spring-guides/gs-accessing-data-jpa.git
+
+/ 13	. 
+
+/ zoek naar word in dir
+
+/ lees,
+https://technet.microsoft.com/en-us/library/bb490907.aspx
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-jpa>findstr /s content *.*
+
+complete\build.gradle:    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+complete\pom.xml:            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+complete\target\classes\META-INF\maven\org.springframework\gs-accessing-data-jpa\pom.xml:            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+initial\build.gradle:    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+initial\pom.xml:            <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/prereq_editor_jdk_buildtools.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/how_to_complete_this_guide.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/hide-show-gradle.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/hide-show-maven.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/hide-show-sts.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/spring-boot-application.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/build_an_executable_jar_mainhead.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/build_an_executable_jar_with_both.adoc[]
+README.adoc:include::https://raw.githubusercontent.com/spring-guides/getting-started-macros/master/footer.adoc[]
+
+/ 13	. 
+
+/ show hidden files.
+
+/ lees,
+https://technet.microsoft.com/en-us/library/cc755121(v=ws.11).aspx
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\tmp>dir . /a:h
+ Volume in drive C is System
+ Volume Serial Number is 90D0-8A5A
+
+ Directory of C:\Users\ervelden\eclipse\workspace-java-oxygen\tmp
+
+15-08-2017  10:20    <DIR>          .git
+               0 File(s)              0 bytes
+               1 Dir(s)  52.716.781.568 bytes free
+			   
+/ Maar dir toont wel .settings
+/ is .settings geen hidden dir? TODO
+
+/ 13	. 
+
+/ gs-accessing-data-jpa is een git project, er is een .git/
+/ we kunnen gs-accessing-data-rest import als gradle proj, maar dan in de gradle tasks view niet de goede tasks,
+
+/ gs-accessing-data-jpa/complete is een gradle proj, als je deze import, krijg je de juiste tasks, 
+/ maar het is geen git project,  er is geen .git/, 
+/ maar toch kunnen we een alt branch maken, en switch er naar, dus WH in de repository in de parent, 
+
+/ wat is de bedoeling, wat moeten we import in eclipse, gs-accessing-data-jpa of complete?
+/ TODO
+
+/ 13	. 
+
+/ delete branch
+
+/ lees,
+https://wiki.eclipse.org/EGit/User_Guide#Delete_Branch
+
+/ Team, Advanced, Delete branch
+
+/ 13	. 
+
+/ we zien dat gs-accessing-data-jpa geen maven project is, maar gs-accessing-data-jpa/complete wel: daar is een pom.xml 
+/ er is in complete ook een .mvn/ met daarin maven-wrapper.jar en maven-wrapper.properties 
+/ TODO Wat zijn dat ?
+
+/ 13	. 
+
+/ als we in eclipse een gradle project rename, van tmp naar foo, dan moeten we repareren
+$ vi settings.gradle
+rootProject.name = 'foo'
+/ want er stond nog 'tmp'
+
+/ we maken er een git project van, 
+Team, Share project
+/ en commit, we zien de master branch,
+
+/ we kunnen foo [foo master] rename naar bar, we krijgen allerlei ERRs, maar we moeten weer settings.gradle aanpassen, en 
+right click project, Gradle, Refresh gradle project
+
+/ maar in 'Git repositories' en 'Git tasks' views zien we nog steeds foo, de oude name, 
+/ TODO
+
+/ 13	. 
+
+/ als we van te voren de complete/ rename naar gs-accessing-data-jpa , en deze import in eclipse, maar dan in .git/ staat nog steeds complete, dus als we in egit commit, dan zien we in Unstaged files alle complete/... files,
+/ TODO
+/ Lees,
+https://stackoverflow.com/questions/11183788/in-a-git-repository-how-to-properly-rename-a-directory
+
+/ we moeten
+$ git mv
+
+/ maar in egit zien we deze niet?
+
+/ ga naar om git download,
+https://git-scm.com/download/win
+
+/ we install git in C:\Program Files\Git
+/ we zien: server certificates will be validated using ca-bundle.ctr file
+
+/ we doen op de command line,
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-jpa>git mv complete data-jpa-complete
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-jpa>git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        renamed:    complete/.mvn/wrapper/maven-wrapper.jar -> data-jpa-complete/.mvn/wrapper/maven-wrapper.jar
+        renamed:    complete/.mvn/wrapper/maven-wrapper.properties -> data-jpa-complete/.mvn/wrapper/maven-wrapper.properties
+        renamed:    complete/build.gradle -> data-jpa-complete/build.gradle
+        renamed:    complete/gradle/wrapper/gradle-wrapper.jar -> data-jpa-complete/gradle/wrapper/gradle-wrapper.jar
+        renamed:    complete/gradle/wrapper/gradle-wrapper.properties -> data-jpa-complete/gradle/wrapper/gradle-wrapper.properties
+        renamed:    complete/gradlew -> data-jpa-complete/gradlew
+        renamed:    complete/gradlew.bat -> data-jpa-complete/gradlew.bat
+        renamed:    complete/mvnw -> data-jpa-complete/mvnw
+        renamed:    complete/mvnw.cmd -> data-jpa-complete/mvnw.cmd
+        renamed:    complete/pom.xml -> data-jpa-complete/pom.xml
+        renamed:    complete/src/main/java/hello/Application.java -> data-jpa-complete/src/main/java/hello/Application.java
+        renamed:    complete/src/main/java/hello/Customer.java -> data-jpa-complete/src/main/java/hello/Customer.java
+        renamed:    complete/src/main/java/hello/CustomerRepository.java -> data-jpa-complete/src/main/java/hello/CustomerRepository.java
+        renamed:    complete/src/test/java/hello/CustomerRepositoryTests.java -> data-jpa-complete/src/test/java/hello/CustomerRepositoryTests.java
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-jpa>git commit -m "renamed complete to data-jpa-complete"
+[master 5ea6c2e] renamed complete to data-jpa-complete
+ Committer: Velden <eric.vander.velden@sogeti.com>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 14 files changed, 0 insertions(+), 0 deletions(-)
+ rename {complete => data-jpa-complete}/.mvn/wrapper/maven-wrapper.jar (100%)
+ rename {complete => data-jpa-complete}/.mvn/wrapper/maven-wrapper.properties (100%)
+ rename {complete => data-jpa-complete}/build.gradle (100%)
+ rename {complete => data-jpa-complete}/gradle/wrapper/gradle-wrapper.jar (100%)
+ rename {complete => data-jpa-complete}/gradle/wrapper/gradle-wrapper.properties (100%)
+ rename {complete => data-jpa-complete}/gradlew (100%)
+ rename {complete => data-jpa-complete}/gradlew.bat (100%)
+ rename {complete => data-jpa-complete}/mvnw (100%)
+ rename {complete => data-jpa-complete}/mvnw.cmd (100%)
+ rename {complete => data-jpa-complete}/pom.xml (100%)
+ rename {complete => data-jpa-complete}/src/main/java/hello/Application.java (100%)
+ rename {complete => data-jpa-complete}/src/main/java/hello/Customer.java (100%)
+ rename {complete => data-jpa-complete}/src/main/java/hello/CustomerRepository.java (100%)
+ rename {complete => data-jpa-complete}/src/test/java/hello/CustomerRepositoryTests.java (100%)
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen\gs-accessing-data-jpa>git status
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+
+/ we hebben intussen \Users\ervelden\.gitconfig create met egit, via Windows, Preferences, Team, Git, Configuration.
+
+/ 13	. 
+
+/ we hebben complete/ in gs-accessing-data-jpa renamed to data-jpa-complete met 'git mv en git commit' 
+/ we hebben complete/ in gs-accessing-data-rest renamed to data-rest-complete met 'git mv en git commit' 
+/ en we kunnen ze beide als gradle project import in eclipse,
+
+/ 13	. 
+
+/ MORGEN check tags uit in gs-accessing-data-jpa of -rest
+
+/ 7	. 
+
+/ SAMENVATTING DATA REST DATA JPA
+
+/ project data-rest-complete
+
+$ vi PersonRepository.java
+
+@RepositoryRestResource
+public interface PersonRepository extends PagingAndSortingRepository<Person, Long> {
+	List<Person> findByLastName( @Param("name")String n);
+}
+
+/ Omdat we geen @RepositoryRestResource(path="people"), moeten we persons geven in de rest calls,
+
+/ we hoeven voor de rest calls hieronder  @Param("name") hoeven te geven in findByLastName( @Param("name")String n), omdat we deze functie hier niet use, maar wel als je 
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search/findByName?name=Foo
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080
+{
+  "_links" : {
+    "persons" : {
+      "href" : "http://localhost:8080/persons{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/profile"
+    }
+  }
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/persons
+{
+  "_embedded" : {
+    "persons" : [ ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/persons{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/profile/persons"
+    },
+    "search" : {
+      "href" : "http://localhost:8080/persons/search"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 0,
+    "totalPages" : 0,
+    "number" : 0
+  }
+}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X POST -H "Content-Type:application/json" -d "{  \"firstName\" : \"Frodo\",  \"lastName\" : \"Baggins\" }" http://localhost:8080/persons
+{
+  "firstName" : "Frodo",
+  "lastName" : "Baggins",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/persons/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/persons/1"
+    }
+  }
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X PATCH -H "Content-Type:application/json" -d "{  \"firstName\" : \"Foo\"  }" http://localhost:8080/persons/1
+HTTP/1.1 200
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Wed, 16 Aug 2017 06:55:33 GMT
+
+{
+  "firstName" : "Foo",
+  "lastName" : "Baggins",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/persons/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/persons/1"
+    }
+  }
+}
+
+/ 7	. 
+
+/ In data-jpa-complete hebben we ook een repository, maar is geen @RepositoryRestResource op, 
+/ Maar dat is net zo als in joshlongvideo, waar we een jpa repository hebben, en daar bovenop een rest controller, 
+
+@RestController
+class ReservationController{
+	
+	@RequestMapping("/reservations")
+	public Collection<Reservation>reservations(){
+		return this.reservationRepository.findAll();
+	}
+	@Autowired
+	private ReservationRepository reservationRepository;
+		
+}
+
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String name);
+}
+/ omdat we nu alleen kunnen: 
+curl -X GET http://localhost:8080/reservations
+[{"id":1,"name":"Foo"},{"id":2,"name":"Bar"},{"id":3,"name":"Baz"},{"id":4,"name":"Gee"},{"id":5,"name":"Hee"}]
+/ heeft het geen zin om @Param("name") toe te voegen bij het arg van findByName, want die gebruiken we helemaal niet nu, straks wel,
+
+/ STRAKS HIER 
+
+
+
+
+		
+
+
+
+
+	
+
+
+
+
+
+/ 13	. 
+
+/ Maak de rest endpoint http://localhost:8080/reservations/search/findByName?name=...
+/ TODO
+
+
+
+/ dit kunnen we samennemen tot 
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(@Param("name")String name);
+}
+
+/ we hebben ook @Param("name") toegevoegd, dit is voor 
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search/findByName?name=Fo
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/reservations/search/findByName?name=Foo"
+    }
+  }
+}
+
+
+/ Einde SAMENVATTING DATA REST DATA JPA
+
+/ 7	. 
+
+/ rest 
+
+/ Lees,
+https://spring.io/guides/tutorials/bookmarks/
+
+/ we doen in eclipse,
+$ git clone https://spring.io/guides/tutorials/bookmarks/
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>dir tut-bookmarks
+16-08-2017  12:50               273 .gitignore
+16-08-2017  12:50               242 .travis.yml
+16-08-2017  12:50    <DIR>          hateoas
+16-08-2017  12:50               721 LICENSE.code.txt
+16-08-2017  12:50               105 LICENSE.writing.txt
+16-08-2017  12:50    <DIR>          model
+16-08-2017  12:50             1.466 pom.xml
+16-08-2017  12:50            47.955 README.adoc
+16-08-2017  12:50    <DIR>          rest
+16-08-2017  12:50    <DIR>          security
+16-08-2017  12:50    <DIR>          snippets
+              
+/ tut-bookmarks is een maven proj. 
+/ we import deze in eclipse, we zien de projects,
+tut-bookmarks
+hateos
+model
+rest
+security
+snippets
+
+/ In model zijn def
+Account
+AccountRepository
+Bookmark
+BookmarkRepository
+
+
+
+
+/ 7	. 
+
+/ zelf data-rest , spring boot , gradle
+
+/ lees Walls boek, spring boot, 
+
+/ we zien in spring.io's gs-accessing-data-jpa:
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("com.h2database:h2")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+/ we zien in data-rest van spring.io, 
+
+/ Lees, 
+https://docs.spring.io/spring-boot/docs/current/reference/html/cli-using-the-cli.html
+
+/ geef bijvoorbeeld
+$ spring help init
+
+$ spring --version
+Spring CLI v1.5.6.RELEASE
+
+/ de spring boot app heeft dan ook deze versie, 
+
+/ we willen een spring-boot application maken met spring, 
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>mkdir my-data-rest
+C:\Users\ervelden\eclipse\workspace-java-oxygen>cd my-data-rest
+C:\Users\ervelden\eclipse\workspace-java-oxygen\my-data-rest> spring init  --dependencies data-rest,data-jpa,h2 --build gradle --extract
+Using service at https://start.spring.io
+Project extracted to 'C:\Users\ervelden\eclipse\workspace-java-oxygen\my-data-rest'
+
+/ je kunt ook --artifactId my-data-rest, als je niet --extract doet, er onstaat my-data-rest.zip
+
+/ we zien in build.gradle,
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-data-jpa')
+	compile('org.springframework.boot:spring-boot-starter-data-rest')
+	runtime('com.h2database:h2')
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+/ we import dit gradle project in eclipse, en maken er een git project van,
+
+/ 13. 
+
+$ vi Application.java
+
+package my.first;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);                // !
+	}
+}
+
+$ vi Person.java
+
+package my.first;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class Person {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
+	
+	private String firstName;
+	private String lastName;
+	
+	// getters and setters
+	
+$ vi PersonRepository.java
+
+package my.first;
+
+import java.util.List;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+
+@RepositoryRestResource
+public interface PersonRepository extends CrudRepository<Person, Long>{
+	List<Person>findByLastName(@Param("name")String n);
+}
+/ we moeten persons geven in onze rest calls: curl -X GET http://localhost:8080/persons
+
+/ of,
+@RepositoryRestResource(path="people")
+public interface PersonRepository extends CrudRepository<Person, Long>{
+	List<Person>findByLastName(@Param("name")String n);
+}
+/ Dit doe je als je people wilt geven in de rest calls: curl -X GET http://localhost:8080/people
+
+/ Dit is van spring.io,
+@RepositoryRestResource(collectionResourceRel="people",path="people")
+public interface PersonRepository extends PagingAndSortingRepository<Person, Long> {
+
+/ wat is collectionResourceRel?
+The rel value to use when generating links to the collection resource.
+/ TODO
+
+/ 13	.
+
+/ Repository ipv CrudRepository 
+
+/ als we,
+public interface PersonRepository extends Repository<Person, Long>{
+	List<Person>findByLastName(@Param("name")String n);
+}
+/ dan gaan een GET, POST goed, maar een PATCH niet:
+
+C:\Users\ervelden\bin>curl -i -X PATCH -H "Content-Type:application/json" -d "{  \"firstName\" : \"Foo\",  }" http://localhost:8080/people/1
+HTTP/1.1 500
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 15 Aug 2017 14:32:21 GMT
+Connection: close
+
+{"timestamp":1502807541845,"status":500,"error":"Internal Server Error","exception":"java.lang.IllegalStateException","message":"Repository doesn't have a find-one-method declared!","path":"/people/1"}
+
+/ 13	. 
+
+/ maar als we
+public interface PersonRepository extends CrudRepository<Person, Long>{
+
+/ dan gaat PATCH goed,
+C:\Users\ervelden\bin>curl -i -X PATCH -H "Content-Type:application/json" -d "{  \"firstName\" : \"Foo\"  }" http://localhost:8080/people/1
+HTTP/1.1 200
+Content-Type: application/hal+json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 15 Aug 2017 14:39:37 GMT
+
+{
+  "firstName" : "Foo",
+  "lastName" : "Baggins",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/1"
+    },
+    "person" : {
+      "href" : "http://localhost:8080/people/1"
+    }
+  }
+}
+
+/ POST werkt met localhost:8080/people
+/ PUT en PATCH werkt met localhost:8080/people/1
+/ GET werkt met localhost:8080, localhost:8080/people, localhost:8080/people/1, het ligt eraan wat je wilt zien,
+
+/ 7	 
+
+/ google: spring boot tutorial
+https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started-first-application.html
+Next
+https://docs.spring.io/spring-boot/docs/current/reference/html/getting-started-whats-next.html
+/ hier staat een link naar samples,
+https://github.com/spring-projects/spring-boot/tree/v1.5.6.RELEASE/spring-boot-samples
+
+
+/ 7	. 
+
+/ joshlongvideo
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(@Param("name")String n);
+}
+
+
+
+/ op de command line in windows moeten we & escape met ^&
+
+/ 13	. 
+
+/ er zijn 5 reservations.
+/ als we size=1 geven , zijn er 5 pages, 
+/ als we size=2 geven, zijn er 3 pages, 2 pages met 2 reservations, 1 page met 1 reservation, 
+/ page begint met 0	,
+
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations?page=3^&size=1
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Gee",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/4"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/4"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "first" : {
+      "href" : "http://localhost:8080/reservations?page=0&size=1"
+    },
+    "prev" : {
+      "href" : "http://localhost:8080/reservations?page=2&size=1"
+    },
+    "self" : {
+      "href" : "http://localhost:8080/reservations{&sort}",
+      "templated" : true
+    },
+    "next" : {
+      "href" : "http://localhost:8080/reservations?page=4&size=1"
+    },
+    "last" : {
+      "href" : "http://localhost:8080/reservations?page=4&size=1"
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/profile/reservations"
+    },
+    "search" : {
+      "href" : "http://localhost:8080/reservations/search"
+    }
+  },
+  "page" : {
+    "size" : 1,
+    "totalElements" : 5,
+    "totalPages" : 5,
+    "number" : 3
+  }
+}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations?page=0^&size2
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        }
+      }
+    }, {
+      "name" : "Bar",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/2"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/2"
+        }
+      }
+    }, {
+      "name" : "Baz",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/3"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/3"
+        }
+      }
+    }, {
+      "name" : "Gee",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/4"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/4"
+        }
+      }
+    }, {
+      "name" : "Hee",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/5"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/5"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/reservations{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/profile/reservations"
+    },
+    "search" : {
+      "href" : "http://localhost:8080/reservations/search"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 5,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations?page=0^&size=2
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        }
+      }
+    }, {
+      "name" : "Bar",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/2"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "first" : {
+      "href" : "http://localhost:8080/reservations?page=0&size=2"
+    },
+    "self" : {
+      "href" : "http://localhost:8080/reservations{&sort}",
+      "templated" : true
+    },
+    "next" : {
+      "href" : "http://localhost:8080/reservations?page=1&size=2"
+    },
+    "last" : {
+      "href" : "http://localhost:8080/reservations?page=2&size=2"
+    },
+    "profile" : {
+      "href" : "http://localhost:8080/profile/reservations"
+    },
+    "search" : {
+      "href" : "http://localhost:8080/reservations/search"
+    }
+  },
+  "page" : {
+    "size" : 2,
+    "totalElements" : 5,
+    "totalPages" : 3,
+    "number" : 0
+  }
+}
+/ als size=2, zijn er 3 pages, 
+/ als size=1, zijn er 5 pages,
+
+/ 13	.
+
+/ omdat we een find method hebben in de repository, is er een /search URL	,
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search
+{
+  "_links" : {
+    "findByName" : {
+      "href" : "http://localhost:8080/reservations/search/findByName{?name}",
+      "templated" : true
+    },
+    "self" : {
+      "href" : "http://localhost:8080/reservations/search"
+    }
+  }
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search/findByName?name=Foo
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/reservations/search/findByName?name=Foo"
+    }
+  }
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search/findByName?name=Foo
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/reservations/search/findByName?name=Foo"
+    }
+  }
+}
+
+/ 13	. 
+
+/ extra item
+
+/ HAL is implementation of HATEOS
+
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.ResourceProcessor;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@Component
+class ReservationResourceProcessor implements ResourceProcessor<Resource<Reservation>>{
+	@Override
+	public Resource<Reservation> process(Resource<Reservation> resource) {
+		resource.add((new Link("http://s3.com/imgs"+resource.getContent().getId()+".jpg", "profile-photo")));
+		return resource;
+	}
+}
+
+@RepositoryRestResource
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(@Param("name")String n);
+}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search/findByName?name=Foo
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/reservations/search/findByName?name=Foo"
+    }
+  }
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET http://localhost:8080/reservations/search/findByName?name=Foo
+{
+  "_embedded" : {
+    "reservations" : [ {
+      "name" : "Foo",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "reservation" : {
+          "href" : "http://localhost:8080/reservations/1"
+        },
+        "profile-photo" : {                                                // !
+          "href" : "http://s3.com/imgs1.jpg"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/reservations/search/findByName?name=Foo"
+    }
+  }
+}
+
+/ wat doen de keys self, reservation, profile-photo ?
+/ TODO
+
+/ 13	. 
+
+/ mvc controller,
+
+
+
+
+/ 7	. 
+
+/ REST 
+
+/ 13	. 
+
+/ we kunnen, 
+
+class ReservationController{
+
+	@RequestMapping("/reservations")
+/ of,
+	@RequestMapping(value="/reservations")
+/ of	,
+	@RequestMapping(method=RequestMethod.GET,value="/reservations")
+	public Collection<Reservation>reservations(){
+	
+/ 13	.
+
+/ we kunnen ook de @RequestMapping op de class, maar de methods moeten OOK altijd een @RequestMapping hebben:
+
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+	
+	@RequestMapping
+	public Collection<Reservation>reservations(){
+	
+/ GET is WH de default,
+
+/ 13	.
+
+/ request parameter, dus met ?
+
+/ in joshlongvideo,
+
+$ vi FirstspringbootApplication.java
+
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+	
+	@RequestMapping
+	public Collection<Reservation>reservations(){
+		return this.reservationRepository.findAll();
+	}
+	@RequestMapping("/findById")
+	public Reservation reservation(@RequestParam("id")Long id) {
+		return reservationRepository.findOne(id);
+	}
+
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String n);
+}
+	
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET localhost:8080/reservations
+[{"id":1,"name":"Foo"},{"id":2,"name":"Bar"},{"id":3,"name":"Baz"},{"id":4,"name":"Gee"},{"id":5,"name":"Hee"}]
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET localhost:8080/reservations?id=1
+[{"id":1,"name":"Foo"},{"id":2,"name":"Bar"},{"id":3,"name":"Baz"},{"id":4,"name":"Gee"},{"id":5,"name":"Hee"}]
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET localhost:8080/reservations/findById?id=1
+{"id":1,"name":"Foo"}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET localhost:8080/reservations/findById?id=2
+{"id":2,"name":"Bar"}
+
+/ we kunnen achter /reservations ook ?id=1 geven, maar dat heeft geen effect,
+
+/ 1313	. 
+
+/ we kunnen ook een default geven, 
+
+	@RequestMapping("/findById")
+	public Reservation reservation(@RequestParam(value="id",defaultValue="2")Long id) {
+		return reservationRepository.findOne(id);
+	}
+	
+/ we moeten value= schrijven, @RequestParam("id",defaultValue="2") is ERR,
+	
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET localhost:8080/reservations/findById?id=3
+{"id":3,"name":"Baz"}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -X GET localhost:8080/reservations/findById
+{"id":2,"name":"Bar"}
+
+
+/ 13	.
+
+/ wat we zien is WH json. 
+/ Stel we willen xml,
+
+/ google: spring rest xml
+/ Lees,
+http://howtodoinjava.com/spring/spring-restful/spring-rest-hello-world-xml-example/
+https://spring.io/guides/gs/consuming-rest-xml-android/
+
+/ Lees,
+https://www.javainterviewpoint.com/spring-rest-hello-world-example/                     <-
+https://askubuntu.com/questions/299870/http-post-and-get-using-curl-in-linux            <-
+
+
+/ we moeten extra annotaties op de entity, 
+
+$ vi FirstspringbootApplication.java
+
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+	
+	@RequestMapping(value="/findById2", method=RequestMethod.GET,produces="application/xml")
+	public Reservation reservation2(@RequestParam(value="id",defaultValue="2")Long id) {
+		return reservationRepository.findOne(id);
+	}
+	...
+}
+
+
+
+
+
+@Entity
+@XmlRootElement                                   // <-
+@XmlAccessorType(XmlAccessType.FIELD)             // <-
+class Reservation{
+	@Id @GeneratedValue @XmlElement               // <-
+	private Long id;
+	
+	@XmlElement                                   // <-
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name=name;
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation{id="+id+",name="+name+"}";
+	}
+	public Reservation() { // for JPA TODO
+	}
+	public Reservation(String name) {
+		this.name=name;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id=id;
+	}
+}
+
+/ produces="application/xml" is een restrictie; als we hem NIET, dan kunnen we curl -H "Accept:application/xml", maar ook -H "Accept:application/json", als we hem WEL, dan kunnen we ALLEEN -H "Accept:application/xml"
+
+/ method=RequestMethod.GET ook een restrictie, see beneden bij post,
+
+/ 1313	 .
+
+/ WEL produces="application/xml"
+/ we zien dat -H "Accept:application/json" ERR geeft,
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Accept:application/xml"  http://localhost:8080/reservations/findById2?id=3
+HTTP/1.1 200
+Content-Type: application/xml
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 07:36:34 GMT
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><reservation><id>3</id><name>Baz</name></reservation>
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Accept:application/json"  http://localhost:8080/reservations/findById2?id=3
+HTTP/1.1 406
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 07:36:44 GMT
+
+{"timestamp":1502955404322,"status":406,"error":"Not Acceptable","exception":"org.springframework.web.HttpMediaTypeNotAcceptableException","message":"Could not find acceptable representation","path":"/reservations/findById2"}
+
+/ 1313	. 
+
+/ GEEN produces="application/xml"
+/ we zien dat -H "Accept:application/json" OK is,
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Accept:application/xml"  http://localhost:8080/reservations/findById2?id=3
+HTTP/1.1 200
+Content-Type: application/xml
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 07:43:59 GMT
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><reservation><id>3</id><name>Baz</name></reservation>
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Accept:application/json"  http://localhost:8080/reservations/findById2?id=3
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 07:44:07 GMT
+
+{"id":3,"name":"Baz"}
+
+/ 1313	. 
+
+/ we rm /findById2 en rm produces="application/json" op /findById, 
+
+
+
+/ 13	. 
+
+/ post
+
+$ vi FirstspringbootApplication.java
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+	
+	@RequestMapping(method=RequestMethod.POST,value="/postByName")
+	public  Reservation save(@RequestBody Reservation reservation) {
+		return reservationRepository.save(reservation);
+	}
+	...
+}
+	
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String n);
+}
+
+@Entity
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+class Reservation{
+	@Id 
+	@GeneratedValue 
+	@XmlElement
+	private Long id;
+	
+	@XmlElement
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name=name;
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation{id="+id+",name="+name+"}";
+	}
+	public Reservation() { // for JPA TODO
+	}
+	public Reservation(String name) {
+		this.name=name;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id=id;
+	}
+}
+
+/ we kunnen WEL of NIET de restrictie method=RequestMethod.POST
+
+/ 1313	.
+
+/ WEL de restrictie method=RequestMethod.POST
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Content-Type:application/json" -d "{ \"name\" : \"Foo\" }" http://localhost:8080/reservations/postByName
+HTTP/1.1 405
+Allow: POST
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 08:20:02 GMT
+
+{"timestamp":1502958002463,"status":405,"error":"Method Not Allowed","exception":"org.springframework.web.HttpRequestMethodNotSupportedException","message":"Request method 'GET' not supported","path":"/reservations/postByName"}
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" -d "{ \"name\" : \"Foo\" }" http://localhost:8080/reservations/postByName
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 08:20:13 GMT
+
+{"id":6,"name":"Foo"}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" -d "{ \"name\" : \"Foo\" }" http://localhost:8080/reservations/postByName
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 08:21:22 GMT
+
+{"id":7,"name":"Foo"}
+
+/ 1313	. 
+
+/ NIET restrictie method=RequestMethod.POST
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Content-Type:application/json" -d "{ \"name\" : \"Foo\" }" http://localhost:8080/reservations/postByName
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 08:23:23 GMT
+
+{"id":6,"name":"Foo"}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Content-Type:application/json" -d "{ \"name\" : \"Foo\" }" http://localhost:8080/reservations/postByName
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 08:23:28 GMT
+
+{"id":7,"name":"Foo"}
+
+/ 13	. 
+
+/ niet meer met request params, maar met path variables
+
+/ get
+
+$ vi FirstspringbootApplication.java
+
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+
+	@RequestMapping(value="/findWithPathVariableId/{id}")
+	public Reservation reservation2(@PathVariable Long id) {
+		return reservationRepository.findOne(id);
+	}
+	...
+}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Accept:application/xml" http://localhost:8080/reservations/findWithPathVariableId/3
+HTTP/1.1 200
+Content-Type: application/xml
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 09:11:10 GMT
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><reservation><id>3</id><name>Baz</name></reservation>
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X GET -H "Accept:application/json" http://localhost:8080/reservations/findWithPathVariableId/3
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 09:11:18 GMT
+
+{"id":3,"name":"Baz"}
+
+/ 13	. 
+
+/ path variables
+
+/ post
+
+/ Lees,
+http://www.baeldung.com/spring-requestmapping
+
+/ 1313	.
+
+/ post 
+
+/ path variables
+
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+	@RequestMapping(value="/postWithPathVariableByName/{name}")
+	public  Reservation save2(@PathVariable String name) {
+		return reservationRepository.save(new Reservation(name));
+	}
+	...
+}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" http://localhost:8080/reservations/postWithPathVariableByName/Foo
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 11:18:33 GMT
+
+{"id":6,"name":"Foo"}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" http://localhost:8080/reservations/postWithPathVariableByName/Foo
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 11:18:36 GMT
+
+{"id":7,"name":"Foo"}
+
+/ 1313	.
+
+/ Lees,
+https://stackoverflow.com/questions/11938253/jpa-joincolumn-vs-mappedby
+
+/ een restaurant heeft meerdere reserveringen	,
+
+/ 131313.
+
+class Restaurant{
+	@OneToMany(mappedBy="restaurant")
+	private <Reservation>reservations;
+
+class Reservation{
+	@ManyToOne
+	private Restaurant restaurant;
+	
+/ de owner van de relationship is reservation, daar is de fk	,
+
+/ 131313.
+
+class Restaurant{
+	@OneToMany
+	@JoinColumn(name="restaurant")
+	private <Reservation>reservations;
+
+class Reservation{
+	@ManyToOne
+	private Restaurant restaurant;
+
+/ Nu is de fk's in restaurant en is restaurant de owner van de relationship.
+/ TODO Maak het,
+
+/ 1313	. 
+
+/ WH met @RequestBody convert van request parameters naar een entity, 
+/ Bestaat zoiets ook voor path variables? Nu maken we een new Reservation met de path variables als ctor args,
+/ TODO
+
+/ we maken met de path variables met new een nieuw restaurant, en laat de request params naar een reservation convert, 
+/ we moeten wel @ManyToOne(cascade=CascadeType.ALL) set op de restaurant fk in de reservation, anders ERR dat de restaurant nog transient is als de reservation wordt saved	,
+
+/ we maken,
+
+$ vi FirstspringbootApplication.java
+
+@SpringBootApplication
+public class FirstspringbootApplication {
+
+	public static void main(String[] args) {
+		Arrays.asList(args).forEach(System.out::println);
+		SpringApplication.run(FirstspringbootApplication.class, args);
+	}
+	
+	@Bean CommandLineRunner runner(ReservationRepository rr,RestaurantRepository rar) {
+		return args ->{
+			Arrays.asList("Foo,Bar,Baz,Gee,Hee".split(","))
+				.forEach(n->rr.save(new Reservation(n)));
+				
+			Arrays.asList("Roo,See,Tuu".split(","))                      // <-
+			.forEach(n->rar.save(new Restaurant(n)));
+			
+			rr.findAll().forEach(System.out::println);
+			rr.findByName("Foo").forEach(System.out::println);
+		};
+	}
+}
+	
+@RestController
+@RequestMapping("/reservations")
+class ReservationController{
+	
+	@RequestMapping(value="/postWithPathVariableByName/{name}")
+	public  Reservation save2(@PathVariable String name,@RequestBody Restaurant restaurant) {
+		return reservationRepository.save(new Reservation(name, restaurant));
+	}
+	
+	private ReservationRepository reservationRepository;
+	public ReservationRepository getReservationRepository() {
+		return reservationRepository;
+	}
+	@Autowired
+	public void setReservationRepository(ReservationRepository reservationRepository) {
+		this.reservationRepository = reservationRepository;
+	}	
+}
+
+
+
+interface ReservationRepository extends JpaRepository<Reservation, Long>{
+	Collection<Reservation>findByName(String n);
+}
+
+interface RestaurantRepository extends JpaRepository<Restaurant, Long>{
+	
+}
+
+@Entity
+class Restaurant{
+	@Id
+	@GeneratedValue
+	private Long id;
+	
+	private String name;
+	
+	@OneToMany(mappedBy="restaurant")
+	private List<Reservation> reservations;
+	
+	public Restaurant() {
+		// TODO Auto-generated constructor stub
+	}
+	public Restaurant(String name) {
+		this.name=name;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	public List<Reservation> getReservations() {
+		return reservations;
+	}
+	public void setReservations(List<Reservation> reservations) {
+		this.reservations = reservations;
+	}
+	
+	
+}
+@Entity
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+class Reservation{
+	@Id 
+	@GeneratedValue 
+	@XmlElement
+	private Long id;
+	
+	@XmlElement
+	private String name;
+	
+	@ManyToOne(cascade=CascadeType.ALL)                         // <-
+	private Restaurant restaurant;
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name=name;
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation{id="+id+",name="+name+"}";
+	}
+	public Reservation() { // for JPA TODO
+	}
+	public Reservation(String name) {
+		this.name=name;
+	}
+	public Reservation(String name,Restaurant restaurant) {
+		this.name=name;
+		this.restaurant=restaurant;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id=id;
+	}
+	public Restaurant getRestaurant() {
+		return restaurant;
+	}
+	public void setRestaurant(Restaurant restaurant) {
+		this.restaurant = restaurant;
+	}
+}
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" -d "{ \"name\":\"Roo\"}" http://localhost:8080/reservations/postWithPathVariableByName/Foo
+HTTP/1.1 200
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 12:58:22 GMT
+
+{"id":6,"name":"Foo","restaurant":{"id":4,"name":"Roo","reservations":null}}
+
+/ nog een keer deze call,
+{"id":7,"name":"Foo","restaurant":{"id":5,"name":"Roo","reservations":null}}
+
+/ 131313	 .
+
+/ als we NIET cascade=CascadeType.ALL, dan ERR,{"timestamp":1502974283271,"status":500,"error":"Internal Server Error","exception":"org.springframework.dao.InvalidDataAccessApiUsageException","message":"org.hibernate.TransientPropertyValueException: object references an unsaved transient instance - save the transient instance before flushing : my.own.firstspringboot.Reservation.restaurant -> my.own.firstspringboot.Restaurant; nested exception is java.lang.IllegalStateException: org.hibernate.TransientPropertyValueException: object references an unsaved transient instance - save the transient instance before flushing : my.own.firstspringboot.Reservation.restaurant -> my.own.firstspringboot.Restaurant","path":"/reservations/postWithPathVariableByName/Foo"}
+
+/ MORGENOCHTEND
+/ 13	.
+
+/ ERRs,
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" http://localhost:8080/reservations/postWithPathVariableByName/Foo
+HTTP/1.1 400
+Content-Type: application/json;charset=UTF-8
+Transfer-Encoding: chunked
+Date: Thu, 17 Aug 2017 10:39:54 GMT
+Connection: close
+
+{"timestamp":1502966394518,"status":400,"error":"Bad Request","exception":"org.springframework.web.method.annotation.MethodArgumentTypeMismatchException","message":"Failed to convert value of type 'java.lang.String' to required type 'my.own.firstspringboot.Reservation'; nested exception is org.springframework.core.convert.ConversionFailedException: Failed to convert from type [java.lang.String] to type [java.lang.Long] for value 'Foo'; nested exception is java.lang.NumberFormatException: For input string: \"Foo\"","path":"/reservations/postWithPathVariableByName/Foo"}
+C:\Users\ervelden\eclipse\workspace-java-oxygen>
+
+
+C:\Users\ervelden\eclipse\workspace-java-oxygen>curl -i -X POST -H "Content-Type:application/json" http://localhost:8080/reservations/postWithPathVariableByName/8/Foo
+
+{"timestamp":1502968160342,"status":400,"error":"Bad Request","exception":"org.springframework.http.converter.HttpMessageNotReadableException","message":"Required request body is missing: public my.own.firstspringboot.Reservation my.own.firstspringboot.ReservationController.save2(java.lang.Long,java.lang.String,my.own.firstspringboot.Reservation)","path":"/reservations/postWithPathVariableByName/9/Foo"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ Einde REST
+
+
+/ LOMBOK
+
+/ we download van
+https://projectlombok.org/download
+
+/ we dubbel click op deze jar, en hij ziet 4 eclipses	, we kiezen alleen java-oxygen,
+
+/ we lezen, dat als we een custom -vm parameter use, we moeten : 
+-vmargs -javaagent:lombok.jar
+/ TODO
+
+
+
+/ Einde LOMBOK
+
+/ PYTHON
+
+https://www.youtube.com/watch?v=o77LGWwTZxU&feature=push-u-sub&attr_tag=J54Fcf3mHslM69h3-6
+
+
+/ Einde PYTHON
+
+/ ANGULAR
+
+/ 7	. 
+
+/ Getting started
+
+/ 13
+
+/ resources,
+
+/ Lees,
+http://blog.ng-book.com/
+https://www.genuitec.com/products/angular-ide
+https://cli.angular.io/
+https://angular.io/resources
+
+/ 13 
+
+/ webpack in angular
+
+/ lees,
+https://stackoverflow.com/questions/39187556/angular-cli-where-is-webpack-config-js-file-new-2017-feb-ng-eject
+
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\node_modules\webpack
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\node_modules\@ngtools\webpack
+ Directory of C:\Users\ervelden\AppData\Roaming\npm\node_modules\@angular\cli\node_modules\webpack-dev-server\client
+03-08-2017  15:55               229 webpack.config.js
+
+$ ng eject 
+/ geeft de webpack.config.js file,
+
+/ TODO
+
+/ 13	. 
+
+$ vi package.json
+"scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
+  
+ / Dus we kunnen
+ $ ng serve
+ / of
+ $ npm start
+ 
+ / 13	. 
+ 
+ / karma
+ 
+ / karma runs WH unit tests in real browsers
+ 
+ / kijk,
+ https://www.youtube.com/watch?v=MVw8N3hTfCI
+ 
+ / de config file is bij ons karma.conf.js
+ 
+ $ ng test
+ / chrome verschijnt, 
+ / maar kijk naar de command line, elke keer als we app.component.ts save, run de tests, we zien op de command line:
+Chrome 60.0.3112 (Windows 7 0.0.0): Executed 3 of 3 SUCCESS (0.266 secs / 0.258 secs)
+/ de browser blijft staan de hele tijd,
+
+/ kijk,
+https://www.youtube.com/watch?v=yG4FH60fhUE
+
+/ 7	. 
+
+/ Tutorial
+
+/ je kunt de quickstart met git clone, of download, we doen git clone,
+
+/ ipv met de cli een project te create, met $ ng new, doen we,
+C:\Users\ervelden\my-ng-apps>git clone https://github.com/angular/quickstart.git
+C:\Users\ervelden\my-ng-apps>cd quickstart
+C:\Users\ervelden\my-ng-apps\quickstart>npm install
+
+$ vi package.json
+"scripts": {
+    "start": "concurrently \"npm run build:watch\" \"npm run serve\"",
+	
+
+/ Dan:
+
+C:\Users\ervelden\my-ng-apps\quickstart> npm start
+
+> angular-quickstart@1.0.0 prestart C:\Users\ervelden\my-ng-apps\quickstart
+> npm run build
+
+
+> angular-quickstart@1.0.0 build C:\Users\ervelden\my-ng-apps\quickstart
+> tsc -p src/
+
+
+> angular-quickstart@1.0.0 start C:\Users\ervelden\my-ng-apps\quickstart
+> concurrently "npm run build:watch" "npm run serve"
+
+[0]
+[0] > angular-quickstart@1.0.0 build:watch C:\Users\ervelden\my-ng-apps\quickstart
+[0] > tsc -p src/ -w
+[0]
+[1]
+[1] > angular-quickstart@1.0.0 serve C:\Users\ervelden\my-ng-apps\quickstart
+[1] > lite-server -c=bs-config.json
+[1]
+[1] ** browser-sync config **
+[1] { injectChanges: false,
+[1]   files: [ './**/*.{html,htm,css,js}' ],
+[1]   watchOptions: { ignored: 'node_modules' },
+[1]   server:
+[1]    { baseDir: 'src',
+[1]      middleware: [ [Function], [Function] ],
+[1]      routes: { '/node_modules': 'node_modules' } } }
+[1] [Browsersync] Access URLs:
+[1]  ----------------------------------------
+[1]        Local: http://localhost:3000
+[1]     External: http://192.168.123.115:3000
+[1]  ----------------------------------------
+[1]           UI: http://localhost:3001
+[1]  UI External: http://192.168.123.115:3001
+[1]  ----------------------------------------
+[1] [Browsersync] Serving files from: src
+[1] [Browsersync] Watching files...
+[1] [Browsersync] Reloading Browsers...
+[1] [Browsersync] Reloading Browsers...
+[1] [Browsersync] Reloading Browsers...
+[1] [Browsersync] Reloading Browsers...
+[0] 22:45:52 - Compilation complete. Watching for file changes.
+[1] 17.08.19 22:45:52 200 GET /index.html
+[1] 17.08.19 22:45:52 200 GET /styles.css
+[1] 17.08.19 22:45:52 200 GET /systemjs.config.js
+[1] 17.08.19 22:45:52 200 GET /core-js/client/shim.min.js
+[1] 17.08.19 22:45:52 200 GET /zone.js/dist/zone.js
+[1] 17.08.19 22:45:52 200 GET /systemjs/dist/system.src.js
+[1] 17.08.19 22:45:53 200 GET /main.js
+[1] 17.08.19 22:45:53 200 GET /favicon.ico
+[1] 17.08.19 22:45:53 200 GET /@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js
+[1] 17.08.19 22:45:53 200 GET /systemjs-angular-loader.js
+[1] 17.08.19 22:45:53 200 GET /@angular/platform-browser/bundles/platform-browser.umd.js
+[1] 17.08.19 22:45:53 200 GET /@angular/common/bundles/common.umd.js
+[1] 17.08.19 22:45:53 200 GET /app/app.module.js
+[1] 17.08.19 22:45:53 200 GET /app/app.component.js
+[1] 17.08.19 22:45:53 200 GET /@angular/core/bundles/core.umd.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/Observable.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/observable/merge.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/operator/share.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/Subject.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/root.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/toSubscriber.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/symbol/observable.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/operator/merge.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/operator/multicast.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/Subscriber.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/Subscription.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/ObjectUnsubscribedError.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/SubjectSubscription.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/symbol/rxSubscriber.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/Observer.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/observable/ArrayObservable.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/operator/mergeAll.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/isScheduler.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/observable/ConnectableObservable.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/isFunction.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/isArray.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/isObject.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/tryCatch.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/errorObject.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/UnsubscriptionError.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/observable/ScalarObservable.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/observable/EmptyObservable.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/OuterSubscriber.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/subscribeToResult.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/util/isPromise.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/symbol/iterator.js
+[1] 17.08.19 22:45:53 200 GET /rxjs/InnerSubscriber.js
+[1] 17.08.19 22:45:53 200 GET /@angular/compiler/bundles/compiler.umd.js
+
+/ we zien Explorer gestart, 
+localhost:3000
+Hello Angular
+
+/ 13	. 
+
+/ let op {{...}} , dubbele brackets,
+
+/ tussen backticks `...` kan een multiline string staan, maakt HTML more readable,
+
+/ 13	. 
+
+/ in app.component.ts,
+
+import { Component } from '@angular/core';
+export class AppComponent  { 
+  title = 'Angular'
+  hero='Windstorms'
+}
+
+/ import en export is typescript, WH NIET es6, 
+/ het wordt vertaald naar app.component.js:
+...
+var core_1 = require("@angular/core");
+...
+exports.AppComponent = AppComponent;
+
+
+/ in Angular quickstart, ga naar app.component.js, ga naar require, right click, Go to definition, 
+node_modules
+	@types
+		node	
+			index.d.ts
+
+/ exports heeft geen definition, 
+/ TODO
+
+/ 13	. 
+
+Notice that you don't call new to create an instance of the AppComponent class. Angular is creating an instance for you. How?
+When you bootstrap with the AppComponent class (in main.ts), Angular looks for a <my-app> in the index.html, finds it, instantiates an instance of AppComponent, and renders it inside the <my-app> tag.
+
+
+
+/ 13	. 
+
+$ vi app.component.ts
+
+import { Component } from '@angular/core';
+
+export class Hero{
+  id:number;
+  name:string;
+}
+
+@Component({
+  selector: 'my-app',
+  template: `
+    <h1>{{title}}</h1>
+    <h2>{{hero.name}} details!</h2>
+    <div><label>id: </label>{{hero.id}}</div>
+    <div><label>name: </label>{{hero.name}}</div> 
+    `
+})
+export class AppComponent  { 
+  title = 'Angular';
+  hero:Hero={
+    id:1,
+    name:'Windstorm'
+  }
+}
+
+/ 13	. 
+
+/ we hebben ng-book gekocht,
+/ vl$Walnoot27 password
+
+/ we hebben een email, en daarin staat waar het staat wat ik gekocht heb,
+https://gumroad.com/d/cfd861d00eb812fc4fcab79768bd7da0
+
+/ 13	. 
+
+/ we vervangen,
+    <div><label>name: </label>{{hero.name}}</div> 
+/ door,
+    <div><label>name: </label><input [(ngModel)]="hero.name" placeholder="name"></div> 
+
+/ in ,
+$ vi app.component.ts
+
+import { Component } from '@angular/core';
+
+export class Hero{
+  id:number;
+  name:string;
+}
+
+@Component({
+  selector: 'my-app',
+  template: `
+    <h1>{{title}}</h1>
+    <h2>{{hero.name}} details!</h2>
+    <div><label>id: </label>{{hero.id}}</div>
+    <div><label>name: </label><input [(ngModel)]="hero.name" placeholder="name"></div>              / <-
+    `
+})
+export class AppComponent  { 
+  title = 'Angular';
+  hero:Hero={
+    id:1,
+    name:'Windstorm'
+  }
+}
+
+$ app.module.ts
+
+import { NgModule }      from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import{FormsModule} from '@angular/forms';                       / <-
+import { AppComponent }  from './app.component';
+
+@NgModule({
+  imports:      [ BrowserModule,
+                  FormsModule ],                            / <-
+  declarations: [ AppComponent ],
+  bootstrap:    [ AppComponent ]
+})
+export class AppModule { }
+
+
+/ In de text input staat: Windstorm. Als we hem edit, zien we dat meteen in de {{hero.name}} details! Dit is two-way binding; ook van view -> model
+/ {{...}} is one-way binding
+
+/ 13	. 
+
+/ Master/Detail
+
+$ vi app.component.ts
+
+import { Component } from '@angular/core';
+
+export class Hero{
+  id:number;
+  name:string;
+}
+
+const HEROES: Hero[] = [
+  { id: 11, name: 'Mr. Nice' },
+  { id: 12, name: 'Narco' },
+  { id: 13, name: 'Bombasto' },
+  { id: 14, name: 'Celeritas' },
+  { id: 15, name: 'Magneta' },
+  { id: 16, name: 'RubberMan' },
+  { id: 17, name: 'Dynama' },
+  { id: 18, name: 'Dr IQ' },
+  { id: 19, name: 'Magma' },
+  { id: 20, name: 'Tornado' }
+];
+
+@Component({
+  selector: 'my-app',
+  template: `
+    <h1>{{title}}</h1>
+    
+    <ul class="heroes">
+      <li *ngFor="let hero of heroes">
+        <span class="badge">{{hero.id}}</span> {{hero.name}}
+      </li>
+    </ul>
+    `
+})
+export class AppComponent  { 
+  title = 'Angular';
+  heroes=HEROES;
+}
+
+/ we zien alle heroes in het browser window,
+
+/ 1313	.
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+/ Einde ANGULAR
+
+/ 13	. 
+
+/ VISUAL STUDIO, JAVASCRIPT
+
+/ 
+
+/ 7	. 
+
+/ module.exports vs exports
+
+/ Lees,
+https://medium.freecodecamp.org/node-js-module-exports-vs-exports-ec7e254d63ac
+
+/ we maken,
+C:\Users\ervelden\my-node-examples\calc>
+
+/ Lees,
+https://www.wolfe.id.au/2014/02/01/getting-a-new-node-project-started-with-npm/
+
+
+/ in visual studio code, 
+File, Open folder
+/ kies de calc dir hierboven,
+
+$ vi calculator.js
+
+
+var calc={
+    add:function(a,b){
+        return a+b
+    }
+}
+module.exports=calc
+
+/ of, 
+
+module.exports={
+    add:function(a,b){
+        return a+b
+    }
+}
+
+/ of, 
+
+module.exports.add=function(a,b){
+    return a+b
+}
+
+/ of, 
+
+module.exports.add=(a,b)=>a+b
+
+$ vi use-calculator.js
+
+const calculator=require('./calculator.js')
+console.log(calculator.add(2,2))
+
+/ 7	. 
+
+/ arrow functions
+
+/ lees,
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+https://www.vinta.com.br/blog/2015/javascript-lambda-and-arrow-functions/
+
+
+
+/ 7	. 
+
+/ strict mode
+
+/ lees,
+https://www.w3schools.com/js/js_strict.asp
+
+/ in visual studio code,
+
+/ "use strict" wil beschermen tegen het maken van global vars.
+
+/ 13	. 
+
+$ vi strict.js
+
+"use strict"
+x=3.14
+console.log(x)
+/ met "use strict" ERR: ReferenceError: x is not defined
+/ zonder "use strict" OK,
+
+"use strict"
+var x=3.14
+console.log(x)
+/ OK
+
+/ 13	. 
+
+/ hetzelfde voor functies,
+
+$ vi strict.js
+
+"use strict"
+fun=function(){
+	console.log("fun")
+}
+fun()
+/ met "use strict", ERR: fun is not defined
+/ zonder "use strict", OK
+
+"use strict"
+var fun=function(){
+	console.log("fun")
+}
+fun()
+
+/ 13	. 
+
+/ dit heeft niets met "use strict" te maken:
+
+/ 1313	. 
+
+/ bij functies, 
+
+fun()
+fun=function(){
+    console.log("fun")
+}
+/ ERR: function fun is not defined,
+
+
+fun=function(){
+    console.log("fun")
+}
+fun()
+/ OK, zonder "use strict"
+
+/ 1313	. 
+
+console.log(x)
+var x=3.14
+/ prints: undefined
+/ bij functies ERR
+
+x=3.14
+console.log(x)
+/ zonder "use strict" OK, 
+
+/ 13	.
+
+/ "use strict" kan ook binnen een functie, 
+
+x=3.14               // OK, want niet "use strict"
+console.log(x)
+
+fun=function(){         // OK, want niet "use strict"
+    "use strict"
+    y=3.14				// ERR, want "use strict", OK is: var y=3.14, y is een global var, en "use strict" wil daartegen beschermen,
+    console.log(y)
+}
+fun() 
+
+/ 7	.
+
+/ lees,
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+
+/ 13	. 
+
+function foo(){
+    this.age=77
+    setInterval(function(){
+        this.age++								// this is een Timeout 
+        console.log(this.age)					// NaN
+    },3000)
+}
+new foo()
+
+/ 13	. 
+
+function bar(){
+    this.age=77
+    that=this
+    setInterval(function(){
+        this.age++
+        console.log(this)
+        console.log(this.age)
+    },3000)
+}
+new bar()
+Timeout {
+  _called: true,
+  _idleTimeout: 3000,
+  _idlePrev: null,
+  _idleNext: null,
+  _idleStart: 3160,
+  _onTimeout: [Function],
+  _timerArgs: undefined,
+  _repeat: 3000,
+  age: NaN }
+/ dus we zien dat this.age wel wordt set, maar is NaN
+/ TODO
+
+/ 13	
+
+/ In a node script this===module.exports
+
+/ lees,
+
+https://howtonode.org/what-is-this
+https://stackoverflow.com/questions/22770299/meaning-of-this-in-node-js-modules-and-functions         <--
+
+/ 1313. 
+
+$ vi calculator.js
+
+console.log(this===module.exports)  / true
+module.exports={                    / we replace module.exports with another object
+    add:function(a,b){
+        return a+b
+    },
+    min:function(a,b){
+        return a-b
+    }
+}
+console.log(this===module.exports)  / false
+
+/ 1313	. 
+
+/ we kunnen ook module.exports aanpassen,
+
+console.log(this===module.exports)
+
+module.exports.add=function(a,b){return a+b}
+module.exports.min=function(a,b){return a-b}
+
+console.log(this===module.exports)                 / true
+
+/ 1313	. 
+
+/ we kunnen ook,
+
+this.add=function(a,b){return a+b}
+this.min=function(a,b){return a-b}
+
+/ maar we kunnen NIET, 
+
+this={               
+    add:function(a,b){
+        return a+b
+    },
+    min:function(a,b){
+        return a-b
+    }
+}
+
+/ 1313	. 
+
+/ use-calculator.js doet:
+
+const calculator=require('./calculator.js')     /= module.exports uit calculator.js, dus {add:...,min:...}
+
+
+
+
+/ 13	. 
+
+
+
+/ 13	. 
+
+function bar(){
+    this.age=77
+    that=this					// ERR met "use strict" , that is een global 	, met var that=this is that een local
+    setInterval(function(){
+        that.age++
+        console.log(that)		// bar{age:78}, bar{age:79}, ...
+        console.log(this.age)	// OK, 78, 79, ...
+    },3000)
+}
+new bar()
+
+/ 13	. 
+
+function baz(){
+    this.age=77
+    setInterval(()=>{
+        this.age++
+        console.log(this.age)	
+    },3000)
+}
+new baz()
+
+
+
+/ 13	. 
+
+/ met een lambda fct 
+
+/ lees, 
+https://www.vinta.com.br/blog/2015/javascript-lambda-and-arrow-functions/
+
+var baz1=function(a,b){return a+b}
+var baz2=(a,b)=>a+b
+var baz3=(a,b)=>{return a+b}
+
+console.log(baz1(2,3))
+console.log(baz2(2,3))
+console.log(baz3(2,3))
+/ OK
+
+/ Maar er zijn verschillen, 
+
+/ 13	. 
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+
+var baz4=function(){return this}
+console.log(baz4()===global)						/ true
+
+var baz4=function(){"use strict";return this}
+console.log(baz4()===global)						/ false, is baz4()===undefined
+
+var baz5=()=>{"use strict";return this}				/ {}, met en zonder "use strict" TODO Wat is {}
+console.log(baz5())
+
+/ 13	. 
+
+var foo1=function(a){
+    this.a=a
+    console.log(this)
+}
+var obj=new foo1(7);
+foo1.apply(obj,[9])
+
+/ we zien ,
+foo1 { a: 7 }
+foo1 { a: 9 }
+
+/ 1313.
+
+var foo2=(a)=>{
+    this.a=a
+    console.log(this)
+}
+var obj=new foo2(8) 		
+/ ERR: foo2 is not a constructor
+
+/ 13	. 
+
+/ tussen {...} moet er altijd return staan, dus OK zijn:
+
+module.exports.min=function(a,b){return a-b}
+module.exports.mult=(a,b)=>a*b
+module.exports.mult=(a,b)=>{return a*b}
+
+
+/ 13	.
+
+/ In een arrow function f is this bepaald. Dus met f.call(o,...) wordt o genegeerd, this is al bepaald. Hetzelfde voor f.apply,
+
+/ lees,
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+
+$ vi strict.js
+
+this.x=13
+var gee=(a,b)=>this.x*a+b
+console.log(gee(2,5))
+console.log(gee.call({x:15},2,5))
+
+/ we zien 
+31
+31
+
+/ 13	. 
+
+/ een arrow functie heeft geen arguments zoals normaal, als er toevallig een arguments is in zijn execution env, die hij insluit, dan neemt hij die,
+
+
+var arguments={0:'bar',1:13}
+console.log(arguments)       / { '0': 'bar', '1': 13 }
+var hee=function(a,b){
+    return arguments
+}
+
+console.log(hee('foo',7))     / { '0': 'foo', '1': 7 }
+var hee2=(a,b)=>arguments
+console.log(hee2('foo',7))      / { '0': 'bar', '1': 13 }
+
+/ 13	. 
+
+/ import , export in ts,
+
+/ lees,
+http://2ality.com/2014/09/es6-modules-final.html
+https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Statements/import
+https://developer.mozilla.org/nl/docs/Web/JavaScript/Reference/Statements/export
+https://spring.io/understanding/javascript-modules
+http://exploringjs.com/es6/ch_modules.html
+https://addyosmani.com/writing-modular-js/
+https://www.tutorialspoint.com/es6/es6_modules.htm
+
+
+/ in eigen node example, calculator,
+
+/ het zien er toch naar uit dat in node exports===module.exports, en dat we dus ook exports kunnen use,
+
+$ vi calculator.js
+
+this.add=function(a,b){return a+b}
+module.exports.min=function(a,b){return a-b}
+exports.mult=(a,b)=>a*b
+
+/ als we use-calculator.js in browser, via calculator.html die <script src="use-calculator.js"></script> doet, en we geven
+file:///C:/Users/ervelden/my-node-examples/calc/calculator.html
+/ dan zien we :
+require is not defined
+/ TODO (browserify?)
+
+/ In Angular write je in ts import/export, en dat wordt compile naar require/exports,
+/ ze hebben node ingebouwd, dus met Angular werkt require wel OK
+/ TODO
+
+
+/ 13	. 
+
+/ lees, 
+http://adrianmejia.com/blog/2016/08/12/Getting-started-with-Node-js-modules-require-exports-imports-npm-and-beyond/
+
+	
+You can think of each module as self-contained function like the following one:
+
+Module Wrapper
+(function (exports, require, module, __filename, __dirname) {
+  module.exports = exports = {};
+  // Your module code ...
+});
+
+/ WH we kunnen 
+exports.f=...
+/ want nu is er ook module.exports.f
+
+/ maar we moeten NIET 
+exports={f:...}, want omdat eerder module.exports=exports={}, komt f niet in module.exports, alleen in exports, die reset wordt met een ander object.
+
+/ 13	. 
+
+/ typescript
+
+/ lees,
+https://www.typescriptlang.org/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/ Einde VISUAL STUDIO, JAVASCRIPT
+
+/ DEEPLEARNING.JS
+
+https://research.googleblog.com/2017/08/harness-power-of-machine-learning-in.html?utm_campaign=devshow_series_deeplearnjs_081817&utm_source=gdev&utm_medium=yt-desc
+
+/ kijk, suggestie van google,
+https://www.youtube.com/watch?v=-eyhCTvrEtE
+/ google: deep learning backpropagation,
+http://neuralnetworksanddeeplearning.com/chap2.html
+https://medium.com/towards-data-science/back-propagation-414ec0043d7
+-> (follow, sign in with twitter)
+https://api.twitter.com/oauth/authenticate?oauth_token=r1WLzwAAAAAAHVn4AAABXfnEm4M&force_login=false
+Authorize Medium to use your account?
+This application will be able to:
+Read Tweets from your timeline.
+See who you follow, and follow new people.
+Update your profile.
+Post Tweets for you.
+See your email address.
+Will not be able to:
+Access your direct messages.
+See your Twitter password.
+
+/ login in twitter met 
+ejvandervelden
+ericjvandervelden@gmail.com
+
+/ 7	 
+
+/ Kijk,
+https://www.youtube.com/watch?v=EveYfHKXvfc
+
+restricted  boltzmann machine 
+Pre-training deep neural networks by supervised learning
+autoencoders
+nonlinear pca (component analysis)
+deep boltzmann machines
+convolutional
+
+
+
+/ lees,
+https://stats.stackexchange.com/questions/163600/pre-training-in-deep-convolutional-neural-network
+http://ufldl.stanford.edu/tutorial/unsupervised/Autoencoders/
+https://arxiv.org/pdf/1402.0119.pdf
+
+/ Einde DEEPLEARNING.JS
+
+/ HIBERNATE
+
+/ 7	.
+
+/ google: hibernate project with gradle
+
+/ lees,
+http://www.concretepage.com/hibernate-4/hibernate-4-annotation-example-with-gradle
+http://www.concretepage.com/jsf-2/jsf-2-hibernate-4-integration-example-using-gradle
+https://stackoverflow.com/questions/41683388/how-to-get-spring-hibernate-restful-web-service-and-gradle-working-together
+
+
+/ 7	. 
+
+
+C:\Users\ervelden\hibernate>git clone https://github.com/hibernate/hibernate-orm.git
+
+/ lees,
+https://docs.jboss.org/hibernate/orm/5.0/quickstart/html/#tutorial-native
+/ we download,
+ hibernate-tutorials.zip
+ 
+ / we extract deze in
+ C:\Users\ervelden\hibernate\hibernate-tutorials>dir
+18-01-2017  23:34    <DIR>          annotations
+18-01-2017  23:34    <DIR>          basic
+19-01-2017  00:14    <DIR>          entitymanager
+19-01-2017  00:14    <DIR>          envers
+18-01-2017  23:34    <DIR>          osgi
+18-01-2017  23:34             2.619 pom.xml
+
+/ 7	.			   
+			   
+ / we hebben ook een spring boot project create, 
+ 
+ C:\Users\ervelden\eclipse\workspace-java-oxygen\hibernate>spring init --dependencies jpa,jdbc,postgresql --build gradle --extract
+ / TODO
+ 
+ 
+ 
+
+ 
+ 
+
+
+
+/ Einde HIBERNATE
+
+/ H2
+
+/ de windows installer:
+C:\Program Files (x86)\H2
+
+/ server,
+C:\Users\ervelden\eclipse\workspace-java-oxygen\hibernate> java -classpath "\Program Files (x86)\H2\bin\h2-1.4.196.jar" org.h2.tools.Server -tcp
+TCP server running at tcp://10.234.18.225:9092 (only local connections)
+
+/ client,
+C:\Users\ervelden\h2>java -classpath "\Program Files (x86)\h2\bin\h2-1.4.196.jar" org.h2.tools.Shell
+/ Hiermee maak je een db, ook de username, password,
+
+Welcome to H2 Shell 1.4.196 (2017-06-10)
+Exit with Ctrl+C
+[Enter]   jdbc:h2:~/test
+URL       jdbc:h2:./test
+[Enter]   org.h2.Driver
+Driver
+[Enter]
+User      sa
+[Enter]   Hide
+Password  sa
+Connected
+Commands are case insensitive; SQL statements end with ';'
+help or ?      Display this help
+list           Toggle result list / stack trace mode
+maxwidth       Set maximum column width (default is 100)
+autocommit     Enable or disable autocommit
+history        Show the last 20 statements
+quit or exit   Close the connection and exit
+
+/ je kunt autocommit set met 
+autocommit
+/ of
+set autocommit
+
+sql>  autocommit false
+Autocommit is now false
+sql> set autocommit true;
+(Update count: 0, 0 ms)
+sql> autocommit
+Usage: autocommit [true|false]
+Autocommit is now true
+sql> autocommit false
+Autocommit is now false
+
+
+/ Einde H2
+
+package com.example.demo;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest
+public class DemoApplicationTests {
+
+	@Test
+	public void contextLoads() {
+	}
+
+}
