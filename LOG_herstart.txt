@@ -212,6 +212,7 @@ http://localhost:8080/manager
 
 / 7. 
 workspace-arquillian,
+D:\Users\ervelden\workspaces\workspace-arquillian
 
 ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart/tasks-rs (16.x)
 
@@ -220,9 +221,10 @@ $ less standalone/log/server.log
 
 C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse>
 C:\Users\ervelden\bin\for_wildfly>h2_client1.bat
-C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat			<-
 C:\Users\ervelden>psql -Ueric test
 C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
 C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin>jboss-cli.bat
 C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\standalone.bat --debug
+D:\Users\ervelden\misc_codebase\arquillian-jpa-study2>forge				<-
 

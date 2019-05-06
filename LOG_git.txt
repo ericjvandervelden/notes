@@ -9,8 +9,24 @@ git commit -m "first commit"
 git remote add origin https://github.com/ericjvandervelden/notes.git
 git push -u origin master
 
+/ we hebben https://... omdat we eerst anders ssl key moeten maken, net als op almond2	,
+
+
 / we hebben repos gemaakt van ,
 ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/Documents/My Notes (master)
 ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/misc_codebase/arquillian-jpa-study2 (master)
+
+/ we hadden per ongeluk
+$ git add pom.xml .
+/ doe , 
+$ git reset HEAD .
+$ git add pom.xml
+
+/ we hoeven maar 1 keer 
+$ git push -u origin master
+/ daarna is voldoende, 
+$ git push
+
+
 
 

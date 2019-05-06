@@ -3766,6 +3766,240 @@ $ find -name "*.jar" | grep hibernate-core
 
 / 7	 .
 
+hibernate-core-5.0.10.Final				v
+hibernate-entity-manager-5.0.10.Final	v
+ironjacamar-core-api-1.3.4.Final			v
+ironjacamar-core-impl-1.3.4.Final			v
+ironjacamar-jdbc-1.3.4.Final				v
+jboss-invocation-1.4.1.Final
+jboss-msc-1.2.6.Final
+jboss-transaction-spi-7.3.0.Final			v
+jipijapa-hibernate5-10.1.0.Final-sources
+narayana-jts-idlj-5.3.3.Final-sources		v
+narayana-jts-integration-5.3.3.Final-sources.jar	v
+postgresql-9.4-1202-jdbc42-sources			v
+weld-core-impl-2.3.5.Final-sources
+wildfly-connector-10.1.0.Final-sources		v
+wildfly-ee-10.1.0.Final-sources				v
+wildfly-ejb3-10.1.0.Final-sources			v
+wildfly-elytron-1.0.2.Final-sources
+wildfly-jpa-10.1.0.Final-sources			v
+wildfly-transactions-10.1.0.Final-sources		v
+wildfly-weld-10.1.0.Final-sources				v
+
+/ 7	. 
+
+/ we hebben niet scope provided moeten maken, anders wordt de src niet opgepakt, 
+
+		<dependency>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-ejb3</artifactId>
+			<version>10.1.0.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		
+/ hier zit class CMTTxInterceptor in,
+
+/ 7	.
+
+Thread [default task-1] (Suspended)	
+	owns: com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=19323)	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).actionInitialise(com.arjuna.ats.arjuna.coordinator.BasicAction) line: 3561	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).Begin(com.arjuna.ats.arjuna.coordinator.BasicAction) line: 1391	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).start(com.arjuna.ats.arjuna.coordinator.BasicAction) line: 76	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).start() line: 65	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).begin(int) line: 116	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.<init>(int) line: 104	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).begin() line: 98	
+	com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).begin() line: 78	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 272	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 41	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	...
+	org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261	
+	...
+	
+$ vi TwoPhaseCoordinator.java
+
+	public int start ()
+	{
+		return start(BasicAction.Current());
+BasicAction.Current()==null,
+	}
+
+	public int start (BasicAction parentAction)
+parentAction==null,
+	{
+		if (parentAction != null)
+/n,
+		{
+		    if (typeOfAction() == ActionType.NESTED)
+			parentAction.addChildAction(this);
+		}
+
+		return super.Begin(parentAction);
+parentAction==null,
+	}
+/s,
+$ vi BasicAction.java
+
+    private final void actionInitialise (BasicAction parent)
+parent==null
+    {
+        currentHierarchy.add(get_uid(), actionType);
+/ get_uid() in StateManager	,
+
+        switch (actionType)
+        {
+            case ActionType.NESTED:
+                if (parent == null)
+/j,
+                    actionType = ActionType.TOP_LEVEL;
+                break;
+        }
+/s,
+$ vi StateManager.java
+    protected StateManager (Uid objUid, int ot, int om)
+    {
+        objectModel = om;
+        myType = ot;
+
+        objectUid = objUid;
+
+        if (tsLogger.logger.isTraceEnabled()) {
+            tsLogger.logger.trace("StateManager::StateManager( " + get_uid() + " )");
+        }
+    }
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).Begin(com.arjuna.ats.arjuna.coordinator.BasicAction) line: 1424	
+                if (TxStats.enabled())
+/n,
+/ TODO
+
+/ hierarchy,
+Object
+	com.arjuna.ats.arjuna.StateManager
+		com.arjuna.ats.arjuna.coordinator.BasicAction
+			com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator
+				com.arjuna.ats.arjuna.AtomicAction
+					com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction
+
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).begin(int) line: 116	
+		_theTransaction = new AtomicAction();
+		_theTransaction.begin(timeout);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).begin(int) line: 124	
+		int status = super.start();
+
+		if (status == ActionStatus.RUNNING)
+		{
+			/*
+			 * Now do thread/action tracking.
+			 */
+
+			ThreadActionData.pushAction(this);
+this=BasicAction: 0:ffffc0a82b5e:540d6fac:5cca8694:a9e status: ActionStatus.RUNNING
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.pushAction(com.arjuna.ats.arjuna.coordinator.BasicAction) line: 69	
+		pushAction(a, true);
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.pushAction(com.arjuna.ats.arjuna.coordinator.BasicAction, boolean) line: 93	
+		Deque<BasicAction> txs = _threadList.get();
+		if (txs == null)
+/j,
+		{
+			txs = new ArrayDeque<BasicAction>();
+			txs.push(a);
+/ _threadList is dus een ArrayDeque met BasicActions er in,
+
+			_threadList.set(txs);
+		}
+		else
+			txs.push(a);
+
+		if (register)
+/j,
+
+                    a.addChildThread(Thread.currentThread());
+/s,
+    /**
+     * Add the specified thread to the list of threads associated with this
+     * transaction.
+     *
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).addChildThread(java.lang.Thread) line: 608
+/=
+    public final boolean addChildThread (Thread t)
+t=Thread[default task-1,5,main]
+	
+        if (tsLogger.logger.isTraceEnabled()) {
+/ TODO LOGGING 
+                if (_childThreads == null)
+                    _childThreads = new Hashtable<String, Thread>();
+
+                _childThreads.put(ThreadUtil.getThreadId(t), t); // makes sure so we don't get 
+					// duplicates
+/s,
+com.arjuna.ats.arjuna.utils.ThreadUtil.getThreadId(java.lang.Thread) line: 60	
+	final Object id = THREAD_ID.get() ;
+null
+	if (id != null)
+	{
+	    return (String)id ;
+	}
+	
+	final String newId = getNextId() ;
+TSThread:1
+	THREAD_ID.set(newId) ;					
+	
+/ THREAD_ID is 'n ThreadLocal, addChildThread werd called met Thread.currentThread()	, dus in de current thread's THREAD_ID staat TSThread:1	, en erachter in _childThreads staat t, maar dat is de current thread!	,
+
+/ Intermezzo
+
+	public class ThreadUtil
+{
+    /**
+     * The ID associated with the thread.
+     */
+    private static final ThreadLocal THREAD_ID = new ThreadLocal() ;
+    /**
+     * The thread id counter.
+     */
+    private static long id ;
+    /**
+     * Get the next thread id to use.
+     * @return The next thread id.
+     */
+	 
+    private static synchronized String getNextId()
+    {
+	return "TSThread:" + Long.toHexString(++id) ;
+    }
+/ Einde Intermezzo
+
+/t,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.pushAction(com.arjuna.ats.arjuna.coordinator.BasicAction, boolean) line: 94	
+			_threadList.set(txs);
+
+		if (register)
+                    a.addChildThread(Thread.currentThread());
+/d,
+a	AtomicAction  (id=19323)	
+	_childThreads	Hashtable<K,V>  (id=19438)	
+{TSThread:1=Thread[default task-1,5,main]}
+
+/ in ThreadActionData zit de AtomicAction in de ThreadLocal _threadList, en in de AtomicAction (eig. in ThreadUtil) zit de current thread in de ThreadLocal THREAD_ID ,
+
+
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).begin(int) line: 124
+	
+			ThreadActionData.pushAction(this);
+/d,
+
 
 
 
@@ -3776,6 +4010,8 @@ $ find -name "*.jar" | grep hibernate-core
 
 
 / Einde DEBUG TX
+
+
 
 
 
