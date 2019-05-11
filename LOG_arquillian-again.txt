@@ -3999,11 +3999,1086 @@ com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.a
 	
 			ThreadActionData.pushAction(this);
 /d,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.<init>(int) line: 111
+	/*
+	 * Only works with AtomicAction and TwoPhaseCoordinator.
+	 */
+
+	/**
+	 * Create a new transaction with the specified timeout.
+	 */
+
+	public TransactionImple(int timeout)
+	{	
+		_theTransaction = new AtomicAction();
+
+		_theTransaction.begin(timeout);
+
+		_resources = new Hashtable();
+		_duplicateResources = new Hashtable();
+		_suspendCount = 0;
+		_xaTransactionTimeoutEnabled = getXATransactionTimeoutEnabled();
+/ TODO TIMEOUT
+        _txLocalResources = Collections.synchronizedMap(new HashMap());
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.putTransaction(com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple) line: 1578	
+		TransactionImple.putTransaction(new TransactionImple(v));
+/pd,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.putTransaction(com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple) line: 1578	
+/=
+	static final protected void putTransaction(TransactionImple tx)
+	{
+		_transactions.put(tx.get_uid(), tx);
+{0:ffffc0a82b5e:540d6fac:5cca8694:a9e=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:540d6fac:5cca8694:a9e status: ActionStatus.RUNNING >}
+/t,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 273	
+            tm.begin();
+/d,
+            Transaction tx = tm.getTransaction();
+/s,
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).getTransaction() line: 109	
+        return transactionManager.getTransaction() ;
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple.getTransaction() line: 52	
+		return TransactionImple.getTransaction();
+//////////////////
+/ Nu volgt een keten van static calls, 
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1059	
+/=
+	public static final TransactionImple getTransaction()
+	{
+		final BasicAction current = BasicAction.Current();
+/s,
+com.arjuna.ats.arjuna.coordinator.BasicAction.Current() line: 1256
+/=
+    public static BasicAction Current ()
+    {
+        return ThreadActionData.currentAction();
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.currentAction() line: 59
+/=
+	public static BasicAction currentAction ()
+	{	
+		Deque<BasicAction> txs = _threadList.get();
+		if (txs != null && !txs.isEmpty())
+		{
+			return txs.peekFirst();
+
+/////////////////////////
+/ _threadList is een thread local, dus zo vind je een tx,
+/ het lijkt erop dat er maar 1 tx is per thread, 
+/ dus geen nested txs,
+/ TODO
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1065	
+		final BasicAction current = BasicAction.Current();
+/d,
+		if (current != null)
+		{
+			final Uid txid = current.get_uid();		/ zit er gewoon in, heet objectUid,
+
+			tx = (TransactionImple) _transactions.get(txid);
+
+			if (tx == null)
+/n,
+				tx = new TransactionImple(current
+/n,
+		}
+		
+	private static final ConcurrentHashMap _transactions = new ConcurrentHashMap();
+
+tx	TransactionImple  (id=19321)	
+	_theTransaction	AtomicAction  (id=19323)	/=  current,
+current	AtomicAction  (id=19323)
+
+/ Intermezzo
+
+tx	TransactionImple  (id=19321)	
+	_transactions	ConcurrentHashMap<K,V>  (id=19533)	/ bevat tx,
+	_theTransaction	AtomicAction  (id=19323)
+
+public class BasicAction extends StateManager
+{
+    public static BasicAction Current ()
+    {
+        return ThreadActionData.currentAction();
+    }
+
+/ de AtomicAction (die een BasicAction is) heeft niet zoiets als de tx _transactions heeft	, de AtomicActions zitten in een thread local in ThreadActionData, en WH zit er daar maar 1 AtomicAction in,
+
+
+/ Einde Intermezzo
+
+/t,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+            tm.begin();
+            Transaction tx = tm.getTransaction();
+/d,
+            try {
+                return invocation.proceed();
+/c,
+
+/ Intermezzo
+
+/ we waren in 	,
+org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261	
+			categoryDao.create(clothing);
+/ maar,
+@Stateless
+public class CategoryDao {
+
+
+/ Einde Intermezzo	
+
+/c,
+/s,
+Thread [default task-1] (Suspended (breakpoint at line 78 in com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate))	
+	com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).begin() line: 78	
+        transactionManager.begin() ;
+/cb,
+	org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 272	
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            tm.begin();														<- Maar hij is al begonnen	,
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+/cb,
+	org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).requiresNew(org.jboss.invocation.InterceptorContext, 
+	org.jboss.as.ejb3.component.EJBComponent, int) line: 344
+        final TransactionManager tm = component.getTransactionManager();
+
+        if (timeout != -1) {
+            tm.setTransactionTimeout(timeout);
+        }
+
+        Transaction tx = tm.getTransaction();
+        if (tx != null) {
+            tm.suspend();								/ (**)
+            try {
+                return invokeInOurTx(invocation, tm, component);
+/cb,	
+	org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 68
+        final EJBComponent component = (EJBComponent) invocation.getPrivateData(Component.class);
+
+        switch (transactionAttributeType) {
+            case MANDATORY:
+                return mandatory(invocation, component);
+            case NEVER:
+                return never(invocation, component);
+            case NOT_SUPPORTED:
+                return notSupported(invocation, component);
+            case REQUIRED:
+                return required(invocation, component, transactionTimeout);
+            case REQUIRES_NEW:
+                return requiresNew(invocation, component, transactionTimeout);
+/cb ,
+	org.jboss.invocation.InterceptorContext.proceed() line: 340
+	org.jboss.as.weld.injection.WeldInjectionContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 43	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 41	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 45	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 80	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ejb3.component.stateless.StatelessSessionComponent(org.jboss.as.ee.component.BasicComponent).constructComponentInstance(org.jboss.as.naming.ManagedReference, boolean, java.util.Map<java.lang.Object,java.lang.Object>) line: 161	
+        waitForComponentStart();
+        // create the component instance
+        final BasicComponentInstance basicComponentInstance = this.instantiateComponentInstance(preDestroyInterceptor, interceptorInstanceMap, context);
+        if(instance != null) {
+            basicComponentInstance.setInstanceData(BasicComponentInstance.INSTANCE_KEY, instance);
+        }
+        if (invokePostConstruct) {
+            // now invoke the postconstruct interceptors
+            final InterceptorContext interceptorContext = new InterceptorContext();
+            interceptorContext.putPrivateData(Component.class, this);
+            interceptorContext.putPrivateData(ComponentInstance.class, basicComponentInstance);
+            interceptorContext.putPrivateData(InvocationType.class, InvocationType.POST_CONSTRUCT);
+            interceptorContext.setContextData(new HashMap<String, Object>());
+
+            try {
+                postConstructInterceptor.processInvocation(interceptorContext);
+/cb,	org.jboss.as.ejb3.component.stateless.StatelessSessionComponent(org.jboss.as.ee.component.BasicComponent).constructComponentInstance(org.jboss.as.naming.ManagedReference, boolean) line: 134
+/=
+    /**
+     * Construct the component instance.  Upon return, the object instance should have injections and lifecycle
+     * invocations completed already.
+     *
+     *
+     * @param instance An instance to be wrapped, or null if a new instance should be created
+     * @return the component instance
+     */
+    protected BasicComponentInstance constructComponentInstance(ManagedReference instance, boolean invokePostConstruct) {
+        return constructComponentInstance(instance, invokePostConstruct, Collections.emptyMap());
+/cb,	
+	org.jboss.as.ejb3.component.stateless.StatelessSessionComponent(org.jboss.as.ee.component.BasicComponent).createInstance() line: 88	
+        BasicComponentInstance instance = constructComponentInstance(null, true);
+/cb,
+	org.jboss.as.ejb3.component.stateless.StatelessSessionComponent$1.create() line: 64	
+	org.jboss.as.ejb3.component.stateless.StatelessSessionComponent$1.create() line: 61	
+        StatelessObjectFactory<StatelessSessionComponentInstance> factory = new StatelessObjectFactory<StatelessSessionComponentInstance>() {
+            @Override
+            public StatelessSessionComponentInstance create() {
+                return (StatelessSessionComponentInstance) createInstance();
+/cb,
+	org.jboss.as.ejb3.pool.strictmax.StrictMaxPool<T>(org.jboss.as.ejb3.pool.AbstractPool<T>).create() line: 56	
+	org.jboss.as.ejb3.pool.strictmax.StrictMaxPool<T>.get() line: 124	
+	org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, 
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            tm.begin();
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();			/ (*)
+/cb,
+	org.jboss.as.ejb3.component.EJBComponent) line: 275	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327
+        final EJBComponent component = (EJBComponent) invocation.getPrivateData(Component.class);
+StatelessSessionComponent CategoryDao
+/ TODO
+        final TransactionManager tm = component.getTransactionManager();
+        final int oldTimeout = getCurrentTransactionTimeout(component);
+        try {
+            final MethodIntf methodIntf = MethodIntfHelper.of(invocation);
+            final TransactionAttributeType attr = component.getTransactionAttributeType(methodIntf, invocation.getMethod());
+            final int timeoutInSeconds = component.getTransactionTimeout(methodIntf, invocation.getMethod());
+            switch (attr) {
+                case MANDATORY:
+                    return mandatory(invocation, component);
+                case NEVER:
+                    return never(invocation, component);
+                case NOT_SUPPORTED:
+                    return notSupported(invocation, component);
+                case REQUIRED:
+                    return required(invocation, component, timeoutInSeconds);
+	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+
+/ Bij (*) waren we	,
+
+		
+/ Intermezzo
+
+[standalone@localhost:9990 /] /subsystem=transactions:write-attribute(name=default-timeout,value=604800)  
+{  
+    "outcome" => "success",  
+    "response-headers" => {  
+        "operation-requires-reload" => true,  
+        "process-state" => "reload-required"  
+    }  
+} 
+
+/ Einde Intermezzo
+
+/ Intermezzo
+
+/ begin tx is WH de action in de thread local set, 
+/ WH als er daar 1 staat, is dat de current tx; er kan er maar 1 in staan, 
+/ TODO
+
+/ eerder	,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1069	
+		TransactionImple tx = null;
+
+		final BasicAction current = BasicAction.Current();		/ thread local	,
+		if (current != null)
+		{
+			final Uid txid = current.get_uid();
+
+			tx = (TransactionImple) _transactions.get(txid);	/ zoekt in hash map ogv uid in de BasicAction, die ook in de tx zit,
+tx	TransactionImple  (id=19398)	
+	_theTransaction	AtomicAction  (id=19433)	
+			if (tx == null)
+				tx = new TransactionImple(current);
+		}
+
+		return tx;
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple.getTransaction() line: 52	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).getTransaction() line: 109	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 273	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+
+
+
+/ Einde Intermezzo
+
+/ bij (**) suspend 	,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).removeChildThread(java.lang.String) line: 676
+        synchronized (this)
+        {
+            if (_childThreads != null)
+            {
+                _childThreads.remove(threadId);
+                result = true;
+            }
+        }
+/cb,	
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.purgeActions(java.lang.Thread, boolean) line: 245
+		Deque<BasicAction> txs = _threadList.get();
+
+		_threadList.set(null);
+
+		if (txs != null)
+		{
+			if (unregister)
+			{
+				while (!txs.isEmpty())
+				{
+					BasicAction act = txs.pop();
+
+					if (act != null)
+                    {
+						act.removeChildThread(ThreadUtil.getThreadId(t));
+/cb,	
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.purgeActions() line: 221	
+com.arjuna.ats.arjuna.AtomicAction.suspend() line: 334	
+	/**
+	 * Suspend all transaction association from the invoking thread. When this
+	 * operation returns, the thread will be associated with no transactions.
+	 *
+	 * If the current transaction is not an AtomicAction then this method will
+	 * not suspend.
+	 *
+	 * @return a handle on the current AtomicAction (if any) so that the thread
+	 *         can later resume association if required.
+	 *
+	 */
+		BasicAction curr = ThreadActionData.currentAction();
+
+		if (curr != null)
+		{
+			if (curr instanceof AtomicAction)
+				ThreadActionData.purgeActions();
+			else {
+                tsLogger.i18NLogger.warn_ats_atomicaction_1(curr.toString());
+
+                curr = null;
+            }
+		}
+
+		return (AtomicAction) curr;	/ maar wordt niet used,
+/cb,	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple.suspend() line: 71	
+			TransactionImple tx = TransactionImple.getTransaction();
+
+			if (tx != null)
+			{
+				tx.getAtomicAction().suspend();
+			}
+
+			return tx;	/ niet used,
+/cb,
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).suspend() line: 194	
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).requiresNew(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 342	
+        Transaction tx = tm.getTransaction();			/ zo wordt de tx die wordt suspended onthouden	, en kan later weer resume,
+        if (tx != null) {
+            tm.suspend();		<-
+            try {
+                return invokeInOurTx(invocation, tm, component);
+            } finally {
+                tm.resume(tx);
+            }
+/cb,
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 68	
+
+/ als suspend done,	
+/s,
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 272	
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            tm.begin();								<-
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+            } catch (Throwable t) {
+                handleExceptionInOurTx(invocation, t, tx, component);
+            } finally {
+                endTransaction(tm, tx);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).begin() line: 98	
+		else
+		    v = TxControl.getDefaultTimeout();		/ 604800s=1week	,
+
+		// TODO set default timeout
+
+)		TransactionImple.putTransaction(new TransactionImple(v));
+
+/ tm.begin(): eerst een tx maken,
+
+/ WH gaat hij in deze tx injection EntityManager, 
+/ TODO
+
+/t,
+/s,
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 272	
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            tm.begin();								
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+/d,
+            } catch (Throwable t) {
+                handleExceptionInOurTx(invocation, t, tx, component);
+            } finally {
+                endTransaction(tm, tx		<-
+/s,
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).endTransaction(javax.transaction.TransactionManager, javax.transaction.Transaction) line: 91	
+            if (txStatus == Status.STATUS_ACTIVE) {
+                // Commit tx
+                // This will happen if
+                // a) everything goes well
+                // b) app. exception was thrown
+                tm.commit();
+/s,
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).commit() line: 89	
+        transactionManager.commit() ;
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).commit() line: 126	
+		theTransaction.commitAndDisassociate();
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1177	
+				switch (_theTransaction.commit(true))
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 162	
+		int status = super.end(report_heuristics);		<-
+		/*
+		 * Now remove this thread from the action state.
+		 */
+
+		ThreadActionData.popAction();
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 96	
+		if (canEnd)
+		{
+			outcome = super.End(report_heuristics);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).End(boolean) line: 1533	
+        else
+        {
+            ActionManager.manager().remove(get_uid());
+/s,
+com.arjuna.ats.arjuna.coordinator.ActionManager.remove(com.arjuna.ats.arjuna.common.Uid) line: 109
+_allActions=
+{0:ffffc0a82b5e:-568fb2e0:5cd447b9:72=com.arjuna.ats.arjuna.coordinator.ActionManager$Lifetime@79bd1c2e, 0:ffffc0a82b5e:-568fb2e0:5cd447b9:71=com.arjuna.ats.arjuna.coordinator.ActionManager$Lifetime@4908d03f}
+		_allActions.remove(id);
+_allActions=
+{0:ffffc0a82b5e:-568fb2e0:5cd447b9:71=com.arjuna.ats.arjuna.coordinator.ActionManager$Lifetime@4908d03f}
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).End(boolean) line: 1537	
+            ActionManager.manager().remove(get_uid());
+/d,
+            actionStatus = ActionStatus.COMMITTED;
+            if (TxStats.enabled())
+/ TODO STATS
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 168	
+		int status = super.end(report_heuristics);
+/d,
+		/*
+		 * Now remove this thread from the action state.
+		 */
+
+		ThreadActionData.popAction();
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.popAction() line: 141	
+		return popAction(ThreadUtil.getThreadId(), true);
+/s,
+com.arjuna.ats.arjuna.utils.ThreadUtil.getThreadId() line: 43	
+	return getThreadId(Thread.currentThread()) ;
+
+/ Intermezzo
+/ de thread id staat achter de thread in een thread local, is bijv 'TsThread:4'	,
+/ wanneer wordt deze set of veranderd?
+/ TODO
+
+public class ThreadUtil
+{
+    /**
+     * The ID associated with the thread.
+     */
+    private static final ThreadLocal THREAD_ID = new ThreadLocal() ;
+
+	    /**
+     * Get the string ID for the specified thread.
+     * @param thread The thread.
+     * @return The thread id
+     */
+    public static String getThreadId(final Thread thread)
+    {
+	final Object id = THREAD_ID.get() ;
+	if (id != null)
+	{
+	    return (String)id ;
+	}
+	
+	final String newId = getNextId() ;
+	THREAD_ID.set(newId) ;
+	return newId ;
+    }
+/ Einde Intermezzo
+
+/t,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.popAction() line: 141	
+		return popAction(ThreadUtil.getThreadId(), true);
+/pd,
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.popAction(java.lang.String, boolean) line: 166	
+		Deque<BasicAction> txs = _threadList.get();		/ _threadList is een thread local,
+[BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:72 status: ActionStatus.COMMITTED]
+
+		if (txs != null)
+		{
+			BasicAction a = txs.pop();
+[]
+			if (a != null && unregister)
+			{
+				a.removeChildThread(threadId);
+/s,
+					_childThreads.remove(threadId);
+/t,
+			if (txs.size() == 0)
+			{
+				_threadList.set(null);
+/ TODO
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1242	
+				switch (_theTransaction.commit(true))
+/d,
+		finally
+		{
+			TransactionImple.removeTransaction(this);
+/s,
+					_transactions.remove(tx.get_uid());
+/t,
+/ TX THREADS MECHANISM
+/ herinner: in de static thread local ThreadLocalData._threadList zit de BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:71 status: ActionStatus.RUNNING,
+/ deze heeft een Uid objectUid, en achter deze zit in static TransactionImple.hash map _transactions de (current) TransactionImple tx,
+/ herinner: de thread zit in de inst AtomicAction (eig. BasicAction)'s Hashtable _childThreads	, achter een id zoals TSThread:1, die een thread local is,
+/ dus in _threadList zitten geen threads, maar BasicActions, in _childThreads zitten threads,
+
+/t,
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 272	
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            tm.begin();								
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+
+            } catch (Throwable t) {
+                handleExceptionInOurTx(invocation, t, tx, component);
+            } finally {
+                endTransaction(tm, tx);
+/d,
+/t,
+org.jboss.as.ejb3.tx.LifecycleCMTTxInterceptor(org.jboss.as.ejb3.tx.CMTTxInterceptor).requiresNew(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 344	
+        Transaction tx = tm.getTransaction();
+        if (tx != null) {
+            tm.suspend();
+            try {
+                return invokeInOurTx(invocation, tm, component);
+/d,
+tx	TransactionImple  (id=20260)	
+	_theTransaction	AtomicAction  (id=20508)	
+BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:71 status: ActionStatus.RUNNING
+///////////////////////
+/ dit is de vorige	, die suspended is,
+            } finally {
+                tm.resume(tx);
+...
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple.resume(javax.transaction.Transaction) line: 111	
+		        AtomicAction act = ((theTransaction == null) ? null : theTransaction.getAtomicAction());
+
+		        if (!AtomicAction.resume(act))
+/s,
+com.arjuna.ats.arjuna.AtomicAction.resume(com.arjuna.ats.arjuna.AtomicAction) line: 366	
+			ThreadActionData.restoreActions(act);
+/s,
+...
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.pushAction(com.arjuna.ats.arjuna.coordinator.BasicAction, boolean) line: 93	
+		Deque<BasicAction> txs = _threadList.get();
+
+		if (txs == null)
+/j,
+		{
+			txs = new ArrayDeque<BasicAction>();
+			txs.push(a);
+
+			_threadList.set(txs);
+		}
+		else
+			txs.push(a);
+
+		if (register)
+                    a.addChildThread(Thread.currentThread());
+/s,
+						_childThreads.put(ThreadUtil.getThreadId(t), t); // makes sure so we don't get
+/t,
+public class CMTTxInterceptor implements Interceptor {
+    protected Object requiresNew(InterceptorContext invocation, final EJBComponent component, final int timeout) throws Exception {
+            tm.suspend();
+            try {
+                return invokeInOurTx(invocation, tm, component);
+            } finally {
+                tm.resume(tx);
+/d,
+/t,
+/**
+ * Transaction interceptor for Singleton and Stateless beans,
+ */
+public class LifecycleCMTTxInterceptor extends CMTTxInterceptor {
+    @Override
+    public Object processInvocation(InterceptorContext invocation) throws Exception {
+        final EJBComponent component = (EJBComponent) invocation.getPrivateData(Component.class);
+
+        switch (transactionAttributeType) {
+             case REQUIRES_NEW:
+                return requiresNew(invocation, component, transactionTimeout);
+/d,
+/c,
+Thread [default task-104] (Suspended (breakpoint at line 21 in org.arquillian.jpa.study2.dao.CategoryDao))	
+	org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+/cb,
+	sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+	sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+	java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+	org.jboss.as.ee.component.ManagedReferenceMethodInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+	org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.doMethodInterception(javax.interceptor.InvocationContext, javax.enterprise.inject.spi.InterceptionType, org.jboss.as.weld.ejb.WeldInterceptorInstances, org.jboss.weld.ejb.spi.InterceptorBindings) line: 82	
+	org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 93
+        switch (interceptionType) {
+            case AROUND_INVOKE:
+                return doMethodInterception(context.getInvocationContext(), InterceptionType.AROUND_INVOKE, interceptorInstances, interceptorBindings);
+/cb,	
+	org.jboss.as.ee.component.interceptors.UserInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 63	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.invocationmetrics.ExecutionTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 43	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.jpa.interceptor.SBInvocationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+	org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor(org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor).aroundInvoke(javax.interceptor.InvocationContext) line: 64	
+	org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 83
+        return aroundInvoke(context.getInvocationContext());
+/cb,
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 45	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InitialInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 21	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.interceptors.ComponentDispatcherInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 51	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+            tm.begin();
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();		<-
+            } catch (Throwable t) {
+                handleExceptionInOurTx(invocation, t, tx, component);
+            } finally {
+                endTransaction(tm, tx);
+            }
+/cb,
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327
+        final Transaction tx = tm.getTransaction();
+
+        if (tx == null) {
+            return invokeInOurTx(invocation, tm, component);
+/cb,	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+                case REQUIRED:
+                    return required(invocation, component, timeoutInSeconds);
+
+/ we komen toch weer terug op dit punt, maar nu gaan we een andere keten van interceptors in ?
+/ TODO
+
+/ we gaan er in verder,
+/s,
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+/s,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+            transactionIsRequired();
+            getEntityManager().persist(entity);
+/c,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTxLocalResource(java.lang.Object) line: 1090	
+		return _txLocalResources.get(key);
+{}
+/cb,
+    // Get an object from the Map of resources being managed for the transaction bound to the current thread at the time this method is called.
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getResource(java.lang.Object) line: 126	
+        TransactionImple transactionImple = getTransactionImple();
+        return transactionImple.getTxLocalResource(key);
+/cb,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.getResource(java.lang.Object) line: 106
+        return delegate.getResource(key);
+/cb,	
+org.jboss.as.jpa.transaction.TransactionUtil.getEntityManagerInTransactionRegistry(java.lang.String, javax.transaction.TransactionSynchronizationRegistry) line: 116
+        return (EntityManager)tsr.getResource(scopedPuName);
+/cb,	
+org.jboss.as.jpa.transaction.TransactionUtil.getTransactionScopedEntityManager(java.lang.String, javax.transaction.TransactionSynchronizationRegistry) line: 69
+        return getEntityManagerInTransactionRegistry(puScopedName, tsr);
+scopedPuName=ebca07ea-cf95-4bdf-bbb0-94b79afaf718.war#arquillian-jpa-study2-persistence-unit
+/cb,
+     * get or create a Transactional entity manager.
+     * Only call while a transaction is active in the current thread.		/ dat doet hij ook, zie de caller	,
+     *	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 155	
+        EntityManager entityManager = TransactionUtil.getTransactionScopedEntityManager(puScopedName, transactionSynchronizationRegistry);
+/cb,	 
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getEntityManager() line: 87
+        isInTx = TransactionUtil.isInTx(transactionManager);
+        if (isInTx) {
+            entityManager = getOrCreateTransactionScopedEntityManager(emf, puScopedName, properties, synchronizationType);
+/cb,	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580
+            transactionIsRequired();
+            getEntityManager().persist(entity);
+...
+/s,
+	static class SessionBuilderImpl implements SessionBuilderImplementor {
+		private static final Logger log = CoreLogging.logger( SessionBuilderImpl.class );
+/ TODO LOGGING
+org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession() line: 1317	
+			log.tracef( "Opening Hibernate Session.  tenant=%s, owner=%s", tenantIdentifier, sessionOwner );
+			final SessionImpl session = new SessionImpl(
+				...
+				
+/c,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.pulse() line: 141	
+		if ( !autoJoinTransactions ) {
+			return;
+		}
+
+		if ( synchronizationRegistered ) {
+			return;
+		}
+
+		// Can we resister a synchronization according to the JtaPlatform?
+		if ( !jtaPlatform.canRegisterSynchronization() ) {
+			log.trace( "JTA platform says we cannot currently resister synchronization; skipping" );
+			return;
+		}
+
+		joinJtaTransaction();
+/cb,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.<init>(org.hibernate.resource.transaction.TransactionCoordinatorBuilder, org.hibernate.resource.transaction.spi.TransactionCoordinatorOwner, boolean) line: 92
+		this.jtaPlatform = jdbcSessionContext.getServiceRegistry().getService( JtaPlatform.class );
+this	JtaTransactionCoordinatorImpl  (id=21929)	
+	jtaPlatform	JBossAppServerJtaPlatform  (id=21932)	
+		jtaManager	JtaManagerImpl  (id=21953)	
+		serviceRegistry	StandardServiceRegistryImpl  (id=21861)	
+		synchronizationStrategy	SynchronizationRegistryBasedSynchronizationStrategy  (id=21954)	
+		tmSynchronizationStrategy	TransactionManagerBasedSynchronizationStrategy  (id=21955)	
+		transactionManager	TransactionManagerDelegate  (id=20628)	
+		userTransaction	null	
+
+		pulse();
+/ TODO		
+/cb,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorBuilderImpl.buildTransactionCoordinator(org.hibernate.resource.transaction.spi.TransactionCoordinatorOwner, org.hibernate.resource.transaction.TransactionCoordinatorBuilder$TransactionCoordinatorOptions) line: 28	
+org.hibernate.internal.SessionImpl.<init>(java.sql.Connection, org.hibernate.internal.SessionFactoryImpl, org.hibernate.engine.spi.SessionOwner, org.hibernate.resource.transaction.TransactionCoordinator, org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl, org.hibernate.Transaction, org.hibernate.engine.spi.ActionQueue$TransactionCompletionProcesses, boolean, long, org.hibernate.Interceptor, org.hibernate.resource.jdbc.spi.StatementInspector, boolean, boolean, org.hibernate.ConnectionReleaseMode, java.lang.String) line: 274
+			this.transactionCoordinator = getTransactionCoordinatorBuilder().buildTransactionCoordinator(		<-
+					this.jdbcCoordinator,
+					this
+			);
+			this.currentHibernateTransaction = getTransaction();
+			...
+			if ( factory.getStatistics().isStatisticsEnabled() ) {
+/ TODO LOGGING
+				factory.getStatisticsImplementor().openSession();
+			}
+/cb,
+org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession() line: 1327	
+org.hibernate.jpa.internal.EntityManagerImpl.internalGetSession() line: 133	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).postInit() line: 174	
+		( (SessionImplementor) internalGetSession() ).getTransactionCoordinator().pulse();
+this	EntityManagerImpl  (id=21806)	
+	session	SessionImpl  (id=21863)	
+		factory	SessionFactoryImpl  (id=21805)	
+		persistenceContext	StatefulPersistenceContext  (id=21868)		/ onthoud: de pc zit in de session,
+/cb,
+
+org.hibernate.jpa.internal.EntityManagerImpl.<init>(org.hibernate.jpa.internal.EntityManagerFactoryImpl, javax.persistence.PersistenceContextType, javax.persistence.SynchronizationType, javax.persistence.spi.PersistenceUnitTransactionType, boolean, java.lang.Class, java.util.Map) line: 83	
+org.hibernate.jpa.internal.EntityManagerFactoryImpl.internalCreateEntityManager(javax.persistence.SynchronizationType, java.util.Map) line: 319	
+org.hibernate.jpa.internal.EntityManagerFactoryImpl.createEntityManager() line: 286	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.createEntityManager(javax.persistence.EntityManagerFactory, java.util.Map, javax.persistence.SynchronizationType) line: 187	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 157	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getEntityManager() line: 87	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+
+/t,
+    /**
+     * get or create a Transactional entity manager.
+     * Only call while a transaction is active in the current thread.
+     *
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 158	
+        EntityManager entityManager = TransactionUtil.getTransactionScopedEntityManager(puScopedName, transactionSynchronizationRegistry);
+        if (entityManager == null) {
+            entityManager = createEntityManager(emf, properties, synchronizationType);
+/d,
+entityManager	EntityManagerImpl  (id=21806)	
+	session	SessionImpl  (id=21863)	
+
+/////////////////////////////////////
+/ een entityManager manages entities, dus class insts met @Entity,
+
+            TransactionUtil.registerSynchronization(entityManager, scopedPuName, transactionSynchronizationRegistry, transactionManager);
+/ TODO
+            TransactionUtil.putEntityManagerInTransactionRegistry(scopedPuName, entityManager, transactionSynchronizationRegistry);
+/ TODO
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+            getEntityManager().persist(entity);
+/pd,
+/c,
+org.hibernate.internal.SessionFactoryImpl.getEntityPersister(java.lang.String) line: 779
+		EntityPersister result = entityPersisters.get( entityName );	
+this	SessionFactoryImpl  (id=21805)	
+	entityPersisters	HashMap<K,V>  (id=22036)	
+		[0]	HashMap$Node<K,V>  (id=22053)	
+			key	"org.arquillian.jpa.study2.model.Item" (id=22056)	
+			value	SingleTableEntityPersister  (id=22057)	
+		[1]	HashMap$Node<K,V>  (id=22054)	
+			key	"org.arquillian.jpa.study2.model.Category" (id=22246)	
+			value	SingleTableEntityPersister  (id=22270)	
+		[2]	HashMap$Node<K,V>  (id=22055)	
+			key	"org.arquillian.jpa.study2.model.Bid" (id=22272)	
+			value	SingleTableEntityPersister  (id=22273)	
+/cb,
+org.hibernate.internal.SessionImpl.getEntityPersister(java.lang.String, java.lang.Object) line: 1529	
+org.hibernate.engine.internal.ForeignKeys.isTransient(java.lang.String, java.lang.Object, java.lang.Boolean, org.hibernate.engine.spi.SessionImplementor) line: 225	
+		// let the persister inspect the instance to decide
+		final EntityPersister persister = session.getEntityPersister( entityName, entity );		<-
+		isUnsaved = persister.isTransient( entity, session );		<<-
+/cb,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).getEntityState(java.lang.Object, java.lang.String, org.hibernate.engine.spi.EntityEntry, org.hibernate.engine.spi.SessionImplementor) line: 510	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 99	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+org.hibernate.internal.SessionImpl.persist(java.lang.Object) line: 753	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1146	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+
+/ iets verder, bij <<-	,
+/c,
+org.hibernate.property.access.spi.GetterFieldImpl.get(java.lang.Object) line: 39	
+		try {
+			return field.get( owner );
+owner	Category  (id=21081)	
+	id	null	
+/cb,
+org.hibernate.tuple.entity.PojoEntityTuplizer(org.hibernate.tuple.entity.AbstractEntityTuplizer).getIdentifier(java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 225	
+			else {
+				id = idGetter.get( entity );
+/cb,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).getIdentifier(java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 4612
+		return getEntityTuplizer().getIdentifier( entity, session );
+/cb,	
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).isTransient(java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 4324
+		if ( canExtractIdOutOfEntity() ) {
+			id = getIdentifier( entity, session );			<-
+		}
+		...
+		// we *always* assume an instance with a null
+		// identifier or no identifier property is unsaved!
+		if ( id == null ) {									/ hier zal hij komen,
+			return Boolean.TRUE;
+		}
+/cb,				
+org.hibernate.engine.internal.ForeignKeys.isTransient(java.lang.String, java.lang.Object, java.lang.Boolean, org.hibernate.engine.spi.SessionImplementor) line: 226	
+		final EntityPersister persister = session.getEntityPersister( entityName, entity );
+		isUnsaved = persister.isTransient( entity, session );		<<-
+		if ( isUnsaved != null ) {
+			return isUnsaved;			/ hier zal hij komen,
+		}
+/t,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+		EntityState entityState = getEntityState( entity, entityName, entityEntry, source );
+/d,
+		switch ( entityState ) {
+			case TRANSIENT: {
+				entityIsTransient( event, createCache );
+/s,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 185	
+		LOG.trace( "Saving transient instance" );
+/ TODO LOGGING
+	private static final CoreMessageLogger LOG = CoreLogging.messageLogger( DefaultPersistEventListener.class );
+
+	private static final CoreMessageLogger LOG = CoreLogging.messageLogger( DefaultPersistEventListener.class );
+/s,
+...
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101	
+		EntityPersister persister = source.getEntityPersister( entityName, entity );
+		Serializable generatedId = persister.getIdentifierGenerator().generate( source, entity );
+/ dit ziet er onschuldig uit	, maar hij gaat sql doen:
+select nextval ('hibernate_sequence')
+
+/c,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource) line: 423	
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization.enlist() line: 986
+            XAResource resource = getXAResource();
+            if (!currentTx.enlistResource(resource))
+currentTx=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f status: ActionStatus.RUNNING >
+xaRes	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22428)	
+	xaResource	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22435)	
+		mcf	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF  (id=22445)	
+			autoCommit	true	
+			conn	org.postgresql.jdbc42.Jdbc42Connection  (id=22454)	
+			currentXid	null	
+			isXA	true	
+/cb,	
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 379	
+               TransactionSynchronization sync = (TransactionSynchronization) unenlisted.get(i);
+               if (sync.enlist())
+sync=...jca...TransactionSynchronization@2144836931{tx=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f status: ActionStatus.RUNNING > wasTrackByTx=true enlisted=false cancel=false}
+/cb,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.managedConnectionReconnected(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 553	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).reconnectManagedConnection(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 928	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+         WrappedConnection wc = (WrappedConnection) cm.allocateConnection(mcf, defaultCRI);
+cm=org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl@69cbaeef
+mcf=XAManagedConnectionFactory@11e9fa33[xaDataSourceClass=org.postgresql.xa.PGXADataSource xaProps=44d2bf7b userName=null password=**** transactionIsolation=-1]
+/cb,
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122
+		return useCredentials ? dataSource.getConnection( user, pass ) : dataSource.getConnection();
+/cb,		
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.obtainConnection() line: 386
+				return connectionProvider.getConnection();
+/cb,	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.acquireConnectionIfNeeded() line: 87
+				physicalConnection = jdbcConnectionAccess.obtainConnection();
+/cb,	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.getPhysicalConnection() line: 112	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47
+		return logicalConnection().getPhysicalConnection();
+/cb,	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );		<0
+/cb,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+					preparedStatement = doPrepare();
+/cb,
+
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72
+		return buildPreparedStatementPreparationTemplate( sql, false ).prepareStatement();
+/cb,	
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 94
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+sql=select nextval ('hibernate_sequence')
+/cb,	
+org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40	
+		IntegralDataTypeHolder value = callback.getNextValue();
+/cb,
+org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+		return optimizer.generate( databaseStructure.buildCallback( session ) );
+/cb,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101	
+		Serializable generatedId = persister.getIdentifierGenerator().generate( source, entity ); / hier waren we,
+/cb,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 67	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+org.hibernate.internal.SessionImpl.persist(java.lang.Object) line: 753	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1146	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+
+/ we zien keten, in de richting van steeds dieper:
+jpa-jdbc-jca-jta(arjuna)
+
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource) line: 423	
+/=
+	public boolean enlistResource(XAResource xaRes) throws RollbackException,
+xaRes	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22428)	
+	xaResource	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22435)	
+		mcf	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF  (id=22445)	
+			autoCommit	true	
+			conn	org.postgresql.jdbc42.Jdbc42Connection  (id=22454)	
+			currentXid	null	
+			isXA	true	
+
+/ de xa resource is de conn,
+
+/ we gaan hier verder mee,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource) line: 423	
+		return enlistResource(xaRes, null);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 586
+			/*
+			 * We definitely haven't seen this specific resource instance
+			 * before, but that doesn't mean that we haven't seen the RM it is
+			 * connected to.
+			 */	
+			Xid xid = null;
+			TxInfo existingRM = isNewRM(xaRes);
+null
+			if (existingRM == null)
+			{
+				/*
+				 * New RM, so create xid with new branch.
+				 */
+
+				boolean branchRequired = true;
+				...
+				xid = createXid(branchRequired, theModifier, xaRes);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.createXid(boolean, com.arjuna.ats.jta.xa.XAModifier, javax.transaction.xa.XAResource) line: 1532	
+        int eisName = 0;
+        if(branch) {
+            if(_xaResourceRecordWrappingPlugin != null) {
+                eisName = _xaResourceRecordWrappingPlugin.getEISName(xaResource);
+2
+/s,
+com.arjuna.ats.internal.jbossatx.jta.XAResourceRecordWrappingPluginImpl.getEISName(javax.transaction.xa.XAResource) line: 72	
+			String jndiName = ((XAResourceWrapper) xaResource).getJndiName();
+java:jboss/datasources/PostgreSQLDS
+			Integer key = nameToKey.get(jndiName);
+2
+nameToKey={java:jboss/datasources/RemoteExampleDS=3, java:jboss/datasources/ExampleDS=1, java:jboss/datasources/PostgreSQLDS=2}
+		Xid xid = new XidImple(_theTransaction.get_uid(), branch, eisName);
+/s,
+com.arjuna.ats.jta.xa.XidImple.<init>(com.arjuna.ats.arjuna.common.Uid, boolean, java.lang.Integer) line: 92	
+			_theXid = XATxConverter.getXid(id, branch, eisName);
 
 
 
 
-
+	
+		
 
 
 
