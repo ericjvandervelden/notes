@@ -3680,7 +3680,7 @@ org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSy
 XAResourceWrapperImpl@998be1d[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@7f9e35b6 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]
 / dus de resource is de connection naar pg	,
 
-            if (!currentTx.enlistResource(resource))
+            if (!currentTx.enlistResource(resource)) 	/ currentTx is jta tx, resource heeft xid=jta tx id & branch tx id,
 /s,
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource) line: 423	
 		return enlistResource(xaRes, null);
@@ -4945,11 +4945,62 @@ xaRes	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22428)
 			currentXid	null	
 			isXA	true	
 /cb,	
-org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 379	
+/ ENLIST
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 379
+      // This method is a bit convulted, but it has to be such because
+      // there is a race condition in the transaction manager where it
+      // unlocks during the enlist of the XAResource. It does this
+      // to avoid distributed deadlocks and to ensure the transaction
+      // timeout can fail a badly behaving resource during the enlist.
+      //
+      // When two threads in the same transaction are trying to enlist						<-
+      // connections they could be from the same resource manager
+      // or even the same connection when tracking the connection by transaction.
+      //
+      // For the same connection, we only want to do the real enlist once.
+      // For two connections from the same resource manager we don't
+      // want the join before the initial start request.
+      //
+      // The solution is to build up a list of unenlisted resources
+      // in the TransactionSynchronizer and then choose one of the
+      // threads that is contending in the transaction to enlist them
+      // in order. The actual order doesn't really matter as it is the
+      // transaction manager that calculates the enlist flags and determines
+      // whether the XAResource was already enlisted.
+      //
+      // Once there are no unenlisted resources the threads are released
+      // to return the result of the enlistments.
+      //
+      // In practice, a thread just takes a snapshot to try to avoid one
+      // thread having to do all the work. If it did not do them all
+      // the next waiting thread will do the next snapshot until there
+      // there is either no snapshot or no waiting threads.
+      //
+      // A downside to this design is a thread could have its resource enlisted by
+      // an earlier thread while it enlists some later thread's resource.
+      // Since they are all a part of the same transaction, this is probably
+      // not a real issue.
+
+      // If we are already enlisted there is no reason to check again, as this method
+      // could be called multiple times during a transaction lifecycle.
+      // We know that we can only be inside this method if we are allowed to
+	
                TransactionSynchronization sync = (TransactionSynchronization) unenlisted.get(i);
                if (sync.enlist())
 sync=...jca...TransactionSynchronization@2144836931{tx=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f status: ActionStatus.RUNNING > wasTrackByTx=true enlisted=false cancel=false}
 /cb,
+ *
+ * 1. When an application component requests a new ConnectionHandle,
+ *    it must find a ManagedConnection, and make sure a
+ *    ConnectionEventListener is registered. It must inform the
+ *    CachedConnectionManager that a connection handle has been given
+ *    out. It needs to count the number of handles for each
+ *    ManagedConnection.  If there is a current transaction, it must
+ *    enlist the ManagedConnection's LocalTransaction in the transaction
+ *    using the ConnectionEventListeners XAResource XAResource implementation.
+ * Entry point: ConnectionManager.allocateConnection.
+ * written.
+ *
 org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.managedConnectionReconnected(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 553	
 org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).reconnectManagedConnection(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 928	
 org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
@@ -4978,7 +5029,7 @@ org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87
 			protected PreparedStatement doPrepare() throws SQLException {
 				return isCallable
 						? connection().prepareCall( sql )
-						: connection().prepareStatement( sql );		<0
+						: connection().prepareStatement( sql );		<- eerst connection()	, dan later .prepareStatement()
 /cb,
 org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
 					preparedStatement = doPrepare();
@@ -5037,6 +5088,11 @@ xaRes	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22428)
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource) line: 423	
 		return enlistResource(xaRes, null);
 /s,
+/ ENLIST
+/ we gaan de resource enlist in de jta tx,
+/ eerst wordt er een xid gemaakt, met de global tx id en de branch tx id er in,
+/ dan wordt de resource gestart: pg driver sets autocommit off, en sets xid in itself	,
+/ dan wordt de resource in _resources van de global tx set: _resources.put(xaRes, new TxInfo(xid));
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 586
 			/*
 			 * We definitely haven't seen this specific resource instance
@@ -5073,18 +5129,1814 @@ nameToKey={java:jboss/datasources/RemoteExampleDS=3, java:jboss/datasources/Exam
 /s,
 com.arjuna.ats.jta.xa.XidImple.<init>(com.arjuna.ats.arjuna.common.Uid, boolean, java.lang.Integer) line: 92	
 			_theXid = XATxConverter.getXid(id, branch, eisName);
+id=0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f		# global tx 
+branch=true
+eisName=2
+/s,
+com.arjuna.ats.jta.xa.XATxConverter.getXid(com.arjuna.ats.arjuna.common.Uid, boolean, java.lang.Integer) line: 60	
+        if (branch)
+            return getXid(uid, new Uid(), FORMAT_ID, eisName);
+/s,
+com.arjuna.ats.jta.xa.XATxConverter.getXid(com.arjuna.ats.arjuna.common.Uid, com.arjuna.ats.arjuna.common.Uid, int, java.lang.Integer) line: 78	
+/=
+    private static XID getXid(Uid uid, Uid branch, int formatId, Integer eisName) throws IllegalStateException
+uid=0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f		/ global tx id
+branch=0:ffffc0a82b5e:-568fb2e0:5cd447b9:39b6	/ branch tx id
+format id=131077
 
-
-
-
-	
+        XID xid = new XID();
+/ hier komt alles in,
+        xid.formatID = formatId;
 		
+		byte[] gtridUid = uid.getBytes();		/ gtrid=global tx id,
 
+		String nodeName = TxControl.getXANodeName();
+"1"
+/ TODO
+		...
+        // src, srcPos, dest, destPos, length
+        System.arraycopy(gtridUid, 0, xid.data, 0, gtridUid.length);
+        System.arraycopy(nodeName.getBytes(), 0, xid.data, gtridUid.length, nodeNameLengthToUse);
+
+            // bqual is uid byte form plus EIS name.
+            byte[] bqualUid = branch.getBytes();
+			...
+            // src, srcPos, dest, destPos, length
+            int offset = xid.gtrid_length;
+            System.arraycopy (bqualUid, 0, xid.data, offset, bqualUid.length);
+            setEisName(xid, eisName);
+2
+/ XID is dus
+global tx id
+xa node name 1 / TODO
+branch id
+eis name (pg) 2
+xid=< formatId=131077, gtrid_length=29, bqual_length=36, tx_uid=0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f, node_name=1, branch_uid=0:ffffc0a82b5e:-568fb2e0:5cd447b9:39b6, subordinatenodename=null, eis_name=java:jboss/datasources/PostgreSQLDS >
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 609	
+				xid = createXid(branchRequired, theModifier, xaRes);
+/d,
+				while (!associatedWork)
+				{
+					try
+					{
+						if (_xaTransactionTimeoutEnabled)
+						{
+							int timeout = _theTransaction.getTimeout();	/ 604800
+
+							if (timeout > 0)
+							{
+								try
+								{
+									xaRes.setTransactionTimeout(timeout);
+xaRes=XAResourceWrapperImpl@9a5969[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@77aa4bf pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]
+
+						int xaStartNormal = ((theModifier == null) ? XAResource.TMNOFLAGS			<-
+								: theModifier
+										.xaStartParameters(XAResource.TMNOFLAGS));
+/ Intermezzo
+
+public interface XAResource
+{
+    /**
+     *  Flag value indicating that no flags are set.
+     */
+    public static final int TMNOFLAGS = 0;
+     *  Flag value for the {@link #start(Xid, int) start} method indicating
+     *  that the resource should associate with a transaction previously seen
+     *  by this resource manager.
+     */
+    public static final int TMJOIN = 2097152;	
+    /**
+     *  Flag value for the {@link #start(Xid, int) start} method indicating
+     *  that the resource should associate with a transaction where the
+     *  association was suspended.
+     */
+    public static final int TMRESUME = 134217728;
+
+    /**
+     *  Flag value for the {@link #end(Xid, int) end} method indicating that
+     *  the transaction should be disassociated, and that the work has
+     *  completed sucessfully.
+     */
+    public static final int TMSUCCESS = 67108864;
+...
+
+/ Einde Intermezzo
+
+                        // Pay attention now, this bit is hairy. We need to add a new AbstractRecord (XAResourceRecord)
+                        // to the BasicAction, which will thereafter drive its completion. However, the transaction
+                        // core is not directly XA aware, so it's our job to start the XAResource. Problem is, if
+                        // adding the record fails, BasicAction will never end the resource via the XAResourceRecord,
+                        // so we must do so directly.  start may fail due to dupl xid or other reason, and transactions
+                        // may rollback async, for which reasons we can't call add before start.
+                        // The xid will change on each pass of the loop, so we need to create a new record on each pass.
+                        // The add will fail in the case of multiple last resources being disallowed
+                        // see JBTM-362 and JBTM-363
+                        AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
+params=null
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.createRecord(javax.transaction.xa.XAResource, java.lang.Object[], javax.transaction.xa.Xid) line: 812	
+            return new XAResourceRecord(this, xaRes, xid, params);
+/s,
+com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord.<init>(com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple, javax.transaction.xa.XAResource, javax.transaction.xa.Xid, java.lang.Object[]) line: 109	
+		super(new Uid(), null, ObjectType.ANDPERSISTENT);
+...
+/s,
+com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord(com.arjuna.ats.arjuna.StateManager).<init>(int, int) line: 812	
+/=
+    protected StateManager (int ot, int om)
+ot=ObjectType.ANDPERSISTENT
+om=ObjectModel.SINGLE
+        objectModel = om;
+        currentStatus = (((objectModel == ObjectModel.SINGLE) && (ot == ObjectType.RECOVERABLE)) ? ObjectStatus.ACTIVE
+/n,
+                : ObjectStatus.PASSIVE_NEW);
+        initialStatus = currentStatus;
+        myType = ot;
+
+        objectUid = new Uid();
+/t,
+com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord.<init>(com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple, javax.transaction.xa.XAResource, javax.transaction.xa.Xid, java.lang.Object[]) line: 111	
+		super(new Uid(), null, ObjectType.ANDPERSISTENT);
+/d,
+this	com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord  (id=22720)	
+	_committed	false	
+	_prepared	false	
+	_recovered	false	
+	...
+		_theXAResource = res;
+        if(_xaResourceRecordWrappingPlugin != null) {
+            _xaResourceRecordWrappingPlugin.transcribeWrapperData(this);
+        }
+this	com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord  (id=22720)	
+	_committed	false	
+	_jndiName	"java:jboss/datasources/PostgreSQLDS" (id=22432)	
+	_prepared	false	
+	_productName	"PostgreSQL" (id=22433)	
+	_productVersion	"9.6.5" (id=22434)	
+	_recovered	false	
+	_theXAResource	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22428)
+	
+		_recoveryObject = null;
+		_tranID = xid;
+
+		_valid = true;
+
+		...
+
+		_prepared = false;
+		_heuristic = TwoPhaseOutcome.FINISH_OK;
+		_theTransaction = tx;
+this	com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord  (id=22720)	
+	_heuristic	7	
+	_tranID	com.arjuna.ats.jta.xa.XidImple  (id=22695)	
+	_valid	true	
+	_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20640)	
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 661	
+                        AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
+/d,
+						if(abstractRecord != null) {
+                            xaRes.start(xid, xaStartNormal);
+/s,
+org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl.start(javax.transaction.xa.Xid, int) line: 215	
+      xaResource.start(xid, flags);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.start(javax.transaction.xa.Xid, int) line: 245	
+            xaResource.start(xid, flags);
+/s,
+    /**** XAResource interface ****/
+
+    /**
+     * Preconditions:
+     * 1. flags must be one of TMNOFLAGS, TMRESUME or TMJOIN		<- bij ons nu TMNOFLAGS
+     * 2. xid != null
+     * 3. connection must not be associated with a transaction
+     * 4. the TM hasn't seen the xid before
+     *
+     * Implementation deficiency preconditions:
+     * 1. TMRESUME not supported.
+     * 2. if flags is TMJOIN, we must be in ended state,
+     *    and xid must be the current transaction
+     * 3. unless flags is TMJOIN, previous transaction using the 
+     *    connection must be committed or prepared or rolled back
+     * 
+     * Postconditions:
+     * 1. Connection is associated with the transaction
+     */
+org.postgresql.xa.PGXAConnection.start(javax.transaction.xa.Xid, int) line: 206	
+
+/ Intermezzo
+
+/ we hebben ook b set in:
+PGXAConnection [line: 301] - prepare(Xid)	
+PGXAConnection [line: 352] - recover(int)	
+PGXAConnection [line: 409] - rollback(Xid)	
+PGXAConnection [line: 450] - commit(Xid, boolean)
+        if (onePhase)
+            commitOnePhase(xid);
+        else
+            commitPrepared(xid);	
+PGXAConnection [line: 476] - commitOnePhase(Xid)	
+PGXAConnection [line: 515] - commitPrepared(Xid)	
+
+/ Einde Intermezzo
+
+        // Check preconditions
+        if (flags != XAResource.TMNOFLAGS && flags != XAResource.TMRESUME && flags != XAResource.TMJOIN)
+            throw new PGXAException(GT.tr("Invalid flags"), XAException.XAER_INVAL);
+
+        if (xid == null)
+            throw new PGXAException(GT.tr("xid must not be null"), XAException.XAER_INVAL);
+
+        if (state == STATE_ACTIVE)
+            throw new PGXAException(GT.tr("Connection is busy with another transaction"), XAException.XAER_PROTO);
+
+        // We can't check precondition 4 easily, so we don't. Duplicate xid will be catched in prepare phase.
+
+        // Check implementation deficiency preconditions
+        if (flags == TMRESUME)
+            throw new PGXAException(GT.tr("suspend/resume not implemented"), XAException.XAER_RMERR);
+		...
+        try
+        {
+            localAutoCommitMode = conn.getAutoCommit();	/ true
+            conn.setAutoCommit(false);
+        }
+        // Preconditions are met, Associate connection with the transaction
+        state = STATE_ACTIVE;
+        currentXid = xid;
+/t,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.start(javax.transaction.xa.Xid, int) line: 275	
+            xaResource.start(xid, flags);
+/d,
+         synchronized (stateLock)
+         {
+            currentXid = xid;
+            inManagedTransaction = true;
+         }
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 663	
+                        if(abstractRecord != null) {
+                            xaRes.start(xid, xaStartNormal);
+/d,
+                            if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {
+/s,
+    /**
+     * Add a record to the atomic action. This function returns AR_ADDED if the
+     * record is added. AR_REJECTED if the record cannot be added because the
+     * action is past the prepare phase, and IGNORED otherwise.
+     *
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).add(com.arjuna.ats.arjuna.coordinator.AbstractRecord) line: 301	
+            if (pendingList == null)
+                pendingList = new RecordList();
+
+            result = (pendingList.insert(A) ? AddOutcome.AR_ADDED
+                    : AddOutcome.AR_DUPLICATE);
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 664	
+                            if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {
+/d,
+/j,
+                                _resources.put(xaRes, new TxInfo(xid));
+_resources={XAResourceWrapperImpl@9a5969[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@77aa4bf pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]=com.arjuna.ats.internal.jta.xa.TxInfo@312459c8} 
+								return true; // dive out, no need to set associatedWork = true;
+...
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 381	
+               TransactionSynchronization sync = (TransactionSynchronization) unenlisted.get(i);
+               if (sync.enlist())
+/d,  
+sync=...jca...TransactionSynchronization@2144836931{tx=TransactionImple < ac, BasicAction: 0:ffffc0a82b5e:-568fb2e0:5cd447b9:40f status: ActionStatus.RUNNING > wasTrackByTx=true enlisted=true cancel=false}           
+				{
+                  synchronizer.addEnlisted(sync);
+         finally
+         {
+            synchronizer.enlisted();	/ sets enListingThread=null
+         }
+
+/ er zijn,
+this	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22388)	
+ourSynchronization	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization  (id=22387)	
+synchronizer	org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer  (id=22851)	
+	enlisted	java.util.ArrayList<E>  (id=22852)	
+	[0]	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization  (id=22387)	
+
+	    setEnlisted(true);
+...
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 753	
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+/d,
+/ see ENLIST
+/ reconnect xaresource=conn is start de conn (autocommit=off, save xid), en enlist in global jta tx: set in _resources,
+
+      // Ask the managed connection for a connection
+      Object connection = null;
+      try
+      {
+         connection = cl.getManagedConnection().getConnection(subject, cri);
+
+/ herinner	,
+/ we zitten nog steeds in ,
+						: connection().prepareStatement( sql );		<- eerst connection()	, dan later .prepareStatement()
+
+/ we zien stack: 	jpa(hibernate)-jdbc-jca
+/ we zitten nu in jca,
 
 
 
 
 / Einde DEBUG TX
+
+/ DEBUG TX START WILDFLY
+
+/ 7	. 
+
+/ een ds is een administratief ding, met databasename,servername, user, password, waarmee de url wordt gemaakt,  en de driver,
+/ de driver maakt de conn,
+
+/ er is nu geen tx,
+
+/ uiteindelijk komen we in,
+/s,
+package org.postgresql.core;
+public class PGStream
+    public PGStream(HostSpec hostSpec, int timeout) throws IOException
+    {
+        this.hostSpec = hostSpec;
+
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(hostSpec.getHost(), hostSpec.getPort()), timeout);
+
+/ als we in forge: build test, dan vallen we in:
+
+Thread [ServerService Thread Pool -- 113] (Suspended)	
+	owns: org.hibernate.boot.registry.internal.StandardServiceRegistryImpl  (id=20939)
+org.postgresql.Driver.makeConnection(java.lang.String, java.util.Properties) line: 414	
+        return new org.postgresql.jdbc42.Jdbc42Connection(hostSpecs(props),
+                                      user(props), database(props),
+                                      props, url);
+/cb,
+org.postgresql.Driver.connect(java.lang.String, java.util.Properties) line: 251	
+                return makeConnection(url, props);
+/cb,	
+	java.sql.DriverManager.getConnection(java.lang.String, java.util.Properties, java.lang.Class<?>) line: 664	
+        for(DriverInfo aDriver : registeredDrivers) {
+            // If the caller does not have permission to load the driver then
+            // skip it.
+            if(isDriverAllowed(aDriver.driver, callerCL)) {
+                try {
+                    println("    trying " + aDriver.driver.getClass().getName());
+                    Connection con = aDriver.driver.connect(url, info);
+/cb,
+	java.sql.DriverManager.getConnection(java.lang.String, java.lang.String, java.lang.String) line: 247
+        return (getConnection(url, info, Reflection.getCallerClass()));
+url=jdbc:postgresql://localhost/test?loglevel=0&prepareThreshold=5&preparedStatementCacheQueries=256&preparedStatementCacheSizeMiB=5&defaultRowFetchSize=0&binaryTransfer=true&compatible=9.4&readOnly=false&binaryTransferEnable=&binaryTransferDisable=&unknownLength=2147483647&logUnclosedConnections=false&disableColumnSanitiser=false&tcpKeepAlive=false&loginTimeout=0&connectTimeout=0&socketTimeout=0&receiveBufferSize=-1&sendBufferSize=-1&useSpnego=false&gsslib=auto&sspiServiceClass=POSTGRES&allowEncodingChanges=false&targetServerType=any&loadBalanceHosts=false&hostRecheckSeconds=10	
+/cb,
+	org.postgresql.xa.PGXADataSource(org.postgresql.ds.common.BaseDataSource).getConnection(java.lang.String, java.lang.String) line: 88	
+            Connection con = DriverManager.getConnection(getUrl(), user, password);
+/cb,
+	org.postgresql.xa.PGXADataSource(org.postgresql.xa.jdbc3.AbstractJdbc3XADataSource).getXAConnection(java.lang.String, java.lang.String) line: 54	
+	org.postgresql.xa.PGXADataSource(org.postgresql.xa.jdbc3.AbstractJdbc3XADataSource).getXAConnection() line: 39	
+        return getXAConnection(getUser(), getPassword());
+/ user, password komen uit de ds,
+/ net als databasename, servername	,
+/ cb,
+	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).getXAManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 492	
+	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).createManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 416	
+	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.createConnectionEventListener(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 1320	
+	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.getConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 496	
+	org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getSimpleConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 617	
+	org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 589	
+	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590	
+	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429	
+	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 747	
+	org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+	org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+	org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+	org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection() line: 180	
+	org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(java.util.Map, org.hibernate.service.spi.ServiceRegistryImplementor) line: 68	
+	org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(java.util.Map, org.hibernate.service.spi.ServiceRegistryImplementor) line: 35	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.initiateService(org.hibernate.service.spi.ServiceInitiator<R>) line: 88	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl(org.hibernate.service.internal.AbstractServiceRegistryImpl).createService(org.hibernate.service.spi.ServiceBinding<R>) line: 254	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl(org.hibernate.service.internal.AbstractServiceRegistryImpl).initializeService(org.hibernate.service.spi.ServiceBinding<R>) line: 228	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl(org.hibernate.service.internal.AbstractServiceRegistryImpl).getService(java.lang.Class<R>) line: 207	
+	org.hibernate.engine.jdbc.internal.JdbcServicesImpl.configure(java.util.Map) line: 51	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.configureService(org.hibernate.service.spi.ServiceBinding<R>) line: 94	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl(org.hibernate.service.internal.AbstractServiceRegistryImpl).initializeService(org.hibernate.service.spi.ServiceBinding<R>) line: 237	
+	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl(org.hibernate.service.internal.AbstractServiceRegistryImpl).getService(java.lang.Class<R>) line: 207	
+	org.hibernate.boot.model.process.spi.MetadataBuildingProcess.handleTypes(org.hibernate.boot.spi.MetadataBuildingOptions) line: 352	
+	org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(org.hibernate.boot.model.process.spi.ManagedResources, org.hibernate.boot.spi.MetadataBuildingOptions) line: 111	
+	org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata() line: 847	
+	org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build() line: 874	
+	org.jboss.as.jpa.hibernate5.TwoPhaseBootstrapImpl.build() line: 44	
+	org.jboss.as.jpa.service.PersistenceUnitServiceImpl$1$1.run() line: 161	
+	org.jboss.as.jpa.service.PersistenceUnitServiceImpl$1$1.run() line: 121	
+	org.wildfly.security.manager.WildFlySecurityManager.doChecked(java.security.PrivilegedAction<T>, java.security.AccessControlContext) line: 667	
+	org.jboss.as.jpa.service.PersistenceUnitServiceImpl$1.run() line: 193	
+	java.util.concurrent.ThreadPoolExecutor.runWorker(java.util.concurrent.ThreadPoolExecutor$Worker) line: 1149	
+	java.util.concurrent.ThreadPoolExecutor$Worker.run() line: 624	
+	org.jboss.threads.JBossThread(java.lang.Thread).run() line: 748	
+	org.jboss.threads.JBossThread.run() line: 320	
+
+/ 7	. 
+
+/ later,
+
+Thread [ServerService Thread Pool -- 113] (Suspended (breakpoint at line 122 in org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl))	
+	org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+	org.hibernate.tool.hbm2ddl.SuppliedConnectionProviderConnectionHelper.prepare(boolean) line: 33	
+	org.hibernate.tool.hbm2ddl.DatabaseExporter.<init>(org.hibernate.tool.hbm2ddl.ConnectionHelper, org.hibernate.engine.jdbc.spi.SqlExceptionHelper) line: 35	
+	org.hibernate.tool.hbm2ddl.SchemaExport.execute(org.hibernate.tool.hbm2ddl.Target, org.hibernate.tool.hbm2ddl.SchemaExport$Type) line: 425	
+	org.hibernate.tool.hbm2ddl.SchemaExport.create(org.hibernate.tool.hbm2ddl.Target) line: 361	
+	org.hibernate.tool.hbm2ddl.SchemaExport.create(boolean, boolean) line: 350	
+	org.hibernate.internal.SessionFactoryImpl.<init>(org.hibernate.boot.spi.MetadataImplementor, org.hibernate.boot.spi.SessionFactoryOptions) line: 467
+			new SchemaExport( serviceRegistry, metadata, createDropNamespaces )
+					.setImportSqlCommandExtractor( serviceRegistry.getService( ImportSqlCommandExtractor.class ) )
+					.create( false, true );
+/cb,
+	org.hibernate.boot.internal.SessionFactoryBuilderImpl.build() line: 444	
+	org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build() line: 879	
+	org.jboss.as.jpa.hibernate5.TwoPhaseBootstrapImpl.build() line: 44	
+	org.jboss.as.jpa.service.PersistenceUnitServiceImpl$1$1.run() line: 161	
+	org.jboss.as.jpa.service.PersistenceUnitServiceImpl$1$1.run() line: 121	
+	org.wildfly.security.manager.WildFlySecurityManager.doChecked(java.security.PrivilegedAction<T>, java.security.AccessControlContext) line: 667	
+	org.jboss.as.jpa.service.PersistenceUnitServiceImpl$1.run() line: 193	
+	java.util.concurrent.ThreadPoolExecutor.runWorker(java.util.concurrent.ThreadPoolExecutor$Worker) line: 1149	
+	java.util.concurrent.ThreadPoolExecutor$Worker.run() line: 624	
+	org.jboss.threads.JBossThread(java.lang.Thread).run() line: 748	
+	org.jboss.threads.JBossThread.run() line: 320	
+
+/ later,
+
+/ er wordt een AtomicAction gemaakt, en in .begin wordt deze in de thread local set, en wordt de thread in de AtomicAction register,
+/ de AtomicAction, of de TransactionImple is de globale tx,
+
+Thread [default task-118] (Suspended)	
+	com.arjuna.ats.internal.arjuna.thread.ThreadActionData.pushAction(com.arjuna.ats.arjuna.coordinator.BasicAction, boolean) line: 94
+		Deque<BasicAction> txs = _threadList.get();
+
+		if (txs == null)
+		{
+			txs = new ArrayDeque<BasicAction>();
+			txs.push(a);
+
+			_threadList.set(txs);
+		}
+		else
+			txs.push(a);
+
+		if (register)
+                    a.addChildThread(Thread.currentThread());
+/cb,	
+	com.arjuna.ats.internal.arjuna.thread.ThreadActionData.pushAction(com.arjuna.ats.arjuna.coordinator.BasicAction) line: 69	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).begin(int) line: 124	
+	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.<init>(int) line: 104	
+		_theTransaction = new AtomicAction();
+		_theTransaction.begin(timeout);	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).begin() line: 98
+/cb,		
+	com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).begin() line: 78	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 272
+            tm.begin();												<-
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+/cb,	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 41	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.invocationmetrics.WaitTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.security.SecurityContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 100	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.deployment.processors.StartupAwaitInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 22	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.ShutDownInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.LoggingInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 67	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.component.NamespaceContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 50	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.AdditionalSetupInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 54	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.wildfly.security.manager.WildFlySecurityManager.doChecked(java.security.PrivilegedExceptionAction<T>) line: 636	
+	org.jboss.invocation.AccessCheckingInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 80	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.ViewService$View.invoke(org.jboss.invocation.InterceptorContext) line: 198	
+	org.jboss.as.ee.component.ViewDescription$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 185	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.ProxyInvocationHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 73	
+	org.arquillian.jpa.study2.dao.CategoryDao$$$view27.create(org.arquillian.jpa.study2.model.Category) line: not available	
+	sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+	sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+	java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+	org.jboss.weld.util.reflection.Reflections.invokeAndUnwrap(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 433	
+	org.jboss.weld.bean.proxy.EnterpriseBeanProxyMethodHandler<T>.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.reflect.Method, java.lang.Object[]) line: 128	
+	org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance(org.jboss.weld.bean.proxy.EnterpriseTargetBeanInstance).invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 56	
+	org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 67	
+	org.jboss.weld.bean.proxy.ProxyMethodHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.reflect.Method, java.lang.Object[]) line: 100	
+	org.arquillian.jpa.study2.dao.CategoryDao$Proxy$_$$_Weld$EnterpriseProxy$.create(org.arquillian.jpa.study2.model.Category) line: not available	
+	org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261	
+	...
+
+/ 7	. 
+
+/ later 	,
+
+/ LifecycleCMTTxInterceptor, 
+/ deze vereiste een nieuwe tx, requiresNew, en ended de tx
+/ TODO
+
+/ 7	. 
+
+/ later,
+
+/ eerder zagen we als dat .create werd called, maar toen ging hij eerst een tx maken (niet de lifecycle tx die er tussendoor kwam), nu pas echt in de mth	,
+
+@Stateless
+public class CategoryDao {
+	@PersistenceContext(unitName = "arquillian-jpa-study2-persistence-unit")
+	private EntityManager em;
+
+	public void create(Category entity) {
+		em.persist(entity);						<-
+	}
+	
+/ 7	. 
+
+/ later,
+
+/ de branch tx joins de global jta tx,
+
+/ zie het enorme verschil tussen,
+
+	org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+/cb,
+...
+	org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261	
+			categoryDao.create(clothing);
+			
+/ dat heeft allemaal te maken met bijv eerst tx maken,
+/ wat is er nog meer?
+/ TODO
+
+Thread [default task-118] (Suspended (breakpoint at line 146 in org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl))	
+	org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.pulse() line: 146	
+		joinJtaTransaction();
+/ de branch tx joins de global jta tx,
+/cb,	org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.<init>(org.hibernate.resource.transaction.TransactionCoordinatorBuilder, org.hibernate.resource.transaction.spi.TransactionCoordinatorOwner, boolean) line: 92	
+	org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorBuilderImpl.buildTransactionCoordinator(org.hibernate.resource.transaction.spi.TransactionCoordinatorOwner, org.hibernate.resource.transaction.TransactionCoordinatorBuilder$TransactionCoordinatorOptions) line: 28	
+	org.hibernate.internal.SessionImpl.<init>(java.sql.Connection, org.hibernate.internal.SessionFactoryImpl, org.hibernate.engine.spi.SessionOwner, org.hibernate.resource.transaction.TransactionCoordinator, org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl, org.hibernate.Transaction, org.hibernate.engine.spi.ActionQueue$TransactionCompletionProcesses, boolean, long, org.hibernate.Interceptor, org.hibernate.resource.jdbc.spi.StatementInspector, boolean, boolean, org.hibernate.ConnectionReleaseMode, java.lang.String) line: 274	
+	org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession() line: 1327	
+	org.hibernate.jpa.internal.EntityManagerImpl.internalGetSession() line: 133	
+	org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).postInit() line: 174	
+	org.hibernate.jpa.internal.EntityManagerImpl.<init>(org.hibernate.jpa.internal.EntityManagerFactoryImpl, javax.persistence.PersistenceContextType, javax.persistence.SynchronizationType, javax.persistence.spi.PersistenceUnitTransactionType, boolean, java.lang.Class, java.util.Map) line: 83	
+	org.hibernate.jpa.internal.EntityManagerFactoryImpl.internalCreateEntityManager(javax.persistence.SynchronizationType, java.util.Map) line: 319	
+	org.hibernate.jpa.internal.EntityManagerFactoryImpl.createEntityManager() line: 286	
+	org.jboss.as.jpa.container.TransactionScopedEntityManager.createEntityManager(javax.persistence.EntityManagerFactory, java.util.Map, javax.persistence.SynchronizationType) line: 187	
+	org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 157	
+	org.jboss.as.jpa.container.TransactionScopedEntityManager.getEntityManager() line: 87	
+	org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+	org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+/cb,
+	sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+	sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+	java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+	org.jboss.as.ee.component.ManagedReferenceMethodInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+	org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.doMethodInterception(javax.interceptor.InvocationContext, javax.enterprise.inject.spi.InterceptionType, org.jboss.as.weld.ejb.WeldInterceptorInstances, org.jboss.weld.ejb.spi.InterceptorBindings) line: 82	
+	org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 93	
+	org.jboss.as.ee.component.interceptors.UserInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 63	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.invocationmetrics.ExecutionTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 43	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.jpa.interceptor.SBInvocationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+	org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor(org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor).aroundInvoke(javax.interceptor.InvocationContext) line: 64	
+	org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 83	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 45	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InitialInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 21	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.interceptors.ComponentDispatcherInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 51	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 41	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.invocationmetrics.WaitTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.security.SecurityContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 100	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.deployment.processors.StartupAwaitInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 22	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.ShutDownInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.LoggingInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 67	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.component.NamespaceContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 50	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.AdditionalSetupInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 54	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.wildfly.security.manager.WildFlySecurityManager.doChecked(java.security.PrivilegedExceptionAction<T>) line: 636	
+	org.jboss.invocation.AccessCheckingInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 80	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.ViewService$View.invoke(org.jboss.invocation.InterceptorContext) line: 198	
+	org.jboss.as.ee.component.ViewDescription$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 185	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.ProxyInvocationHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 73	
+	org.arquillian.jpa.study2.dao.CategoryDao$$$view27.create(org.arquillian.jpa.study2.model.Category) line: not available	
+	sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+	sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+	java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+	org.jboss.weld.util.reflection.Reflections.invokeAndUnwrap(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 433	
+	org.jboss.weld.bean.proxy.EnterpriseBeanProxyMethodHandler<T>.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.reflect.Method, java.lang.Object[]) line: 128	
+	org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance(org.jboss.weld.bean.proxy.EnterpriseTargetBeanInstance).invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 56	
+	org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 67	
+	org.jboss.weld.bean.proxy.ProxyMethodHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.reflect.Method, java.lang.Object[]) line: 100	
+	org.arquillian.jpa.study2.dao.CategoryDao$Proxy$_$$_Weld$EnterpriseProxy$.create(org.arquillian.jpa.study2.model.Category) line: not available	
+	org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261	
+			categoryDao.create(clothing);
+			
+/ we gaan hier verder in,
+
+/ adds een com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple aan de AtomicAction	, in _sync	,
+
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).addSynchronization(com.arjuna.ats.arjuna.coordinator.SynchronizationRecord) line: 135	
+/=
+	public int addSynchronization (SynchronizationRecord sr)
+	
+sr	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=22458)	
+	_isInterposed	true	
+	_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22404)	
+	_theUid	com.arjuna.ats.arjuna.common.Uid  (id=22459)	
+
+                // need to guard against synchs being added while we are performing beforeCompletion processing
+                if (_synchs.add(sr))			
+                {
+                    result = AddOutcome.AR_ADDED;
+                }
+
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.registerSynchronizationImple(com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple) line: 388	
+			if (_theTransaction.addSynchronization(synchronizationImple) != AddOutcome.AR_ADDED)
+			
+synchronizationImple	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=22458)	
+	_isInterposed	true	
+	_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22404)	
+	_theUid	com.arjuna.ats.arjuna.common.Uid  (id=22459)	
+/cb,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.registerInterposedSynchronization(javax.transaction.Synchronization) line: 133
+/=
+    public void registerInterposedSynchronization(Synchronization synchronization)
+	
+synchronization	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22404)	
+	jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21063)	
+	jcaSyncs	java.util.ArrayList<E>  (id=22406)	
+	tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21323)	
+
+        TransactionImple transactionImple = getTransactionImple();
+        try
+        {
+            transactionImple.registerSynchronizationImple(new SynchronizationImple(synchronization, true));	<-
+
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 68	
+            Transaction tx = transactionManager.getTransaction();
+            JCAOrderedLastSynchronizationList jcaOrderedLastSynchronization = interposedSyncs.get(tx);
+            if (jcaOrderedLastSynchronization == null) {
+/j,
+/ jcaOrderedLastSynchronization={jcaSyncs, preJcaSyncs, ...} staat achter de global tx, dus is van de global tx, 
+/ deze bevat Synchronizations (added bij (*), in preJcaSyncs) en WH is die van de branch, de local tx,
+/ TODO
+                JCAOrderedLastSynchronizationList toPut = new JCAOrderedLastSynchronizationList((com.arjuna.ats.jta.transaction.Transaction) tx, interposedSyncs);
+                jcaOrderedLastSynchronization = interposedSyncs.putIfAbsent(tx, toPut);
+                if (jcaOrderedLastSynchronization == null) {
+                    jcaOrderedLastSynchronization = toPut;
+                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);	<- (*)
+                }
+            }
+            jcaOrderedLastSynchronization.registerInterposedSynchronization(sync);	
+/cb,
+org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy.registerSynchronization(javax.transaction.Synchronization) line: 29
+		synchronizationRegistryAccess.getSynchronizationRegistry().registerInterposedSynchronization(
+				synchronization
+		);
+/cb,
+org.jboss.as.jpa.hibernate5.JBossAppServerJtaPlatform(org.hibernate.engine.transaction.jta.platform.internal.AbstractJtaPlatform).registerSynchronization(javax.transaction.Synchronization) line: 126	
+		getSynchronizationStrategy().registerSynchronization( synchronization );
+		
+synchronization	org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization  (id=21575)	
+	synchronizationCallbackCoordinator	org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl  (id=21574)	
+		target	org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl  (id=21559)	
+			jtaPlatform	org.jboss.as.jpa.hibernate5.JBossAppServerJtaPlatform  (id=21576)	
+				jtaManager	org.jboss.as.jpa.transaction.JtaManagerImpl  (id=22253)	
+				serviceRegistry	org.hibernate.boot.registry.internal.StandardServiceRegistryImpl  (id=21219)	
+				synchronizationStrategy	org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy  (id=21577)	
+				tmSynchronizationStrategy	org.hibernate.engine.transaction.jta.platform.internal.TransactionManagerBasedSynchronizationStrategy  (id=22303)	
+				transactionManager	com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate  (id=21016)	
+			synchronizationRegistry	org.hibernate.resource.transaction.internal.SynchronizationRegistryStandardImpl  (id=22279)	
+			transactionCoordinatorBuilder	org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorBuilderImpl  (id=21560)	
+			transactionCoordinatorOwner	org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl  (id=22280)	
+/cb,
+	/**
+	 * Join to the JTA transaction.  Note that the underlying meaning of joining in JTA environments is to register the
+	 * RegisteredSynchronization with the JTA system
+	 */
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.joinJtaTransaction() line: 158
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );		<-
+		getSynchronizationCallbackCoordinator().synchronizationRegistered();
+/cb,	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.pulse() line: 146	
+		joinJtaTransaction();
+	
+/t,
+/ jcaOrderedLastSynchronization={jcaSyncs, preJcaSyncs, ...} staat achter de global tx, dus is van de global tx, 
+/ deze bevat Synchronizations (added bij (*), in preJcaSyncs) en WH is die van de branch, de local tx,
+/ TODO
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 78	
+            Transaction tx = transactionManager.getTransaction();
+            JCAOrderedLastSynchronizationList jcaOrderedLastSynchronization = interposedSyncs.get(tx);
+            if (jcaOrderedLastSynchronization == null) {
+                JCAOrderedLastSynchronizationList toPut = new JCAOrderedLastSynchronizationList((com.arjuna.ats.jta.transaction.Transaction) tx, interposedSyncs);
+                jcaOrderedLastSynchronization = interposedSyncs.putIfAbsent(tx, toPut);
+                if (jcaOrderedLastSynchronization == null) {
+                    jcaOrderedLastSynchronization = toPut;
+                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization); / (*)
+/d,
+                }
+            }
+            jcaOrderedLastSynchronization.registerInterposedSynchronization(sync);
+/s,
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.registerInterposedSynchronization(javax.transaction.Synchronization) line: 90	
+            preJcaSyncs.add(synchronization);
+...
+/t,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.joinJtaTransaction() line: 159	
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
+/d,
+		getSynchronizationCallbackCoordinator().synchronizationRegistered();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl.synchronizationRegistered() line: 77	
+		registrationThreadId = Thread.currentThread().getId();
+
+/ 7	. 
+
+/ later,
+
+/ de sql wordt gechecked	, 
+/ dit is bij preparedstatement	,
+
+Thread [default task-118] (Suspended)	
+	org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).<init>(org.hibernate.engine.jdbc.internal.StatementPreparerImpl, java.lang.String) line: 159	
+			final String inspectedSql = jdbcCoordinator.getJdbcSessionOwner()
+					.getJdbcSessionContext()
+					.getStatementInspector()
+					.inspect( incomingSql );									/ WH gebeurt hier niets, TODO
+			this.sql = inspectedSql == null ? incomingSql : inspectedSql;
+/cb,
+	org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.<init>(org.hibernate.engine.jdbc.internal.StatementPreparerImpl, java.lang.String, boolean) line: 82	
+		return new StatementPreparationTemplate( sql ) {				<- we zijn nog hier,
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+			}
+
+	org.hibernate.engine.jdbc.internal.StatementPreparerImpl.buildPreparedStatementPreparationTemplate(java.lang.String, boolean) line: 82	
+	org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72
+		return buildPreparedStatementPreparationTemplate( sql, false ).prepareStatement();
+/cb,	
+	org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 94
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );	<-
+sql=select nextval ('hibernate_sequence')
+/cb,	
+	org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40
+		IntegralDataTypeHolder value = callback.getNextValue();
+/cb,	
+	org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+		return optimizer.generate( databaseStructure.buildCallback( session ) );
+/cb,	org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101
+		EntityPersister persister = source.getEntityPersister( entityName, entity );
+		Serializable generatedId = persister.getIdentifierGenerator().generate( source, entity );		<-
+/cb,	
+	org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 67
+	
+	org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+	org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+	org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+	org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+	org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+	org.hibernate.internal.SessionImpl.persist(java.lang.Object) line: 753	
+	org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1146	
+	org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+	org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+	sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+	sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+	java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+	org.jboss.as.ee.component.ManagedReferenceMethodInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+	org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.doMethodInterception(javax.interceptor.InvocationContext, javax.enterprise.inject.spi.InterceptionType, org.jboss.as.weld.ejb.WeldInterceptorInstances, org.jboss.weld.ejb.spi.InterceptorBindings) line: 82	
+	org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 93	
+	org.jboss.as.ee.component.interceptors.UserInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 63	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.invocationmetrics.ExecutionTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 43	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.jpa.interceptor.SBInvocationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+	org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor(org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor).aroundInvoke(javax.interceptor.InvocationContext) line: 64	
+	org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 83	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 45	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InitialInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 21	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.interceptors.ComponentDispatcherInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 51	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+	org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.CurrentInvocationContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 41	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.invocationmetrics.WaitTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.security.SecurityContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 100	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.deployment.processors.StartupAwaitInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 22	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.ShutDownInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.LoggingInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 67	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ee.component.NamespaceContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 50	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.as.ejb3.component.interceptors.AdditionalSetupInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 54	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ContextClassLoaderInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 64	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.wildfly.security.manager.WildFlySecurityManager.doChecked(java.security.PrivilegedExceptionAction<T>) line: 636	
+	org.jboss.invocation.AccessCheckingInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.InterceptorContext.run() line: 356	
+	org.jboss.invocation.PrivilegedWithCombinerInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 80	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.ViewService$View.invoke(org.jboss.invocation.InterceptorContext) line: 198	
+	org.jboss.as.ee.component.ViewDescription$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 185	
+	org.jboss.invocation.InterceptorContext.proceed() line: 340	
+	org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+	org.jboss.as.ee.component.ProxyInvocationHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 73	
+	org.arquillian.jpa.study2.dao.CategoryDao$$$view27.create(org.arquillian.jpa.study2.model.Category) line: not available	
+	sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+	sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+	java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+	org.jboss.weld.util.reflection.Reflections.invokeAndUnwrap(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 433	
+	org.jboss.weld.bean.proxy.EnterpriseBeanProxyMethodHandler<T>.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.reflect.Method, java.lang.Object[]) line: 128	
+	org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance(org.jboss.weld.bean.proxy.EnterpriseTargetBeanInstance).invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 56	
+	org.jboss.weld.bean.proxy.InjectionPointPropagatingEnterpriseTargetBeanInstance.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object...) line: 67	
+	org.jboss.weld.bean.proxy.ProxyMethodHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.reflect.Method, java.lang.Object[]) line: 100	
+	org.arquillian.jpa.study2.dao.CategoryDao$Proxy$_$$_Weld$EnterpriseProxy$.create(org.arquillian.jpa.study2.model.Category) line: not available	
+	org.arquillian.jpa.study2.dao.ItemCategoryDaoTest.initb() line: 261
+
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72	
+		return buildPreparedStatementPreparationTemplate( sql, false ).prepareStatement();
+/pd,
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+					preparedStatement = doPrepare();
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 85	
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+
+/ 7	 .
+
+/ later,
+
+/ we zien,
+         return pool.getConnection(transaction, subject, cri);
+/ TODO
+
+org.jboss.jca.core.tx.jbossts.TransactionIntegrationImpl.getTransactionSynchronizationRegistry() line: 112
+      return tsr;
+/cb,	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionSynchronizationRegistry() line: 377
+      if (getTransactionIntegration() != null)
+         return getTransactionIntegration().getTransactionSynchronizationRegistry();
+/cb,	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 584
+      // Are we doing track by transaction ?
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();		<-
+      Object transactionKey = tsr != null ? tsr.getTransactionKey() : null;	/ 0:ffffc0a82b5e:-568fb2e0:5cd447b9:39ea WH globale jta tx,
+      if (trackByTransaction == null || transactionKey == null)
+/n,
+      {
+         return getSimpleConnection(subject, cri, mcp);		/ wel eerder, toen was er geen globale jta tx
+      }
+
+      // Transaction old connections
+      cl = getTransactionOldConnection(trackByTransaction, mcp);
+null 
+      // Creates a new connection with given transaction
+      if (cl == null)
+      {
+         cl = getTransactionNewConnection(trackByTransaction, mcp, subject, cri);	<-
+      }
+/cb,	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590	
+         return pool.getConnection(transaction, subject, cri);
+/cb,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 747	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.obtainConnection() line: 386	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.acquireConnectionIfNeeded() line: 87	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.getPhysicalConnection() line: 112	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+
+/ 	7 .
+
+/ later,
+
+org.postgresql.xa.PGXAConnection(org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection).getConnection() line: 154	
+
+this	org.postgresql.xa.PGXAConnection  (id=22590)	
+	autoCommit	true	
+	con	org.postgresql.jdbc42.Jdbc42Connection  (id=22594)	
+		autoCommit	true	
+		commitQuery	org.postgresql.core.v3.SimpleQuery  (id=22600)	
+		creatingURL	"jdbc:postgresql://localhost/test?loglevel=0&prepareThreshold=5&preparedStatementCacheQueries=256&preparedStatementCacheSizeMiB=5&defaultRowFetchSize=0&binaryTransfer=true&compatible=9.4&readOnly=false&binaryTransferEnable=&binaryTransferDisable=&unknownLength=2147483647&logUnclosedConnections=false&disableColumnSanitiser=false&tcpKeepAlive=false&loginTimeout=0&connectTimeout=0&socketTimeout=0&receiveBufferSize=-1&sendBufferSize=-1&useSpnego=false&gsslib=auto&sspiServiceClass=POSTGRES&allowEncodingChanges=false&targetServerType=any&loadBalanceHosts=false&hostRecheckSeconds=10" (id=22601)	
+		protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22602)	
+			pgStream	org.postgresql.core.PGStream  (id=22611)	
+				connection	java.net.Socket  (id=22616)	
+				pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22620)	
+				pg_output	java.io.BufferedOutputStream  (id=22621)	
+	currentXid	null	
+/cb,
+org.postgresql.xa.PGXAConnection.getConnection() line: 111
+        Connection conn = super.getConnection();
+Pooled connection wrapping physical connection org.postgresql.jdbc42.Jdbc42Connection@322a7999
+/cb,	
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.<init>(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory, javax.sql.XAConnection, java.util.Properties, int, int) line: 68	
+      super(mcf, xaConnection.getConnection(), props, transactionIsolation, psCacheSize);		<- (*)
+/cb,
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).newXAManagedConnection(java.util.Properties, javax.sql.XAConnection) line: 523	
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).getXAManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 496	
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).createManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 416	
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.createConnectionEventListener(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 1320	
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.getConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 496	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionNewConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 699	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 598	
+
+
+/ we waren in,
+
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.<init>(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory, javax.sql.XAConnection, java.util.Properties, int, int) line: 68	
+      super(mcf, xaConnection.getConnection(), props, transactionIsolation, psCacheSize);		<- (*)
+
+/ en xaConnection.getConnection() is gedaan, en nu super(),
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).<init>(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnectionFactory, java.sql.Connection, java.util.Properties, int, int) line: 207	
+
+      if (transactionIsolation == -1)
+         this.transactionIsolation = con.getTransactionIsolation();
+/ read_committed	,
+      metadata = new ManagedConnectionMetaDataImpl(con, props.getProperty("user"));
+/s,
+org.jboss.jca.adapters.jdbc.ManagedConnectionMetaDataImpl.<init>(java.sql.Connection, java.lang.String) line: 79	
+            productName = connection.getMetaData().getDatabaseProductName();
+PostgreSQL
+            productVersion = connection.getMetaData().getDatabaseProductVersion();
+9.6.5
+      this.maxConnections = 1;	/ TODO
+      this.user = user;	
+null
+
+/ 7	. 
+
+/ later,
+
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.createConnectionListener(javax.resource.spi.ManagedConnection,             if (xaResource == null)
+            {
+               XAResource xar = mc.getXAResource();
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2d08c7b5
+               if (!(xar instanceof org.jboss.jca.core.spi.transaction.xa.XAResourceWrapper))
+               {
+                  xaResource = txIntegration.createXAResourceWrapper(xar, padXid,
+                                                                     isSameRMOverride,
+                                                                     eisProductName, eisProductVersion,
+                                                                     getJndiName(), txIntegration.isFirstResource(mc),
+                                                                     getXAResourceStatistics());
+txIntegration	org.jboss.jca.core.tx.jbossts.TransactionIntegrationImpl  (id=20975)	
+	rr	com.arjuna.ats.jbossatx.jta.RecoveryManagerService  (id=21037)	
+	terminator	com.arjuna.ats.internal.jbossatx.jta.jca.XATerminator  (id=21039)	
+	tm	org.jboss.jca.core.tx.jbossts.TransactionManagerDelegator  (id=20980)	
+	tsr	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=21040)	
+	utr	org.jboss.jca.core.tx.jbossts.UserTransactionRegistryImpl  (id=21041)	
+	
+      ConnectionListener cli = new TxConnectionListener(this, mc, getPool(), mcp,
+                                                        getFlushStrategy(), getTracking(), getEnlistmentTrace(),
+                                                        xaResource, explicitXAResourceTimeout);
+      mc.addConnectionEventListener(cli);
+
+																	 
+/cb,
+org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 716	
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.createConnectionEventListener(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 1329	
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.getConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 496
+               // No, the pool was empty, so we have to make a new one.
+               clw = new ConnectionListenerWrapper(createConnectionEventListener(subject, cri), true, true);
+/d,
+clw	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool$ConnectionListenerWrapper  (id=22800)	
+	cl	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22779)	
+		xaResource	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22777)	
+/cb,	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionNewConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 699
+      // Need a new one for this transaction
+      // This must be done outside the tx local lock, otherwise
+      // the tx timeout won't work and get connection can do a lot of other work
+      // with many opportunities for deadlocks.
+      // Instead we do a double check after we got the transaction to see
+      // whether another thread beat us to the punch.
+      ConnectionListener cl = mcp.getConnection(subject, cri);	/ zonder global tx,
+	  
+         // Check we weren't racing with another transaction
+         ConnectionListener other =							/ (*)
+            (ConnectionListener)tsr.getResource(mcp);
+null
+         // This is the connection for this transaction			/ CONNECTION FOR TRANSACTION !
+         cl.setTrackByTx(true);
+         tsr.putResource(mcp, cl);						/ (**)
+/cb,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 598	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 747	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+		return useCredentials ? dataSource.getConnection( user, pass ) : dataSource.getConnection();
+
+/ (*)
+package com.arjuna.ats.internal.jta.transaction.arjunacore;
+public class TransactionSynchronizationRegistryImple implements TransactionSynchronizationRegistry, Serializable, ObjectFactory
+
+    // Get an object from the Map of resources being managed for the transaction bound to the current thread at the time this method is called.
+/ klopt: BasicAction.Current() is een thread local ,en geeft dus de global tx bound to current thread, 
+    public Object getResource(Object key)
+    {
+		...
+        TransactionImple transactionImple = getTransactionImple();		/ thread local global tx,
+        return transactionImple.getTxLocalResource(key); / deze heeft in ons geval 3 resources, 
+    }
+
+/ (**)
+    // Add or replace an object in the Map of resources being managed for the transaction bound to the current thread at the time this method is called.
+    public void putResource(Object key, Object value)
+    {
+		...
+        TransactionImple transactionImple = getTransactionImple();
+        transactionImple.putTxLocalResource(key, value);
+    }
+transactionImple	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21323)	
+	_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=22857)	
+		[0]	java.util.HashMap$Node<K,V>  (id=22885)	
+			key	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool  (id=21030)	
+			value	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22779)	
+				trackByTx	java.util.concurrent.atomic.AtomicBoolean  (id=22786)	
+				xaResource	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22777)	
+					jndiName	"java:jboss/datasources/PostgreSQLDS" (id=20968)	
+					xaResource	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22592)	
+		[1]	java.util.HashMap$Node<K,V>  (id=22861)	
+			key	org.jboss.jca.core.connectionmanager.transaction.LockKey  (id=22870)	
+			value	java.util.concurrent.locks.ReentrantLock  (id=22580)	
+		[2]	java.util.HashMap$Node<K,V>  (id=22862)	
+			key	"__TX_LISTENERS" (id=22868)	
+			value	java.util.concurrent.ConcurrentLinkedQueue<E>  (id=22869)	
+		[3]	java.util.HashMap$Node<K,V>  (id=22863)	
+			key	"5f4ed3ec-2fe3-4e20-a3e0-9f29e2ac1546.war#arquillian-jpa-study2-persistence-unit" (id=22867)	
+			value	org.hibernate.jpa.internal.EntityManagerImpl  (id=21563)	
+
+/ 7	.
+
+/ later,
+ 
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+      ConnectionListener cl = getManagedConnection(subject, cri);
+
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.managedConnectionReconnected(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 552	
+         if (shouldEnlist(cl.getManagedConnection()))
+            cl.enlist();
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 267	
+      Transaction threadTx = tm.getTransaction();
+            synchronizer =
+               TransactionSynchronizer.getRegisteredSynchronizer(threadTx,
+                  getConnectionManager().getTransactionIntegration());
+/s,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.getRegisteredSynchronizer(javax.transaction.Transaction, org.jboss.jca.core.spi.transaction.TransactionIntegration) line: 244	
+      Record record = records.get(id);
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer$Record@76338eb5 
+id=global tx,
+      return record.getTransactionSynchronizer();
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 267
+            synchronizer =
+/d,
+         // First time through, create a transaction synchronization
+         if (transactionSynchronization == null)
+         {
+            TransactionSynchronization synchronization = new TransactionSynchronization(threadTx, isTrackByTx());
+            synchronizer.addUnenlisted(synchronization);			<- soort tussenstap	? TODO
+            transactionSynchronization = synchronization;
+         }
+
+         ourSynchronization = transactionSynchronization;
+
+      // Perform the enlistment(s)
+      List<Synchronization> unenlisted = synchronizer.getUnenlisted();
+      if (unenlisted != null)
+      {
+         try
+         {
+            int size = unenlisted.size();
+            for (int i = 0; i < size; ++i)
+            {
+               TransactionSynchronization sync = (TransactionSynchronization) unenlisted.get(i);
+               if (sync.enlist())
+               {
+                  synchronizer.addEnlisted(sync);
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization.enlist() line: 986	
+            XAResource resource = getXAResource();
+            if (!currentTx.enlistResource(resource))	/ Dit is wat een synchronization doet: enlist, register de conn (xa res = conn) bij de global tx	, ROL SYNCHRONIZATION 
+/s,	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 430	
+...
+			/*
+			 * We definitely haven't seen this specific resource instance
+			 * before, but that doesn't mean that we haven't seen the RM it is
+			 * connected to.
+			 */
+
+			Xid xid = null;
+			TxInfo existingRM = isNewRM(xaRes);
+null
+				xid = createXid(branchRequired, theModifier, xaRes);
+< formatId=131077, gtrid_length=29, bqual_length=36, tx_uid=0:ffffc0a82b5e:-568fb2e0:5cd447b9:39ea, node_name=1, branch_uid=0:ffffc0a82b5e:-568fb2e0:5cd447b9:39f0, subordinatenodename=null, eis_name=java:jboss/datasources/PostgreSQLDS >
+
+						int xaStartNormal = ((theModifier == null) ? XAResource.TMNOFLAGS	<-
+								: theModifier
+										.xaStartParameters(XAResource.TMNOFLAGS));
+
+                        AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
+abstractRecord	com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord  (id=23217)	
+	_jndiName	"java:jboss/datasources/PostgreSQLDS" (id=20968)	
+	_productName	"PostgreSQL" (id=22725)	
+	_productVersion	"9.6.5" (id=22612)	
+	_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21323)	
+	_theXAResource	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22777)	
+	_tranID	com.arjuna.ats.jta.xa.XidImple  (id=23203)	
+	objectUid	com.arjuna.ats.arjuna.common.Uid  (id=23225)	
+	uidOfObject	com.arjuna.ats.arjuna.common.Uid  (id=23218)	
+
+                        if(abstractRecord != null) {
+                            xaRes.start(xid, xaStartNormal);
+...
+/s,
+org.postgresql.xa.PGXAConnection.start(javax.transaction.xa.Xid, int) line: 206	
+            localAutoCommitMode = conn.getAutoCommit();
+true
+            conn.setAutoCommit(false);
+			
+        // Preconditions are met, Associate connection with the transaction
+        state = STATE_ACTIVE;
+        currentXid = xid;				/ ASSOCIATE CONNECTION WITH GLOBAL TRANSACTION
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 664	
+
+                            if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {	/ adds record in pendingList in de AtomicAction	, TODO
+                                _resources.put(xaRes, new TxInfo(xid));
+{XAResourceWrapperImpl@550d41ff[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2d08c7b5 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]=com.arjuna.ats.internal.jta.xa.TxInfo@53d5a837}
+                                return true; // dive out, no need to set associatedWork = true;
+...
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 381	
+               if (sync.enlist())
+/d,
+               {
+                  synchronizer.addEnlisted(sync);
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 753	
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+/d,
+      // Ask the managed connection for a connection
+      Object connection = null;
+      try
+      {
+         connection = cl.getManagedConnection().getConnection(subject, cri);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).getWrappedConnection() line: 1193	
+
+this	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22592)	
+	xaConnection	org.postgresql.xa.PGXAConnection  (id=22590)	
+		con	org.postgresql.jdbc42.Jdbc42Connection  (id=22594)	
+			autoCommit	false	
+			protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22602)	
+				pgStream	org.postgresql.core.PGStream  (id=22611)	
+
+      WrappedConnection lc = WRAPPED_CONNECTION_FACTORY.createWrappedConnection(this,
+                                                                                mcf.getSpy().booleanValue(),
+                                                                                mcf.getJndiName(),
+                                                                                mcf.isDoLocking());
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).<init>(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection, boolean, java.lang.String, boolean) line: 103	
+      setManagedConnection(mc);		/ mc=this hierboven, de XAManagedConnection	,
+      setSpy(spy);
+      setJndiName(jndiName);
+      this.doLocking = doLocking;
+/t,
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 139	
+
+this	org.jboss.jca.adapters.jdbc.WrapperDataSource  (id=20954)	
+	cm	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=20971)	
+		pool	org.jboss.jca.core.connectionmanager.pool.strategy.OnePool  (id=20973)	
+			mcpPools	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21023)	
+				[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=23483)	
+					key	java.lang.Boolean  (id=21017)	
+					value	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool  (id=21030)	
+						cls	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21034)	
+							[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=23533)	
+								key	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22779)	
+								value	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool$ConnectionListenerWrapper  (id=22800)	
+									cl	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22779)	
+										xaResource	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22777)	
+											xaResource	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22592)	/ (*)
+												currentXid	com.arjuna.ats.jta.xa.XidImple  (id=23203)	
+												xaResource	org.postgresql.xa.PGXAConnection  (id=22590)	
+													conn	org.postgresql.jdbc42.Jdbc42Connection  (id=22594)	
+														protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22602)	
+															pgStream	org.postgresql.core.PGStream  (id=22611)	
+																connection	java.net.Socket  (id=22616)	
+																pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22620)	
+																pg_output	java.io.BufferedOutputStream  (id=22621)	
+	mcf	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF  (id=20966)	
+		xads	org.postgresql.xa.PGXADataSource  (id=21125)	
+			databaseName	"test" (id=21133)	
+			logger	null	
+			password	"vi_lang17" (id=21134)	
+			portNumber	0	
+			properties	java.util.Properties  (id=21135)	
+			serverName	"localhost" (id=21141)	
+			user	"eric" (id=21136)	
+		xaProps	java.util.Collections$SynchronizedMap<K,V>  (id=23355)	
+			[0]	java.util.HashMap$Node<K,V>  (id=24448)	
+				key	"DatabaseName" (id=24454)	
+				value	"test" (id=21133)	
+			[1]	java.util.HashMap$Node<K,V>  (id=24449)	
+				key	"User" (id=24456)	
+				value	"eric" (id=21136)	
+			[2]	java.util.HashMap$Node<K,V>  (id=24450)	
+				key	"Password" (id=24458)	
+				value	"vi_lang17" (id=21134)	
+			[3]	java.util.HashMap$Node<K,V>  (id=24451)	
+				key	"ServerName" (id=24546)	
+				value	"localhost" (id=21141)	
+
+         WrappedConnection wc = (WrappedConnection) cm.allocateConnection(mcf, defaultCRI);
+/d,
+         wc.setDataSource(this);
+wc	org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7  (id=23324)	
+	dataSource	org.jboss.jca.adapters.jdbc.WrapperDataSource  (id=20954)	
+	mc	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22592)	/ deze zien we ook in de pool bij (*)
+
+         wc.setSpy(mcf.getSpy().booleanValue());
+         wc.setJndiName(mcf.getJndiName());
+         return wc;
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/pd,
+/s,
+/ van H. naar jca,
+
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).prepareStatement(java.lang.String) line: 454	
+            return wrapPreparedStatement(mc.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
+                                                             ResultSet.CONCUR_READ_ONLY),
+                                         spy, jndiName, doLocking);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).prepareStatement(java.lang.String, int, int) line: 743	
+         return doPrepareStatement(sql, resultSetType, resultSetConcurrency);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).doPrepareStatement(java.lang.String, int, int) line: 757	
+
+      return con.prepareStatement(sql, resultSetType, resultSetConcurrency);
+con=Pooled connection wrapping physical connection org.postgresql.jdbc42.Jdbc42Connection@322a7999
+/s,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$ConnectionHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 347	
+                    Statement st = (Statement)method.invoke(con, args);			<-
+/s,
+org.postgresql.jdbc42.Jdbc42Connection(org.postgresql.jdbc3.AbstractJdbc3Connection).prepareStatement(java.lang.String, int, int) line: 282	
+        return prepareStatement(sql, resultSetType, resultSetConcurrency, getHoldability());
+/s,
+org.postgresql.jdbc42.Jdbc42Connection.prepareStatement(java.lang.String, int, int, int) line: 40	
+        return new Jdbc42PreparedStatement(this, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+...
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).<init>(org.postgresql.jdbc2.AbstractJdbc2Connection, java.lang.String, boolean, int, int) line: 82	
+        CachedQuery cachedQuery = connection.borrowQuery(sql, isCallable);
+cachedQuery	org.postgresql.core.CachedQuery  (id=24845)	
+	key	"select nextval ('hibernate_sequence')" (id=22556)	
+	query	org.postgresql.core.v3.SimpleQuery  (id=24849)	
+		nativeQuery	org.postgresql.core.NativeQuery  (id=24854)	
+			nativeSql	"select nextval ('hibernate_sequence')" (id=24852)	
+		protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22602)	
+/t,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$ConnectionHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 347	
+                    Statement st = (Statement)method.invoke(con, args);
+/d,
+                    return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{PreparedStatement.class, org.postgresql.PGStatement.class}, new StatementHandler(this, st));
+
+/ org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection heeft een  $ConnectionHandler en een $StatementHandler. Beide hebben een invoke fct	,
+...
+/d,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7.wrapPreparedStatement(java.sql.PreparedStatement, boolean, java.lang.String, boolean) line: 82	
+            return wrapPreparedStatement(mc.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
+                                                             ResultSet.CONCUR_READ_ONLY),
+                                         spy, jndiName, doLocking);
+/ lees https://www.baeldung.com/jdbc-resultset over CONCUR_READ_ONLY	,
+/pd,
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7.wrapPreparedStatement(java.sql.PreparedStatement, boolean, java.lang.String, boolean) line: 82	
+      return new WrappedPreparedStatementJDK7(this, statement, spy, jndiName, doLocking);
+...
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/d,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 173	
+					preparedStatement = doPrepare();
+/d,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7@7bab7a84			/ een jca ding,
+...
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72	
+		return buildPreparedStatementPreparationTemplate( sql, false ).prepareStatement();
+/d,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 96	
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+/d,
+					try {
+						final ResultSet rs = session.getJdbcCoordinator().getResultSetReturn().extract( st );
+				
+/c,
+
+/ WH is de TransactionSynchronizationRegistryImple de link tussen de resource en de jta tx; before 2 phase commit, de sync zegt tegen de resource dat hij de data moet flush naar de db, 
+/ de TransactionSynchronizationRegistryImple kent dus de jta tx, en kan naar zijn status vragen	,
+
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).getStatus() line: 164	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).getStatus() line: 99	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getTransactionStatus() line: 157	
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.getTransactionStatus() line: 91	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.checkTransactionActive() line: 236	
+         if (mcf.getTransactionSynchronizationRegistry() != null)
+            status = mcf.getTransactionSynchronizationRegistry().getTransactionStatus();
+/cb,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).checkTransactionActive() line: 1928	
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).checkStatus() line: 1943	
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).checkTransaction() line: 1917	
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).checkTransaction() line: 1457	
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).executeQuery() line: 495	
+         checkTransaction();
+/cb,
+org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract(java.sql.PreparedStatement) line: 70	
+				rs = statement.executeQuery();
+/cb,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 96
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+					try {
+						final ResultSet rs = session.getJdbcCoordinator().getResultSetReturn().extract( st );		<-
+						try {
+							rs.next();
+/cb,
+org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40	
+org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101
+		Serializable generatedId = persister.getIdentifierGenerator().generate( source, entity );
+/cb,	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 67	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+			saveWithGeneratedId( entity, event.getEntityName(), createCache, source, false );
+/cb,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+org.hibernate.internal.SessionImpl.persist(java.lang.Object) line: 753	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1146	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+/ entity=Category
+
+/13	. 
+
+/ c,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(int) line: 465
+        execute(preparedQuery.query, preparedParameters, flags);
+/cb,	
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeQuery() line: 350	
+        if (!executeWithFlags(0))
+/cb,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 453	
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).executeQuery() line: 504
+         checkTransaction();
+/d,
+            ResultSet resultSet = ps.executeQuery();
+	
+/ we gaan hier verder in,
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(int) line: 465
+        execute(preparedQuery.query, preparedParameters, flags);
+/s,	
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, int) line: 615
+            connection.getQueryExecutor().execute(queryToExecute,
+                                                  queryParameters,
+                                                  handler,
+                                                  maxrows,
+                                                  fetchSize,
+                                                  flags);
+/ WAT IS EEN STATEMENT OF PREPAREDSTATEMENT 												  
+/ we zien hier dat de query wordt execute door de conn's query executor, buiten de stmt om,
+/ de stmt of pstmt is meer een mgnt ding, die de query params in orde maakt, en WH nog meer dingen,
+/s,												  
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 169
+                handler = sendQueryPreamble(handler, flags);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.sendQueryPreamble(org.postgresql.core.ResultHandler, int) line: 357	
+        // Send BEGIN on first statement in transaction.
+        if ((flags & QueryExecutor.QUERY_SUPPRESS_BEGIN) != 0 ||
+                protoConnection.getTransactionState() != ProtocolConnection.TRANSACTION_IDLE)
+/j,
+            return delegateHandler;
+org.postgresql.jdbc2.AbstractJdbc2Statement$StatementResultHandler@4e1ffb8a
+/ WH omdat we in een tx zijn, hoeven we geen BEGIN te doen 	,
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 169			
+				ErrorTrackingResultHandler trackingHandler = new ErrorTrackingResultHandler(handler);
+                sendQuery((V3Query)query, (V3ParameterList)parameters, maxRows, fetchSize, flags, trackingHandler);
+                sendSync();
+                processResults(handler, flags);
+/ s,
+    // sendOneQuery sends a single statement via the extended query protocol.
+org.postgresql.core.v3.QueryExecutorImpl.sendOneQuery(org.postgresql.core.v3.SimpleQuery, org.postgresql.core.v3.SimpleParameterList, int, int, int) line: 1519	
+        sendParse(query, params, oneShot);
+/ maakt een P... string in pgstream.output
+        sendBind(query, params, portal, noBinaryTransfer);
+/ maakt een B.. string, 
+        sendExecute(query, portal, rows);
+/ maakt een E... string
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 172	
+                sendQuery((V3Query)query, (V3ParameterList)parameters, maxRows, fetchSize, flags, trackingHandler);
+/d,
+                sendSync();		
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.sendSync() line: 1167	
+        pgStream.SendChar('S');     // Sync
+        pgStream.SendInteger4(4); // Length
+        pgStream.flush();
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 173	
+                sendSync();
+/d,
+                processResults(handler, flags);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.processResults(org.postgresql.core.ResultHandler, int) line: 1718	
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();	/ leest pgStream.pg_input
+            switch (c)
+            case '1':    // Parse Complete (response to Parse)
+                pgStream.ReceiveInteger4(); // len, discarded
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();
+            switch (c)
+            {
+            case '2':    // Bind Complete  (response to Bind)
+                pgStream.ReceiveInteger4(); // len, discarded
+				
+            case 'T':  // Row Description (response to Describe)
+                Field[] fields = receiveFields();
+fields	org.postgresql.core.Field[1]  (id=20854)	
+	[0]	org.postgresql.core.Field  (id=20856)	
+		BINARY_FORMAT	1	
+		TEXT_FORMAT	0	
+		columnLabel	"nextval" (id=20859)	
+		format	0	
+		length	8	
+		nullable	2	
+		oid	20	
+		tableOid	0	
+/ als je query pg_catalog.pg_type, doe dan select oid,*	, dan zien je 20	,
+
+
+
+
+
+
+
+
+																
+/ Einde DEBUG TX START WILDFLY
+
+/ JDBC
+
+/ lees,
+https://docs.oracle.com/javase/tutorial/jdbc/basics/processingsqlstatements.html
+
+    Statement stmt = null;
+    String query = "select COF_NAME, SUP_ID, PRICE, " +
+                   "SALES, TOTAL " +
+                   "from " + dbName + ".COFFEES";
+    try {
+        stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        while (rs.next()) {
+            String coffeeName = rs.getString("COF_NAME");
+
+A Statement is an interface that represents a SQL statement. You execute Statement objects, and they generate ResultSet objects, which is a table of data representing a database result set. You need a Connection object to create a Statement object.			
+Statement: Used to implement simple SQL statements with no parameters.
+PreparedStatement: (Extends Statement.) Used for precompiling SQL statements that might contain input parameters. See Using Prepared Statements for more information.
+CallableStatement: (Extends PreparedStatement.) Used to execute stored procedures that may contain both input and output parameters. See Stored Procedures for more information.
+
+
+/ Einde JDBC
+
+/ H2
+
+C:\Users\ervelden\bin\for_wildfly>type h2_client1.bat
+@echo off
+set DIR=C:\Users\ervelden\bin\wildfly-10.1.0.Final
+java -classpath %DIR%\modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/~/h2/test -user sa -password sa
+
+C:\Users\ervelden\bin\for_wildfly> dir \Users\ervelden\h2
+25-05-2019  20:02         1.081.344 test.h2.db
+25-05-2019  20:02               104 test.lock.db
+
+/ het is nu 27-5, en we zien 25-5	,  
+/ 25-5 is de datum waarop we de h2 server hebben start, niet de datum waarop we voor het laatst bijv. een insert hebben gedaan,
+
+/ we hebben C:\Users\ervelden\bin\for_wildfly\h2 moved naar \Users\ervelden\temp	,
+
+
+
+
+
+/ Einde H2
+
+/ POSTGRES
+
+/ lees,
+https://www.postgresql.org/docs/9.4/protocol.html
+
+/ FE/BE in driver code is Frontend/Backend protocol	,
+
+Table of Contents
+49.1. Overview
+49.1.1. Messaging Overview
+49.1.2. Extended Query Overview
+49.1.3. Formats and Format Codes
+49.2. Message Flow
+49.2.1. Start-up
+49.2.2. Simple Query
+49.2.3. Extended Query
+49.2.4. Function Call
+49.2.5. COPY Operations
+49.2.6. Asynchronous Operations
+49.2.7. Canceling Requests in Progress
+49.2.8. Termination
+49.2.9. SSL Session Encryption
+49.3. Streaming Replication Protocol
+49.4. Message Data Types
+49.5. Message Formats
+49.6. Error and Notice Message Fields
+49.7. Summary of Changes since Protocol 2.0
+
+/ lees,
+https://www.postgresql.org/docs/9.6/protocol-overview.html
+
+Within normal operation, SQL commands can be executed through either of two sub-protocols. In the "simple query" protocol, the frontend just sends a textual query string, which is parsed and immediately executed by the backend. In the "extended query" protocol, processing of queries is separated into multiple steps: parsing, binding of parameter values, and execution. This offers flexibility and performance benefits, at the cost of extra complexity.
+
+
+/ 13	. 
+
+/ lees,
+https://www.postgresql.org/docs/9.6/protocol-overview.html
+
+/ select, update, insert zijn statements,
+/ order by, where	, join zijn clauses	,
+
+
+/ 13	. 
+
+/ lees,
+https://blog.hackeriet.no/Simple-and-Extended-postgresql-queries/
+
+Extended protocol
+The extended protocol is a bit more complex, but in return you get better type safety and less exposure to sql injections.
+
+The sending of queries is split into five steps
+
+Parse
+Describe
+Bind
+Execute
+Sync
+
+/ 13	. 
+
+/ het is 
+\c db user
+/ we zijn in db test als eric	,
+test=> \c - postgres
+Password for user postgres: vi_lang17
+You are now connected to database "test" as user "postgres".
+
+test=> \c - eric
+
+test=> \dnS+
+                                     List of schemas
+        Name        |  Owner   |  Access privileges   |           Description
+--------------------+----------+----------------------+----------------------------------
+ information_schema | postgres | postgres=UC/postgres+|
+                    |          | =U/postgres          |
+ pg_catalog         | postgres | postgres=UC/postgres+| system catalog schema
+                    |          | =U/postgres          |
+ pg_temp_1          | postgres |                      |
+ pg_temp_4          | postgres |                      |
+ pg_toast           | postgres |                      | reserved schema for TOAST tables
+ pg_toast_temp_1    | postgres |                      |
+ pg_toast_temp_4    | postgres |                      |
+ public             | postgres | postgres=UC/postgres+| standard public schema
+                    |          | =UC/postgres         |
+ sch1               | postgres | postgres=UC/postgres+|
+                    |          | =C/postgres          |
+ sch2               | postgres |                      |
+(10 rows)
+
+/ Dus information_schema, pg_catalog zijn schemas in de test db,
+
+test=> select*from pg_catalog.pg_type;
+/ of,
+test=> select*from pg_type;
+test=> \dt pg_catalog.
+
+test=> \d pg_catalog.
+/ doet \d op alle tables in pg_catalog !
+
+
+
+
+
+
+/ Einde POSTGRES 
+
+/ WILDFLY 
+
+/ 7	. 
+
+/ beter, na enlistResource, b in 
+SequenceStructure$1 [line: 96] - buildCallback(SessionImplementor)	
+
+/ we hebben ook b in ,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeQuery() line: 350	
+
+
+/ inmiddels niet meer,
+/ we hebben na enlistResource , b set in 
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 173
+
+/ Hier stop hij meteen al als je wildfly start, 
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 173	
+org.postgresql.jdbc42.Jdbc42Statement(org.postgresql.jdbc2.AbstractJdbc2Statement).execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, int) line: 615	
+org.postgresql.jdbc42.Jdbc42Statement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(java.lang.String, int) line: 451	
+org.postgresql.jdbc42.Jdbc42Statement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeQuery(java.lang.String) line: 331	
+org.postgresql.jdbc42.Jdbc42DatabaseMetaData(org.postgresql.jdbc2.AbstractJdbc2DatabaseMetaData).getTypeInfo() line: 3977	
+            sql = "SELECT t.typname,t.oid FROM pg_catalog.pg_type t"
+            	+ " JOIN pg_catalog.pg_namespace n ON (t.typnamespace = n.oid) "
+            	+ " WHERE n.nspname != 'pg_toast'";
+				
+/ we doen in psql	,
+test=> SELECT t.typname,t.oid FROM pg_catalog.pg_type t;
+                typname                |  oid
+---------------------------------------+-------
+ bool                                  |    16
+ bytea                                 |    17
+ char                                  |    18
+ name                                  |    19
+ int8                                  |    20
+...
+
+/ de oid property moet je zelf geven, komt niet mee met *	,
+
+select oid,*
+from pg_type;
+oid            | 20
+typname        | int8
+typnamespace   | 11
+typowner       | 10
+typlen         | 8
+typbyval       | t
+...
+
+/ Ga als die queries na bij start wildfly,
+/ TODO
+
+/ Einde WILDFLY
 
 
 
