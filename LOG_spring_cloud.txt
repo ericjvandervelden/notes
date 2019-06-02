@@ -1,0 +1,31 @@
+/ 7. 
+
+https://www.youtube.com/watch?v=Bcs-inRnLDc&t=1017s
+/ microservices, :16:58
+
+/ google
+redis session replication
+/ lees	,
+https://www.linkedin.com/pulse/how-memory-session-replication-works-spring-session-redis-abdelhamid 
+
+/ 7	. 
+
+/ lees over event bus,
+https://www.baeldung.com/spring-reactor
+
+/ lees,
+https://www.baeldung.com/spring-webflux
+
+/ lees,
+https://www.infoq.com/news/2017/12/servlet-reactive-stack/
+https://dzone.com/articles/understanding-spring-reactiveintroducing-spring-weSpring 
+MVC (Servlet Stack)
+Spring WebFlux(Reactive Stack)
+
+/ 7. 
+
+/ lees,
+https://r2dbc.io/
+->
+https://www.youtube.com/watch?time_continue=966&v=E3s5f-JF8z4
+SpringOnePlatform 2018 Christoph Strobl, Ben Hale, Jens Schrauder, Mark Paluch
