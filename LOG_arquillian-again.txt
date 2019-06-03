@@ -7354,8 +7354,8 @@ org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adap
 
 org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization
 / is in (in preJcaSync),
+/ deze calls, heeft delegate,
 org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.getTransactionStatus() line: 91	
-/ deze calls, heeft als delegate,
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getTransactionStatus() line: 157	
 
 
@@ -8958,6 +8958,479 @@ com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationReg
 
 	
 / Einde DEBUG TX START WILDFLY
+
+/ DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION
+
+jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
+
+/ we zijn in stack,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.joinJtaTransaction() line: 158	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.pulse() line: 146
+		joinJtaTransaction();
+/cb,	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.<init>(org.hibernate.resource.transaction.TransactionCoordinatorBuilder, org.hibernate.resource.transaction.spi.TransactionCoordinatorOwner, boolean) line: 92
+		pulse();
+/cb,	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorBuilderImpl.buildTransactionCoordinator(org.hibernate.resource.transaction.spi.TransactionCoordinatorOwner, org.hibernate.resource.transaction.TransactionCoordinatorBuilder$TransactionCoordinatorOptions) line: 28
+		return new JtaTransactionCoordinatorImpl(
+				this,
+				owner,
+				options.shouldAutoJoinTransaction()
+		);
+/cb,		
+org.hibernate.internal.SessionImpl.<init>(java.sql.Connection, org.hibernate.internal.SessionFactoryImpl, org.hibernate.engine.spi.SessionOwner, org.hibernate.resource.transaction.TransactionCoordinator, org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl, org.hibernate.Transaction, org.hibernate.engine.spi.ActionQueue$TransactionCompletionProcesses, boolean, long, org.hibernate.Interceptor, org.hibernate.resource.jdbc.spi.StatementInspector, boolean, boolean, org.hibernate.ConnectionReleaseMode, java.lang.String) line: 274
+			this.transactionCoordinator = getTransactionCoordinatorBuilder().buildTransactionCoordinator(
+					this.jdbcCoordinator,
+					this
+			);
+/cb,			
+org.hibernate.internal.SessionFactoryImpl$SessionBuilderImpl.openSession() line: 1327	
+org.hibernate.jpa.internal.EntityManagerImpl.internalGetSession() line: 133	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).postInit() line: 174	
+		( (SessionImplementor) internalGetSession() ).getTransactionCoordinator().pulse();
+/ internalGetSession() zelf calls ook .getTransactionCoordinator().pulse()
+/cb,
+org.hibernate.jpa.internal.EntityManagerImpl.<init>(org.hibernate.jpa.internal.EntityManagerFactoryImpl, javax.persistence.PersistenceContextType, javax.persistence.SynchronizationType, javax.persistence.spi.PersistenceUnitTransactionType, boolean, java.lang.Class, java.util.Map) line: 83	
+org.hibernate.jpa.internal.EntityManagerFactoryImpl.internalCreateEntityManager(javax.persistence.SynchronizationType, java.util.Map) line: 319	
+org.hibernate.jpa.internal.EntityManagerFactoryImpl.createEntityManager() line: 286	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.createEntityManager(javax.persistence.EntityManagerFactory, java.util.Map, javax.persistence.SynchronizationType) line: 187	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 157	
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getEntityManager() line: 87
+        isInTx = TransactionUtil.isInTx(transactionManager);
+
+        if (isInTx) {
+            entityManager = getOrCreateTransactionScopedEntityManager(emf, puScopedName, properties, synchronizationType);
+/cb,	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580
+            getEntityManager().persist(entity);
+/cb,	
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+		em.persist(entity);
+/cb,
+sun.reflect.NativeMethodAccessorImpl.invoke0(java.lang.reflect.Method, java.lang.Object, java.lang.Object[]) line: not available [native method]	
+sun.reflect.NativeMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 62	
+sun.reflect.DelegatingMethodAccessorImpl.invoke(java.lang.Object, java.lang.Object[]) line: 43	
+java.lang.reflect.Method.invoke(java.lang.Object, java.lang.Object...) line: 498	
+org.jboss.as.ee.component.ManagedReferenceMethodInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.doMethodInterception(javax.interceptor.InvocationContext, javax.enterprise.inject.spi.InterceptionType, org.jboss.as.weld.ejb.WeldInterceptorInstances, org.jboss.weld.ejb.spi.InterceptorBindings) line: 82	
+org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 93	
+org.jboss.as.ee.component.interceptors.UserInterceptorFactory$1.processInvocation(org.jboss.invocation.InterceptorContext) line: 63	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.as.ejb3.component.invocationmetrics.ExecutionTimeInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 43	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.as.jpa.interceptor.SBInvocationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 47	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.invocation.InterceptorContext$Invocation.proceed() line: 437	
+org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor(org.jboss.weld.ejb.AbstractEJBRequestScopeActivationInterceptor).aroundInvoke(javax.interceptor.InvocationContext) line: 64	
+org.jboss.as.weld.ejb.EjbRequestScopeActivationInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 83	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.as.ee.concurrent.ConcurrentContextInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 45	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.invocation.InitialInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 21	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.invocation.ChainedInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 61	
+org.jboss.as.ee.component.interceptors.ComponentDispatcherInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 52	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.as.ejb3.component.pool.PooledInstanceInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 51	
+org.jboss.invocation.InterceptorContext.proceed() line: 340	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+            tm.begin();
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+            } catch (Throwable t) {
+                handleExceptionInOurTx(invocation, t, tx, component);
+            } finally {
+                endTransaction(tm, tx);
+            }
+/cb,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.required(org.jboss.invocation.InterceptorContext, org.jboss.as.ejb3.component.EJBComponent, int) line: 327	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 239	
+
+/ we gaan verder debug,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.joinJtaTransaction() line: 158	
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
+/s,
+ * The JTA {@link javax.transaction.Synchronization} Hibernate registers when needed for JTA callbacks.
+ * <p/>
+ * Note that we split the notion of the registered Synchronization and the processing of the Synchronization callbacks
+ * mainly to account for "separation of concerns", but also so that the transaction engine does not have to hold
+ * reference to the actual Synchronization that gets registered with the JTA system.
+ *
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.<init>(org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinator) line: 29	
+/=
+	public RegisteredSynchronization(SynchronizationCallbackCoordinator synchronizationCallbackCoordinator) {
+		this.synchronizationCallbackCoordinator = synchronizationCallbackCoordinator;
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl@3813e95e
+/t,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.joinJtaTransaction() line: 158	
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
+/pd,
+org.jboss.as.jpa.hibernate5.JBossAppServerJtaPlatform(org.hibernate.engine.transaction.jta.platform.internal.AbstractJtaPlatform).registerSynchronization(javax.transaction.Synchronization) line: 126	
+		getSynchronizationStrategy().registerSynchronization( synchronization );
+getSynchronizationStrategy()=org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy@78fef5bc
+/s,
+org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy.registerSynchronization(javax.transaction.Synchronization) line: 29	
+		synchronizationRegistryAccess.getSynchronizationRegistry().registerInterposedSynchronization(
+				synchronization
+		);
+synchronizationRegistryAccess=org.jboss.as.jpa.hibernate5.JBossAppServerJtaPlatform$1@42ca855c
+/s,
+org.jboss.as.jpa.hibernate5.JBossAppServerJtaPlatform$1.getSynchronizationRegistry() line: 47	
+/=
+    public JBossAppServerJtaPlatform(final JtaManager jtaManager) {
+        this.jtaManager = jtaManager;
+        this.synchronizationStrategy = new SynchronizationRegistryBasedSynchronizationStrategy(new SynchronizationRegistryAccess() {
+            @Override
+            public TransactionSynchronizationRegistry getSynchronizationRegistry() {
+                return jtaManager.getSynchronizationRegistry();
+            }
+        });
+    }
+this	org.jboss.as.jpa.hibernate5.JBossAppServerJtaPlatform$1  (id=21878)	
+	val$jtaManager	org.jboss.as.jpa.transaction.JtaManagerImpl  (id=21881)	
+		transactionManager	com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate  (id=21120)	
+		transactionSynchronizationRegistry	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=21159)	
+/s,
+/ deze class geeft tsr en tm 
+org.jboss.as.jpa.transaction.JtaManagerImpl.getSynchronizationRegistry() line: 47	
+        return transactionSynchronizationRegistry;
+/t,
+org.hibernate.engine.transaction.jta.platform.internal.SynchronizationRegistryBasedSynchronizationStrategy.registerSynchronization(javax.transaction.Synchronization) line: 29	
+		synchronizationRegistryAccess.getSynchronizationRegistry().registerInterposedSynchronization(
+				synchronization
+		);
+/ pd,
+/s,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 68	
+	
+/ Intermezzo
+
+/ er zijn TransactionManager en TransactionCoordinatorImpl	,
+/ wat is het verschil?
+/ TODO
+
+/ Einde Intermezzo
+
+            Transaction tx = transactionManager.getTransaction();
+            JCAOrderedLastSynchronizationList jcaOrderedLastSynchronization = interposedSyncs.get(tx);
+            if (jcaOrderedLastSynchronization == null) {
+                JCAOrderedLastSynchronizationList toPut = new JCAOrderedLastSynchronizationList((com.arjuna.ats.jta.transaction.Transaction) tx, interposedSyncs);
+                jcaOrderedLastSynchronization = interposedSyncs.putIfAbsent(tx, toPut);
+
+this	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=21159)	
+	delegate	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple  (id=21158)	
+	interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21936)	
+		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=21970)	
+			key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21132)	
+			value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)	
+				jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21936)	
+				jcaSyncs	java.util.ArrayList<E>  (id=21958)	
+				preJcaSyncs	java.util.ArrayList<E>  (id=21959)				/ [] RegisteredSynchronization ziet er nog niet in, wel na (*)	,
+				tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21132)	
+	transactionManager	com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate  (id=21120)	
+
+                if (jcaOrderedLastSynchronization == null) {
+                    jcaOrderedLastSynchronization = toPut;
+                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);
+jcaOrderedLastSynchronization=org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)
+
+/ Intermezzo
+
+/**
+ * This class was added to:
+ *
+ * 1. workaround an issue discussed in https://java.net/jira/browse/JTA_SPEC-4 whereby the JCA Synchronization(s) need to be
+ * called after the JPA Synchronization(s). Currently the implementation orders JCA relative to all interposed Synchronizations,
+ * if this is not desirable it would be possible to modify this class to store just the JPA and JCA syncs and the other syncs
+ * can simply be passed to a delegate (would need the reference to this in the constructor).
+ *
+ * 2. During afterCompletion the JCA synchronizations should be called last as that allows JCA to detect connection leaks from
+ * frameworks that have not closed the JCA managed resources. This is described in (for example)
+ * http://docs.oracle.com/javaee/5/api/javax/transaction/TransactionSynchronizationRegistry
+ * .html#registerInterposedSynchronization(javax.transaction.Synchronization) where it says that during afterCompletion
+ * "Resources can be closed but no transactional work can be performed with them"
+ */
+package org.jboss.as.txn.service.internal.tsr;
+public class JCAOrderedLastSynchronizationList implements Synchronization {
+
+/ lees,
+https://developer.jboss.org/thread/278823
+https://issues.jboss.org/browse/JBTM-608
+
+/ Einde Intermezzo
+
+
+
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.registerInterposedSynchronization(javax.transaction.Synchronization) line: 140	
+            transactionImple.registerSynchronizationImple(new SynchronizationImple(synchronization, true));
+synchronization=org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)
+/s,
+ * Whenever a synchronization is registered, an instance of this class
+ * is used to wrap it.
+ *
+com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple.<init>(javax.transaction.Synchronization, boolean) line: 60	
+		_theSynch = ptr;		/ org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList
+		_theUid = new Uid();
+		_isInterposed = isInterposed;
+/t,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.registerSynchronizationImple(com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple) line: 386	
+/=
+	void registerSynchronizationImple(SynchronizationImple synchronizationImple)
+	
+synchronizationImple	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=22051)	
+	_isInterposed	true	
+	_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)	
+		jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21936)	
+				key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21132)	
+				value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)	
+		jcaSyncs	java.util.ArrayList<E>  (id=21958)	
+		preJcaSyncs	java.util.ArrayList<E>  (id=21959)	
+		tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21132)	
+	_theUid	com.arjuna.ats.arjuna.common.Uid  (id=22052)
+
+/ org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList is de list waar RegisteredSynchronization in komt,	
+
+			if (_theTransaction.addSynchronization(synchronizationImple) != AddOutcome.AR_ADDED)
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).addSynchronization(com.arjuna.ats.arjuna.coordinator.SynchronizationRecord) line: 135
+
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22107)	
+
+/SynchronizationRecord sr, het arg, is de wrapper SynchronizationImple,  met de list er in, 	
+
+		switch (status())
+		{
+		// https://jira.jboss.org/jira/browse/JBTM-608
+		case ActionStatus.RUNNING:
+		case ActionStatus.PREPARING:
+		{
+		    synchronized (this)
+		    {
+		        if (_synchs == null)
+		        {
+		            // Synchronizations should be stored (or at least iterated) in their natural order
+		            _synchs = new TreeSet<SynchronizationRecord>();
+		        }
+
+                // need to guard against synchs being added while we are performing beforeCompletion processing
+                if (_synchs.add(sr))
+                {
+                    result = AddOutcome.AR_ADDED;
+		return result;
+
+/////////////////////////////////////////////
+/ REGISTEDSYNCHRONIZATIONS IN THE TX (ATOMICACTION)
+
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22107)	
+	_synchs	java.util.TreeSet<E>  (id=22110)	
+		[0]	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=22051)	
+			_isInterposed	true	
+			_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)	
+				jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=21936)	
+				jcaSyncs	java.util.ArrayList<E>  (id=21958)	
+				preJcaSyncs	java.util.ArrayList<E>  (id=21959)	
+				tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=21132)	
+			_theUid	com.arjuna.ats.arjuna.common.Uid  (id=22052)
+
+/ dus de synchronizations zijn in de tx,
+/ logisch,
+
+//////////////////////////////////////////
+	
+/t,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 78	
+	
+                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);
+                }
+            }
+            jcaOrderedLastSynchronization.registerInterposedSynchronization(sync); / (*)	
+
+
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.registerInterposedSynchronization(javax.transaction.Synchronization) line: 70	
+	            preJcaSyncs.add(synchronization);
+
+		
+		
+/ Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION
+
+/ MEERDERE DATASOURCES
+
+$ vi src/main/java/repository/LanguageDao.java
+
+package repository;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import domain.Language;
+
+/**
+ * DAO for Language
+ */
+@Stateless
+public class LanguageDao {
+	@PersistenceContext(unitName = "arquillian-forge4-persistence-unit")
+	private EntityManager em;
+	
+	@PersistenceContext(unitName="arquillian-forge4-persistence-unit-1")
+	private EntityManager em1;
+
+	public void create(Language entity) {
+		em.persist(entity);
+	}
+
+	public void deleteById(Long id) {
+		Language entity = em.find(Language.class, id);
+		if (entity != null) {
+			em.remove(entity);
+		}
+	}
+
+	public Language findById(Long id) {
+		return em.find(Language.class, id);
+	}
+
+	public Language update(Language entity) {
+		return em.merge(entity);
+	}
+
+	public List<Language> listAll(Integer startPosition, Integer maxResult) {
+		TypedQuery<Language> findAllQuery = em.createQuery(
+				"SELECT DISTINCT l FROM Language l ORDER BY l.id",
+				Language.class);
+		if (startPosition != null) {
+			findAllQuery.setFirstResult(startPosition);
+		}
+		if (maxResult != null) {
+			findAllQuery.setMaxResults(maxResult);
+		}
+		return findAllQuery.getResultList();
+	}
+	
+	// self,
+	
+//	@PostConstruct
+//	public void inserts() {
+//		Language l=new Language();
+//		l.setName("Java");
+//		em.persist(l); 
+//		l=new Language();
+//		l.setName("Java");
+//		em1.persist(l);
+//		l=new Language();
+//		l.setName("Go");
+//		em.persist(l);
+//		l=new Language();
+//		l.setName("Go");
+//		em1.persist(l);
+//		l=new Language();
+//		l.setName("C++");
+//		em.persist(l);
+//		l=new Language();
+//		l.setName("C++");
+//		em1.persist(l);
+//	}
+	
+	public void insertInTx() {
+		Language l=new Language();
+		l.setName("Java");
+		em.persist(l); 
+		l=new Language();
+		l.setName("Java");
+		em1.persist(l);
+		l=new Language();
+		l.setName("Go");
+		em.persist(l);
+		l=new Language();
+		l.setName("Go");
+		em1.persist(l);
+		l=new Language();
+		l.setName("C++");
+		em.persist(l);
+		l=new Language();
+		l.setName("C++");
+		em1.persist(l);
+	}
+	
+	public List<Language>findLanguages(){
+		Query q=em.createQuery(
+				"select l "	// let op space achteraan	,
+				+ "from Language l"
+				);
+		List<Language>ls=q.getResultList();
+		return ls;
+	}
+	public List<Object[]>findLanguagesNatively(){
+		Query q=em.createNativeQuery(
+				"select id,name,version "
+				+ "from language ");
+		List<Object[]>ls=q.getResultList();
+		return ls;
+	}
+	public List<Language>findLanguagesNatively2(){
+		Query q=em.createNativeQuery(
+				"select id,name,version "
+				+ "from language",
+				Language.class);
+		List<Language>ls=q.getResultList();
+		return ls;
+	}
+}
+
+$ vi src/main/resources/META-INF/persistence.xml
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.1" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+<persistence-unit name="arquillian-forge4-persistence-unit" transaction-type="JTA">
+  <description>Forge Persistence Unit</description>
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <jta-data-source>java:jboss/datasources/PostgreSQLDS</jta-data-source>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+   <!-- 
+    	<property name="hibernate.hbm2ddl.auto" value="create"/>
+    -->
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.format_sql" value="true"/>
+      <property name="hibernate.transaction.flush_before_completion" value="true"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+    </properties>
+  </persistence-unit>
+  
+  <persistence-unit name="arquillian-forge4-persistence-unit-1" transaction-type="JTA">
+    <description>Forge Persistence Unit</description>
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <jta-data-source>java:jboss/datasources/RemoteExampleDS</jta-data-source>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+    
+    <!-- 
+      <property name="hibernate.hbm2ddl.auto" value="create"/>
+      -->
+     
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.format_sql" value="true"/>
+      <property name="hibernate.transaction.flush_before_completion" value="true"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+    </properties>
+  </persistence-unit>
+</persistence>
+
+
+
+
+/ Einde MEERDERE DATASOURCES
+
 
 / JDBC
 
