@@ -9108,9 +9108,35 @@ org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.
 	
 / Intermezzo
 
-/ er zijn TransactionManager en TransactionCoordinatorImpl	,
-/ wat is het verschil?
+/ er zijn TransactionManagerImle en TransactionCoordinatorImpl	,
+/ TransactionManagerImple is een arjuna ding, TransactionCoordinatorImpl is een H. ding,
+/ wat is het verband?
 / TODO
+
+package com.arjuna.ats.internal.jta.transaction.arjunacore;
+public class TransactionManagerImple extends BaseTransaction implements
+		javax.transaction.TransactionManager, javax.naming.spi.ObjectFactory
+/ implements commit(), rollback()	,
+
+package org.hibernate.resource.transaction.backend.jta.internal;
+public class JtaTransactionCoordinatorImpl implements TransactionCoordinator, SynchronizationCallbackTarget {
+	public void pulse() {
+		joinJtaTransaction();
+/s,
+	private void joinJtaTransaction() {
+		if ( synchronizationRegistered ) {
+			return;
+		}
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) ); 
+			/ registers de Synchronization in de tx (eig. ActionAction._synchs)	, en in de tsr
+		getSynchronizationCallbackCoordinator().synchronizationRegistered();
+		synchronizationRegistered = true;
+
+package org.hibernate.resource.transaction.backend.jta.internal.synchronization;
+import javax.transaction.Synchronization;
+public class RegisteredSynchronization implements Synchronization {
+
+
 
 / Einde Intermezzo
 
@@ -9164,9 +9190,20 @@ https://issues.jboss.org/browse/JBTM-608
 
 / Einde Intermezzo
 
+/ Intermezzo
 
-/ dit is de delegate, com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple
-/ deze gaat de org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList register in de tx (AtomicAction)	,
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+	_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=20447)	
+		_synchs	null												/ hier komen de RegisteredSynchronizations in,
+	_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=20481)	/ hier komen de EntityManagers in,
+
+/ Einde Intermezzo	
+
+
+/ dit is de delegate van de tsr, com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple
+/ deze gaat de org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList register in de global tx (in ActionAction._synchs)	, 
+/ in deze list komt de RegisteredSynchronization, een Synchronization die zo heet omdat hij in een SynchronizationRegistry (TODO) terecht komt WH, deze synchronizes de resources (TODO) met de global tx, 
+
 /s,
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.registerInterposedSynchronization(javax.transaction.Synchronization) line: 140	
             transactionImple.registerSynchronizationImple(new SynchronizationImple(synchronization, true));
@@ -9244,6 +9281,8 @@ this	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22107)
 / logisch,
 
 //////////////////////////////////////////
+
+
 	
 /t,
 org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 78	
@@ -9252,6 +9291,34 @@ org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.
                 }
             }
 /d,
+
+
+/ Intermezzo
+
+/ de list waarin de Synchronization terecht komt zit op twee plaatsen, in de tx (eig. in de AtomicAction), en in de tsr,
+/ TODO
+
+this	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=20731)	
+	interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=20747)	
+		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=21921)	
+			key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+			value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21881)	
+tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+	_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=20447)	
+		_synchs	java.util.TreeSet<E>  (id=21898)	
+			[0]	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=21895)	
+				_isInterposed	true	
+				_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21881)	
+					jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=20747)	
+					jcaSyncs	java.util.ArrayList<E>  (id=21886)	
+					preJcaSyncs	java.util.ArrayList<E>  (id=21887)	
+					tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+				_theUid	com.arjuna.ats.arjuna.common.Uid  (id=21896)	
+
+
+
+/ Einde Intermezzo
+
             jcaOrderedLastSynchronization.registerInterposedSynchronization(sync); / (*)	
 /s,
 org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.registerInterposedSynchronization(javax.transaction.Synchronization) line: 70	
@@ -9267,7 +9334,92 @@ org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinato
 org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl.synchronizationRegistered() line: 77	
 		registrationThreadId = Thread.currentThread().getId();
 236
-/ TODO		
+...
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 162	
+            entityManager = createEntityManager(emf, properties, synchronizationType);
+/d,
+            TransactionUtil.registerSynchronization(entityManager, scopedPuName, transactionSynchronizationRegistry, transactionManager);
+/s,
+org.jboss.as.jpa.transaction.TransactionUtil.registerSynchronization(javax.persistence.EntityManager, java.lang.String, javax.transaction.TransactionSynchronizationRegistry, javax.transaction.TransactionManager) line: 73	
+        SessionSynchronization sessionSynchronization = new SessionSynchronization(entityManager, puScopedName);
+/s,
+    /**
+     * Using the TransactionListener, we can detect Synchronization.afterCompletion() being called from a
+     * background thread, while the application may still be actively using the EntityManager.
+     * We need to ensure that the background thread does not close the EntityManager while the application thread
+     * is actively using it.
+     *
+     * We know when the application thread is associated with the transaction and can defer closing the EntityManager
+     * until both conditions are met:
+     *
+     *   1. application is disassociated from transaction
+     *   2. Synchronization.afterCompletion has been called
+     *
+     * See discussions for more details about how we arrived at using the TransactionListener:
+     *     https://developer.jboss.org/message/919807
+     *     https://developer.jboss.org/thread/252572
+     */
+    private static class SessionSynchronization implements Synchronization, TransactionListener {
+        public SessionSynchronization(EntityManager session, String scopedPuName) {
+/t,
+org.jboss.as.jpa.transaction.TransactionUtil.registerSynchronization(javax.persistence.EntityManager, java.lang.String, javax.transaction.TransactionSynchronizationRegistry, javax.transaction.TransactionManager) line: 74	
+        SessionSynchronization sessionSynchronization = new SessionSynchronization(entityManager, puScopedName);
+/d,
+        tsr.registerInterposedSynchronization(sessionSynchronization);
+/s,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 78	
+        try {
+            Transaction tx = transactionManager.getTransaction();
+            JCAOrderedLastSynchronizationList jcaOrderedLastSynchronization = interposedSyncs.get(tx);
+            if (jcaOrderedLastSynchronization == null) {
+/n,
+                JCAOrderedLastSynchronizationList toPut = new JCAOrderedLastSynchronizationList((com.arjuna.ats.jta.transaction.Transaction) tx, interposedSyncs);
+                jcaOrderedLastSynchronization = interposedSyncs.putIfAbsent(tx, toPut);
+                if (jcaOrderedLastSynchronization == null) {
+                    jcaOrderedLastSynchronization = toPut;
+                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);
+                }
+            }
+/ Einde n,
+            jcaOrderedLastSynchronization.registerInterposedSynchronization(sync); / hier insert we eerder de RegisteredSynchronization
+org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@a23dfb3
+/s,
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.registerInterposedSynchronization(javax.transaction.Synchronization) line: 90	
+				preJcaSyncs.add(synchronization);
+[org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization@713cc996, org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@a23dfb3]
+
+/t,
+org.jboss.as.jpa.transaction.TransactionUtil.registerSynchronization(javax.persistence.EntityManager, java.lang.String, javax.transaction.TransactionSynchronizationRegistry, javax.transaction.TransactionManager) line: 76	
+        SessionSynchronization sessionSynchronization = new SessionSynchronization(entityManager, puScopedName);
+        tsr.registerInterposedSynchronization(sessionSynchronization);
+/d,
+        try {
+            getTransactionListenerRegistry(transactionManager).addListener(getTransaction(transactionManager), sessionSynchronization, eventTypes);
+/s,
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).addListener(javax.transaction.Transaction, org.jboss.tm.listener.TransactionListener, java.util.EnumSet<org.jboss.tm.listener.EventType>) line: 180	
+	            listeners.add(listener);
+...
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransactionScopedEntityManager(javax.persistence.EntityManagerFactory, java.lang.String, java.util.Map, javax.persistence.SynchronizationType) line: 163	
+            entityManager = createEntityManager(emf, properties, synchronizationType);
+            TransactionUtil.registerSynchronization(entityManager, scopedPuName, transactionSynchronizationRegistry, transactionManager);
+/d,
+            TransactionUtil.putEntityManagerInTransactionRegistry(scopedPuName, entityManager, transactionSynchronizationRegistry);
+/s,
+org.jboss.as.jpa.transaction.TransactionUtil.putEntityManagerInTransactionRegistry(java.lang.String, javax.persistence.EntityManager, javax.transaction.TransactionSynchronizationRegistry) line: 127	
+        tsr.putResource(scopedPuName, entityManager);
+/s,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.putResource(java.lang.Object, java.lang.Object) line: 112	
+        delegate.putResource(key, value);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.putResource(java.lang.Object, java.lang.Object) line: 100	
+        TransactionImple transactionImple = getTransactionImple();
+        transactionImple.putTxLocalResource(key, value);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.putTxLocalResource(java.lang.Object, java.lang.Object) line: 1096	
+		_txLocalResources.put(key, value);
+{229dca60-63ec-44e3-9b87-a43ae3c8edd5.war#arquillian-jpa-study2-persistence-unit=org.hibernate.jpa.internal.EntityManagerImpl@3f02bed7, __TX_LISTENERS=[org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@a23dfb3]}
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
 
