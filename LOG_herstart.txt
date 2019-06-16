@@ -219,12 +219,19 @@ ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart/tasks-rs (
 ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
 $ less standalone/log/server.log
 
-C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse>
+C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse>		<-
 C:\Users\ervelden\bin\for_wildfly>h2_client1.bat
-C:\Users\ervelden\bin\for_wildfly>h2_server.bat			<-
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat			<- 					
 C:\Users\ervelden>psql -Ueric test
-C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
-C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin>jboss-cli.bat
-C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\standalone.bat --debug
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin>jboss-cli.bat			<-
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\standalone.bat --debug <-
 D:\Users\ervelden\misc_codebase\arquillian-jpa-study2>forge				<-
+D:\Users\ervelden\workspaces\workspace-arquillian			<-
+/ in eclipse, Debug config, arquillian-jpa-study2-with-mvn-deps-attach, 
+Project: arquillian-jpa-study2
+Host: localhost
+Port: 8787
 
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
+/ TODO
+h2-1.3.173

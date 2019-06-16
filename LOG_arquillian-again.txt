@@ -8932,7 +8932,7 @@ org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.co
 /s,
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getResource(java.lang.Object) line: 116	
 
-/ HIER HIER HIER
+
 
 
 
@@ -8959,7 +8959,7 @@ com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationReg
 	
 / Einde DEBUG TX START WILDFLY
 
-/ DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION
+/ DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
 
 jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
 
@@ -9134,9 +9134,11 @@ this	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWra
 
                 if (jcaOrderedLastSynchronization == null) {
                     jcaOrderedLastSynchronization = toPut;
-                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);
+                    delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);		/ eerst deze nu debug,	 
 jcaOrderedLastSynchronization=org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21956)
-
+                }
+            }
+            jcaOrderedLastSynchronization.registerInterposedSynchronization(sync); / (*)	 / later deze debug,
 / Intermezzo
 
 /**
@@ -9163,7 +9165,8 @@ https://issues.jboss.org/browse/JBTM-608
 / Einde Intermezzo
 
 
-
+/ dit is de delegate, com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple
+/ deze gaat de org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList register in de tx (AtomicAction)	,
 /s,
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.registerInterposedSynchronization(javax.transaction.Synchronization) line: 140	
             transactionImple.registerSynchronizationImple(new SynchronizationImple(synchronization, true));
@@ -9248,15 +9251,350 @@ org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.
                     delegate.registerInterposedSynchronization(jcaOrderedLastSynchronization);
                 }
             }
+/d,
             jcaOrderedLastSynchronization.registerInterposedSynchronization(sync); / (*)	
-
-
+/s,
 org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.registerInterposedSynchronization(javax.transaction.Synchronization) line: 70	
 	            preJcaSyncs.add(synchronization);
+/t,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.joinJtaTransaction() line: 159	
 
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
+/d,
+		getSynchronizationCallbackCoordinator().synchronizationRegistered();
+		synchronizationRegistered = true;		
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl.synchronizationRegistered() line: 77	
+		registrationThreadId = Thread.currentThread().getId();
+236
+/ TODO		
 		
-		
-/ Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION
+/ Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
+
+/ REGISTEREDSYNCHRONIZATION
+
+/ 7	. 
+
+/ eerder zagen we,
+org.hibernate.internal.SessionImpl.flush() line: 1282	
+org.hibernate.internal.SessionImpl.managedFlush() line: 465	
+org.hibernate.internal.SessionImpl.flushBeforeTransactionCompletion() line: 2963	
+org.hibernate.internal.SessionImpl.beforeTransactionCompletion() line: 2339	
+org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.beforeTransactionCompletion() line: 485	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.beforeCompletion() line: 316	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl(org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorNonTrackingImpl).beforeCompletion() line: 47	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.beforeCompletion() line: 37	<-
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 116	
+com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple.beforeCompletion() line: 76	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).beforeCompletion() line: 368	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 91	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 162	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1200	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).commit() line: 126	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).commit() line: 89	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.endTransaction(javax.transaction.TransactionManager, javax.transaction.Transaction) line: 91	
+
+/ 7	. 
+
+package org.hibernate.resource.transaction.backend.jta.internal.synchronization;
+/**
+ * The JTA {@link javax.transaction.Synchronization} Hibernate registers when needed for JTA callbacks.
+ * <p/>
+ * Note that we split the notion of the registered Synchronization and the processing of the Synchronization callbacks
+ * mainly to account for "separation of concerns", but also so that the transaction engine does not have to hold
+ * reference to the actual Synchronization that gets registered with the JTA system.
+ *
+ * @author Steve Ebersole
+ */
+public class RegisteredSynchronization implements Synchronization {
+	private static final Logger log = logger( RegisteredSynchronization.class );
+
+	private final SynchronizationCallbackCoordinator synchronizationCallbackCoordinator;
+
+	public RegisteredSynchronization(SynchronizationCallbackCoordinator synchronizationCallbackCoordinator) {
+		this.synchronizationCallbackCoordinator = synchronizationCallbackCoordinator;
+	}
+
+	@Override
+	public void beforeCompletion() {
+		log.trace( "Registered JTA Synchronization : beforeCompletion()" );
+
+		synchronizationCallbackCoordinator.beforeCompletion();
+	}
+	
+	@Override
+	public void afterCompletion(int status) {
+		log.tracef( "Registered JTA Synchronization : afterCompletion(%s)", status );
+
+		synchronizationCallbackCoordinator.afterCompletion( status );
+	}
+
+/ 7	. 
+	
+/**
+ * The transaction manager supports a synchronization mechanism
+ * that allows the interested party to be notified before and
+ * after the transaction completes. Using the registerSynchronization
+ * method, the application server registers a Synchronization object
+ * for the transaction currently associated with the target Transaction
+ * object.
+ */
+public interface Synchronization {
+
+    /**
+     * The beforeCompletion method is called by the transaction manager prior
+     * to the start of the two-phase transaction commit process. This call is
+     * executed with the transaction context of the transaction that is being
+     * committed.
+     */
+    public void beforeCompletion();
+	
+    /**
+     * This method is called by the transaction
+     * manager after the transaction is committed or rolled back.
+     *
+     * @param status The status of the transaction completion.
+     */
+	public void afterCompletion(int status);
+	
+/ 7	. 
+
+package org.hibernate.resource.transaction.backend.jta.internal.synchronization;
+
+/**
+ * Manages funneling JTA Synchronization callbacks back into the Hibernate transaction engine.
+ *
+ * @author Steve Ebersole
+ */
+public interface SynchronizationCallbackCoordinator extends Synchronization {							/ ook !
+	/**
+	 * Called by the TransactionCoordinator when it registers the Synchronization with the JTA system
+	 */
+	public void synchronizationRegistered();
+
+	/**
+	 * Called by the TransactionCoordinator to allow the SynchronizationCallbackCoordinator to process any
+	 * after-completion handling that it may have delayed due to thread affinity
+	 */
+	public void processAnyDelayedAfterCompletion();
+}
+
+/ 7	. 
+
+package org.hibernate.resource.transaction.backend.jta.internal.synchronization;
+
+/**
+ * Manages callbacks from the {@link javax.transaction.Synchronization} registered by Hibernate.
+ * 
+ * @author Steve Ebersole
+ */
+public class SynchronizationCallbackCoordinatorNonTrackingImpl implements SynchronizationCallbackCoordinator {
+	@Override
+	public void beforeCompletion() {
+		...
+		target.beforeCompletion();
+	}
+
+	@Override
+	public void afterCompletion(int status) {
+		...
+		doAfterCompletion( JtaStatusHelper.isCommitted( status ), false );
+	}
+
+	protected void doAfterCompletion(boolean successful, boolean delayed) {
+		try {
+			target.afterCompletion( successful, delayed );
+		}
+		...
+	}
+
+/ de target is de JtaTransactionCoordinatorImpl	,
+
+/ 7	 .
+
+package org.hibernate.resource.transaction.backend.jta.internal.synchronization;
+
+/**
+ * Extension of SynchronizationCallbackCoordinatorNonTrackingImpl that adds checking of whether a rollback comes from
+ * a thread other than the application thread (thread used to register the Synchronization)
+ *
+ */
+public class SynchronizationCallbackCoordinatorTrackingImpl extends SynchronizationCallbackCoordinatorNonTrackingImpl {
+
+/ 7	. 
+
+package org.hibernate.resource.transaction.backend.jta.internal;
+/**
+ * An implementation of TransactionCoordinator based on managing a transaction through the JTA API (either TM or UT)
+ *
+ * @author Steve Ebersole
+ */
+public class JtaTransactionCoordinatorImpl implements TransactionCoordinator, SynchronizationCallbackTarget {
+	@Override
+	public void pulse() {
+		if ( !autoJoinTransactions ) {		/ implicit joining,
+			return;
+		}		
+		if ( synchronizationRegistered ) {
+			return;
+		}
+		joinJtaTransaction();
+	}
+	
+/ 7	 .
+
+package org.hibernate.resource.transaction;
+/**
+ * Models the coordination of all transaction related flows.
+ *
+ * @author Steve Ebersole
+ */
+public interface TransactionCoordinator {
+	/**
+	 * Used by owner of the JdbcSession as a means to indicate that implicit joining should be done if needed.
+	 */
+	public void pulse();
+
+/ 	7. 
+
+package org.hibernate.resource.transaction.backend.jta.internal.synchronization;
+
+/**
+ * Defines "inflow" for JTA transactions from the perspective of Hibernate's registered JTA Synchronization
+ * back into the TransactionCoordinator by means of the SynchronizationCallbackCoordinator.
+ * <p/>
+ * That's a mouthful :)  The way it works is like this...<ul>
+ *     <li>
+ *         Hibernate will register a JTA {@link javax.transaction.Synchronization} implementation
+ *         ({@link RegisteredSynchronization}) which allows
+ *         it to listen for completion of the JTA transaction.
+ *     </li>
+ *     <li>
+ *         That RegisteredSynchronization is given a SynchronizationCallbackCoordinator which it uses
+ *         to route the transaction completion calls back into Hibernate.  The SynchronizationCallbackCoordinator
+ *         contract applies various behaviors around this process.  See the impls for details.
+ *     </li>
+ *     <li>
+ *         The SynchronizationCallbackCoordinator is handed a SynchronizationCallbackTarget which is the specific
+ *         means for it to "route the transaction completion calls back into Hibernate".  The SynchronizationCallbackTarget
+ *         is most often the TransactionCoordinator impl or a direct delegate of the TransactionCoordinator impl.  In
+ *         that sense, SynchronizationCallbackTarget is the contract between the SynchronizationCallbackCoordinator
+ *         and the TransactionCoordinator.
+ *     </li>
+ * </ul>
+ *
+ * @author Steve Ebersole
+ */
+public interface SynchronizationCallbackTarget {
+	/**
+	 * Is the callback target still active?  Generally this is checked by the caller prior to calling
+	 * {@link #beforeCompletion} or {@link #afterCompletion}
+	 *
+	 * @return {@code true} indicates the target is active; {@code false} indicates it is not.
+	 */
+	boolean isActive();
+
+	/**
+	 * Callback of before-completion.
+	 *
+	 * @see javax.transaction.Synchronization#beforeCompletion
+	 */
+	void beforeCompletion();
+
+	/**
+	 * Callback of after-completion.
+	 *
+	 * @param successful Was the transaction successful?
+	 *
+	 * @see javax.transaction.Synchronization#afterCompletion
+	 */
+	void afterCompletion(boolean successful, boolean delayed);
+}
+
+package org.hibernate.engine.jdbc.spi;
+public interface JdbcCoordinator extends Serializable, TransactionCoordinatorOwner, JdbcResourceTransactionAccess {
+
+	/**
+	 * Retrieves the logical connection associated with this JDBC coordinator.
+	 *
+	 * @return The logical connection
+	 */
+	public LogicalConnectionImplementor getLogicalConnection();
+
+	/**
+	 * Get a batch instance.
+	 *
+	 * @param key The unique batch key.
+	 *
+	 * @return The batch
+	 */
+	public Batch getBatch(BatchKey key);
+
+	/**
+	 * Execute the currently managed batch (if any)
+	 */
+	public void executeBatch();
+
+	/**
+	 * Abort the currently managed batch (if any)
+	 */
+	public void abortBatch();
+
+	/**
+	 * Obtain the statement preparer associated with this JDBC coordinator.
+	 *
+	 * @return This coordinator's statement preparer
+	 */
+	public StatementPreparer getStatementPreparer();
+
+	/**
+	 * Obtain the resultset extractor associated with this JDBC coordinator.
+	 *
+	 * @return This coordinator's resultset extractor
+	 */
+	public ResultSetReturn getResultSetReturn();
+
+	/**
+	 * Callback to let us know that a flush is beginning.  We use this fact
+	 * to temporarily circumvent aggressive connection releasing until after
+	 * the flush cycle is complete {@link #flushEnding()}
+	 */
+	public void flushBeginning();
+
+	/**
+	 * Callback to let us know that a flush is ending.  We use this fact to
+	 * stop circumventing aggressive releasing connections.
+	 */
+	public void flushEnding();
+
+	/**
+	 * Close this coordinator and release and resources.
+	 *
+	 * @return The {@link Connection} associated with the managed {@link #getLogicalConnection() logical connection}
+	 *
+	 * @see org.hibernate.resource.jdbc.spi.LogicalConnectionImplementor#close
+	 */
+	public Connection close();
+
+	/**
+	 * Signals the end of transaction.
+	 * <p/>
+	 * Intended for use from the transaction coordinator, after local transaction completion.  Used to conditionally
+	 * release the JDBC connection aggressively if the configured release mode indicates.
+	 */
+	public void afterTransaction();
+
+	/**
+	 * Used to signify that a statement has completed execution which may
+	 * indicate that this logical connection need to perform an
+	 * aggressive release of its physical connection.
+	 */
+	public void afterStatementExecution();
+
+
+
+/ Einde REGISTEREDSYNCHRONIZATION
+
 
 / MEERDERE DATASOURCES
 
