@@ -9295,7 +9295,9 @@ org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.
 
 / Intermezzo
 
-/ de list waarin de Synchronization terecht komt zit op twee plaatsen, in de tx (eig. in de AtomicAction), en in de tsr,
+/ de list waarin de Synchronizations terecht komen zit op twee plaatsen, in de tx (eig. in de AtomicAction), en in de tsr,
+/ TODO
+/ de SessionSynchronization zit ook in de tx._txLocalResources	, 
 / TODO
 
 this	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=20731)	
@@ -9315,6 +9317,35 @@ tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=2044
 					tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
 				_theUid	com.arjuna.ats.arjuna.common.Uid  (id=21896)	
 
+this	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=20731)	
+	interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=20747)	
+		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=22401)	
+			key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+			value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21881)	
+				jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=20747)	
+				jcaSyncs	java.util.ArrayList<E>  (id=21886)	
+				preJcaSyncs	java.util.ArrayList<E>  (id=21887)	
+					[0]	org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization  (id=21868)	
+					[1]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22156)	
+				tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+					_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=20447)	
+						_synchs	java.util.TreeSet<E>  (id=21898)	
+							[0]	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=21895)	
+								_isInterposed	true	
+								_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21881)	
+									jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=20747)	
+									jcaSyncs	java.util.ArrayList<E>  (id=21886)	
+									preJcaSyncs	java.util.ArrayList<E>  (id=21887)
+										[0]	org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization  (id=21868)	
+										[1]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22156)										
+					_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=20481)	
+						[0]	java.util.HashMap$Node<K,V>  (id=22187)	
+							key	"229dca60-63ec-44e3-9b87-a43ae3c8edd5.war#arquillian-jpa-study2-persistence-unit" (id=20730)	
+							value	org.hibernate.jpa.internal.EntityManagerImpl  (id=21513)	
+						[1]	java.util.HashMap$Node<K,V>  (id=22183)	
+							key	"__TX_LISTENERS" (id=20691)	
+							value	java.util.concurrent.ConcurrentLinkedQueue<E>  (id=22169)	
+								[0]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22156)	
 
 
 / Einde Intermezzo
@@ -9409,6 +9440,14 @@ org.jboss.as.jpa.container.TransactionScopedEntityManager.getOrCreateTransaction
 /s,
 org.jboss.as.jpa.transaction.TransactionUtil.putEntityManagerInTransactionRegistry(java.lang.String, javax.persistence.EntityManager, javax.transaction.TransactionSynchronizationRegistry) line: 127	
         tsr.putResource(scopedPuName, entityManager);
+		
+/ Intermezzo
+
+/ tsr.putResource() betekent dat de resource in de tx komt! 
+/ see (**) hierboven, 
+
+/ Einde Intermezzo
+
 /s,
 org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.putResource(java.lang.Object, java.lang.Object) line: 112	
         delegate.putResource(key, value);
@@ -9420,6 +9459,493 @@ com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationReg
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.putTxLocalResource(java.lang.Object, java.lang.Object) line: 1096	
 		_txLocalResources.put(key, value);
 {229dca60-63ec-44e3-9b87-a43ae3c8edd5.war#arquillian-jpa-study2-persistence-unit=org.hibernate.jpa.internal.EntityManagerImpl@3f02bed7, __TX_LISTENERS=[org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@a23dfb3]}
+
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+	_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=20447)	
+		_synchs	java.util.TreeSet<E>  (id=21898)	
+			[0]	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=21895)	
+				_isInterposed	true	
+				_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=21881)	
+					preJcaSyncs	java.util.ArrayList<E>  (id=21887)	
+						[0]	org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization  (id=21868)	
+						[1]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22156)	
+					tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=20446)	
+				_theUid	com.arjuna.ats.arjuna.common.Uid  (id=21896)	
+	_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=20481)	
+		[0]	java.util.HashMap$Node<K,V>  (id=22187)	
+			key	"229dca60-63ec-44e3-9b87-a43ae3c8edd5.war#arquillian-jpa-study2-persistence-unit" (id=20730)	
+			value	org.hibernate.jpa.internal.EntityManagerImpl  (id=21513)	
+		[1]	java.util.HashMap$Node<K,V>  (id=22183)	
+			key	"__TX_LISTENERS" (id=20691)	
+			value	java.util.concurrent.ConcurrentLinkedQueue<E>  (id=22169)	
+				[0]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22156)	
+/ see bij (**) boven dat de org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList ook in de tsr zit, 
+/ TODO
+...
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager.getEntityManager() line: 95	
+        if (isInTx) {
+            entityManager = getOrCreateTransactionScopedEntityManager(emf, puScopedName, properties, synchronizationType);
+/d,
+        return entityManager;
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+            getEntityManager().persist(entity);
+/ pd,
+...
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+      // Pick a managed connection from the pool
+      Subject subject = getSubject();
+      ConnectionListener cl = getManagedConnection(subject, cri);
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429	
+         Transaction tx = transactionManager.getTransaction();
+      return super.getManagedConnection(trackByTransaction, subject, cri);
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590
+         return pool.getConnection(transaction, subject, cri);
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 581
+/ 1	.	
+      // Get specific managed connection pool key
+      Object key = getKey(subject, cri, separateNoTx);
+false
+/ 2	. 
+      // Get managed connection pool
+      ManagedConnectionPool mcp = getManagedConnectionPool(key, subject, cri);
+SemaphoreConcurrentLinkedQueueManagedConnectionPool@722b05ed[pool=PostgreSQLDS]
+/ want,
+this	org.jboss.jca.core.connectionmanager.pool.strategy.OnePool  (id=22955)	
+	mcpPools	java.util.concurrent.ConcurrentHashMap<K,V>  (id=22989)	
+{false=SemaphoreConcurrentLinkedQueueManagedConnectionPool@722b05ed[pool=PostgreSQLDS]}
+
+/ 3	.	 
+      // Are we doing track by transaction ?
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+this	org.jboss.jca.core.connectionmanager.pool.strategy.OnePool  (id=22955)	
+	cm	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=20173)	
+		txIntegration	org.jboss.jca.core.tx.jbossts.TransactionIntegrationImpl  (id=23020)	
+			tm	org.jboss.jca.core.tx.jbossts.TransactionManagerDelegator  (id=22957)	
+			tsr	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=20731)	
+/ 4	,
+      Object transactionKey = tsr != null ? tsr.getTransactionKey() : null;
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getTransactionKey() line: 93	
+/= tsr.delegate,
+            transactionImple = (TransactionImple)tm.getTransaction();
+            return transactionImple.get_uid();
+/=
+				return _theTransaction.get_uid();
+/=
+					objectUid = 0:ffffc0a87b73:-4efcc201:5d05ef8e:ab
+/t,
+/ 5	, 
+      // Transaction old connections
+/ old betekent WH previous,
+      cl = getTransactionOldConnection(trackByTransaction, mcp);
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionOldConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 641	
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+      Lock lock = getTSRLock();
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTSRLock() line: 437	
+         TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+
+         if (tsr != null && tsr.getTransactionKey() != null)
+         {
+            result = (Lock)tsr.getResource(LockKey.INSTANCE);
+            if (result == null)
+            {
+               result = initLock(tsr);
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).initLock(javax.transaction.TransactionSynchronizationRegistry) line: 410	
+      if (tsr.getTransactionKey() != null)
+      {
+         Lock lock = (Lock)tsr.getResource(LockKey.INSTANCE);
+         if (lock == null)
+         {
+            lock = new ReentrantLock(true);
+            tsr.putResource(LockKey.INSTANCE, lock);
+            return lock;
+/t,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionOldConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 659	
+      Lock lock = getTSRLock();
+/d,
+         lock.lockInterruptibly();
+         // Already got one
+         ConnectionListener cl = (ConnectionListener)tsr.getResource(mcp);
+null
+         return null;
+		 
+/////////////////////////////////////
+/ hier zien we de rol van de tx, die mcp=SemaphoreConcurrentLinkedQueueManagedConnectionPool@722b05ed[pool=PostgreSQLDS] had als key in de tx moeten zitten in _txLocalResources	,
+/ Hoe komen we aan de connection, zit die niet in de pool?
+/ see (***) hieronder	,
+/t,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 596	
+/ 5	. 
+      // Transaction old connections
+      cl = getTransactionOldConnection(trackByTransaction, mcp);
+null
+/d,
+/ 6	.
+      // Creates a new connection with given transaction
+      if (cl == null)
+      {
+         cl = getTransactionNewConnection(trackByTransaction, mcp, subject, cri);
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionNewConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 699	
+
+      ConnectionListener cl = mcp.getConnection(subject, cri);
+/s,
+/ (***)
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.getConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 496	
+            // We have a permit to get a connection. Is there one in the pool already?
+            ConnectionListenerWrapper clw = null;
+            do 
+            {
+				...
+                  clw = clq.pollLast();
+null
+/ de pool is leeg	,
+/ soms niet, 
+clw	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool$ConnectionListenerWrapper  (id=22199)	
+	cl	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22201)	
+		managedConnection	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22206)	
+			xaConnection	org.postgresql.xa.PGXAConnection  (id=22326)	
+					protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22407)	
+						pgStream	org.postgresql.core.PGStream  (id=22452)	
+							connection	java.net.Socket  (id=22473)	
+							encoding	org.postgresql.core.Encoding  (id=22474)	
+							pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22483)	
+							pg_output	java.io.BufferedOutputStream  (id=22484)	
+
+/ TODO
+            } 
+            while (clq.size() > 0);
+               // No, the pool was empty, so we have to make a new one.
+               clw = new ConnectionListenerWrapper(createConnectionEventListener(subject, cri), true, true);
+/s,
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.createConnectionEventListener(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 1320	
+
+		/ Creates a new physical connection to the underlying EIS resource manager. (EIS =pg)
+		/ ManagedConnectionFactory uses the security information (passed as Subject) and additional ConnectionRequestInfo
+		/ (which is specific to ResourceAdapter and opaque to application server) to create this new connection.
+      ManagedConnection mc = mcf.createManagedConnection(subject, cri);
+/s,
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).createManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 416	
+
+            return getXAManagedConnection(subject, cri);
+/s,
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).getXAManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 484	
+
+      XAConnection xaConnection = null;
+      Properties props = getConnectionProperties(null, subject, cri);
+{}
+      try
+      {
+         final String user = props.getProperty("user");
+null
+         final String password = props.getProperty("password");
+null
+
+
+/ voorzichtig debuggen, met steps, 
+         xaConnection = (user != null)
+            ? getXADataSource().getXAConnection(user, password)
+            : getXADataSource().getXAConnection();				<-
+/s,
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).getXADataSource() line: 612	
+
+this	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF  (id=21264)	
+	xads	org.postgresql.xa.PGXADataSource  (id=21288)	
+		databaseName	"test" (id=21290)	
+		logger	null	
+		password	"vi_lang17" (id=21292)	
+		portNumber	0	
+		properties	java.util.Properties  (id=21293)	
+		serverName	"localhost" (id=21320)	
+		user	"eric" (id=21321)
+	xaProps	java.util.Collections$SynchronizedMap<K,V>  (id=21294)	
+{DatabaseName=test, User=eric, Password=vi_lang17, ServerName=localhost}		
+/ al	,
+/ TODO
+/t,
+/s,
+org.postgresql.xa.PGXADataSource(org.postgresql.xa.jdbc3.AbstractJdbc3XADataSource).getXAConnection() line: 39	
+        return getXAConnection(getUser(), getPassword());
+getUser()="eric"
+getPassword()="vi_lang17"
+/s,
+org.postgresql.xa.PGXADataSource(org.postgresql.xa.jdbc3.AbstractJdbc3XADataSource).getXAConnection(java.lang.String, java.lang.String) line: 54	
+        Connection con = super.getConnection(user, password);		<-
+        return new PGXAConnection((BaseConnection) con);
+/s,
+org.postgresql.xa.PGXADataSource(org.postgresql.ds.common.BaseDataSource).getConnection(java.lang.String, java.lang.String) line: 88	
+            Connection con = DriverManager.getConnection(getUrl(), user, password);
+getUrl()=jdbc:postgresql://localhost/test?loglevel=0&prepareThreshold=5&preparedStatementCacheQueries=256&preparedStatementCacheSizeMiB=5&defaultRowFetchSize=0&binaryTransfer=true&compatible=9.4&readOnly=false&binaryTransferEnable=&binaryTransferDisable=&unknownLength=2147483647&logUnclosedConnections=false&disableColumnSanitiser=false&tcpKeepAlive=false&loginTimeout=0&connectTimeout=0&socketTimeout=0&receiveBufferSize=-1&sendBufferSize=-1&useSpnego=false&gsslib=auto&sspiServiceClass=POSTGRES&allowEncodingChanges=false&targetServerType=any&loadBalanceHosts=false&hostRecheckSeconds=10
+/s,
+java.sql.DriverManager.getConnection(java.lang.String, java.util.Properties, java.lang.Class<?>) line: 658	
+        for(DriverInfo aDriver : registeredDrivers) {
+[driver[className=org.h2.Driver@33da1d3c], driver[className=org.postgresql.Driver@8445bcd]]
+            // If the caller does not have permission to load the driver then
+            // skip it.
+            if(isDriverAllowed(aDriver.driver, callerCL)) {
+/ TODO
+                try {
+                    println("    trying " + aDriver.driver.getClass().getName());
+                    Connection con = aDriver.driver.connect(url, info);
+/s,
+org.postgresql.Driver.connect(java.lang.String, java.util.Properties) line: 234	
+/=
+    public java.sql.Connection connect(String url, Properties info) throws SQLException
+info={user=eric, password=vi_lang17}
+
+/ Intermezzo
+
+org.postgresql.Driver.connect(java.lang.String, java.util.Properties) line: 234	
+java.sql.DriverManager.getConnection(java.lang.String, java.util.Properties, java.lang.Class<?>) line: 664	
+java.sql.DriverManager.getConnection(java.lang.String, java.lang.String, java.lang.String) line: 247	
+org.postgresql.xa.PGXADataSource(org.postgresql.ds.common.BaseDataSource).getConnection(java.lang.String, java.lang.String) line: 88	
+org.postgresql.xa.PGXADataSource(org.postgresql.xa.jdbc3.AbstractJdbc3XADataSource).getXAConnection(java.lang.String, java.lang.String) line: 54	
+org.postgresql.xa.PGXADataSource(org.postgresql.xa.jdbc3.AbstractJdbc3XADataSource).getXAConnection() line: 39	
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).getXAManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 492	
+org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF(org.jboss.jca.adapters.jdbc.xa.XAManagedConnectionFactory).createManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 416	
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.createConnectionEventListener(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 1320	
+org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool.getConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 496	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionNewConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 699	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 598	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 747	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.obtainConnection() line: 386	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.acquireConnectionIfNeeded() line: 87	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.getPhysicalConnection() line: 112	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String) line: 72	
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 94	
+org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40	
+org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener.saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 67	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 132	
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent) line: 58	
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 775	
+org.hibernate.internal.SessionImpl.persist(java.lang.String, java.lang.Object) line: 748	
+org.hibernate.internal.SessionImpl.persist(java.lang.Object) line: 753	
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1146	
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 580	
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 21	
+
+/ Einde Intermezzo
+
+        // parse URL and add more properties
+        if ((props = parseURL(url, props)) == null)
+props=
+{disableColumnSanitiser=false, binaryTransfer=true, gsslib=auto, allowEncodingChanges=false, sspiServiceClass=POSTGRES, prepareThreshold=5, PGPORT=5432, useSpnego=false, PGHOST=localhost, loginTimeout=0, hostRecheckSeconds=10, defaultRowFetchSize=0, loadBalanceHosts=false, unknownLength=2147483647, preparedStatementCacheQueries=256, PGDBNAME=test, binaryTransferDisable=, receiveBufferSize=-1, targetServerType=any, logUnclosedConnections=false, connectTimeout=0, readOnly=false, socketTimeout=0, tcpKeepAlive=false, binaryTransferEnable=, preparedStatementCacheSizeMiB=5, loglevel=0, sendBufferSize=-1, compatible=9.4}
+/ Ik zie user, password er niet bij,
+/ TODO
+                return makeConnection(url, props);
+/s,
+org.postgresql.Driver.makeConnection(java.lang.String, java.util.Properties) line: 414	
+        return new org.postgresql.jdbc42.Jdbc42Connection(hostSpecs(props),
+                                      user(props), database(props),
+                                      props, url);
+...
+/s,
+org.postgresql.jdbc42.Jdbc42Connection(org.postgresql.jdbc2.AbstractJdbc2Connection).<init>(org.postgresql.util.HostSpec[], java.lang.String, java.lang.String, java.util.Properties, java.lang.String) line: 146	
+        // Now make the initial connection and set up local state
+        this.protoConnection = ConnectionFactory.openConnection(hostSpecs, user, database, info, logger);
+/s,
+org.postgresql.core.ConnectionFactory.openConnection(org.postgresql.util.HostSpec[], java.lang.String, java.lang.String, java.util.Properties, org.postgresql.core.Logger) line: 65	
+            ConnectionFactory factory = (ConnectionFactory) version[1];
+org.postgresql.core.v3.ConnectionFactoryImpl@31557070
+            ProtocolConnection connection = factory.openConnectionImpl(hostSpecs, user, database, info, logger);
+/s,
+org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(org.postgresql.util.HostSpec[], java.lang.String, java.lang.String, java.util.Properties, org.postgresql.core.Logger) line: 129	
+        String sslmode = PGProperty.SSL_MODE.get(info);
+null
+        if (sslmode==null)
+        { //Fall back to the ssl property
+          requireSSL = trySSL  = PGProperty.SSL.isPresent(info);
+false
+        } else {
+/ NIET, 
+          if ("disable".equals(sslmode))
+          {
+            requireSSL = trySSL = false;
+          }
+          //allow and prefer are not handled yet
+          /*else if ("allow".equals(sslmode) || "prefer".equals(sslmode))
+          {  
+            //XXX Allow and prefer are treated the same way
+            requireSSL = false;
+            trySSL = true;
+          }*/
+          else if ("require".equals(sslmode) || "verify-ca".equals(sslmode) || "verify-full".equals(sslmode))
+          {
+            requireSSL = trySSL = true;
+/ Einde NIET,
+
+        PGStream newStream = null;
+        try
+        {
+            newStream = new PGStream(hostSpec, connectTimeout);
+hostSpec=localhost:5432
+/s,
+org.postgresql.core.PGStream.<init>(org.postgresql.util.HostSpec, int) line: 57	
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(hostSpec.getHost(), hostSpec.getPort()), timeout);
+        changeSocket(socket);
+/s,
+    /**
+     * Switch this stream to using a new socket. Any existing socket
+     * is <em>not</em> closed; it's assumed that we are changing to
+     * a new socket that delegates to the original socket (e.g. SSL).
+     *
+     * @param socket the new socket to change to
+     * @throws IOException if something goes wrong
+     */
+    public void changeSocket(Socket socket) throws IOException {
+        this.connection = socket;
+
+        // Submitted by Jason Venner <jason@idiom.com>. Disable Nagle
+        // as we are selective about flushing output only when we
+        // really need to.
+        connection.setTcpNoDelay(true);
+
+        // Buffer sizes submitted by Sverre H Huseby <sverrehu@online.no>
+        pg_input = new VisibleBufferedInputStream(connection.getInputStream(), 8192);
+        pg_output = new BufferedOutputStream(connection.getOutputStream(), 8192);
+
+/t,
+org.postgresql.core.PGStream.<init>(org.postgresql.util.HostSpec, int) line: 63	
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(hostSpec.getHost(), hostSpec.getPort()), timeout);
+        changeSocket(socket);
+/d,
+        setEncoding(Encoding.getJVMEncoding("US-ASCII"));
+/ TODO (unicode)
+/t,
+org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(org.postgresql.util.HostSpec[], java.lang.String, java.lang.String, java.util.Properties, org.postgresql.core.Logger) line: 136	
+
+            newStream = new PGStream(hostSpec, connectTimeout);
+/d,
+            // Construct and send an ssl startup packet if requested.
+            if (trySSL)
+/n,
+                newStream = enableSSL(newStream, requireSSL, info, logger, connectTimeout);
+/ NIET	,
+            String[][] params = paramList.toArray(new String[][]{});
+[[user, eric], [database, test], [client_encoding, UTF8], [DateStyle, ISO], [TimeZone, Europe/Berlin], [extra_float_digits, 2]]
+            sendStartupPacket(newStream, params, logger);
+/ stuur de params op,
+
+/ bij debug ERR, en onbekend hoe hoger,	 maar OK is,
+...
+/t,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionNewConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 700	
+      // Need a new one for this transaction
+      // This must be done outside the tx local lock, otherwise
+      // the tx timeout won't work and get connection can do a lot of other work
+      // with many opportunities for deadlocks.
+      // Instead we do a double check after we got the transaction to see
+      // whether another thread beat us to the punch.
+      ConnectionListener cl = mcp.getConnection(subject, cri);
+/d,
+/ Hier in debugger Enter geven , 
+/ hoe ver kun je er in step, want hierboven gaat het fout,
+/ TODO
+cl	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+	managedConnection	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+		xaConnection	org.postgresql.xa.PGXAConnection  (id=22371)	
+			con	org.postgresql.jdbc42.Jdbc42Connection  (id=22386)	
+				protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+						connection	java.net.Socket  (id=22486)	
+						pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22490)	
+						pg_output	java.io.BufferedOutputStream  (id=22491)	
+
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+      Lock lock = getTSRLock();
+/s,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTSRLock() line: 434	
+         TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+
+         if (tsr != null && tsr.getTransactionKey() != null)  /= tsr.delegate.transactionImple.get_uid();
+		 
+delegate=package com.arjuna.ats.internal.jta.transaction.arjunacore;
+		 TransactionSynchronizationRegistryImple implements TransactionSynchronizationRegistry, Serializable, ObjectFactory
+
+         {
+            result = (Lock)tsr.getResource(LockKey.INSTANCE);
+java.util.concurrent.locks.ReentrantLock@703ad266[Unlocked]
+            if (result == null)
+            {
+               result = initLock(tsr);
+
+/t,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionNewConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 744	
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+      Lock lock = getTSRLock();
+/d,
+         lock.lockInterruptibly();
+
+         // Check we weren't racing with another transaction
+         ConnectionListener other =
+            (ConnectionListener)tsr.getResource(mcp);
+null
+/////////////////////////////////////////////////////////////////////////////
+         // This is the connection for this transaction
+         cl.setTrackByTx(true);
+         tsr.putResource(mcp, cl);
+
+tsr	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=22257)	
+	interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=22289)	
+		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=22580)	
+			key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+			value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)	
+				preJcaSyncs	java.util.ArrayList<E>  (id=22298)	
+				tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+					_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22309)	
+					_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=22310)
+{					
+73f00951-f3fd-4f44-8ffd-cda677c6e49b.war#arquillian-jpa-study2-persistence-unit=org.hibernate.jpa.internal.EntityManagerImpl@668cfa57
+,
+SemaphoreConcurrentLinkedQueueManagedConnectionPool@722b05ed[pool=PostgreSQLDS]=org.jboss.jca.core.connectionmanager.listener.TxConnectionListener@5e7050cb[state=NORMAL managed connection=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7 connection handles=0 lastReturned=1560804304764 lastValidated=1560801725174 lastCheckedOut=1560804504678 trackByTx=true pool=org.jboss.jca.core.connectionmanager.pool.strategy.OnePool@1f97269 mcp=SemaphoreConcurrentLinkedQueueManagedConnectionPool@722b05ed[pool=PostgreSQLDS] xaResource=XAResourceWrapperImpl@2a0ebf16[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS] txSync=null]
+,
+org.jboss.jca.core.connectionmanager.transaction.LockKey@2a=java.util.concurrent.locks.ReentrantLock@703ad266[Locked by thread default task-4]
+,
+__TX_LISTENERS=[org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@30f0a23d]
+}
+/ deze vallen dus onder de tx,
+...
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+      // Pick a managed connection from the pool
+      Subject subject = getSubject();
+      ConnectionListener cl = getManagedConnection(subject, cri);
+/d,
+/ Intermezzo
+
+/ deze method zat onder ConnectionListener cl = getManagedConnection(subject, cri);	, en was de method met de 5 stappen	,
+
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+
+/ Einde Intermezzo
+
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+/s,
+
+
+
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
 
