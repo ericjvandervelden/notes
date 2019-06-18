@@ -10051,6 +10051,181 @@ org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSy
 XAResourceWrapperImpl@2a0ebf16[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]
 / TxConnectionListener$TransactionSynchronization is een inner class van TxConnectionListener	, en calls TxConnectionListener.getXAResource()	,
 
+            if (!currentTx.enlistResource(resource))
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 430	
+			Xid xid = null;
+			TxInfo existingRM = isNewRM(xaRes);
+
+			if (existingRM == null)
+			{
+				/*
+				 * New RM, so create xid with new branch.
+				 */
+
+				boolean branchRequired = true;
+				...
+				xid = createXid(branchRequired, theModifier, xaRes);
+/s,
+com.arjuna.ats.internal.jbossatx.jta.XAResourceRecordWrappingPluginImpl.getEISName(javax.transaction.xa.XAResource) line: 72	
+		if (xaResource instanceof XAResourceWrapper) {
+			String jndiName = ((XAResourceWrapper) xaResource).getJndiName();
+java:jboss/datasources/PostgreSQLDS
+			Integer key = nameToKey.get(jndiName);
+nameToKey={java:jboss/datasources/RemoteExampleDS=3, java:jboss/datasources/ExampleDS=1, java:jboss/datasources/PostgreSQLDS=2}
+			return key;
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.createXid(boolean, com.arjuna.ats.jta.xa.XAModifier, javax.transaction.xa.XAResource) line: 1535	
+                eisName = _xaResourceRecordWrappingPlugin.getEISName(xaResource);
+            }
+        }
+/d,
+		Xid xid = new XidImple(_theTransaction.get_uid(), branch, eisName);	/ branch=true,
+...
+/s,
+    public static final int FORMAT_ID = 131077; // different from JTS ones.
+com.arjuna.ats.jta.xa.XATxConverter.getXid(com.arjuna.ats.arjuna.common.Uid, boolean, java.lang.Integer) line: 60	
+        if (branch)
+            return getXid(uid, new Uid(), FORMAT_ID, eisName);	 / voor de branch tx wordt een nieuwe uid gemaakt, net als voor de global tx,	
+/s,
+com.arjuna.ats.jta.xa.XATxConverter.getXid(com.arjuna.ats.arjuna.common.Uid, com.arjuna.ats.arjuna.common.Uid, int, java.lang.Integer) line: 82	
+/=
+    private static XID getXid(Uid uid, Uid branch, int formatId, Integer eisName) throws IllegalStateException
+
+		XID xid = new XID();
+        xid.formatID = formatId;
+
+        // gtrid is uid byte form followed by as many chars of the node name as will fit.
+        byte[] gtridUid = uid.getBytes();
+
+        String nodeName = TxControl.getXANodeName();
+1
+/ TODO
+        int nodeNameLengthToUse =  nodeName.getBytes().length;
+        xid.gtrid_length = gtridUid.length+nodeNameLengthToUse;
+
+        // src, srcPos, dest, destPos, length
+        System.arraycopy(gtridUid, 0, xid.data, 0, gtridUid.length);
+        System.arraycopy(nodeName.getBytes(), 0, xid.data, gtridUid.length, nodeNameLengthToUse);
+
+/ tot zo ver de global tx,
+
+            // bqual is uid byte form plus EIS name.
+            byte[] bqualUid = branch.getBytes();
+            xid.bqual_length = bqualUid.length+4+4;
+
+            // src, srcPos, dest, destPos, length
+            int offset = xid.gtrid_length;
+            System.arraycopy (bqualUid, 0, xid.data, offset, bqualUid.length);
+            setEisName(xid, eisName);
+/s,
+com.arjuna.ats.jta.xa.XATxConverter.setEisName(com.arjuna.ats.internal.jta.xa.XID, java.lang.Integer) line: 248	
+/=
+	public static void setEisName(XID theXid, Integer eisName) {
+xid=< formatId=131077, gtrid_length=29, bqual_length=36, tx_uid=0:ffffc0a87b73:-4efcc201:5d05ef8e:18a, node_name=1, branch_uid=0:ffffc0a87b73:-4efcc201:5d05ef8e:199, subordinatenodename=null, eis_name=unknown eis name >
+eisName=2
+		int offset = theXid.gtrid_length + Uid.UID_SIZE;
+57
+		theXid.data[offset + 0] = (byte) (eisName >>> 24);
+		theXid.data[offset + 1] = (byte) (eisName >>> 16);
+		theXid.data[offset + 2] = (byte) (eisName >>> 8);
+		theXid.data[offset + 3] = (byte) (eisName >>> 0);
+
+xid=< formatId=131077, gtrid_length=29, bqual_length=36, tx_uid=0:ffffc0a87b73:-4efcc201:5d05ef8e:18a, node_name=1, branch_uid=0:ffffc0a87b73:-4efcc201:5d05ef8e:199, subordinatenodename=null, eis_name=java:jboss/datasources/PostgreSQLDS >
+/ in xid.data staat 0002	, maar .toString() zoekt hem op,
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.createXid(boolean, com.arjuna.ats.jta.xa.XAModifier, javax.transaction.xa.XAResource) line: 1537	
+		Xid xid = new XidImple(_theTransaction.get_uid(), branch, eisName);
+/d,
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 609	
+				xid = createXid(branchRequired, theModifier, xaRes);
+/d,
+							int timeout = _theTransaction.getTimeout();
+
+							if (timeout > 0)
+							{
+								try
+								{
+									xaRes.setTransactionTimeout(timeout);
+604800
+int xaStartNormal = ((theModifier == null) ? XAResource.TMNOFLAGS
+
+                        AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
+/s,
+							return new XAResourceRecord(this, xaRes, xid, params);
+/s,
+	/**
+	 * The params represent specific parameters we need to recreate the
+	 * connection to the database in the event of a failure. If they're not set
+	 * then recovery is out of our control.
+	 *
+	 * Could also use it to pass other information, such as the readonly flag.
+	 */
+
+	public XAResourceRecord(TransactionImple tx, XAResource res, Xid xid,
+			Object[] params)
+	{
+		super(new Uid(), null, ObjectType.ANDPERSISTENT);
+/s,
+	/**
+	 * Create a new instance with the specified parameters.
+	 *
+	 * @param storeUid the unique id for this instance.
+	 * @param objType the type of the instance.
+	 * @param otype the ObjectType of the object.
+	 *
+com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord(com.arjuna.ats.arjuna.coordinator.AbstractRecord).<init>(com.arjuna.ats.arjuna.common.Uid, java.lang.String, int) line: 588	
+		uidOfObject = storeUid;
+		typeOfObject = objType;
+/t,
+com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord.<init>(com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple, javax.transaction.xa.XAResource, javax.transaction.xa.Xid, java.lang.Object[]) line: 115	
+		super(new Uid(), null, ObjectType.ANDPERSISTENT);
+
+		if (jtaLogger.logger.isTraceEnabled()) {
+            jtaLogger.logger.trace("XAResourceRecord.XAResourceRecord ( " + xid + ", " + res + " ), record id=" + order());
+        }
+
+		_theXAResource = res;
+        if(_xaResourceRecordWrappingPlugin != null) {
+            _xaResourceRecordWrappingPlugin.transcribeWrapperData(this);
+/s,
+com.arjuna.ats.internal.jbossatx.jta.XAResourceRecordWrappingPluginImpl.transcribeWrapperData(com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord) line: 62	
+		XAResource xaResource = (XAResource) record.value();
+XAResourceWrapperImpl@2a0ebf16[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]
+
+		if (xaResource instanceof XAResourceWrapper) {
+			XAResourceWrapper xaResourceWrapper = (XAResourceWrapper) xaResource;
+			record.setProductName(xaResourceWrapper.getProductName());
+			record.setProductVersion(xaResourceWrapper.getProductVersion());
+			record.setJndiName(xaResourceWrapper.getJndiName());
+
+        }
+/t,
+com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord.<init>(com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple, javax.transaction.xa.XAResource, javax.transaction.xa.Xid, java.lang.Object[]) line: 121	
+            _xaResourceRecordWrappingPlugin.transcribeWrapperData(this);
+/d,
+		_recoveryObject = null;
+		_tranID = xid;					<-
+
+		_valid = true;
+
+		_prepared = false;
+		_heuristic = TwoPhaseOutcome.FINISH_OK;
+
+		_theTransaction = tx;
+	}
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 661	
+                        AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
+/d,
+                        if(abstractRecord != null) {
+                            xaRes.start(xid, xaStartNormal);
+                            if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {
+                                _resources.put(xaRes, new TxInfo(xid));
+                                return true; // dive out, no need to set associatedWork = true;
+
+
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
 
