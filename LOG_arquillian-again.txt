@@ -9943,8 +9943,113 @@ org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.co
       // Tell each connection manager the managed connection is active
       reconnectManagedConnection(cl);
 /s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.managedConnectionReconnected(org.jboss.jca.core.connectionmanager.listener.ConnectionListener) line: 552	
+         if (shouldEnlist(cl.getManagedConnection()))			/ kijkt dus naar de conn,  conn instanceof LazyEnlistableManagedConnection NIET,
+            cl.enlist();
+      }
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 263	
 
+         TransactionSynchronizer.lock(threadTx,
+                                      getConnectionManager().getTransactionIntegration());
+/s,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.lock(javax.transaction.Transaction, org.jboss.jca.core.spi.transaction.TransactionIntegration) line: 308	
 
+                  ti.getTransactionSynchronizationRegistry().
+                     registerInterposedSynchronization(record.getTransactionSynchronizer());
+/s,
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.registerInterposedSynchronization(javax.transaction.Synchronization) line: 68	
+
+/ hier weer, maar nu is de list er al,
+            Transaction tx = transactionManager.getTransaction();
+            JCAOrderedLastSynchronizationList jcaOrderedLastSynchronization = interposedSyncs.get(tx);
+             jcaOrderedLastSynchronization.registerInterposedSynchronization(sync);
+/s,
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.registerInterposedSynchronization(javax.transaction.Synchronization) line: 92	
+        if (synchronization.getClass().getName().startsWith("org.jboss.jca")) {
+            ...
+            jcaSyncs.add(synchronization);
+			
+this	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)	
+	jcaSyncs	java.util.ArrayList<E>  (id=22297)
+[org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer@3e9dfb46]	
+	preJcaSyncs	java.util.ArrayList<E>  (id=22298)	
+[org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization@1892b3d0, org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization@30f0a23d]
+
+/t,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.lock(javax.transaction.Transaction, org.jboss.jca.core.spi.transaction.TransactionIntegration) line: 338	
+                  ti.getTransactionSynchronizationRegistry().
+                     registerInterposedSynchronization(record.getTransactionSynchronizer());
+/d,
+      Lock lock = record.getLock();
+
+      try
+      {
+         lock.lockInterruptibly();
+/ TODO
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 324	
+         TransactionSynchronizer.lock(threadTx,
+                                      getConnectionManager().getTransactionIntegration());
+/d,
+            synchronizer =
+               TransactionSynchronizer.getRegisteredSynchronizer(threadTx,
+                  getConnectionManager().getTransactionIntegration());
+
+         // First time through, create a transaction synchronization
+         if (transactionSynchronization == null)
+         {
+            TransactionSynchronization synchronization = new TransactionSynchronization(threadTx, isTrackByTx());
+            synchronizer.addUnenlisted(synchronization);
+            transactionSynchronization = synchronization;
+         }
+
+         ourSynchronization = transactionSynchronization;
+      }
+      finally
+      {
+         TransactionSynchronizer.unlock(threadTx, getConnectionManager().getTransactionIntegration());
+      }
+/ TODO wat is er gebeurd in de lock?
+
+      // Perform the enlistment(s)
+      List<Synchronization> unenlisted = synchronizer.getUnenlisted();
+/s,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.getUnenlisted() line: 136	
+      List<Synchronization> result = unenlisted;
+result	java.util.ArrayList<E>  (id=22699)	
+	[0]	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization  (id=22728)	
+		currentTx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+		enlisted	false	
+		wasTrackByTx	true	
+
+      unenlisted = null;
+
+      if (result != null)
+      {
+         enlistingThread = currentThread;
+      }
+
+      return result;
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 379	
+      // Perform the enlistment(s)
+      List<Synchronization> unenlisted = synchronizer.getUnenlisted();
+/d,
+      if (unenlisted != null)
+      {
+         try
+         {
+            int size = unenlisted.size();
+            for (int i = 0; i < size; ++i)
+            {
+               TransactionSynchronization sync = (TransactionSynchronization) unenlisted.get(i);
+               if (sync.enlist())
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization.enlist() line: 982	
+            XAResource resource = getXAResource();
+XAResourceWrapperImpl@2a0ebf16[xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7 pad=false overrideRmValue=null productName=PostgreSQL productVersion=9.6.5 jndiName=java:jboss/datasources/PostgreSQLDS]
+/ TxConnectionListener$TransactionSynchronization is een inner class van TxConnectionListener	, en calls TxConnectionListener.getXAResource()	,
 
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
