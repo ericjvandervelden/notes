@@ -10216,16 +10216,294 @@ com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord.<init>(com.arj
 		_theTransaction = tx;
 	}
 /t,
+/ tx.enlistresource(xaresource)=de resource=conn met pg wordt deel van de tx, dwz set conn.currentXid
 com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 661	
                         AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
 /d,
                         if(abstractRecord != null) {
                             xaRes.start(xid, xaStartNormal);
-                            if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {
+/s,
+org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl.start(javax.transaction.xa.Xid, int) line: 215	
+      xaResource.start(xid, flags);		/ xaResource=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.start(javax.transaction.xa.Xid, int) line: 259	
+            xaResource.start(xid, flags);	/ xaResource=org.postgresql.xa.PGXAConnection@2e745e74
+/s,
+org.postgresql.xa.PGXAConnection.start(javax.transaction.xa.Xid, int) line: 206	
+            localAutoCommitMode = conn.getAutoCommit();
+true
+            conn.setAutoCommit(false);
+               // Preconditions are met, Associate connection with the transaction
+        state = STATE_ACTIVE;
+        currentXid = xid;
+/t,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.start(javax.transaction.xa.Xid, int) line: 276	
+            xaResource.start(xid, flags);
+/d,
+            currentXid = xid;
+            inManagedTransaction = true;
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.enlistResource(javax.transaction.xa.XAResource, java.lang.Object[]) line: 663	
+                        AbstractRecord abstractRecord = createRecord(xaRes, params, xid);
+                        if(abstractRecord != null) {
+                            xaRes.start(xid, xaStartNormal);
+/d,
+                           if(_theTransaction.add(abstractRecord) == AddOutcome.AR_ADDED) {
                                 _resources.put(xaRes, new TxInfo(xid));
                                 return true; // dive out, no need to set associatedWork = true;
 
+/ Intermezzo
 
+/ we zijn nog steeds een category aan het save, er moet eerst een id worden gen, door een query select nextval ('hibernate_sequence') uit te voeren, ze maken een prepared statement,
+/ daartoe moet eerst een conn worden create, deze moet onderdeel van de tx worden, dit heet enlist,
+/s,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 750	
+
+      ConnectionListener cl = getManagedConnection(subject, cri);
+	  
+cl	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+	managedConnection	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+		xaConnection	org.postgresql.xa.PGXAConnection  (id=22371)	
+			conn	org.postgresql.jdbc42.Jdbc42Connection  (id=22386)	
+				protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+					pgStream	org.postgresql.core.PGStream  (id=22466)	
+						connection	java.net.Socket  (id=22486)	
+						pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22490)	
+						pg_output	java.io.BufferedOutputStream  (id=22491)	
+
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+...
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization.enlist() line: 986	
+            if (!currentTx.enlistResource(resource))
+/d,
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.enlist() line: 381	
+               if (sync.enlist())
+/d,
+               {
+                  synchronizer.addEnlisted(sync);
+
+synchronizer	org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer  (id=22687)	
+	enlisted	java.util.ArrayList<E>  (id=22691)	
+		[0]	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization  (id=22728)	
+			currentTx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+			enlisted	true	
+			this$0	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+				managedConnection	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+					xaResource	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 753	
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+/d,
+/ conn is enlisted, dwz in tx opgenomen, heeft xid,
+
+         connection = cl.getManagedConnection().getConnection(subject, cri);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).getWrappedConnection() line: 1193	
+
+      WrappedConnection lc = WRAPPED_CONNECTION_FACTORY.createWrappedConnection(this,
+                                                                                mcf.getSpy().booleanValue(),
+                                                                                mcf.getJndiName(),
+                                                                                mcf.isDoLocking());
+this	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+	xaConnection	org.postgresql.xa.PGXAConnection  (id=22371)	
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionFactoryJDK7.createWrappedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection, boolean, java.lang.String, boolean) line: 60	
+      return new WrappedConnectionJDK7(mc, spy, jndiName, doLocking);
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).<init>(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection, boolean, java.lang.String, boolean) line: 104	
+      setManagedConnection(mc);
+      setSpy(spy);
+      setJndiName(jndiName);	/ java:jboss/datasources/PostgreSQLDS
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 773	
+
+      reconnectManagedConnection(cl);
+/ enlist conn in tx middels xid,
+
+         connection = cl.getManagedConnection().getConnection(subject, cri);
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@527108a6
+/d,
+      // Associate managed connection with the connection
+      registerAssociation(cl, connection);
+         cachedConnectionManager.registerConnection(this, cl, connection);
+/t,
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 139	
+         WrappedConnection wc = (WrappedConnection) cm.allocateConnection(mcf, defaultCRI);
+/d,
+         wc.setDataSource(this);
+		 
+this	org.jboss.jca.adapters.jdbc.WrapperDataSource  (id=22136)	
+	mcf	org.jboss.as.connector.subsystems.datasources.AbstractDataSourceService$WildFlyXaMCF  (id=22359)	
+		xads	org.postgresql.xa.PGXADataSource  (id=23244)	
+			databaseName	"test" (id=23250)	
+			logger	null	
+			password	"vi_lang17" (id=23251)	
+			portNumber	0	
+			properties	java.util.Properties  (id=23252)	
+			serverName	"localhost" (id=23253)	
+			user	"eric" (id=22478)
+         wc.setSpy(mcf.getSpy().booleanValue());
+         wc.setJndiName(mcf.getJndiName());
+         return wc;
+...
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47	
+		return logicalConnection().getPhysicalConnection();
+/d,
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/pd,
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).prepareStatement(java.lang.String) line: 454	
+            return wrapPreparedStatement(mc.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
+                                                             ResultSet.CONCUR_READ_ONLY),
+                                         spy, jndiName, doLocking);
+sql=select nextval ('hibernate_sequence')
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).doPrepareStatement(java.lang.String, int, int) line: 757	
+
+      return con.prepareStatement(sql, resultSetType, resultSetConcurrency);
+/s,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$ConnectionHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 346	
+                else if (methodName.equals("prepareStatement"))
+                {
+                    Statement st = (Statement)method.invoke(con, args);
+/s,
+org.postgresql.jdbc42.Jdbc42Connection(org.postgresql.jdbc3.AbstractJdbc3Connection).prepareStatement(java.lang.String, int, int) line: 281	
+        return prepareStatement(sql, resultSetType, resultSetConcurrency, getHoldability());
+/s,
+org.postgresql.jdbc42.Jdbc42Connection.prepareStatement(java.lang.String, int, int, int) line: 40	
+        return new Jdbc42PreparedStatement(this, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+...
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).<init>(org.postgresql.jdbc2.AbstractJdbc2Connection, java.lang.String, boolean, int, int) line: 205	
+
+        CachedQuery cachedQuery = connection.borrowQuery(sql, isCallable);
+
+cachedQuery	org.postgresql.core.CachedQuery  (id=23312)	
+	key	"select nextval ('hibernate_sequence')" (id=23314)	
+	query	org.postgresql.core.v3.SimpleQuery  (id=23315)	
+		fields	org.postgresql.core.Field[1]  (id=23323)
+[Field(,INT8,8,B)]		
+		nativeQuery	org.postgresql.core.NativeQuery  (id=23324)	
+			nativeSql	"select nextval ('hibernate_sequence')" (id=23319)	
+		protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+		statementDescribed	false	
+		statementName	"S_5" (id=23326)	
+
+/ wat is verschil native query en jpa query? 
+/ met die namen?
+/ TODO
+
+        resultsettype = rsType;
+1003
+        concurrency = rsConcurrency;
+1007
+        setFetchSize(connection.getDefaultFetchSize());
+        setPrepareThreshold(connection.getPrepareThreshold());
+/t,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$ConnectionHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 347	
+                    Statement st = (Statement)method.invoke(con, args);
+/d,
+                    return Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{PreparedStatement.class, org.postgresql.PGStatement.class}, new StatementHandler(this, st));
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).prepareStatement(java.lang.String) line: 454	
+            return wrapPreparedStatement(mc.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY,
+                                                             ResultSet.CONCUR_READ_ONLY),
+                                         spy, jndiName, doLocking);
+/pd,
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7.wrapPreparedStatement(java.sql.PreparedStatement, boolean, java.lang.String, boolean) line: 82	
+
+statement	com.sun.proxy.$Proxy228  (id=23406)	
+	h	org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler  (id=23405)	
+		con	org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$ConnectionHandler  (id=22393)	
+		st	org.postgresql.jdbc42.Jdbc42PreparedStatement  (id=23310)	
+		this$0	org.postgresql.xa.PGXAConnection  (id=22371)	
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/d,
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+					preparedStatement = doPrepare();
+/d,
+				postProcess( preparedStatement );
+/s,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.register(java.sql.Statement, boolean) line: 59	
+		xref.put( statement, null );
+		if ( cancelable ) {
+			lastQuery = statement;
+/t,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 94	
+/=
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+/d,
+					try {
+						final ResultSet rs = session.getJdbcCoordinator().getResultSetReturn().extract( st );
+/s,
+org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.<init>(org.hibernate.engine.jdbc.spi.JdbcCoordinator) line: 49	
+		final JdbcServices jdbcServices = jdbcCoordinator.getJdbcSessionOwner()
+				.getJdbcSessionContext()
+				.getServiceRegistry()
+				.getService( JdbcServices.class );
+jdbcServices	org.hibernate.engine.jdbc.internal.JdbcServicesImpl  (id=22141)	
+	jdbcEnvironment	org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentImpl  (id=23633)
+		currentCatalog	org.hibernate.boot.model.naming.Identifier  (id=23640)		/ test	/ TODO	
+		currentSchema	org.hibernate.boot.model.naming.Identifier  (id=23641)		/ public,
+		dialect	org.hibernate.dialect.PostgreSQLDialect  (id=23642)	
+		typeInfoSet	java.util.LinkedHashSet<E>  (id=23648)			/ alle types,
+
+		this.dialect = jdbcServices.getDialect();
+
+		this.sqlStatementLogger = jdbcServices.getSqlStatementLogger();
+		this.sqlExceptionHelper = jdbcServices.getSqlExceptionHelper();
+/t,
+/s,
+org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract(java.sql.PreparedStatement) line: 58	
+			final ResultSet rs;
+			try {
+				jdbcExecuteStatementStart();
+				rs = statement.executeQuery();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).executeQuery() line: 504	
+            ResultSet resultSet = ps.executeQuery();
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeQuery() line: 350	
+        if (!executeWithFlags(0))
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(int) line: 463	
+        execute(preparedQuery.query, preparedParameters, flags);
+
+
+
+
+
+/ Einde Intermezzo                     
+							
+							
+							
+							
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
 
