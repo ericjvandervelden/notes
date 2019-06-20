@@ -10494,6 +10494,631 @@ org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2
 /s,
 org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(int) line: 463	
         execute(preparedQuery.query, preparedParameters, flags);
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, int) line: 615	
+            connection.getQueryExecutor().execute(queryToExecute,
+                                                  queryParameters,
+                                                  handler,
+                                                  maxrows,
+                                                  fetchSize,
+                                                  flags);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 173	
+
+                sendQuery((V3Query)query, (V3ParameterList)parameters, maxRows, fetchSize, flags, trackingHandler);
+                sendSync();
+                processResults(handler, flags);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.processResults(org.postgresql.core.ResultHandler, int) line: 1774	
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();
+            switch (c)
+            case '2':    // Bind Complete  (response to Bind)
+                pgStream.ReceiveInteger4(); // len, discarded
+
+                Portal boundPortal = pendingBindQueue.removeFirst();
+                if (logger.logDebug())
+                    logger.debug(" <=BE BindComplete [" + boundPortal + "]");
+
+                registerOpenPortal(boundPortal);	/ niets, want boundPortal=unnamed
+                break;
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();
+            switch (c)
+            case 'D':  // Data Transfer (ongoing Execute response)
+                byte[][] tuple = null;
+                try {
+                    tuple = pgStream.ReceiveTupleV3();
+[[0, 0, 0, 0, 0, 0, 0, 2]]
+                if (!noResults)
+                {
+                    if (tuples == null)
+                        tuples = new ArrayList();
+                    tuples.add(tuple);
+                }
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();
+            switch (c)
+            case 'C':  // Command Status (end of Execute)
+                // Handle status.
+                String status = receiveCommandStatus();
+SELECT 1
+/ TODO
+                doneAfterRowDescNoData = false;
+
+                {
+                    ExecuteRequest executeData = pendingExecuteQueue.removeFirst();
+                    SimpleQuery currentQuery = executeData.query;
+                    Portal currentPortal = executeData.portal;
+
+                    Field[] fields = currentQuery.getFields();
+[Field(,INT8,8,B)]
+/ inderdaad binary (geen text)
+/ TODO
+					if (fields != null || tuples != null) {
+						// There was a resultset.
+						handler.handleResultRows(currentQuery, fields, tuples,
+								null);
+/s,
+org.postgresql.jdbc2.AbstractJdbc2Statement$StatementResultHandler.handleResultRows(org.postgresql.core.Query, org.postgresql.core.Field[], java.util.List, org.postgresql.core.ResultCursor) line: 267	
+                ResultSet rs = AbstractJdbc2Statement.this.createResultSet(fromQuery, fields, tuples, cursor);
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc42.Jdbc42Statement).createResultSet(org.postgresql.core.Query, org.postgresql.core.Field[], java.util.List, org.postgresql.core.ResultCursor) line: 37	
+        Jdbc42ResultSet newResult = new Jdbc42ResultSet(originalQuery,
+                                                        this,
+                                                        fields,
+                                                        tuples,
+                                                        cursor,
+                                                        getMaxRows(),
+                                                        getMaxFieldSize(),
+                                                        getResultSetType(),
+                                                        getResultSetConcurrency(),
+                                                        getResultSetHoldability());
+        newResult.setFetchSize(getFetchSize());
+        newResult.setFetchDirection(getFetchDirection());
+        return newResult;
+newResult	org.postgresql.jdbc42.Jdbc42ResultSet  (id=23899)	
+	rows	java.util.ArrayList<E>  (id=23807)	
+		[0]	(id=23805)	
+			[0]	(id=23806)	
+[0, 0, 0, 0, 0, 0, 0, 2]
+/t,
+org.postgresql.jdbc2.AbstractJdbc2Statement$StatementResultHandler.handleResultRows(org.postgresql.core.Query, org.postgresql.core.Field[], java.util.List, org.postgresql.core.ResultCursor) line: 267	
+                ResultSet rs = AbstractJdbc2Statement.this.createResultSet(fromQuery, fields, tuples, cursor);
+/d,
+                append(new ResultWrapper(rs));
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.processResults(org.postgresql.core.ResultHandler, int) line: 1995	
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();
+            switch (c)
+            {
+            case 'Z':    // Ready For Query (eventual response to Sync)
+                receiveRFQ();
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.receiveRFQ() line: 2254	/ Ready for query
+        char tStatus = (char)pgStream.ReceiveChar();
+        // Update connection state.
+        switch (tStatus)
+        {
+         case 'T':
+            protoConnection.setTransactionState(ProtocolConnection.TRANSACTION_OPEN);	/ blijft onveranderd	,
+            break;
+
+/ Geen while loop meer,
+...
+/t,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeQuery() line: 353	
+        if (!executeWithFlags(0))
+/n,
+        if (result.getNext() != null)
+/n,
+		return result.getResultSet();	/= result.rs	,
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).executeQuery() line: 505	
+            ResultSet resultSet = ps.executeQuery();
+/d,
+            return registerResultSet(resultSet);
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).registerResultSet(java.sql.ResultSet) line: 1525	
+         resultSet = wrapResultSet(resultSet, spy, jndiName, doLocking);
+/=
+			return new WrappedResultSetJDK7(this, resultSet, spy, jndiName, doLocking);
+
+            resultSets = new HashMap<WrappedResultSet, Throwable>(1);
+            resultSets.put(wrapped, null);
+/t,
+org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.extract(java.sql.PreparedStatement) line: 70	
+				rs = statement.executeQuery();
+/d,
+			}
+			postExtract( rs, statement );
+/s,
+org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.postExtract(java.sql.ResultSet, java.sql.Statement) line: 231	
+			jdbcCoordinator.getResourceRegistry().register( rs, st );
+/s,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.register(java.sql.ResultSet, java.sql.Statement) line: 203	
+			Set<ResultSet> resultSets = xref.get( statement );
+			if ( resultSets == null ) {
+				resultSets = new HashSet<ResultSet>();
+				xref.put( statement, resultSets );
+			}
+/n,
+			resultSets.add( resultSet );
+this	org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl  (id=23617)	
+	xref	java.util.HashMap<K,V>  (id=23619)	
+		[0]	java.util.HashMap$Node<K,V>  (id=23622)	
+			key	org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7  (id=23614)	
+			value	java.util.HashSet<E>  (id=23927)	
+				[0]	org.jboss.jca.adapters.jdbc.jdk7.WrappedResultSetJDK7  (id=23915)	
+/t,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 98	
+/=
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+					try {
+						final ResultSet rs = session.getJdbcCoordinator().getResultSetReturn().extract( st );
+/d,
+						try {
+							rs.next();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedResultSetJDK7(org.jboss.jca.adapters.jdbc.WrappedResultSet).next() line: 2689	
+            return resultSet.next();
+/s,
+org.postgresql.jdbc42.Jdbc42ResultSet(org.postgresql.jdbc2.AbstractJdbc2ResultSet).next() line: 1941	
+        if (current_row + 1 >= rows.size())
+/n,	
+-1+1>=1 NIET,
+        else
+        {
+            current_row++;		/ dit is wat next() doet	,
+		}
+        initRowBuffer();
+/s,
+org.postgresql.jdbc42.Jdbc42ResultSet(org.postgresql.jdbc2.AbstractJdbc2ResultSet).initRowBuffer() line: 3120	
+        this_row = (byte[][]) rows.get(current_row);
+        // We only need a copy of the current row if we're going to
+        // modify it via an updatable resultset.
+        if (resultsetconcurrency == ResultSet.CONCUR_UPDATABLE) {
+            rowBuffer = new byte[this_row.length][];
+            System.arraycopy(this_row, 0, rowBuffer, 0, this_row.length);
+/n,
+        } else {
+            rowBuffer = null;
+/t,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 99	
+/=
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+					try {
+						final ResultSet rs = session.getJdbcCoordinator().getResultSetReturn().extract( st );
+						try {
+							rs.next();
+/d,
+							final IntegralDataTypeHolder value = IdentifierGeneratorHelper.getIntegralDataTypeHolder( numberType );
+BasicHolder[java.lang.Long[-9223372036854775808]]
+							value.initialize( rs, 1 );
+/s,
+org.hibernate.id.IdentifierGeneratorHelper$BasicHolder.initialize(java.sql.ResultSet, long) line: 280	
+			long value = resultSet.getLong( 1 );
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedResultSetJDK7(org.jboss.jca.adapters.jdbc.WrappedResultSet).getLong(int) line: 1540	
+      if (doLocking)
+         lock();			/ dit is wat zo'n wrapper doet	,
+      try
+      {
+         checkState();
+         try
+         {
+			...
+            return resultSet.getLong(columnIndex);
+/s,
+org.postgresql.jdbc42.Jdbc42ResultSet(org.postgresql.jdbc2.AbstractJdbc2ResultSet).getLong(int) line: 2188	
+        checkResultSet(columnIndex);
+/s,
+org.postgresql.jdbc42.Jdbc42ResultSet(org.postgresql.jdbc2.AbstractJdbc2ResultSet).checkResultSet(int) line: 2929	
+        checkColumnIndex(column);	/         if ( column < 1 || column > fields.length )throw new PSQLException
+        wasNullFlag = (this_row[column - 1] == null);
+/t,
+org.postgresql.jdbc42.Jdbc42ResultSet(org.postgresql.jdbc2.AbstractJdbc2ResultSet).getLong(int) line: 2188	
+        checkResultSet(columnIndex);
+/d,
+        if (isBinary(columnIndex)) {
+/=
+			return fields[column - 1].getFormat() == Field.BINARY_FORMAT;	/j,
+
+            int col = columnIndex - 1;		/ 0
+            int oid = fields[col].getOID();	/ 20
+            if (oid == Oid.INT8) {
+/j,
+                return ByteConverter.int8(this_row[col], 0);
+            }
+/s,
+    /**
+     * Parses a long value from the byte array.
+     *
+     * @param bytes The byte array to parse.
+     * @param idx The starting index of the parse in the byte array.
+     * @return parsed long value.
+     */
+    public static long int8(byte[] bytes, int idx) {
+        return
+            ((long)(bytes[idx+0] & 255) << 56) +
+            ((long)(bytes[idx+1] & 255) << 48) +
+            ((long)(bytes[idx+2] & 255) << 40) +
+            ((long)(bytes[idx+3] & 255) << 32) +
+            ((long)(bytes[idx+4] & 255) << 24) +
+            ((long)(bytes[idx+5] & 255) << 16) +
+            ((long)(bytes[idx+6] & 255) <<  8) +
+            (bytes[idx+7] & 255);
+    }
+/t,
+org.hibernate.id.IdentifierGeneratorHelper$BasicHolder.initialize(java.sql.ResultSet, long) line: 284	
+			long value = resultSet.getLong( 1 );
+2
+			return initialize( value );	/ this.value=value
+this=BasicHolder[java.lang.Long[2]]
+/t,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 101	
+/=
+		return new AccessCallback() {
+			@Override
+			public IntegralDataTypeHolder getNextValue() {
+				accessCounter++;
+				try {
+					final PreparedStatement st = session.getJdbcCoordinator().getStatementPreparer().prepareStatement( sql );
+					try {
+						final ResultSet rs = session.getJdbcCoordinator().getResultSetReturn().extract( st );
+						try {
+							rs.next();
+							final IntegralDataTypeHolder value = IdentifierGeneratorHelper.getIntegralDataTypeHolder( numberType );
+							value.initialize( rs, 1 );
+BasicHolder[java.lang.Long[2]]
+							return value;
+
+						finally {
+							try {
+								session.getJdbcCoordinator().getResourceRegistry().release( rs, st );
+/s,
+		if ( statement != null ) {
+			final Set<ResultSet> resultSets = xref.get( statement );
+			else {
+				resultSets.remove( resultSet );
+				if ( resultSets.isEmpty() ) {	/j, bij ons is zo,
+					xref.remove( statement );
+				}
+			close( resultSet );
+/ TODO
+/t,
+					}
+					finally {
+						session.getJdbcCoordinator().getResourceRegistry().release( st );
+/s,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.release(java.sql.Statement) line: 82	
+		else {
+			final Set<ResultSet> resultSets = xref.get( statement );
+			if ( resultSets != null ) {
+				closeAll( resultSets );
+			}
+/n,
+			xref.remove( statement );
+		}
+		close( statement );
+/s,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.close(java.sql.Statement) line: 154	
+				if ( statement.getMaxRows() != 0 ) {
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).getMaxRows() line: 617	
+      if (doLocking)
+         lock();			/ daarom in wrapper	,
+      try
+      {
+         checkState();
+            return s.getMaxRows();	/ TODO
+/t,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.close(java.sql.Statement) line: 154	
+				if ( statement.getMaxRows() != 0 ) {
+/n,
+				if ( statement.getQueryTimeout() != 0 ) {
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).getQueryTimeout() line: 706	
+     if (doLocking)
+         lock();
+      try
+      {
+         checkState();
+         try
+         {         
+            return s.getQueryTimeout();
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).getQueryTimeout() line: 758	
+        return timeout;
+0
+/t,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.close(java.sql.Statement) line: 169	
+				if ( statement.getQueryTimeout() != 0 ) {
+/d,
+			statement.close();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).close() line: 154	
+      closed.set(true);
+      lc.unregisterStatement(this);
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).unregisterStatement(org.jboss.jca.adapters.jdbc.WrappedStatement) line: 2019	
+         if (statements != null)
+            statements.remove(ws);
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).close() line: 178	
+      lc.unregisterStatement(this);
+/d,
+      internalClose();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).internalClose() line: 1487	
+         closeResultSets();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).closeResultSets() line: 1596	
+
+         resultSets.clear();	/ is HashMap.clear()	, maar hij was al {}	,
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedStatement).internalClose() line: 1487	
+         closeResultSets();
+/d,
+         s.close();
+/s,		 
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 434	
+            if (methodName.equals("close"))
+            {
+                if (st == null || st.isClosed())
+                    return null;
+/n,
+                con = null;
+                final Statement oldSt = st;
+                st = null;
+                oldSt.close();
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).close() line: 896	
+        closeForNextExecution();
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).closeForNextExecution() line: 542	
+
+        // Close any existing resultsets associated with this statement.
+        while (firstUnclosedResult != null)
+        {
+            ResultSet rs = firstUnclosedResult.getResultSet();
+rs	org.postgresql.jdbc42.Jdbc42ResultSet  (id=23899)	
+	fields	org.postgresql.core.Field[1]  (id=23323)	
+	rows	null	
+
+            if (rs != null)
+            {
+                rs.close();	/ is al, want rs.row=null
+				
+        result = null;
+/t,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).close() line: 900	
+        closeForNextExecution();
+/d,
+        if (preparedQuery != null)
+            ((AbstractJdbc2Connection) connection).releaseQuery(preparedQuery);
+/=
+				statementCache.put(cachedQuery.key, cachedQuery);
+				
+        isClosed = true;
+/t,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 434	
+            if (methodName.equals("close"))
+            {
+                if (st == null || st.isClosed())
+                    return null;
+/n,
+                con = null;
+                final Statement oldSt = st;
+                st = null;
+                oldSt.close();
+/d,
+                return null;
+            }
+/ Intermezzo
+
+/ Is het stmt compiled op de server, en is die daar nog?
+/ TODO
+
+/ Einde Intermezzo
+...
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 117	
+						session.getJdbcCoordinator().getResourceRegistry().release( st );
+/d,
+						session.getJdbcCoordinator().afterStatementExecution();
+/s,
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.afterStatement() line: 125
+				releaseConnection();
+/s,
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.releaseConnection() line: 172	
+			jdbcConnectionAccess.releaseConnection( physicalConnection );
+/s,
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.releaseConnection(java.sql.Connection) line: 396	
+				connectionProvider.closeConnection( connection );
+/s,
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.closeConnection(java.sql.Connection) line: 127	
+		connection.close();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).close() line: 256	
+      returnConnection(false);
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).returnConnection(boolean) line: 298	
+            mc.closeHandle(this);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).closeHandle(org.jboss.jca.adapters.jdbc.WrappedConnection) line: 541	
+      returnHandle(handle, false);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).returnHandle(org.jboss.jca.adapters.jdbc.WrappedConnection, boolean) line: 559	
+         handles.remove(handle);	/ handle=org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@527108a6
+		 
+         ce = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
+this=org.jboss.jca.adapters.jdbc.xa.XAManagedConnection@2e7a3dd7
+
+      ce.setConnectionHandle(handle);
+
+      for (ConnectionEventListener cel : cels)
+      {
+
+         if (!error)
+         {
+            cel.connectionClosed(ce);
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.connectionClosed(javax.resource.spi.ConnectionEvent) line: 636	
+         try
+         {
+            this.getCachedConnectionManager().unregisterConnection(this.getConnectionManager(), this,
+                                                                   ce.getConnectionHandle());
+/s,
+org.jboss.jca.core.connectionmanager.ccm.CachedConnectionManagerImpl.unregisterConnection(org.jboss.jca.core.api.connectionmanager.listener.ConnectionCacheListener, org.jboss.jca.core.api.connectionmanager.listener.ConnectionListener, java.lang.Object) line: 395	
+
+      CopyOnWriteArrayList<ConnectionRecord> conns = cmToConnectionsMap.get(cm);
+{org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl@89c5713=[org.jboss.jca.core.connectionmanager.ConnectionRecord@15affb99]}
+
+      for (ConnectionRecord connectionRecord : conns)
+      {
+         if (connectionRecord.getConnection() == connection)
+         {
+
+            conns.remove(connectionRecord);
+/ TODO
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.connectionClosed(javax.resource.spi.ConnectionEvent) line: 656	
+            this.getCachedConnectionManager().unregisterConnection(this.getConnectionManager(), this,
+                                                                   ce.getConnectionHandle());
+/d,
+      try
+      {
+         if (wasFreed(ce.getConnectionHandle()))
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.wasFreed(java.lang.Object) line: 836	
+      if (handle != null)
+      {
+         // Unregister the handle
+         unregisterConnection(handle);
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener(org.jboss.jca.core.connectionmanager.listener.AbstractConnectionListener).unregisterConnection(java.lang.Object) line: 378	
+         if (!connectionHandles.remove(handle))	/ handle=org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@527108a6
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.wasFreed(java.lang.Object) line: 851	
+         unregisterConnection(handle);
+/d,
+      // Return if the managed connection was just freed
+      return isManagedConnectionFree();
+/s,
+   //Important method!!
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.isManagedConnectionFree() line: 821	
+      if (isTrackByTx() && transactionSynchronization != null)
+         return false;
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.connectionClosed(javax.resource.spi.ConnectionEvent) line: 681	
+         if (wasFreed(ce.getConnectionHandle()))
+         {
+		 this.getConnectionManager().returnManagedConnection(this, false); / see Intermezzo hieronder
+/n,
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).returnConnection(boolean) line: 305	
+            mc.closeHandle(this);
+/d,
+      mc = null;
+      dataSource = null;
+	  
+/ Intermezzo
+
+/ wat doet	,
+		 this.getConnectionManager().returnManagedConnection(this, false); 
+/s,
+package org.jboss.jca.core.connectionmanager;
+public abstract class AbstractConnectionManager implements ConnectionManager
+   public void returnManagedConnection(org.jboss.jca.core.api.connectionmanager.listener.ConnectionListener bcl,
+                                       boolean kill)
+   {
+         localStrategy.returnConnection(cl, kill);
+/s,
+package org.jboss.jca.core.connectionmanager.pool;
+public abstract class AbstractPool implements Pool
+   public void returnConnection(ConnectionListener cl, boolean kill) throws ResourceException
+   {
+      cl.setTrackByTx(false);				/ !!!
+      //Get connection listener pool
+      ManagedConnectionPool mcp = cl.getManagedConnectionPool();
+      //Return connection to the pool
+      mcp.returnConnection(cl, kill);
+/ TODO
+/s,
+package org.jboss.jca.core.connectionmanager.pool.mcp;
+public class SemaphoreConcurrentLinkedDequeManagedConnectionPool implements ManagedConnectionPool 
+   public void returnConnection(ConnectionListener cl, boolean kill) 
+/ of,
+public class SemaphoreArrayListManagedConnectionPool implements ManagedConnectionPool
+   public void returnConnection(ConnectionListener cl, boolean kill)
+
+
+/ Einde Intermezzo			
+
+/t,
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.releaseConnection() line: 178	
+			jdbcConnectionAccess.releaseConnection( physicalConnection );
+/d,
+		finally {
+			observer.jdbcConnectionReleaseEnd();
+			physicalConnection = null;
+			getResourceRegistry().releaseResources();
+/s,
+this	org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl  (id=22270)	
+	resourceRegistry	org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl  (id=23617)	
+		xref	java.util.HashMap<K,V>  (id=23619)	
+{}
+/ was al,
+
+/t,
+org.hibernate.id.enhanced.SequenceStructure$1.getNextValue() line: 117	
+						session.getJdbcCoordinator().getResourceRegistry().release( st );
+						session.getJdbcCoordinator().afterStatementExecution();
+/d,
+/t,
+org.hibernate.id.enhanced.NoopOptimizer.generate(org.hibernate.id.enhanced.AccessCallback) line: 40	
+		IntegralDataTypeHolder value = callback.getNextValue();
+BasicHolder[java.lang.Long[2]]
+/d,
+		lastSourceValue = value;
+		return value.makeValue();
+/s,
+org.hibernate.id.IdentifierGeneratorHelper$BasicHolder.makeValue() line: 369	
+this	org.hibernate.id.IdentifierGeneratorHelper$BasicHolder  (id=23973)	
+		private long value = Long.MIN_VALUE;
+
+	exactType	java.lang.Class<T> (java.lang.Long) (id=22021)	
+	value	2	
+			if ( exactType == Long.class ) {
+				return value;
+/t,
+org.hibernate.id.enhanced.SequenceStyleGenerator.generate(org.hibernate.engine.spi.SessionImplementor, java.lang.Object) line: 412	
+		return optimizer.generate( databaseStructure.buildCallback( session ) );
+/d,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).saveWithGeneratedId(java.lang.Object, java.lang.String, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 101	
+		EntityPersister persister = source.getEntityPersister( entityName, entity );
+		Serializable generatedId = persister.getIdentifierGenerator().generate( source, entity );
+/d,
+Long 2
+			return performSave( entity, generatedId, persister, false, anything, source, true );
+
+
+
 
 
 
