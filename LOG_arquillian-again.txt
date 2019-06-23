@@ -13678,8 +13678,98 @@ this	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22309)
 	                        problem = !_currentRecord.beforeCompletion();
 /d,
 	    return !problem;
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 96	
+            canEnd = beforeCompletion();
+        }
+/d,
+		if (canEnd)
+		{
+			outcome = super.End(report_heuristics);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).End(boolean) line: 1493	
 
-				
+/ Intermezzo
+
+/ 2PC METHODS 2 PHASE COMMIT METHODS 2PHASE COMMIT METHODS 2PHASECOMMIT METHODS
+
+/ In BasicAction staan alle methods waarnaar we op zoek waren, zoals prepare, 
+
+/ Einde Intermezzo
+
+        if (pendingList != null)
+
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22309)	
+	pendingList	com.arjuna.ats.arjuna.coordinator.RecordList  (id=22912)	
+		listHead	com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord  (id=22867)	
+		listTail	com.arjuna.ats.internal.jta.resources.arjunacore.XAResourceRecord  (id=22867)	
+		noEntries	1	
+
+/ totaal,
+            if (doOnePhase())
+            {
+                onePhaseCommit(reportHeuristics);
+
+                ActionManager.manager().remove(get_uid());
+            }
+            else
+            {
+                int prepareStatus = prepare(reportHeuristics);
+/ CALL ON PREPARE 2PC  2 PHASE COMMIT 2PHASE COMMIT 2PHASECOMMIT
+/n,
+/ Einde totaal,
+
+
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).doOnePhase() line: 3674	
+        if (TxControl.onePhase)
+            return (((pendingList == null) || (pendingList.size() == 1)) ? true
+                    : false);
+		
+/ Intermezzo
+
+package com.arjuna.ats.arjuna.coordinator;
+public class TxControl
+	static final boolean onePhase = arjPropertyManager.getCoordinatorEnvironmentBean().isCommitOnePhase();
+	
+package com.arjuna.ats.arjuna.common;
+@PropertyPrefix(prefix = "com.arjuna.ats.arjuna.coordinator.")
+public class CoordinatorEnvironmentBean implements CoordinatorEnvironmentBeanMBean	
+    /**
+     * Returns true if one phase commit optimization is to be used.
+     *
+     * Default: true
+     * Equivalent deprecated property: com.arjuna.ats.arjuna.coordinator.commitOnePhase
+     *
+     * @return true if one phase commit is enabled, false otherwise.
+     */
+    public boolean isCommitOnePhase()
+    {
+        return commitOnePhase;
+    }
+
+    /**
+     * Sets if one phase commit behaviour is enabled or not.
+     *
+     * @param commitOnePhase true to enable, false to disable.
+     */
+    public void setCommitOnePhase(boolean commitOnePhase)
+    {
+        this.commitOnePhase = commitOnePhase;
+    }
+
+/ Einde Intermezzo
+
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.BasicAction).End(boolean) line: 1495	
+            if (doOnePhase())
+/j,
+            {
+                onePhaseCommit(reportHeuristics);
+
+                ActionManager.manager().remove(get_uid());
+
+			
 / Einde Intermezzo
 
 
