@@ -11116,18 +11116,2573 @@ org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.even
 /d,
 Long 2
 			return performSave( entity, generatedId, persister, false, anything, source, true );
+/ WE LOG SOMS,
+...
+/s,
+org.hibernate.internal.SessionImpl.isTransactionInProgress() line: 501	
+		checkTransactionSynchStatus();
+		return !isClosed() && transactionCoordinator.getTransactionDriverControl()
+				.getStatus() == TransactionStatus.ACTIVE && transactionCoordinator.isJoined();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl$TransactionDriverControlImpl.getStatus() line: 421	
+			return jtaTransactionAdapter.getStatus();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionAdapterTransactionManagerImpl.getStatus() line: 90	
+			return StatusTranslator.translate( transactionManager.getStatus() );
+/ H. KENT DE TRANSACTIONMANAGER
+/s,
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).getStatus() line: 99	
+        return transactionManager.getStatus() ;
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).getStatus() line: 164	
+		TransactionImple theTransaction = TransactionImple.getTransaction();
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1059	
+		final BasicAction current = BasicAction.Current();		/ een thread local,
+/s,
+com.arjuna.ats.arjuna.coordinator.BasicAction.Current() line: 1256	
+        return ThreadActionData.currentAction();
+/s,
+com.arjuna.ats.internal.arjuna.thread.ThreadActionData.currentAction() line: 56	
+		Deque<BasicAction> txs = _threadList.get();
+/ _threadList is een ThreadLocal,
+/ Maar het is wel een list, dus kunnen er meerdere actions zijn? 
+/ TODO
+[BasicAction: 0:ffffc0a87b73:-4efcc201:5d05ef8e:18a status: ActionStatus.RUNNING]
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTransaction() line: 1062	
+		final BasicAction current = BasicAction.Current();		/ een thread local,
+/d,
+		if (current != null)
+		{
+			final Uid txid = current.get_uid();
+
+			tx = (TransactionImple) _transactions.get(txid);
+{0:ffffc0a87b73:-4efcc201:5d05ef8e:18a=TransactionImple < ac, BasicAction: 0:ffffc0a87b73:-4efcc201:5d05ef8e:18a status: ActionStatus.RUNNING >}
+...
+/t,
+org.hibernate.internal.SessionImpl.isTransactionInProgress() line: 502	
+		return !isClosed() && transactionCoordinator.getTransactionDriverControl()
+				.getStatus() == TransactionStatus.ACTIVE && transactionCoordinator.isJoined();
+/ is inderdaad TransactionStatus.ACTIVE
+/pd,
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.isJoined() line: 182	
+	@Override
+	public boolean isJoined() {
+		return synchronizationRegistered;
+	}
+/ Intermezzo
+
+/ Ook zijn er in org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl	,
+
+	/**
+	 * Is the RegisteredSynchronization used by Hibernate for unified JTA Synchronization callbacks registered for this
+	 * coordinator?
+	 *
+	 * @return {@code true} indicates that a RegisteredSynchronization is currently registered for this coordinator;
+	 * {@code false} indicates it is not (yet) registered.
+	 */
+	public boolean isSynchronizationRegistered() {
+		return synchronizationRegistered;
+	}
+	/**
+	 * Join to the JTA transaction.  Note that the underlying meaning of joining in JTA environments is to register the
+	 * RegisteredSynchronization with the JTA system
+	 */
+	private void joinJtaTransaction() {
+		if ( synchronizationRegistered ) {
+			return;
+		}
+
+		jtaPlatform.registerSynchronization( new RegisteredSynchronization( getSynchronizationCallbackCoordinator() ) );
+		getSynchronizationCallbackCoordinator().synchronizationRegistered();
+		synchronizationRegistered = true;
+		log.debug( "Hibernate RegisteredSynchronization successfully registered with JTA platform" );
+	}
+	
+/ Deze org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl zit in de RegisteredSynchronization	,
+
+/ Einde Intermezzo
+
+/t,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).performSaveOrReplicate(java.lang.Object, org.hibernate.engine.spi.EntityKey, org.hibernate.persister.entity.EntityPersister, boolean, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 230	
+
+		boolean inTxn = source.isTransactionInProgress();
+/d,
+true
+/t,
+/s,
+org.hibernate.engine.internal.StatefulPersistenceContext.addEntry(java.lang.Object, org.hibernate.engine.spi.Status, java.lang.Object[], java.lang.Object, java.io.Serializable, java.lang.Object, org.hibernate.LockMode, boolean, org.hibernate.persister.entity.EntityPersister, boolean, boolean) line: 542	
+		entityEntryContext.addEntityEntry( entity, e );
+entity	org.arquillian.jpa.study2.model.Category  (id=22927)	
+	serialVersionUID	1	
+	id	java.lang.Long  (id=24159)	
+	items	java.util.HashSet<E>  (id=24163)	
+	name	"clothing" (id=24164)	
+	version	0	
+e	org.hibernate.engine.internal.MutableEntityEntry  (id=24893)	
+	$assertionsDisabled	true	
+	DEFAULT_DELETED_STATE	null	
+	cachedEntityKey	null	
+	compressedState	102	
+	id	java.lang.Long  (id=24159)	
+	loadedState	null				/ later,
+	next	null	
+	persistenceContext	org.hibernate.engine.internal.StatefulPersistenceContext  (id=24004)	
+	persister	org.hibernate.persister.entity.SingleTableEntityPersister  (id=24165)	
+	rowId	null	
+	version	null	
+/s,
+org.hibernate.engine.internal.EntityEntryContext.addEntityEntry(java.lang.Object, org.hibernate.engine.spi.EntityEntry) line: 123	
+			else {
+				if ( nonEnhancedEntityXref == null ) {
+					nonEnhancedEntityXref = new IdentityHashMap<Object, ManagedEntity>();
+				}
+				managedEntity = new ManagedEntityImpl( entity );
+				nonEnhancedEntityXref.put( entity, managedEntity );
+			}
+		}
+
+		// associate the EntityEntry with the entity
+		managedEntity.$$_hibernate_setEntityEntry( entityEntry );
+/s,
+org.hibernate.engine.internal.EntityEntryContext$ManagedEntityImpl.$$_hibernate_setEntityEntry(org.hibernate.engine.spi.EntityEntry) line: 540	
+			this.entityEntry = entityEntry;
+/t,
+org.hibernate.engine.internal.EntityEntryContext.addEntityEntry(java.lang.Object, org.hibernate.engine.spi.EntityEntry) line: 125	
+		managedEntity.$$_hibernate_setEntityEntry( entityEntry );
+/d,
+managedEntity	org.hibernate.engine.internal.EntityEntryContext$ManagedEntityImpl  (id=24991)	
+	entityEntry	org.hibernate.engine.internal.MutableEntityEntry  (id=24893)	
+	entityInstance	org.arquillian.jpa.study2.model.Category  (id=22927)	
+	next	null	
+	previous	null	
+	
+		if ( tail == null ) {
+			assert head == null;
+			// Protect against stale data in the ManagedEntity and nullify previous/next references.
+			managedEntity.$$_hibernate_setPreviousManagedEntity( null );
+			managedEntity.$$_hibernate_setNextManagedEntity( null );
+			head = managedEntity;
+			tail = head;
+			count = 1;
+/t,
+org.hibernate.engine.internal.StatefulPersistenceContext.addEntry(java.lang.Object, org.hibernate.engine.spi.Status, java.lang.Object[], java.lang.Object, java.io.Serializable, java.lang.Object, org.hibernate.LockMode, boolean, org.hibernate.persister.entity.EntityPersister, boolean, boolean) line: 544	
+		entityEntryContext.addEntityEntry( entity, e );
+/d,
+this	org.hibernate.engine.internal.StatefulPersistenceContext  (id=24004)	
+	entityEntryContext	org.hibernate.engine.internal.EntityEntryContext  (id=24894)	
+		head	org.hibernate.engine.internal.EntityEntryContext$ManagedEntityImpl  (id=24991)	
+			entityEntry	org.hibernate.engine.internal.MutableEntityEntry  (id=24893)	
+			entityInstance	org.arquillian.jpa.study2.model.Category  (id=22927)	
+			next	null	
+			previous	null	
+		nonEnhancedEntityXref	java.util.IdentityHashMap<K,V>  (id=24990)	
+			[0]	java.util.AbstractMap$SimpleEntry<K,V>  (id=25076)	
+				key	org.arquillian.jpa.study2.model.Category  (id=22927)	
+				value	org.hibernate.engine.internal.EntityEntryContext$ManagedEntityImpl  (id=24991)	
+		reentrantSafeEntries	java.util.Map$Entry<K,V>[0]  (id=25063)		[]
+/ We zien de org.hibernate.engine.internal.EntityEntryContext$ManagedEntityImpl als head en in nonEnhancedEntityXref
+/ TODO
+/t,
+		boolean inTxn = source.isTransactionInProgress();
+		boolean shouldDelayIdentityInserts = !inTxn && !requiresImmediateIdAccess;
+
+		// Put a placeholder in entries, so we don't recurse back and try to save() the
+		// same object again. QUESTION: should this be done before onSave() is called?
+		// likewise, should it be done before onUpdate()?
+		EntityEntry original = source.getPersistenceContext().addEntry(
+				entity,
+				Status.SAVING,
+				null,
+				null,
+				id,
+				null,
+				LockMode.WRITE,
+				useIdentityColumn,
+				persister,
+				false,
+				false
+		);
+/d,
+		Object[] values = persister.getPropertyValuesToInsert( entity, getMergeMap( anything ), source );
+values	java.lang.Object[3]  (id=25197)	
+	[0]	java.util.HashSet<E>  (id=24163)	
+		[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+			serialVersionUID	1	
+			bids	java.util.HashSet<E>  (id=25217)	
+			categories	java.util.HashSet<E>  (id=25218)	
+				[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	 / heeft nog geen id,
+				[1]	org.arquillian.jpa.study2.model.Category  (id=22927)		/ onze Category	,
+			id	null	
+			name	"dress" (id=25219)	
+			version	0	
+	[1]	"clothing" (id=24164)	
+	[2]	java.lang.Integer  (id=25208)	
+
+		Type[] types = persister.getPropertyTypes();
+types	org.hibernate.type.Type[3]  (id=25319)	
+	[0]	org.hibernate.type.SetType  (id=25323)	
+	[1]	org.hibernate.type.StringType  (id=25324)	
+	[2]	org.hibernate.type.IntegerType  (id=25327)	
+
+		if ( persister.hasCollections() ) {
+			substitute = substitute || visitCollectionsBeforeSave( entity, id, values, types, source );
+/s,
+org.hibernate.event.internal.WrapVisitor(org.hibernate.event.internal.AbstractVisitor).processEntityPropertyValues(java.lang.Object[], org.hibernate.type.Type[]) line: 59	
+		for ( int i=0; i<types.length; i++ ) {
+			if ( includeEntityProperty(values, i) ) {
+				processValue( i, values, types );
+/s,
+org.hibernate.event.internal.WrapVisitor(org.hibernate.event.internal.AbstractVisitor).processValue(java.lang.Object, org.hibernate.type.Type) line: 102	
+		if ( type.isCollectionType() ) {
+			//even process null collections
+			return processCollection( value, (CollectionType) type );
+		}
+		else if ( type.isEntityType() ) {
+			return processEntity( value, (EntityType) type );
+		}
+		else if ( type.isComponentType() ) {
+			return processComponent( value, (CompositeType) type );
+/s,
+org.hibernate.event.internal.WrapVisitor.processArrayOrNewCollection(java.lang.Object, org.hibernate.type.CollectionType) line: 92	
+			CollectionPersister persister = session.getFactory().getCollectionPersister( collectionType.getRole() );
+				PersistentCollection persistentCollection = collectionType.wrap( session, collection );
+				persistenceContext.addNewCollection( persister, persistentCollection );
+/s,
+org.hibernate.engine.internal.StatefulPersistenceContext.addCollection(org.hibernate.collection.spi.PersistentCollection, org.hibernate.persister.collection.CollectionPersister) line: 875	
+		final CollectionEntry ce = new CollectionEntry( persister, collection );
+		collectionEntries.put( collection, ce );
+/t,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.AbstractSaveEventListener).performSaveOrReplicate(java.lang.Object, org.hibernate.engine.spi.EntityKey, org.hibernate.persister.entity.EntityPersister, boolean, java.lang.Object, org.hibernate.event.spi.EventSource, boolean) line: 260	
+
+source	org.hibernate.internal.SessionImpl  (id=22261)	
+	persistenceContext	org.hibernate.engine.internal.StatefulPersistenceContext  (id=24004)	
+		collectionEntries	org.hibernate.internal.util.collections.IdentityMap<K,V>  (id=25041)	
+			[0]	org.hibernate.internal.util.collections.IdentityMap$IdentityMapEntry<K,V>  (id=25423)	
+				key	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+					[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+				value	org.hibernate.engine.spi.CollectionEntry  (id=25390)	
+					LOG	org.jboss.logging.JBossLogManagerLogger  (id=25392)	
+					currentKey	null	
+					currentPersister	null	
+					dorecreate	false	
+					doremove	false	
+					doupdate	false	
+					fromMerge	false	
+					ignore	false	
+					loadedKey	null	
+					loadedPersister	null	
+					processed	false	
+					reached	false	
+					role	null	
+					snapshot	java.util.HashMap<K,V>  (id=25391)	
+		entityEntryContext	org.hibernate.engine.internal.EntityEntryContext  (id=24894)	
+				entityEntry	org.hibernate.engine.internal.MutableEntityEntry  (id=24893)	
+				entityInstance	org.arquillian.jpa.study2.model.Category  (id=22927)	
+				next	null	
+				previous	null	
+			nonEnhancedEntityXref	java.util.IdentityHashMap<K,V>  (id=24990)	
+					key	org.arquillian.jpa.study2.model.Category  (id=22927)	
+					value	org.hibernate.engine.internal.EntityEntryContext$ManagedEntityImpl  (id=24991)	
+
+		if ( substitute ) {
+			persister.setPropertyValues( entity, values );
+		}
+entity	org.arquillian.jpa.study2.model.Category  (id=22927)	
+	serialVersionUID	1	
+	id	java.lang.Long  (id=24159)	
+	items	org.hibernate.collection.internal.PersistentSet  (id=25377)			<-
+		[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+	name	"clothing" (id=24164)	
+	version	0	
+
+		AbstractEntityInsertAction insert = addInsertAction(
+				values, id, entity, persister, useIdentityColumn, source, shouldDelayIdentityInserts
+		);
+insert	org.hibernate.action.internal.EntityInsertAction  (id=25804)
+	...
+	state	java.lang.Object[3]  (id=25197)	
+		[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+			[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+		[1]	"clothing" (id=24164)	
+		[2]	java.lang.Integer  (id=25208)	
+/t,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).entityIsTransient(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 189	
+			saveWithGeneratedId( entity, event.getEntityName(), createCache, source, false );
+/d,
+org.hibernate.jpa.event.internal.core.JpaPersistEventListener(org.hibernate.event.internal.DefaultPersistEventListener).onPersist(org.hibernate.event.spi.PersistEvent, java.util.Map) line: 133	
+			case TRANSIENT: {
+				entityIsTransient( event, createCache );
+/s,
+				break;
+			}
+/t,
+org.hibernate.internal.SessionImpl.firePersist(org.hibernate.event.spi.PersistEvent) line: 776	
+		for ( PersistEventListener listener : listeners( EventType.PERSIST ) ) {
+			listener.onPersist( event );
+		}
+/d,
+/t,
+org.hibernate.jpa.internal.EntityManagerImpl(org.hibernate.jpa.spi.AbstractEntityManagerImpl).persist(java.lang.Object) line: 1153	
+		try {
+			internalGetSession().persist( entity );
+/d,
+/t,
+org.jboss.as.jpa.container.TransactionScopedEntityManager(org.jboss.as.jpa.container.AbstractEntityManager).persist(java.lang.Object) line: 587	
+            transactionIsRequired();
+/ TODO
+            getEntityManager().persist(entity);
+/t,
+org.arquillian.jpa.study2.dao.CategoryDao.create(org.arquillian.jpa.study2.model.Category) line: 22	
+		em.persist(entity);
+/d,
+/t,
+org.jboss.as.weld.ejb.Jsr299BindingsInterceptor.processInvocation(org.jboss.invocation.InterceptorContext) line: 93	
+        switch (interceptionType) {
+            case AROUND_INVOKE:
+                return doMethodInterception(context.getInvocationContext(), InterceptionType.AROUND_INVOKE, interceptorInstances, interceptorBindings);
+/t,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.invokeInOurTx(org.jboss.invocation.InterceptorContext, javax.transaction.TransactionManager, org.jboss.as.ejb3.component.EJBComponent) line: 275	
+            tm.begin();
+            Transaction tx = tm.getTransaction();
+            try {
+                return invocation.proceed();
+/d,
+            } catch (Throwable t) {
+                handleExceptionInOurTx(invocation, t, tx, component);
+            } finally {
+                endTransaction(tm, tx);
+            }
+/s,
+org.jboss.as.ejb3.tx.CMTTxInterceptor.endTransaction(javax.transaction.TransactionManager, javax.transaction.Transaction) line: 91	
+            final int txStatus = tx.getStatus();
+            if (txStatus == Status.STATUS_ACTIVE) {
+                // Commit tx
+                // This will happen if
+                // a) everything goes well
+                // b) app. exception was thrown
+                tm.commit();
+/j,
+            } else if (txStatus == Status.STATUS_MARKED_ROLLBACK) {
+                tm.rollback();
+/n,
+/s,
+    /**
+     * Commit the current transaction and disassociate from the thread.
+     */
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).commit() line: 89	
+        transactionManager.commit() ;
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).commit() line: 115	
+		TransactionImple theTransaction = TransactionImple.getTransaction();
+		theTransaction.commitAndDisassociate();
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1177	
+				switch (_theTransaction.commit(true))
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 162	
+		int status = super.end(report_heuristics);
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 83
+/ totaal	,	
+        if(status() != ActionStatus.ABORT_ONLY || TxControl.isBeforeCompletionWhenRollbackOnly())
+        {
+            canEnd = beforeCompletion();
+        }
+
+		if (canEnd)
+		{
+			outcome = super.End(report_heuristics);
+		}
+		else
+			outcome = super.Abort();
+
+		afterCompletion(outcome, report_heuristics);
+
+		return outcome;
+/ Einde totaal,
+/s,
+	/**
+	 * Drive beforeCompletion participants.
+	 * 
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).beforeCompletion() line: 310	
+	                synchronized (_synchs) {
+	                    copiedSynchs = (SynchronizationRecord[])_synchs.toArray(new SynchronizationRecord[] {});
+	                }	 
+copiedSynchs	com.arjuna.ats.arjuna.coordinator.SynchronizationRecord[1]  (id=26143)	
+	[0]	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=26086)	
+		_isInterposed	true	
+		_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)	
+			jcaOrderedLastSynchronizations	java.util.concurrent.ConcurrentHashMap<K,V>  (id=22289)	
+			jcaSyncs	java.util.ArrayList<E>  (id=22297)	
+			preJcaSyncs	java.util.ArrayList<E>  (id=22298)	
+			tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+		_theUid	com.arjuna.ats.arjuna.common.Uid  (id=26091)	
+
+	                    lastIndexProcessed = lastIndexProcessed+1;
+	                    _currentRecord = copiedSynchs[lastIndexProcessed];
+
+	                    try
+	                    {
+	                        problem = !_currentRecord.beforeCompletion();
+/s,
+    /**
+     * Exceptions from Synchronizations that are registered with this TSR are not trapped for before completion. This is because
+     * an error in a Sync here should result in the transaction rolling back.
+     *
+     * You can see that in effect in these classes:
+     * https://github.com/jbosstm/narayana/blob/5.0.4.Final/ArjunaCore/arjuna/classes
+     * /com/arjuna/ats/arjuna/coordinator/TwoPhaseCoordinator.java#L91
+     * https://github.com/jbosstm/narayana/blob/5.0.4.Final/ArjunaJTA
+     * /jta/classes/com/arjuna/ats/internal/jta/resources/arjunacore/SynchronizationImple.java#L76
+     */
+/ runs eerst de preJcaSyncs, daarna de jcsSyncs	,
+
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 107	
+        while ((lastIndexProcessed < preJcaSyncs.size())) {
+            Synchronization preJcaSync = preJcaSyncs.get(lastIndexProcessed);
+            preJcaSync.beforeCompletion();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.beforeCompletion() line: 35	
+		synchronizationCallbackCoordinator.beforeCompletion();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl(org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorNonTrackingImpl).beforeCompletion() line: 42	
+		target.beforeCompletion();
+/s,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.beforeCompletion() line: 316	
+			transactionCoordinatorOwner.beforeTransactionCompletion();
+/s,
+org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.beforeTransactionCompletion() line: 485	
+		owner.beforeTransactionCompletion();
+/s,
+org.hibernate.internal.SessionImpl.beforeTransactionCompletion() line: 2338	
+/ totaal,
+		flushBeforeTransactionCompletion();										<-
+		actionQueue.beforeTransactionCompletion();
+/ Einde totaal,
+/s,
+org.hibernate.internal.SessionImpl.flushBeforeTransactionCompletion() line: 2963	
+				managedFlush();
+/s,
+org.hibernate.internal.SessionImpl.managedFlush() line: 465	
+		flush();
+/s,
+org.hibernate.internal.SessionImpl.flush() line: 1275	
+		FlushEvent flushEvent = new FlushEvent( this );
+		for ( FlushEventListener listener : listeners( EventType.FLUSH ) ) {
+			listener.onFlush( flushEvent );
+		}
+
+/ Intermezzo
+
+/ stack trace,
+
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.DefaultFlushEventListener).onFlush(org.hibernate.event.spi.FlushEvent) line: 29	
+org.hibernate.internal.SessionImpl.flush() line: 1282	
+org.hibernate.internal.SessionImpl.managedFlush() line: 465	
+org.hibernate.internal.SessionImpl.flushBeforeTransactionCompletion() line: 2963	
+org.hibernate.internal.SessionImpl.beforeTransactionCompletion() line: 2339	
+org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.beforeTransactionCompletion() line: 485	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.beforeCompletion() line: 316	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl(org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorNonTrackingImpl).beforeCompletion() line: 47	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.beforeCompletion() line: 37	
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 116	
+com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple.beforeCompletion() line: 76	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).beforeCompletion() line: 368	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 91	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 162	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1200	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).commit() line: 126	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).commit() line: 89	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.endTransaction(javax.transaction.TransactionManager, javax.transaction.Transaction) line: 91	
 
 
+/ Einde Intermezzo
+		
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.DefaultFlushEventListener).onFlush(org.hibernate.event.spi.FlushEvent) line: 29	
+				flushEverythingToExecutions( event );
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEverythingToExecutions(org.hibernate.event.spi.FlushEvent) line: 74	
+		prepareEntityFlushes( session, persistenceContext );
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).prepareEntityFlushes(org.hibernate.event.spi.EventSource, org.hibernate.engine.spi.PersistenceContext) line: 136	
+		for ( Map.Entry<Object,EntityEntry> me : persistenceContext.reentrantSafeEntityEntries() ) {
+/s,
+org.hibernate.engine.internal.StatefulPersistenceContext.reentrantSafeEntityEntries() line: 1128	
+		return entityEntryContext.reentrantSafeEntityEntries();
+/s,
+/*
+ * pakt uit head, en stopt in reentrantSafeEntries
+ *
+org.hibernate.engine.internal.EntityEntryContext.reentrantSafeEntityEntries() line: 317	
+			reentrantSafeEntries = new EntityEntryCrossRefImpl[count];
+			int i = 0;
+			ManagedEntity managedEntity = head;
+			while ( managedEntity != null ) {
+				reentrantSafeEntries[i++] = new EntityEntryCrossRefImpl(
+						managedEntity.$$_hibernate_getEntityInstance(),
+						managedEntity.$$_hibernate_getEntityEntry()
+				);
+				managedEntity = managedEntity.$$_hibernate_getNextManagedEntity();
+			}
+			dirty = false;
+		}
+		return reentrantSafeEntries;	
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).prepareEntityFlushes(org.hibernate.event.spi.EventSource, org.hibernate.engine.spi.PersistenceContext) line: 138	
+
+		for ( Map.Entry<Object,EntityEntry> me : persistenceContext.reentrantSafeEntityEntries() ) {
+			EntityEntry entry = (EntityEntry) me.getValue();
+me	org.hibernate.engine.internal.EntityEntryContext$EntityEntryCrossRefImpl  (id=26256)	
+	key	org.arquillian.jpa.study2.model.Category  (id=22927)	
+	value	org.hibernate.engine.internal.MutableEntityEntry  (id=25894)	
+		id	java.lang.Long  (id=24159)	
+		loadedState	java.lang.Object[3]  (id=25197)										<- is er nu wel,
+			[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+				[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+					categories	java.util.HashSet<E>  (id=25218)	
+						[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+						[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+					id	null	
+					name	"dress" (id=25219)	
+					version	0	
+			[1]	"clothing" (id=24164)	
+			[2]	java.lang.Integer  (id=25208)	
+
+							cascadeOnFlush( session, entry.getPersister(), me.getKey(), anything );
+/ niets,
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEverythingToExecutions(org.hibernate.event.spi.FlushEvent) line: 78	
+		prepareEntityFlushes( session, persistenceContext );
+		// we could move this inside if we wanted to
+		// tolerate collection initializations during
+		// collection dirty checking:
+		prepareCollectionFlushes( persistenceContext );
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).prepareCollectionFlushes(org.hibernate.engine.spi.PersistenceContext) line: 178	
+
+		for ( Map.Entry<PersistentCollection,CollectionEntry> entry :
+				IdentityMap.concurrentEntries( (Map<PersistentCollection,CollectionEntry>) persistenceContext.getCollectionEntries() )) {
+			entry.getValue().preFlush( entry.getKey() );
+/s,
+org.hibernate.engine.spi.CollectionEntry.preFlush(org.hibernate.collection.spi.PersistentCollection) line: 197	
+		setReached( false );
+		setProcessed( false );
+
+		setDoupdate( false );
+		setDoremove( false );
+		setDorecreate( false );
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEverythingToExecutions(org.hibernate.event.spi.FlushEvent) line: 83	
+		prepareCollectionFlushes( persistenceContext );
+		// now, any collections that are initialized
+		// inside this block do not get updated - they
+		// are ignored until the next flush
+
+		persistenceContext.setFlushing( true );
+		try {
+			int entityCount = flushEntities( event, persistenceContext );
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEntities(org.hibernate.event.spi.FlushEvent, org.hibernate.engine.spi.PersistenceContext) line: 203	
+		final Iterable<FlushEntityEventListener> flushListeners = source.getFactory().getServiceRegistry()
+				.getService( EventListenerRegistry.class )
+				.getEventListenerGroup( EventType.FLUSH_ENTITY )
+				.listeners();
+[org.hibernate.jpa.event.internal.core.JpaFlushEntityEventListener@189b0144]
+
+		// Among other things, updateReachables() will recursively load all
+		// collections that are moving roles. This might cause entities to
+		// be loaded.
+
+		// So this needs to be safe from concurrent modification problems.
+
+		final Map.Entry<Object,EntityEntry>[] entityEntries = persistenceContext.reentrantSafeEntityEntries();
+		final int count = entityEntries.length;
+
+		for ( Map.Entry<Object,EntityEntry> me : entityEntries ) {
+
+			// Update the status of the object and if necessary, schedule an update
+			
+me	org.hibernate.engine.internal.EntityEntryContext$EntityEntryCrossRefImpl  (id=26256)	
+	key	org.arquillian.jpa.study2.model.Category  (id=22927)	
+	value	org.hibernate.engine.internal.MutableEntityEntry  (id=25894)	
+		id	java.lang.Long  (id=24159)	
+		loadedState	java.lang.Object[3]  (id=25197)	
+			[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+			[1]	"clothing" (id=24164)	
+			[2]	java.lang.Integer  (id=25208)	
 
 
+			EntityEntry entry = me.getValue();	/ hij pakt niet het object zelf, alleen de entity entry, met WH de loaded state,
+			Status status = entry.getStatus();
+
+			if ( status != Status.LOADING && status != Status.GONE ) {
+				final FlushEntityEvent entityEvent = new FlushEntityEvent( source, me.getKey(), entry );	/ hier wel het object zelf,
+				for ( FlushEntityEventListener listener : flushListeners ) {
+					listener.onFlushEntity( entityEvent );
+				}
+/s,
+	/**
+	 * Flushes a single entity's state to the database, by scheduling
+	 * an update action, if necessary
+	 */
+	public void onFlushEntity(FlushEntityEvent event) throws HibernateException {
+
+/ we hadden toch al een InsertAction scheduled?
+/ benede zien we dat er geen update action komt,
+/ TODO 
+		final Object[] values = getValues( entity, entry, mightBeDirty, session );
+
+/ hij pakt niet entry.loadedState, want entry zou dirty kunnen zijn, 
+/s
+org.hibernate.jpa.event.internal.core.JpaFlushEntityEventListener(org.hibernate.event.internal.DefaultFlushEntityEventListener).getValues(java.lang.Object, org.hibernate.engine.spi.EntityEntry, boolean, org.hibernate.engine.spi.SessionImplementor) line: 175	
+
+		final Object[] loadedState = entry.getLoadedState();
+		else if ( !mightBeDirty && loadedState != null ) {
+			values = loadedState;
+		}
+/n, mightBeDirty=true
+		else {
+			// grab its current state
+			values = persister.getPropertyValues( entity );
+/s,
+org.hibernate.tuple.entity.PojoEntityTuplizer(org.hibernate.tuple.entity.AbstractEntityTuplizer).getPropertyValues(java.lang.Object) line: 504	
+
+this	org.hibernate.tuple.entity.PojoEntityTuplizer  (id=24181)	
+	entityMetamodel	org.hibernate.tuple.entity.EntityMetamodel  (id=24182)	
+		properties	org.hibernate.tuple.NonIdentifierAttribute[3]  (id=26585)	
+			[0]	org.hibernate.tuple.entity.EntityBasedAssociationAttribute  (id=26591)	
+				attributeName	"items" (id=26459)	
+				attributeType	org.hibernate.type.SetType  (id=25323)	
+			[1]	org.hibernate.tuple.entity.EntityBasedBasicAttribute  (id=26592)	
+				attributeName	"name" (id=26464)	
+				attributeType	org.hibernate.type.StringType  (id=25324)	
+			[2]	org.hibernate.tuple.entity.VersionProperty  (id=26593)	
+				attributeName	"version" (id=26466)	
+				attributeType	org.hibernate.type.IntegerType  (id=25327)	
+		
+		for ( int j = 0; j < span; j++ ) {
+			NonIdentifierAttribute property = entityMetamodel.getProperties()[j];
+			if ( !property.isLazy() || interceptor == null || interceptor.isInitialized( property.getName() ) ) {
+				result[j] = getters[j].get( entity );
+
+result	java.lang.Object[3]  (id=26575)	
+	[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+		[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+			bids	java.util.HashSet<E>  (id=25217)	
+			categories	java.util.HashSet<E>  (id=25218)	
+			id	null	
+			name	"dress" (id=25219)	
+			version	0	
+	[1]	"clothing" (id=24164)	
+		value	(id=26735)	
+	[2]	java.lang.Integer  (id=26682)	
+		value	0	
+/ precies als loaded state,
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEntityEventListener(org.hibernate.event.internal.DefaultFlushEntityEventListener).onFlushEntity(org.hibernate.event.spi.FlushEntityEvent) line: 137	
+		final Object[] values = getValues( entity, entry, mightBeDirty, session );
+/d,
+/ vernieuwede entry.loadedState,
+
+		event.setPropertyValues( values );
+
+		//TODO: avoid this for non-new instances where mightBeDirty==false
+		boolean substitute = wrapCollections( session, persister, types, values );
+false
+values	java.lang.Object[3]  (id=26575)	
+	[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+		[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+	[1]	"clothing" (id=24164)	
+	[2]	java.lang.Integer  (id=26682)	
+/ entry.loadedState==values,
+
+		if ( isUpdateNecessary( event, mightBeDirty ) ) {
+/ TODO
+/ er komt dus geen update action,
+			substitute = scheduleUpdate( event ) || substitute;
+		}
+/n,		
+			// We don't want to touch collections reachable from a deleted object
+			if ( persister.hasCollections() ) {
+				new FlushVisitor( session, entity ).processEntityPropertyValues( values, types );
+/s,
+org.hibernate.event.internal.FlushVisitor(org.hibernate.event.internal.AbstractVisitor).processEntityPropertyValues(java.lang.Object[], org.hibernate.type.Type[]) line: 59	
+		for ( int i=0; i<types.length; i++ ) {
+			if ( includeEntityProperty(values, i) ) {
+				processValue( i, values, types );
+/s,
+org.hibernate.event.internal.FlushVisitor(org.hibernate.event.internal.AbstractVisitor).processValue(java.lang.Object, org.hibernate.type.Type) line: 104	
+		if ( type.isCollectionType() ) {
+			//even process null collections
+			return processCollection( value, (CollectionType) type );
+/s,
+org.hibernate.event.internal.FlushVisitor.processCollection(java.lang.Object, org.hibernate.type.CollectionType) line: 42	
+			Collections.processReachableCollection( coll, type, owner, getSession() );
+coll=PersistentSet,
+/s,
+org.hibernate.engine.internal.Collections.processReachableCollection(org.hibernate.collection.spi.PersistentCollection, org.hibernate.type.CollectionType, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 160	
+
+		final CollectionEntry ce = session.getPersistenceContext().getCollectionEntry( collection );
+
+		final SessionFactoryImplementor factory = session.getFactory();
+		final CollectionPersister persister = factory.getCollectionPersister( type.getRole() );
+/s,
+org.hibernate.internal.SessionFactoryImpl.getCollectionPersister(java.lang.String) line: 832	
+		CollectionPersister result = collectionPersisters.get(role);
+role="org.arquillian.jpa.study2.model.Category.items"	
+result=BasicCollectionPersister(org.arquillian.jpa.study2.model.Category.items)
+
+/t,
+org.hibernate.engine.internal.Collections.processReachableCollection(org.hibernate.collection.spi.PersistentCollection, org.hibernate.type.CollectionType, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 162	
+
+		final SessionFactoryImplementor factory = session.getFactory();
+		final CollectionPersister persister = factory.getCollectionPersister( type.getRole() );
+
+		ce.setCurrentPersister( persister );
+		//TODO: better to pass the id in as an argument?
+		ce.setCurrentKey( type.getKeyOfOwner( entity, session ) );
+
+ce	org.hibernate.engine.spi.CollectionEntry  (id=25390)	
+	currentKey	java.lang.Long  (id=24159)	
+	currentPersister	org.hibernate.persister.collection.BasicCollectionPersister  (id=25375)		
+	dorecreate	false	
+	doremove	false	
+	doupdate	false	
+	fromMerge	false	
+	ignore	false	
+	loadedKey	null	
+	loadedPersister	null	
+	processed	false	
+	reached	false	
+	role	null	
+	snapshot	java.util.HashMap<K,V>  (id=25391)	
+	
+			ce.setReached( true );
+			prepareCollectionForUpdate( collection, ce, factory );
+/s,
+org.hibernate.engine.internal.Collections.prepareCollectionForUpdate(org.hibernate.collection.spi.PersistentCollection, org.hibernate.engine.spi.CollectionEntry, org.hibernate.engine.spi.SessionFactoryImplementor) line: 246	
+		entry.setProcessed( true );
+
+		final CollectionPersister loadedPersister = entry.getLoadedPersister();
+null
+		final CollectionPersister currentPersister = entry.getCurrentPersister();
+BasicCollectionPersister(org.arquillian.jpa.study2.model.Category.items)
+
+				// do the work
+				if ( currentPersister != null ) {
+					entry.setDorecreate( true );
+				}
+/t,
+org.hibernate.event.internal.FlushVisitor(org.hibernate.event.internal.AbstractVisitor).processEntityPropertyValues(java.lang.Object[], org.hibernate.type.Type[]) line: 57	
+		for ( int i=0; i<types.length; i++ ) {
+			if ( includeEntityProperty(values, i) ) {
+				processValue( i, values, types );	/ niets voor String, int,
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEntities(org.hibernate.event.spi.FlushEvent, org.hibernate.engine.spi.PersistenceContext) line: 221	
+
+				for ( FlushEntityEventListener listener : flushListeners ) {
+					listener.onFlushEntity( entityEvent );
+				}
+/d,
+
+/ de action queue zit naast de pc in de session,
+/ we zien geen collectioncreation actie, maar wel dat een collectie van items in de category zit, waarvan wel een insertaction is,
+/ maar flush collections komt straks pas, dan komt er een CollectionRecreate actie op de action queue,
+/ maar we hebben dus een coll in de state van de insertentity action, maar in de collection recreate action staan hele andere dingen,
+/ TODO
+source	org.hibernate.internal.SessionImpl  (id=22261)	
+	actionQueue	org.hibernate.engine.spi.ActionQueue  (id=23991)	
+		collectionCreations	null	
+		insertions	org.hibernate.engine.spi.ExecutableList<E>  (id=26921)	
+			executables	java.util.ArrayList<E>  (id=26922)	
+				[0]	org.hibernate.action.internal.EntityInsertAction  (id=25804)	
+					entityName	"org.arquillian.jpa.study2.model.Category" (id=22926)	
+					id	java.lang.Long  (id=24159)	
+					instance	org.arquillian.jpa.study2.model.Category  (id=22927)	
+					persister	org.hibernate.persister.entity.SingleTableEntityPersister  (id=24165)	
+					state	java.lang.Object[3]  (id=25197)	
+						[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+							[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+								bids	java.util.HashSet<E>  (id=25217)	
+									[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+									[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+								id	null	
+								name	"dress" (id=25219)	
+								version	0	
+						[1]	"clothing" (id=24164)	
+						[2]	java.lang.Integer  (id=25208)	
+					version	java.lang.Integer  (id=25208)	
+	persistenceContext	org.hibernate.engine.internal.StatefulPersistenceContext  (id=24004)	
+			[0]	org.hibernate.internal.util.collections.IdentityMap$IdentityMapEntry<K,V>  (id=27264)	
+				key	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+					[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEverythingToExecutions(org.hibernate.event.spi.FlushEvent) line: 86	
+			int entityCount = flushEntities( event, persistenceContext );
+/d,
+			int collectionCount = flushCollections( session, persistenceContext );
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushCollections(org.hibernate.event.spi.EventSource, org.hibernate.engine.spi.PersistenceContext) line: 240
+	
+		final Map.Entry<PersistentCollection,CollectionEntry>[] entries = IdentityMap.concurrentEntries(
+				(Map<PersistentCollection,CollectionEntry>) persistenceContext.getCollectionEntries()
+		);
+entries	java.util.Map$Entry<K,V>[1]  (id=26475)	
+	[0]	org.hibernate.internal.util.collections.IdentityMap$IdentityMapEntry<K,V>  (id=26476)	
+		key	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+			[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+				bids	java.util.HashSet<E>  (id=25217)	
+				categories	java.util.HashSet<E>  (id=25218)	
+					[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+					[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+				id	null	
+				name	"dress" (id=25219)	
+				version	0	
+		value	org.hibernate.engine.spi.CollectionEntry  (id=25390)	
+			currentKey	java.lang.Long  (id=24159)	
+			currentPersister	org.hibernate.persister.collection.BasicCollectionPersister  (id=25375)	
+			dorecreate	true	
+			doremove	false	
+			doupdate	false	
+			fromMerge	false	
+			ignore	false	
+			loadedKey	null	
+			loadedPersister	null	
+			processed	true	
+			reached	true	
+			role	null	
+			snapshot	java.util.HashMap<K,V>  (id=25391)
+
+		ActionQueue actionQueue = session.getActionQueue();
+		for ( Map.Entry<PersistentCollection,CollectionEntry> me :
+			IdentityMap.concurrentEntries( (Map<PersistentCollection,CollectionEntry>) persistenceContext.getCollectionEntries() )) {
+			
+			PersistentCollection coll = me.getKey();
+			CollectionEntry ce = me.getValue();
+
+			if ( ce.isDorecreate() ) {
+				actionQueue.addAction(
+						new CollectionRecreateAction(
+								coll,
+								ce.getCurrentPersister(),
+								ce.getCurrentKey(),
+								session
+							)
+					);
+			}
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).flushEverythingToExecutions(org.hibernate.event.spi.FlushEvent) line: 88	
+			int entityCount = flushEntities( event, persistenceContext );
+			int collectionCount = flushCollections( session, persistenceContext );
+/d,
+session	org.hibernate.internal.SessionImpl  (id=22261)	
+	actionQueue	org.hibernate.engine.spi.ActionQueue  (id=23991)	
+		collectionCreations	org.hibernate.engine.spi.ExecutableList<E>  (id=28017)	
+			executables	java.util.ArrayList<E>  (id=28018)	
+				[0]	org.hibernate.action.internal.CollectionRecreateAction  (id=28016)	
+		insertions	org.hibernate.engine.spi.ExecutableList<E>  (id=26921)	
+			executables	java.util.ArrayList<E>  (id=26922)	
+				[0]	org.hibernate.action.internal.EntityInsertAction  (id=25804)	
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.DefaultFlushEventListener).onFlush(org.hibernate.event.spi.FlushEvent) line: 39	
+				flushEverythingToExecutions( event );
+/d,
+				performExecutions( source );
+/s,
+	/**
+	 * Execute all SQL (and second-level cache updates) in a special order so that foreign-key constraints cannot
+	 * be violated: <ol>
+	 * <li> Inserts, in the order they were performed
+	 * <li> Updates
+	 * <li> Deletion of collection elements
+	 * <li> Insertion of collection elements
+	 * <li> Deletes, in the order they were performed
+	 *
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).performExecutions(org.hibernate.event.spi.EventSource) line: 336	
+/ totaal,
+			session.getActionQueue().prepareActions();
+			session.getActionQueue().executeActions();
+/ Einde totaal,
+/s,
+org.hibernate.engine.spi.ActionQueue.prepareActions() line: 467	
+		prepareActions( collectionRemovals );
+		prepareActions( collectionUpdates );
+		prepareActions( collectionCreations );
+/s,
+org.hibernate.engine.spi.ActionQueue.prepareActions(org.hibernate.engine.spi.ExecutableList<?>) line: 478	
+		for ( Executable executable : queue ) {
+			executable.beforeExecutions();
+/ niets, want de persister heeft geen cache,
+/ TODO
+/t,
+		prepareActions( collectionQueuedOps );
+/t,
+/s,
+org.hibernate.engine.spi.ActionQueue.executeActions() line: 449	
+		for ( ListProvider listProvider : EXECUTABLE_LISTS_MAP.values() ) {
+			ExecutableList<?> l = listProvider.get( this );
+			if ( l != null && !l.isEmpty() ) {
+				executeActions( l );
+l	org.hibernate.engine.spi.ExecutableList<E>  (id=26921)	
+	executables	java.util.ArrayList<E>  (id=26922)	
+		[0]	org.hibernate.action.internal.EntityInsertAction  (id=25804)	
+
+		
+/ Intermezzo
+
+package org.hibernate.engine.spi;
+public class ActionQueue {
+	static {
+		...
+		EXECUTABLE_LISTS_MAP.put(
+				AbstractEntityInsertAction.class,
+				new ListProvider<AbstractEntityInsertAction>() {
+					ExecutableList<AbstractEntityInsertAction> get(ActionQueue instance) {
+						return instance.insertions;
+					}
+					ExecutableList<AbstractEntityInsertAction> init(ActionQueue instance) {
+						if ( instance.isOrderInsertsEnabled() ) {
+							return instance.insertions = new ExecutableList<AbstractEntityInsertAction>(
+									new InsertActionSorter()
+							);
+						}
+						else {
+							return instance.insertions = new ExecutableList<AbstractEntityInsertAction>(
+									false
+							);
+						}
+					}
+				}
+		);
+		... 	/ nog meer .puts, totaal zijn er 8	,
+		
+/ er staat EXECUTABLE_LISTS_MAP.values(), dat zijn alle 8 new ListProvider. Dan doet hij op elk de .get. Deze returns bijv de action queue's insertions. Deze is al dan niet null. Er is een insertion, dus insertions is niet null.
+		
+/ Einde Intermezzo
+
+/s,
+org.hibernate.engine.spi.ActionQueue.executeActions(org.hibernate.engine.spi.ExecutableList<E>) line: 582	
+			for ( E e : list ) {
+				try {
+					e.execute();
+					
+list	org.hibernate.engine.spi.ExecutableList<E>  (id=26921)	
+	executables	java.util.ArrayList<E>  (id=26922)	
+		[0]	org.hibernate.action.internal.EntityInsertAction  (id=25804)	
+/s,
+org.hibernate.action.internal.EntityInsertAction.execute() line: 75	
+		nullifyTransientReferencesIfNotAlready();
+			persister.insert( id, getState(), instance, session );
+
+/ de state, oorspronkelijk in de entity entry, zit ook in de action,
+/s,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 3384	
+		else {
+			// For the case of dynamic-insert="false", use the static SQL
+			for ( int j = 0; j < span; j++ ) {
+				insert( id, fields, getPropertyInsertability(), j, getSQLInsertStrings()[j], object, session );
+/s,
+org.hibernate.tuple.entity.EntityMetamodel.getPropertyInsertability() line: 1052	
+
+this	org.hibernate.tuple.entity.EntityMetamodel  (id=24182)	
+	entityTuplizer	org.hibernate.tuple.entity.PojoEntityTuplizer  (id=24181)	
+		idGetter	org.hibernate.property.access.spi.GetterFieldImpl  (id=26563)	
+		idSetter	org.hibernate.property.access.spi.SetterFieldImpl  (id=24185)	
+		mappedClass	java.lang.Class<T> (org.arquillian.jpa.study2.model.Category) (id=22928)	
+	entityType	org.hibernate.type.ManyToOneType  (id=26570)	
+	hasCollections	true	
+	persister	org.hibernate.persister.entity.SingleTableEntityPersister  (id=24165)	
+	propertyIndexes	java.util.HashMap<K,V>  (id=26587)	/ {name=1, items=0, version=2}
+	propertyNames	java.lang.String[3]  (id=25353)	/ [items, name, version]
+	propertyTypes	org.hibernate.type.Type[3]  (id=25319)	[org.hibernate.type.SetType(org.arquillian.jpa.study2.model.Category.items), org.hibernate.type.StringType@30636a5d, org.hibernate.type.IntegerType@11b75bb8]
+	propertyInsertability [true, true, true]
+	...
+/t,
+/s,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], boolean[], int, java.lang.String, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 2841	
+
+sql=insert into Category (name, version, id) values (?, ?, ?)
+		try {
+			// Render the SQL query
+			final PreparedStatement insert;
+			if ( useBatch ) {
+				insert = session
+						.getJdbcCoordinator()
+						.getBatch( inserBatchKey )
+						.getBatchStatement( sql, callable );
+...
+/s,
+org.hibernate.engine.jdbc.batch.internal.NonBatchingBatch(org.hibernate.engine.jdbc.batch.internal.AbstractBatchImpl).buildBatchStatement(java.lang.String, boolean) line: 136	
+		return jdbcCoordinator.getStatementPreparer().prepareStatement( sql, callable );
+/s,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String, boolean) line: 77	
+
+		jdbcCoordinator.executeBatch(); / niets, want de batch heeft nog geen statements,
+		
+		return buildPreparedStatementPreparationTemplate( sql, isCallable ).prepareStatement();
+/s,
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+			}
+sql=insert into Category (name, version, id) values (?, ?, ?)
+/ waar zijn de params?
+/ TODO
 
 
+/ Intermezzo
+
+/ we kijken in deze Intermezzo hoe de conn wordt verkregen,	
+
+/ we step een aantal keer en komen in , stack trace,
+
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTxLocalResource(java.lang.Object) line: 1090
+		return _txLocalResources.get(key);
+/cb,	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionSynchronizationRegistryImple.getResource(java.lang.Object) line: 126	
+org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper.getResource(java.lang.Object) line: 106	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTSRLock() line: 434
+         if (tsr != null && tsr.getTransactionKey() != null)	/ tx key van de current tx die bound is aan current thread,
+         {
+            result = (Lock)tsr.getResource(LockKey.INSTANCE);
+/cb,	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionOldConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 641
+      TransactionSynchronizationRegistry tsr = getTransactionSynchronizationRegistry();
+      Lock lock = getTSRLock();
+/cb ,	
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 593
+      // Transaction old connections
+      cl = getTransactionOldConnection(trackByTransaction, mcp);
+/cb,	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).getManagedConnection(javax.transaction.Transaction, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 590
+         return pool.getConnection(transaction, subject, cri); / pool vindt de conn in de tsr, zie (*) hieronder,
+/cb,	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl.getManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo) line: 429	
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 747	
+org.jboss.jca.adapters.jdbc.WrapperDataSource.getConnection() line: 138	
+org.jboss.as.connector.subsystems.datasources.WildFlyDataSource.getConnection() line: 66	
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection() line: 122	
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.obtainConnection() line: 386	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.acquireConnectionIfNeeded() line: 87	
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.getPhysicalConnection() line: 112	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.connection() line: 47	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1.doPrepare() line: 87	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 172	
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl.prepareStatement(java.lang.String, boolean) line: 78	
+org.hibernate.engine.jdbc.batch.internal.NonBatchingBatch(org.hibernate.engine.jdbc.batch.internal.AbstractBatchImpl).buildBatchStatement(java.lang.String, boolean) line: 136	
+org.hibernate.engine.jdbc.batch.internal.NonBatchingBatch(org.hibernate.engine.jdbc.batch.internal.AbstractBatchImpl).getBatchStatement(java.lang.String, boolean) line: 125	
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], boolean[], int, java.lang.String, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 2878	
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 3397	
+org.hibernate.action.internal.EntityInsertAction.execute() line: 89	
+org.hibernate.engine.spi.ActionQueue.executeActions(org.hibernate.engine.spi.ExecutableList<E>) line: 582	
+org.hibernate.engine.spi.ActionQueue.executeActions() line: 456	
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).performExecutions(org.hibernate.event.spi.EventSource) line: 337	
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.DefaultFlushEventListener).onFlush(org.hibernate.event.spi.FlushEvent) line: 39	
+org.hibernate.internal.SessionImpl.flush() line: 1282	
+org.hibernate.internal.SessionImpl.managedFlush() line: 465	
+org.hibernate.internal.SessionImpl.flushBeforeTransactionCompletion() line: 2963	
+org.hibernate.internal.SessionImpl.beforeTransactionCompletion() line: 2339	
+org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.beforeTransactionCompletion() line: 485	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.beforeCompletion() line: 316	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl(org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorNonTrackingImpl).beforeCompletion() line: 47	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.beforeCompletion() line: 37	
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 116	
+com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple.beforeCompletion() line: 76	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).beforeCompletion() line: 368	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 91	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 162	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1200	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).commit() line: 126	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).commit() line: 89	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.endTransaction(javax.transaction.TransactionManager, javax.transaction.Transaction) line: 91	
+
+/ in meer detail,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.getTxLocalResource(java.lang.Object) line: 1090	
+
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+	_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=22310)	
+		[0]	java.util.HashMap$Node<K,V>  (id=22316)	
+			key	"73f00951-f3fd-4f44-8ffd-cda677c6e49b.war#arquillian-jpa-study2-persistence-unit" (id=26100)	
+			value	org.hibernate.jpa.internal.EntityManagerImpl  (id=22263)	
+		[1]	java.util.HashMap$Node<K,V>  (id=22667)	
+			key	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool  (id=22282)	
+			value	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+		[2]	java.util.HashMap$Node<K,V>  (id=22317)	
+			key	org.jboss.jca.core.connectionmanager.transaction.LockKey  (id=28414)	
+			value	java.util.concurrent.locks.ReentrantLock  (id=22281)	
+		[3]	java.util.HashMap$Node<K,V>  (id=22318)	
+			key	"__TX_LISTENERS" (id=22577)	
+			value	java.util.concurrent.ConcurrentLinkedQueue<E>  (id=25936)	
+				[0]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22267)	
+				
+/ wat heeft de em met de conn te maken?
+/ TODO
+
+/ er is al een conn, en de pool doet eerst: getTransactionOldConnection(),
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+	_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=22310)	
+		[1]	java.util.HashMap$Node<K,V>  (id=22667)	
+			key	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool  (id=22282)	
+			value	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+				cm	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=22135)	
+				managedConnection	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)
+					xaConnection	org.postgresql.xa.PGXAConnection  (id=22371)	
+						conn	org.postgresql.jdbc42.Jdbc42Connection  (id=22386)				
+							protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+								pgStream	org.postgresql.core.PGStream  (id=22466)	
+									connection	java.net.Socket  (id=22486)	
+									pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22490)	
+									pg_output	java.io.BufferedOutputStream  (id=22491)	
+
+/ hij komt nu in de _txLocalResources voor de lock,
+
+/t,
+org.jboss.jca.core.connectionmanager.pool.strategy.OnePool(org.jboss.jca.core.connectionmanager.pool.AbstractPool).getTransactionOldConnection(javax.transaction.Transaction, org.jboss.jca.core.connectionmanager.pool.mcp.ManagedConnectionPool) line: 659	
+
+      Lock lock = getTSRLock();
+
+           lock.lockInterruptibly();
+         // Already got one
+         ConnectionListener cl = (ConnectionListener)tsr.getResource(mcp);
+/ de pool is de key, en hij vindt de cl,
+            return cl;
+			
+/ de pool vindt de conn in de tsr, 
+/ WH is de tsr gebonden aan de tx in de current thread,
+/ TODO
+
+/t,
+org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl(org.jboss.jca.core.connectionmanager.AbstractConnectionManager).allocateConnection(javax.resource.spi.ManagedConnectionFactory, javax.resource.spi.ConnectionRequestInfo) line: 753	
+
+      ConnectionListener cl = getManagedConnection(subject, cri);
+/d,
+      // Tell each connection manager the managed connection is active
+      reconnectManagedConnection(cl);
+/ niets, de conn is nog enlisted in de tx,
+         connection = cl.getManagedConnection().getConnection(subject, cri);
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@74b8e8e6					/ heet later physical connection,
+
+/ lees over jca,
+https://www.ibm.com/support/knowledgecenter/en/SSGMCP_5.5.0/applications/developing/java/dfhpj2_jca_overview.html
+JCA connects enterprise information systems such as CICS®, to the JEE platform.
+JCA supports the qualities of service for security credential management, connection pooling and transaction management, provided by the JEE application server
+JCA defines a programming interface called the Common Client Interface (CCI). This interface can be used with minor changes to communicate with any enterprise information system.
+/ TODO
 
 
+/ Einde Intermezzo
+
+/t,
+package org.hibernate.engine.jdbc.internal;
+class StatementPreparerImpl implements StatementPreparer {
+	private StatementPreparationTemplate buildPreparedStatementPreparationTemplate(String sql, final boolean isCallable) {
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/ pd,
+
+/t,
+package org.hibernate.engine.jdbc.internal;
+class StatementPreparerImpl implements StatementPreparer {
+	private StatementPreparationTemplate buildPreparedStatementPreparationTemplate(String sql, final boolean isCallable) {
+		return new StatementPreparationTemplate( sql ) {
+			@Override
+			protected PreparedStatement doPrepare() throws SQLException {
+				return isCallable
+						? connection().prepareCall( sql )
+						: connection().prepareStatement( sql );
+/d,
+/ maakt een pstmt	, 
+/ Is deze al compiled in pg, of komt dat later pas?
+/ TODO
+/ lees,
+https://stackoverflow.com/questions/41758436/how-preparedstatement-works-internally-in-java-how-compilation-caching-of-sql
+https://jdbc.postgresql.org/documentation/81/server-prepare.html		<-
+There are a number of ways to enable server side prepared statements depending on your application's needs. The general method is to set a threshold for a PreparedStatement. An internal counter keeps track of how many times the statement has been executed and when it reaches the threshold it will start to use server side prepared statements.
+https://stackoverflow.com/questions/3772038/does-the-compiled-prepared-statement-in-the-database-driver-still-require-compil
+https://docs.oracle.com/cd/E11882_01/java.112/e16548/stmtcach.htm#JJDBC28655
+
+/t,
+org.hibernate.engine.jdbc.internal.StatementPreparerImpl$1(org.hibernate.engine.jdbc.internal.StatementPreparerImpl$StatementPreparationTemplate).prepareStatement() line: 173	
+					preparedStatement = doPrepare();
+/d,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7@2b967987
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], boolean[], int, java.lang.String, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 2878	
+
+		try {
+			// Render the SQL query
+			final PreparedStatement insert;
+			if ( useBatch ) {
+				insert = session
+						.getJdbcCoordinator()
+						.getBatch( inserBatchKey )
+						.getBatchStatement( sql, callable );
+/d,
+insert	org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7  (id=28802)	
+	ps	com.sun.proxy.$Proxy228  (id=28797)	
+		h	org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler  (id=28796)	
+			st	org.postgresql.jdbc42.Jdbc42PreparedStatement  (id=28771)	
+					paramValues	java.lang.Object[3]  (id=28782)	
+						[0]	null	
+						[1]	null	
+						[2]	null	
+					protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+				preparedQuery	org.postgresql.core.CachedQuery  (id=28772)	
+					key	"insert into Category (name, version, id) values (?, ?, ?)" (id=28774)	
+					query	org.postgresql.core.v3.SimpleQuery  (id=28775)	
+						nativeQuery	org.postgresql.core.NativeQuery  (id=28817)	
+							nativeSql	"insert into Category (name, version, id) values ($1, $2, $3)" (id=28824)	
+						protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+						statementName	"S_6" (id=28821)	
+
+				// Write the values of fields onto the prepared statement - we MUST use the state at the time the
+				// insert was issued (cos of foreign key constraints). Not necessarily the object's current state
+/ TODO
+				dehydrate( id, fields, null, notNull, propertyColumnInsertable, j, insert, session, index, false );
+/s,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).dehydrate(java.io.Serializable, java.lang.Object[], java.lang.Object, boolean[], boolean[][], int, java.sql.PreparedStatement, org.hibernate.engine.spi.SessionImplementor, int, boolean) line: 2609
+
+		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+					&& !lobProperties.contains( i ) ) {
+				getPropertyTypes()[i].nullSafeSet( ps, fields[i], index, includeColumns[i], session );
+/s,
+org.hibernate.type.SetType(org.hibernate.type.CollectionType).nullSafeSet(java.sql.PreparedStatement, java.lang.Object, int, boolean[], org.hibernate.engine.spi.SessionImplementor) line: 149	
+		// NOOP 
+/t,
+				index += ArrayHelper.countTrue( includeColumns[i] ); //TODO:  this is kinda slow...
+/ voor de volgende,
+
+		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+					&& !lobProperties.contains( i ) ) {
+				getPropertyTypes()[i].nullSafeSet( ps, fields[i], index, includeColumns[i], session );
+/s,
+org.hibernate.type.StringType(org.hibernate.type.AbstractStandardBasicType<T>).nullSafeSet(java.sql.PreparedStatement, java.lang.Object, int, org.hibernate.type.descriptor.WrapperOptions) line: 257
+	
+		remapSqlTypeDescriptor( options ).getBinder( javaTypeDescriptor ).bind( st, ( T ) value, index, options );
+		
+.getBinder(StringTypeDescriptor)=org.hibernate.type.descriptor.sql.VarcharTypeDescriptor$1=new BasicBinder()=
+package org.hibernate.type.descriptor.sql;
+public class VarcharTypeDescriptor implements SqlTypeDescriptor {
+	@Override
+	public <X> ValueBinder<X> getBinder(final JavaTypeDescriptor<X> javaTypeDescriptor) {
+		return new BasicBinder<X>( javaTypeDescriptor, this ) {										<-
+			@Override
+			protected void doBind(PreparedStatement st, X value, int index, WrapperOptions options) throws SQLException {
+				st.setString( index, javaTypeDescriptor.unwrap( value, String.class, options ) );
+			}
+
+			@Override
+			protected void doBind(CallableStatement st, X value, String name, WrapperOptions options)
+					throws SQLException {
+				st.setString( name, javaTypeDescriptor.unwrap( value, String.class, options ) );
+			}
+		};
+	}
+/ die binds een StringTypeDescriptor inst aan een VarcharTypeDescriptor inst,
+
+/s,
+org.hibernate.type.descriptor.sql.VarcharTypeDescriptor$1(org.hibernate.type.descriptor.sql.BasicBinder<J>).bind(java.sql.PreparedStatement, J, int, org.hibernate.type.descriptor.WrapperOptions) line: 50	
+
+			doBind( st, value, index, options );	/ value="clothing", index=1
+/s,
+		return new BasicBinder<X>( javaTypeDescriptor, this ) {
+			@Override
+			protected void doBind(PreparedStatement st, X value, int index, WrapperOptions options) throws SQLException {
+				st.setString( index, javaTypeDescriptor.unwrap( value, String.class, options ) );
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).setString(int, java.lang.String) line: 679	
+   public void setString(int parameterIndex, String value) throws SQLException
+parameterIndex=1, value="clothing"
+
+            ps.setString(parameterIndex, value);         
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).getStringType() line: 1421	
+        setString(parameterIndex, x, getStringType());
+/s,
+    private int getStringType() {
+        return (connection.getStringVarcharFlag() ? Oid.VARCHAR : Oid.UNSPECIFIED);			/ Oid.VARCHAR
+/j,
+/t,
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).bindString(int, java.lang.String, int) line: 2514	
+        preparedParameters.setStringParameter( paramIndex, s, oid);
+...
+/s,
+org.postgresql.core.v3.SimpleParameterList.bind(int, java.lang.Object, int, byte) line: 71	
+
+        --index;	/ 0 based indexing	,
+
+        encoded[index] = null;
+        paramValues[index] = value ;
+        flags[index] = (byte) (direction(index) | IN | binary);
+        
+        // If we are setting something to an UNSPECIFIED NULL, don't overwrite
+        // our existing type for it.  We don't need the correct type info to
+        // send this value, and we don't want to overwrite and require a
+        // reparse.
+        if (oid == Oid.UNSPECIFIED && paramTypes[index] != Oid.UNSPECIFIED && value == NULL_OBJECT)
+            return;
+
+        paramTypes[index] = oid;
+...
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).setString(int, java.lang.String) line: 696	
+            ps.setString(parameterIndex, value);         
+/d,
+this	org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7  (id=28802)	
+	ps	com.sun.proxy.$Proxy228  (id=28797)	
+		h	org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler  (id=28796)	
+			st	org.postgresql.jdbc42.Jdbc42PreparedStatement  (id=28771)	
+				preparedParameters	org.postgresql.core.v3.SimpleParameterList  (id=28776)	
+					paramTypes	(id=28781)						[1043, 0, 0]
+					paramValues	java.lang.Object[3]  (id=28782)	[clothing, null, null]
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).dehydrate(java.io.Serializable, java.lang.Object[], java.lang.Object, boolean[], boolean[][], int, java.sql.PreparedStatement, org.hibernate.engine.spi.SessionImplementor, int, boolean) line: 2610	
+
+		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+					&& !lobProperties.contains( i ) ) {
+				getPropertyTypes()[i].nullSafeSet( ps, fields[i], index, includeColumns[i], session );
+/d,
+				index += ArrayHelper.countTrue( includeColumns[i] ); //TODO:  this is kinda slow...
+includeColumns=[[], [true], [true]]
+index=2	, voor de volgende column,
+...
+/s,
+org.hibernate.type.descriptor.sql.IntegerTypeDescriptor$1.doBind(java.sql.PreparedStatement, X, int, org.hibernate.type.descriptor.WrapperOptions) line: 46	
+/=
+		return new BasicBinder<X>( javaTypeDescriptor, this ) {
+			@Override
+			protected void doBind(PreparedStatement st, X value, int index, WrapperOptions options) throws SQLException {
+				st.setInt( index, javaTypeDescriptor.unwrap( value, Integer.class, options ) );
+			}
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).setInt(int, int) line: 224	
+            ps.setInt(parameterIndex, value);         
+/s,
+    /*
+     * Set a parameter to a Java int value.  The driver converts this to
+     * a SQL INTEGER value when it sends it to the database.
+     *
+     * @param parameterIndex the first parameter is 1...
+     * @param x the parameter value
+     * @exception SQLException if a database access error occurs
+     */
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).setInt(int, int) line: 1316	
+        if (connection.binaryTransferSend(Oid.INT4)) {
+            byte[] val = new byte[4];
+            ByteConverter.int4(val, 0, x);	[0,0,0,0]	, want x=0
+            bindBytes(parameterIndex, val, Oid.INT4);
+            return;
+        }
+/s,
+org.postgresql.jdbc42.Jdbc42Connection(org.postgresql.jdbc2.AbstractJdbc2Connection).binaryTransferSend(int) line: 1309	
+        return useBinarySendForOids.contains(oid);
+[1184, 2950, 1005, 1007, 17, 1009, 1266, 20, 21, 23, 1015, 1016, 600, 1114, 1083, 603, 700, 701, 1021, 1022]
+/t,
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).bindBytes(int, byte[], int) line: 2502	
+        preparedParameters.setBinaryParameter(paramIndex, b, oid);
+/s,
+org.postgresql.core.v3.SimpleParameterList.bind(int, java.lang.Object, int, byte) line: 58	
+        --index;	/ 2 -> 1
+
+        encoded[index] = null;
+        paramValues[index] = value ;								[clothing, [B@778cd3e3, null]	 / de laatste is voor de id straks,	
+        flags[index] = (byte) (direction(index) | IN | binary);
+        
+        // If we are setting something to an UNSPECIFIED NULL, don't overwrite
+        // our existing type for it.  We don't need the correct type info to
+        // send this value, and we don't want to overwrite and require a
+        // reparse.
+        if (oid == Oid.UNSPECIFIED && paramTypes[index] != Oid.UNSPECIFIED && value == NULL_OBJECT)
+            return;
+
+        paramTypes[index] = oid;									[1043, 23, 0]
+...
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).dehydrate(java.io.Serializable, java.lang.Object[], java.lang.Object, boolean[], boolean[][], int, java.sql.PreparedStatement, org.hibernate.engine.spi.SessionImplementor, int, boolean) line: 2609	
+
+		for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
+			if ( includeProperty[i] && isPropertyOfTable( i, j )
+					&& !lobProperties.contains( i ) ) {
+				getPropertyTypes()[i].nullSafeSet( ps, fields[i], index, includeColumns[i], session );
+/d,
+				index += ArrayHelper.countTrue( includeColumns[i] ); //TODO:  this is kinda slow...
+3	, 
+/ geen volgende meer,
+
+		if ( !isUpdate ) {
+			index += dehydrateId( id, rowId, ps, session, index );	/ index=3
+/s,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).dehydrateId(java.io.Serializable, java.lang.Object, java.sql.PreparedStatement, org.hibernate.engine.spi.SessionImplementor, int) line: 2647	
+		else if ( id != null ) {
+			getIdentifierType().nullSafeSet( ps, id, index, session );
+...
+/s,
+org.hibernate.type.descriptor.sql.BigIntTypeDescriptor.getBinder(org.hibernate.type.descriptor.java.JavaTypeDescriptor<X>) line: 43	
+		return new BasicBinder<X>( javaTypeDescriptor, this ) {
+			@Override
+			protected void doBind(PreparedStatement st, X value, int index, WrapperOptions options) throws SQLException {
+				st.setLong( index, javaTypeDescriptor.unwrap( value, Long.class, options ) );
+			}
+/t,
+org.hibernate.type.LongType(org.hibernate.type.AbstractStandardBasicType<T>).nullSafeSet(java.sql.PreparedStatement, java.lang.Object, int, org.hibernate.type.descriptor.WrapperOptions) line: 257	
+		remapSqlTypeDescriptor( options ).getBinder( javaTypeDescriptor ).bind( st, ( T ) value, index, options );
+/pd,
+/s,
+org.hibernate.type.descriptor.sql.BigIntTypeDescriptor$1(org.hibernate.type.descriptor.sql.BasicBinder<J>).bind(java.sql.PreparedStatement, J, int, org.hibernate.type.descriptor.WrapperOptions) line: 50	
+			doBind( st, value, index, options );
+/s,
+org.hibernate.type.descriptor.sql.BigIntTypeDescriptor$1.doBind(java.sql.PreparedStatement, X, int, org.hibernate.type.descriptor.WrapperOptions) line: 46	
+				st.setLong( index, javaTypeDescriptor.unwrap( value, Long.class, options ) );
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).setLong(int, long) line: 255	
+            ps.setLong(parameterIndex, value);         
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).setLong(int, long) line: 1337	
+        if (connection.binaryTransferSend(Oid.INT8)) {
+            byte[] val = new byte[8];
+            ByteConverter.int8(val, 0, x);		/ [0, 0, 0, 0, 0, 0, 0, 2]	, x=2
+            bindBytes(parameterIndex, val, Oid.INT8);
+            return;
+        }			
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).bindBytes(int, byte[], int) line: 2503	
+        preparedParameters.setBinaryParameter(paramIndex, b, oid);
+				
+this	org.postgresql.jdbc42.Jdbc42PreparedStatement  (id=28771)	
+	preparedParameters	org.postgresql.core.v3.SimpleParameterList  (id=28776)	
+		paramTypes	(id=28781)						/ [1043, 23, 20]
+		paramValues	java.lang.Object[3]  (id=28782)	/ [clothing, [B@3b8058fd, [B@2a8297a5]
+...
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).dehydrateId(java.io.Serializable, java.lang.Object, java.sql.PreparedStatement, org.hibernate.engine.spi.SessionImplementor, int) line: 2647	
+
+		else if ( id != null ) {
+			getIdentifierType().nullSafeSet( ps, id, index, session );
+/d,
+			return getIdentifierColumnSpan();	/ 1
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).dehydrate(java.io.Serializable, java.lang.Object[], java.lang.Object, boolean[], boolean[][], int, java.sql.PreparedStatement, org.hibernate.engine.spi.SessionImplementor, int, boolean) line: 2621	
+		if ( !isUpdate ) {
+			index += dehydrateId( id, rowId, ps, session, index );
+/d,
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], boolean[], int, java.lang.String, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 2896	
+
+				dehydrate( id, fields, null, notNull, propertyColumnInsertable, j, insert, session, index, false );
+/d,
+propertyColumnInsertable=[[], [true], [true]]			/ speelt dit een rol, want 	.NullSafeSet was leeg voor de coll, de 1ste field, 
+																/ daarom verscheen deze niet in paramValues,
+																/ in paramValues staan de andere 2 properties van Category en de id,
+
+
+				if ( useBatch ) {
+					session.getJdbcCoordinator().getBatch( inserBatchKey ).addToBatch();
+/s,
+org.hibernate.engine.jdbc.batch.internal.NonBatchingBatch.addToBatch() line: 41	
+		for ( Map.Entry<String,PreparedStatement> entry : getStatements().entrySet() ) {
+statements=
+{insert into Category (name, version, id) values (?, ?, ?)=org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7@2b967987}		
+
+				final PreparedStatement statement = entry.getValue();
+				final int rowCount = jdbcCoordinator.getResultSetReturn().executeUpdate( statement );
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).executeUpdate() line: 537	
+            return ps.executeUpdate();         
+/s,
+   /*
+     * Execute a SQL INSERT, UPDATE or DELETE statement.  In addition,
+     * SQL statements that return nothing such as SQL DDL statements can
+     * be executed.
+     *
+     * @return either the row count for INSERT, UPDATE or DELETE; or
+     *   * 0 for SQL statements that return nothing.
+     * @exception SQLException if a database access error occurs
+     */
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeUpdate() line: 405	
+        executeWithFlags(QueryExecutor.QUERY_NO_RESULTS);
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(int) line: 463	
+        execute(preparedQuery.query, preparedParameters, flags);
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, int) line: 592	
+
+        // Only use named statements after we hit the threshold. Note that only
+        // named statements can be transferred in binary format.
+        if (preparedQuery != null && preparedQuery.query == queryToExecute)
+        {
+            preparedQuery.increaseExecuteCount();
+            if ((m_prepareThreshold == 0 || preparedQuery.getExecuteCount() < m_prepareThreshold) && !forceBinaryTransfers)
+                flags |= QueryExecutor.QUERY_ONESHOT;
+        }
+/n,
+preparedQuery.getExecuteCount()=9, 	m_prepareThreshold=5	,
+/ TODO
+	
+       StatementResultHandler handler = new StatementResultHandler();
+        result = null;
+        try
+        {
+            startTimer();
+            connection.getQueryExecutor().execute(queryToExecute,
+                                                  queryParameters,
+                                                  handler,
+                                                  maxrows,
+                                                  fetchSize,
+                                                  flags);
+        }
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 147	
+/ totaal,
+                sendQuery((V3Query)query, (V3ParameterList)parameters, maxRows, fetchSize, flags, trackingHandler);
+                sendSync();
+                processResults(handler, flags);
+/ Einde totaal,
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.sendQuery(org.postgresql.core.v3.V3Query, org.postgresql.core.v3.V3ParameterList, int, int, int, org.postgresql.core.v3.QueryExecutorImpl$ErrorTrackingResultHandler) line: 1130	
+
+                sendOneQuery((SimpleQuery)query, (SimpleParameterList)parameters, maxRows, fetchSize, flags);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.sendOneQuery(org.postgresql.core.v3.SimpleQuery, org.postgresql.core.v3.SimpleParameterList, int, int, int) line: 1519	
+       if (noResults)
+        {
+            rows = 1;             // We're discarding any results anyway, so limit data transfer to a minimum
+        }
+        sendParse(query, params, oneShot);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.sendParse(org.postgresql.core.v3.SimpleQuery, org.postgresql.core.v3.SimpleParameterList, boolean) line: 1175	
+        int[] typeOIDs = params.getTypeOIDs();
+        if (query.isPreparedFor(typeOIDs))
+            return;
+/ja, is al prepared, 
+query	org.postgresql.core.v3.SimpleQuery  (id=28775)	
+	preparedTypes	(id=28819)	[1043, 23, 20]
+	
+/ Intermezzo
+
+/ als niet niet zo was geweest	,  maar is dus al gebeurd de 1ste keer,
+
+        byte[] queryUtf8 = Utils.encodeUTF8(nativeSql);
+        pgStream.SendChar('P'); // Parse
+        pgStream.SendInteger4(encodedSize);
+        if (encodedStatementName != null)
+            pgStream.Send(encodedStatementName);
+        pgStream.SendChar(0);   // End of statement name
+        pgStream.Send(queryUtf8); // Query string
+        pgStream.SendChar(0);       // End of query string.
+        pgStream.SendInteger2(params.getParameterCount());       // # of parameter types specified
+        for (int i = 1; i <= params.getParameterCount(); ++i)
+            pgStream.SendInteger4(params.getTypeOID(i));
+/ Dit is WH dat de (native) query wordt compiled op de server,
+nativeQuery	org.postgresql.core.NativeQuery  (id=28817)	
+	bindPositions	(id=28823)	[49, 53, 57] =1,5,9 TODO
+	nativeSql	"insert into Category (name, version, id) values ($1, $2, $3)" (id=28824)	
+
+        pendingParseQueue.add(query);
+query	org.postgresql.core.v3.SimpleQuery  (id=28775)
+/ TODO	
+
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.sendOneQuery(org.postgresql.core.v3.SimpleQuery, org.postgresql.core.v3.SimpleParameterList, int, int, int) line: 1585	
+        sendParse(query, params, oneShot);
+/d,
+/ de params worden apart verstuurd van de query,
+
+        sendBind(query, params, portal, noBinaryTransfer);
+		
+params	org.postgresql.core.v3.SimpleParameterList  (id=28776)	
+	paramTypes	(id=28781)	
+	paramValues	java.lang.Object[3]  (id=28782)	[clothing, [B@3b8058fd, [B@2a8297a5]	, name, version, id
+
+        pgStream.SendChar('B');                  // Bind
+        pgStream.SendInteger4((int)encodedSize);      // Message size
+        if (encodedPortalName != null)
+            pgStream.Send(encodedPortalName);    // Destination portal name.
+        pgStream.SendChar(0);                    // End of portal name.
+        if (encodedStatementName != null)
+            pgStream.Send(encodedStatementName); // Source statement name.
+        pgStream.SendChar(0);                    // End of statement name.
+
+        pgStream.SendInteger2(params.getParameterCount());      // # of parameter format codes
+        for (int i = 1; i <= params.getParameterCount(); ++i)
+            pgStream.SendInteger2(params.isBinary(i) ? 1 : 0);  // Parameter format code
+				/ params.isBinary(index)=return (flags[index-1] & BINARY) != 0;	, flags[1,5,5]	, 1ste prop is name, is string, dus dat 
+					/ is een tekst 	, de 2de en 3de zijn getallen, die zijn binary,
+
+
+        pgStream.SendInteger2(params.getParameterCount());      // # of parameter values
+
+        for (int i = 1; i <= params.getParameterCount(); ++i)
+        {
+            if (params.isNull(i))
+                pgStream.SendInteger4( -1);                      // Magic size of -1 means NULL
+            else
+            {
+                pgStream.SendInteger4(params.getV3Length(i));   // Parameter size
+params.getV3Length()=return encoded[index].length;	 / encoded=[[99, 108, 111, 116, 104, 105, 110, 103], null, null]
+
+                try
+                {
+                    params.writeV3Value(i, pgStream);                 // Parameter value
+params.writeV3Value()=return encoded[index];	 / encoded=[[99, 108, 111, 116, 104, 105, 110, 103], null, null]
+
+/ volgende,
+
+        for (int i = 1; i <= params.getParameterCount(); ++i)
+        {
+            if (params.isNull(i))
+                pgStream.SendInteger4( -1);                      // Magic size of -1 means NULL
+            else
+            {
+                pgStream.SendInteger4(params.getV3Length(i));   // Parameter size
+/s,
+        // Directly encoded?
+        if (paramValues[index] instanceof byte[])
+            return ((byte[]) paramValues[index]).length;	/ klopt, is geen tekst, maar binary, en dus niet encoded,
+							= [0,0,0,0] bij version, en [0,0,0,0,0,0,0,2] bij id,
+                try
+                {
+                    params.writeV3Value(i, pgStream);                 // Parameter value
+
+/ dan,
+        pgStream.SendInteger2(numBinaryFields);   // # of result format codes
+0
+/ TODO
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.sendOneQuery(org.postgresql.core.v3.SimpleQuery, org.postgresql.core.v3.SimpleParameterList, int, int, int) line: 1590	
+        sendBind(query, params, portal, noBinaryTransfer);	/= send params,
+/d,
+        sendExecute(query, portal, rows);
+/s,
+        // Total size = 4 (size field) + 1 + N (source portal) + 4 (max rows)
+        pgStream.SendChar('E');              // Execute
+        pgStream.SendInteger4(4 + 1 + encodedSize + 4);  // message size
+        if (encodedPortalName != null)
+            pgStream.Send(encodedPortalName); // portal name
+        pgStream.SendChar(0);                 // portal name terminator
+        pgStream.SendInteger4(limit);       // row limit
+
+        pendingExecuteQueue.add(new ExecuteRequest(query, portal));
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.sendQuery(org.postgresql.core.v3.V3Query, org.postgresql.core.v3.V3ParameterList, int, int, int, org.postgresql.core.v3.QueryExecutorImpl$ErrorTrackingResultHandler) line: 1157	
+                sendOneQuery((SimpleQuery)query, (SimpleParameterList)parameters, maxRows, fetchSize, flags);
+/d,
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 172	
+                sendQuery((V3Query)query, (V3ParameterList)parameters, maxRows, fetchSize, flags, trackingHandler);
+/d,
+                sendSync();
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.sendSync() line: 1164	
+        pgStream.SendChar('S');     // Sync
+        pgStream.SendInteger4(4); // Length
+        pgStream.flush();
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.processResults(org.postgresql.core.ResultHandler, int) line: 1718	
+                sendQuery((V3Query)query, (V3ParameterList)parameters, maxRows, fetchSize, flags, trackingHandler);
+                sendSync();
+/d,
+                processResults(handler, flags);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.processResults(org.postgresql.core.ResultHandler, int) line: 1718	
+        while (!endQuery)
+        {
+            c = pgStream.ReceiveChar();
+            switch (c)
+            {
+            case '2':    // Bind Complete  (response to Bind)
+                pgStream.ReceiveInteger4(); // len, discarded
+
+            case 'n':    // No Data        (response to Describe)
+                pgStream.ReceiveInteger4(); // len, discarded
+
+            case 'C':  // Command Status (end of Execute)
+                // Handle status.
+                String status = receiveCommandStatus();
+INSERT 0 1
+                    else
+                    {
+                        interpretCommandStatus(status, handler);
+/s,
+org.postgresql.core.v3.QueryExecutorImpl.interpretCommandStatus(java.lang.String, org.postgresql.core.ResultHandler) line: 2233	
+                long updates = Long.parseLong(status.substring(1 + status.lastIndexOf(' ')));
+1               
+                else
+                    update_count = (int)updates;
+1                
+                if (status.startsWith("INSERT"))
+                    insert_oid = Long.parseLong(status.substring(1 + status.indexOf(' '),
+                                                status.lastIndexOf(' ')));
+0
+        handler.handleCommandStatus(status, update_count, insert_oid);
+handler	org.postgresql.jdbc2.AbstractJdbc2Statement$StatementResultHandler  (id=29529)	
+	results	org.postgresql.jdbc2.ResultWrapper  (id=29631)	
+		insertOID	0	
+		next	null	
+		rs	null	
+		updateCount	1	
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.processResults(org.postgresql.core.ResultHandler, int) line: 1995	
+            case 'Z':    // Ready For Query (eventual response to Sync)
+                receiveRFQ();
+/=
+					char tStatus = (char)pgStream.ReceiveChar();
+					case 'T':
+						protoConnection.setTransactionState(ProtocolConnection.TRANSACTION_OPEN);
+						break;
+/t,
+org.postgresql.core.v3.QueryExecutorImpl.execute(org.postgresql.core.Query, org.postgresql.core.ParameterList, org.postgresql.core.ResultHandler, int, int, int) line: 204	
+                processResults(handler, flags);
+/d,
+/t,
+            connection.getQueryExecutor().execute(queryToExecute,
+                                                  queryParameters,
+                                                  handler,
+                                                  maxrows,
+                                                  fetchSize,
+                                                  flags);
+/d,
+/t,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeWithFlags(int) line: 470	
+        execute(preparedQuery.query, preparedParameters, flags);
+/d,
+this	org.postgresql.jdbc42.Jdbc42PreparedStatement  (id=28771)	
+	result	org.postgresql.jdbc2.ResultWrapper  (id=29631)	
+		insertOID	0	
+		next	null	
+		rs	null	
+		updateCount	1	
+/t,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).executeUpdate() line: 413	
+        executeWithFlags(QueryExecutor.QUERY_NO_RESULTS);
+/d,
+        return getUpdateCount();
+1
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7(org.jboss.jca.adapters.jdbc.WrappedPreparedStatement).executeUpdate() line: 537	
+            return ps.executeUpdate();         
+/d,
+/t,
+org.hibernate.engine.jdbc.batch.internal.NonBatchingBatch.addToBatch() line: 46	
+				final PreparedStatement statement = entry.getValue();
+				final int rowCount = jdbcCoordinator.getResultSetReturn().executeUpdate( statement );
+/d,
+				getKey().getExpectation().verifyOutcome( rowCount, statement, 0 );
+				jdbcCoordinator.getResourceRegistry().release( statement );
+/s,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.release(java.sql.Statement) line: 82	
+			xref.remove( statement );
+		}
+		close( statement );
+/s,
+org.hibernate.resource.jdbc.internal.ResourceRegistryStandardImpl.close(java.sql.Statement) line: 154	
+				if ( statement.getMaxRows() != 0 ) {
+/n, is 0
+					statement.setMaxRows( 0 );
+				}
+				if ( statement.getQueryTimeout() != 0 ) {
+/n, is 0
+					statement.setQueryTimeout( 0 );
+				}
+
+this	org.jboss.jca.adapters.jdbc.jdk7.WrappedPreparedStatementJDK7  (id=28802)	
+	s	com.sun.proxy.$Proxy228  (id=28797)	
+		h	org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler  (id=28796)	
+			st	org.postgresql.jdbc42.Jdbc42PreparedStatement  (id=28771)	
+				maxrows	0	
+				timeout 0
+
+			statement.close();
+...
+/s,
+org.postgresql.ds.jdbc23.AbstractJdbc23PooledConnection$StatementHandler.invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[]) line: 432	
+           if (methodName.equals("close"))
+            {
+                if (st == null || st.isClosed())
+                    return null;
+                con = null;
+                final Statement oldSt = st;
+                st = null;
+                oldSt.close();
+				return null;
+/s,
+org.postgresql.jdbc42.Jdbc42PreparedStatement(org.postgresql.jdbc2.AbstractJdbc2Statement).close() line: 901	
+        if (preparedQuery != null)
+            ((AbstractJdbc2Connection) connection).releaseQuery(preparedQuery);
+/=
+				void releaseQuery(CachedQuery cachedQuery)
+					statementCache.put(cachedQuery.key, cachedQuery);
+cachedQuery	org.postgresql.core.CachedQuery  (id=28772)	
+	executeCount	9	
+	isFunction	false	
+	key	"insert into Category (name, version, id) values (?, ?, ?)" (id=28774)	
+	outParmBeforeFunc	false	
+	query	org.postgresql.core.v3.SimpleQuery  (id=28775)	
+		fields	null	
+		nativeQuery	org.postgresql.core.NativeQuery  (id=28817)	
+			bindPositions	(id=28823)	
+			nativeSql	"insert into Category (name, version, id) values ($1, $2, $3)" (id=28824)	
+		preparedTypes	(id=28819)	
+		statementName	"S_6" (id=28821)	
+/t,
+org.hibernate.engine.jdbc.batch.internal.NonBatchingBatch.addToBatch() line: 57	
+				jdbcCoordinator.getResourceRegistry().release( statement );
+/d,
+				jdbcCoordinator.afterStatementExecution();
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], boolean[], int, java.lang.String, java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 2915	
+				if ( useBatch ) {
+					session.getJdbcCoordinator().getBatch( inserBatchKey ).addToBatch();
+/d,
+/t,
+org.hibernate.persister.entity.SingleTableEntityPersister(org.hibernate.persister.entity.AbstractEntityPersister).insert(java.io.Serializable, java.lang.Object[], java.lang.Object, org.hibernate.engine.spi.SessionImplementor) line: 3396	
+		else {
+			// For the case of dynamic-insert="false", use the static SQL
+			for ( int j = 0; j < span; j++ ) {
+				insert( id, fields, getPropertyInsertability(), j, getSQLInsertStrings()[j], object, session );
+/d,
+org.hibernate.action.internal.EntityInsertAction.execute() line: 90	
+			persister.insert( id, getState(), instance, session );
+/d,
+			PersistenceContext persistenceContext = session.getPersistenceContext();
+			final EntityEntry entry = persistenceContext.getEntry( instance );
+/s,
+org.hibernate.engine.internal.StatefulPersistenceContext.getEntry(java.lang.Object) line: 433	
+		return entityEntryContext.getEntityEntry( entity );
+/s,
+org.hibernate.engine.internal.EntityEntryContext.getEntityEntry(java.lang.Object) line: 227	
+		// locate a ManagedEntity for the entity, but only if it is associated with the same PersistenceContext.
+		final ManagedEntity managedEntity = getAssociatedManagedEntity( entity );
+/=
+			else {
+				return nonEnhancedEntityXref != null
+						? nonEnhancedEntityXref.get( entity )
+						: null;
+			}
+/ Einde =
+		// and get/return the EntityEntry from the ManagedEntry
+		return managedEntity == null
+				? null
+				: managedEntity.$$_hibernate_getEntityEntry();
+	}			
+/t,
+org.hibernate.action.internal.EntityInsertAction.execute() line: 92	
+			final EntityEntry entry = persistenceContext.getEntry( instance );
+/d,
+entry	org.hibernate.engine.internal.MutableEntityEntry  (id=25894)	
+	id	java.lang.Long  (id=24159)														<-
+	loadedState	java.lang.Object[3]  (id=25197)	
+		[0]	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+			[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+				bids	java.util.HashSet<E>  (id=25217)	
+				categories	java.util.HashSet<E>  (id=25218)	
+					[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+					[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+				id	null	
+				name	"dress" (id=25219)	
+				version	0	
+		[1]	"clothing" (id=24164)														<-
+		[2]	java.lang.Integer  (id=25208)												<-
+
+			persistenceContext.registerInsertedKey( persister, getId() );
+/s,
+org.hibernate.engine.internal.StatefulPersistenceContext.registerInsertedKey(org.hibernate.persister.entity.EntityPersister, java.io.Serializable) line: 1684	
+		// we only are worried about registering these if the persister defines caching
+		if ( persister.hasCache() ) {
+/n,
+/ TODO
+		if ( isCachePutEnabled( persister, session ) ) {
+/n,
+/ TODO
+/t,
+org.hibernate.engine.spi.ActionQueue.executeActions(org.hibernate.engine.spi.ExecutableList<E>) line: 585
+			for ( E e : list ) {
+				try {	
+					e.execute();
+/d,
+		list.clear();	/ in list zit de EntityInsertAction	,
+this	org.hibernate.engine.spi.ActionQueue  (id=23991)	
+	collectionCreations	org.hibernate.engine.spi.ExecutableList<E>  (id=28017)	
+		executables	java.util.ArrayList<E>  (id=28018)	
+			[0]	org.hibernate.action.internal.CollectionRecreateAction  (id=28016)	
+	insertions	org.hibernate.engine.spi.ExecutableList<E>  (id=26921)	
+		executables	java.util.ArrayList<E>  (id=26922)						<- is inderdaad leeg,
+
+		session.getJdbcCoordinator().executeBatch();	/ niets, er zitten geen statements in	,
+/ maar er hebben nooit stmts in gezeten?
+/ TODO
+
+/t,
+org.hibernate.engine.spi.ActionQueue.executeActions() line: 458	
+		for ( ListProvider listProvider : EXECUTABLE_LISTS_MAP.values() ) {
+			ExecutableList<?> l = listProvider.get( this );
+			if ( l != null && !l.isEmpty() ) {
+				executeActions( l );
+/d,
+			}
+		}
+/ volgende,
+org.hibernate.engine.spi.ActionQueue.executeActions() line: 458	
+		for ( ListProvider listProvider : EXECUTABLE_LISTS_MAP.values() ) {
+			ExecutableList<?> l = listProvider.get( this );
+			if ( l != null && !l.isEmpty() ) {
+				executeActions( l );
+/s,
+org.hibernate.engine.spi.ActionQueue.executeActions(org.hibernate.engine.spi.ExecutableList<E>) line: 580	
+list	org.hibernate.engine.spi.ExecutableList<E>  (id=28017)	
+	executables	java.util.ArrayList<E>  (id=28018)	
+		[0]	org.hibernate.action.internal.CollectionRecreateAction  (id=28016)	
+/s,
+org.hibernate.action.internal.CollectionRecreateAction.execute() line: 47	
+		// this method is called when a new non-null collection is persisted
+		// or when an existing (non-null) collection is moved to a new owner
+		final PersistentCollection collection = getCollection();
+		
+this	org.hibernate.action.internal.CollectionRecreateAction  (id=28016)	
+	collection	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+		[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+			serialVersionUID	1	
+			bids	java.util.HashSet<E>  (id=25217)	
+				[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+				[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+			id	null	
+			name	"dress" (id=25219)	
+			version	0
+		key	java.lang.Long  (id=24159)	2
+/ de key=id is 2, maar zit niet in de coll,
+/ TODO 
+
+			
+		getPersister().recreate( collection, getKey(), getSession() );
+		
+/ Intermezzo
+
+/ niets, want,
+this	org.hibernate.action.internal.CollectionRecreateAction  (id=28016)	
+	persister	org.hibernate.persister.collection.BasicCollectionPersister  (id=25375)	
+		isInverse	true
+@Entity
+public class Category implements Serializable {
+	@ManyToMany(mappedBy="categories")
+	private Set<Item> items = new HashSet<>();
+
+@Entity
+public class Item implements Serializable {
+	@ManyToMany
+	private Set<Category>categories=new HashSet<>();	
+
+/ Einde Intermezzo	
+/s,
+org.hibernate.persister.collection.BasicCollectionPersister(org.hibernate.persister.collection.AbstractCollectionPersister).recreate(org.hibernate.collection.spi.PersistentCollection, java.io.Serializable, org.hibernate.engine.spi.SessionImplementor) line: 1249	
+		if ( isInverse ) {
+			return;
+		}
+/t,
+org.hibernate.action.internal.CollectionRecreateAction.execute() line: 51	
+		getPersister().recreate( collection, getKey(), getSession() );
+/d,
+/ niets,
+		getSession().getPersistenceContext().getCollectionEntry( collection ).afterAction( collection );
+getSession().getPersistenceContext().getCollectionEntry( collection )=
+this	org.hibernate.engine.internal.StatefulPersistenceContext  (id=24004)	
+	collectionEntries	org.hibernate.internal.util.collections.IdentityMap<K,V>  (id=25041)	
+		[0]	org.hibernate.internal.util.collections.IdentityMap$IdentityMapEntry<K,V>  (id=30169)	
+			key	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+					bids	java.util.HashSet<E>  (id=25217)	
+					categories	java.util.HashSet<E>  (id=25218)	
+						[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+						[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+					id	null	
+					name	"dress" (id=25219)	
+					version	0	
+			value	org.hibernate.engine.spi.CollectionEntry  (id=25390)									<-
+				currentKey	java.lang.Long  (id=24159)	
+				currentPersister	org.hibernate.persister.collection.BasicCollectionPersister  (id=25375)	
+																							<- ook set in .afterAction(), maar onveranderd,	
+				dorecreate	true	
+				doremove	false	
+				doupdate	false	
+				fromMerge	false	
+				ignore	false	
+				loadedKey	null		<- wordt 2 in .afterAction()
+				loadedPersister	null	
+				processed	true	
+				reached	true	
+				role	null	
+				snapshot	java.util.HashMap<K,V>  (id=25391)	
+/s,
+org.hibernate.engine.spi.CollectionEntry.afterAction(org.hibernate.collection.spi.PersistentCollection) line: 229	
+		loadedKey = getCurrentKey(); / sets
+		setLoadedPersister( getCurrentPersister() );
+		boolean resnapshot = collection.wasInitialized() &&				/j,
+				( isDoremove() || isDorecreate() || isDoupdate() );		/j, 
+		if ( resnapshot ) {
+			snapshot = loadedPersister==null || !loadedPersister.isMutable() ?
+					null :
+					collection.getSnapshot(loadedPersister); //re-snapshot
+		}
+this	org.hibernate.engine.spi.CollectionEntry  (id=25390)	
+	currentKey	java.lang.Long  (id=24159)	
+	currentPersister	org.hibernate.persister.collection.BasicCollectionPersister  (id=25375)	
+	dorecreate	true
+	...
+	loadedKey	java.lang.Long  (id=24159)	
+	snapshot	java.util.HashMap<K,V>  (id=30437)	
+		[0]	java.util.HashMap$Node<K,V>  (id=30454)	
+			key	org.arquillian.jpa.study2.model.Item  (id=25213)	
+			value	org.arquillian.jpa.study2.model.Item  (id=25213)
+			
+		collection.postAction();	/ dirty=false
+/t,
+org.hibernate.action.internal.CollectionRecreateAction.execute() line: 52	
+		getSession().getPersistenceContext().getCollectionEntry( collection ).afterAction( collection );
+/d,
+		evict();
+/=	
+			if ( persister.hasCache() ) {	/n, dus niets,
+/n,
+		postRecreate();
+/t,
+org.hibernate.engine.spi.ActionQueue.executeActions(org.hibernate.engine.spi.ExecutableList<E>) line: 610	
+			for ( E e : list ) {	/ list van CollectionRecreateActions	,
+				try {
+					e.execute();
+				}
+/d,
+		finally {
+			if ( session.getFactory().getSessionFactoryOptions().isQueryCacheEnabled() ) {
+/n,
+		list.clear();
+		session.getJdbcCoordinator().executeBatch();	/ niets, er is geen stmt in de batch,
+/d,
+/t,
+org.hibernate.engine.spi.ActionQueue.executeActions() line: 454	
+		for ( ListProvider listProvider : EXECUTABLE_LISTS_MAP.values() ) {
+			ExecutableList<?> l = listProvider.get( this );
+			if ( l != null && !l.isEmpty() ) {
+				executeActions( l );
+			}
+/ geen meer,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).performExecutions(org.hibernate.event.spi.EventSource) line: 340	
+			session.getActionQueue().prepareActions();
+			session.getActionQueue().executeActions();
+/d,
+		}
+		finally {
+			session.getPersistenceContext().setFlushing( false );
+			session.getJdbcCoordinator().flushEnding();
+...
+/s,
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.afterStatement() line: 125	
+				releaseConnection();
+/s,
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.releaseConnection() line: 172	
+			jdbcConnectionAccess.releaseConnection( physicalConnection );
+/s,
+org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess.releaseConnection(java.sql.Connection) line: 397	
+				connectionProvider.closeConnection( connection );
+/s,
+org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.closeConnection(java.sql.Connection) line: 127	
+		connection.close();
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).close() line: 256	
+      returnConnection(false);
+/s,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).returnConnection(boolean) line: 298	
+
+            mc.closeHandle(this);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).closeHandle(org.jboss.jca.adapters.jdbc.WrappedConnection) line: 541	
+      returnHandle(handle, false);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).returnHandle(org.jboss.jca.adapters.jdbc.WrappedConnection, boolean) line: 559
+         handles.remove(handle);	/ org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@74b8e8e6
+
+         ce = new ConnectionEvent(this, ConnectionEvent.CONNECTION_CLOSED);
+      ce.setConnectionHandle(handle);
+      for (ConnectionEventListener cel : cels)
+      {
+
+         if (!error)
+         {
+            cel.connectionClosed(ce);
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.connectionClosed(javax.resource.spi.ConnectionEvent) line: 636	
+      if (getCachedConnectionManager() != null)
+      {
+         try
+         {
+            this.getCachedConnectionManager().unregisterConnection(this.getConnectionManager(), this,
+                                                                   ce.getConnectionHandle());
+/s,
+org.jboss.jca.core.connectionmanager.ccm.CachedConnectionManagerImpl.unregisterConnection(org.jboss.jca.core.api.connectionmanager.listener.ConnectionCacheListener, org.jboss.jca.core.api.connectionmanager.listener.ConnectionListener, java.lang.Object) line: 373
+
+/ ccm=cached connection manager	
+
+      KeyConnectionAssociation key = peekMetaAwareObject();
+/=
+      LinkedList<KeyConnectionAssociation> stack = currentObjects.get();	/ thread local,
+
+      if (stack != null && !stack.isEmpty())
+      {
+         return stack.getLast();
+      }
+	  
+key	org.jboss.jca.core.connectionmanager.ccm.KeyConnectionAssociation  (id=23209)	
+	cmToConnectionsMap	java.util.concurrent.ConcurrentHashMap<K,V>  (id=24098)			<-	
+		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=30537)	
+			key	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=22135)	
+			value	java.util.concurrent.CopyOnWriteArrayList<E>  (id=24100)	
+				[0]	org.jboss.jca.core.connectionmanager.ConnectionRecord  (id=30539)			<- 	
+					connection	org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7  (id=28762)	
+					connectionListener	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+		 
+      ConcurrentMap<ConnectionCacheListener, CopyOnWriteArrayList<ConnectionRecord>> cmToConnectionsMap =
+         key.getCMToConnectionsMap();
+      CopyOnWriteArrayList<ConnectionRecord> conns = cmToConnectionsMap.get(cm);
+      for (ConnectionRecord connectionRecord : conns)
+      {
+         if (connectionRecord.getConnection() == connection)
+         {
+            conns.remove(connectionRecord);
+            return;
+			
+this	org.jboss.jca.core.connectionmanager.ccm.CachedConnectionManagerImpl  (id=23202)	
+	currentObjects	java.lang.ThreadLocal<T>  (id=23207)	
+/ hier de laatste van =
+key	org.jboss.jca.core.connectionmanager.ccm.KeyConnectionAssociation  (id=23209)	
+	cmToConnectionsMap	java.util.concurrent.ConcurrentHashMap<K,V>  (id=24098)	
+		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=30602)	
+			key	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=22135)	
+			value	java.util.concurrent.CopyOnWriteArrayList<E>  (id=24100)		[]
+
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.connectionClosed(javax.resource.spi.ConnectionEvent) line: 656	
+            this.getCachedConnectionManager().unregisterConnection(this.getConnectionManager(), this,
+                                                                   ce.getConnectionHandle());
+/d,
+         if (wasFreed(ce.getConnectionHandle()))
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.wasFreed(java.lang.Object) line: 836	
+         // Unregister the handle
+         unregisterConnection(handle); 	/ handle=org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@74b8e8e6
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener(org.jboss.jca.core.connectionmanager.listener.AbstractConnectionListener).unregisterConnection(java.lang.Object) line: 359	
+         if (!connectionHandles.remove(handle))
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.wasFreed(java.lang.Object) line: 836	
+         // Unregister the handle
+         unregisterConnection(handle); 	/ handle=org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7@74b8e8e6
+/d,
+      // Return if the managed connection was just freed
+      return isManagedConnectionFree();		 
+/=
+		  if (isTrackByTx() && transactionSynchronization != null)	/j,	
+			 return false;		
 / Einde Intermezzo                     
+/t,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener.connectionClosed(javax.resource.spi.ConnectionEvent) line: 656	
+         if (wasFreed(ce.getConnectionHandle()))
+/n,
+/ Intermezzo
+
+/ als wel , dan uit de pool,
+               this.getConnectionManager().returnManagedConnection(this, false);
+/s,
+package org.jboss.jca.core.connectionmanager;
+public abstract class AbstractConnectionManager implements ConnectionManager
+   public void returnManagedConnection(org.jboss.jca.core.api.connectionmanager.listener.ConnectionListener bcl,
+                                       boolean kill)
+         localStrategy.returnConnection(cl, kill);
+/s,
+package org.jboss.jca.core.connectionmanager.pool;
+public abstract class AbstractPool implements Pool
+   public void returnConnection(ConnectionListener cl, boolean kill) throws ResourceException
+   {
+      cl.setTrackByTx(false);
+      //Get connection listener pool
+      ManagedConnectionPool mcp = cl.getManagedConnectionPool();
+      //Return connection to the pool
+      mcp.returnConnection(cl, kill);
+/s,
+package org.jboss.jca.core.connectionmanager.pool.mcp;
+public class SemaphoreConcurrentLinkedDequeManagedConnectionPool implements ManagedConnectionPool 
+/ of,
+public class SemaphoreArrayListManagedConnectionPool implements ManagedConnectionPool
+   public void returnConnection(ConnectionListener cl, boolean kill, boolean cleanup) 
+      ConnectionListenerWrapper clw = cls.get(cl);
+      else 
+      {
+         cl.toPool();
+         if (!clq.contains(clw)) 
+         {
+            clq.addLast(clw);
+         } 
+/ Einde Intermezzo						
 							
-							
-							
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection(org.jboss.jca.adapters.jdbc.BaseWrapperManagedConnection).returnHandle(org.jboss.jca.adapters.jdbc.WrappedConnection, boolean) line: 596	
+            cel.connectionClosed(ce);
+/d,
+/ dus niet terug in pool, want is nog tracked bij tx,
+/t,
+org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7(org.jboss.jca.adapters.jdbc.WrappedConnection).returnConnection(boolean) line: 305	
+            mc.closeHandle(this);
+/d,
+      mc = null;
+      dataSource = null;
+
+/ de pool is er nog, en de conn ook, maar niet in deze org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7
+/ we zien dat de tm WH de tx niet kent,
+TODO
+/ maar de TransactionSynchronizer dat wel doet,
+/ TODO
+
+this	org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7  (id=28762)	
+	dataSource	org.jboss.jca.adapters.jdbc.WrapperDataSource  (id=22136)	
+		cm	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=22135)	
+			jndiName	"java:jboss/datasources/PostgreSQLDS" (id=22802)	
+			pool	org.jboss.jca.core.connectionmanager.pool.strategy.OnePool  (id=22278)	
+			transactionManager	org.jboss.jca.core.tx.jbossts.TransactionManagerDelegator  (id=22679)	
+			transactionSynchronizationRegistry	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=22257)	
+				interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=22289)	
+					[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=30726)	
+						key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+						value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)
+							jcaSyncs	java.util.ArrayList<E>  (id=22297)	
+								[0]	org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer  (id=22687)	
+	->								tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)							
+	->						tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+								_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22309)	
+								_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=22310)	
+									[1]	java.util.HashMap$Node<K,V>  (id=22667)	
+										key	org.jboss.jca.core.connectionmanager.pool.mcp.SemaphoreConcurrentLinkedDequeManagedConnectionPool  (id=22282)	
+										value	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+											managedConnection	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+												xaConnection	org.postgresql.xa.PGXAConnection  (id=22371)	
+													conn	org.postgresql.jdbc42.Jdbc42Connection  (id=22386)	
+														protoConnection	org.postgresql.core.v3.ProtocolConnectionImpl  (id=22431)	
+															pgStream	org.postgresql.core.PGStream  (id=22466)	
+																connection	java.net.Socket  (id=22486)	
+																pg_input	org.postgresql.core.VisibleBufferedInputStream  (id=22490)	
+																pg_output	java.io.BufferedOutputStream  (id=22491)	
+	jndiName	"java:jboss/datasources/PostgreSQLDS" (id=22802)	
+	mc	null		
+
+
+/ Intermezzo
+
+/ deze pakken we ook op,
+/ de em kent de conn ook, want de em kent de tx,
+this	org.jboss.jca.adapters.jdbc.jdk7.WrappedConnectionJDK7  (id=28762)	
+	dataSource	org.jboss.jca.adapters.jdbc.WrapperDataSource  (id=22136)	
+		cm	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=22135)	
+			transactionSynchronizationRegistry	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=22257)	
+				interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=22289)	
+					[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=30726)	
+						key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+						value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)	
+							preJcaSyncs	java.util.ArrayList<E>  (id=22298)	
+								[1]	org.jboss.as.jpa.transaction.TransactionUtil$SessionSynchronization  (id=22267)	
+					->				manager	org.hibernate.jpa.internal.EntityManagerImpl  (id=22263)	
+										session	org.hibernate.internal.SessionImpl  (id=22261)	
+											jdbcConnectionAccess	org.hibernate.internal.AbstractSessionImpl$NonContextualJdbcConnectionAccess  (id=22269)	
+												connectionProvider	org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl  (id=22138)	
+													dataSource	org.jboss.as.connector.subsystems.datasources.WildFlyDataSource  (id=22137)
+														delegate	org.jboss.jca.adapters.jdbc.WrapperDataSource  (id=22136)	
+															cm	org.jboss.jca.core.connectionmanager.tx.TxConnectionManagerImpl  (id=22135)	
+																transactionSynchronizationRegistry	org.jboss.as.txn.service.internal.tsr.TransactionSynchronizationRegistryWrapper  (id=22257)	
+																	interposedSyncs	java.util.concurrent.ConcurrentHashMap<K,V>  (id=22289)	
+																		[0]	java.util.concurrent.ConcurrentHashMap$MapEntry<K,V>  (id=30726)	
+																			key	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+																			value	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)	
+																				tx	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+																					_theTransaction	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22309)	
+																					_txLocalResources	java.util.Collections$SynchronizedMap<K,V>  (id=22310)	
+																						/ hier zit de conn in, zie boven,
+									
+										tx	org.hibernate.jpa.internal.TransactionImpl  (id=28432)	
+											tx	null	/ TODO
+
+									scopedPuName	"73f00951-f3fd-4f44-8ffd-cda677c6e49b.war#arquillian-jpa-study2-persistence-unit" (id=26100)	
+/ Einde Intermezzo
+
+org.hibernate.resource.jdbc.internal.LogicalConnectionManagedImpl.releaseConnection() line: 178	
+			jdbcConnectionAccess.releaseConnection( physicalConnection );
+/d,
+			physicalConnection = null;
+			getResourceRegistry().releaseResources();
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).performExecutions(org.hibernate.event.spi.EventSource) line: 342	
+			session.getJdbcCoordinator().flushEnding();
+/d,
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.DefaultFlushEventListener).onFlush(org.hibernate.event.spi.FlushEvent) line: 40	
+				performExecutions( source );
+/d,
+				postFlush( source );
+
+/ Intermezzo
+
+/ we zitten nog in tx.commit()	, .beforeCompletion, 
+
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).postFlush(org.hibernate.engine.spi.SessionImplementor) line: 357	
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.DefaultFlushEventListener).onFlush(org.hibernate.event.spi.FlushEvent) line: 40	
+org.hibernate.internal.SessionImpl.flush() line: 1282	
+org.hibernate.internal.SessionImpl.managedFlush() line: 465	
+org.hibernate.internal.SessionImpl.flushBeforeTransactionCompletion() line: 2963	
+org.hibernate.internal.SessionImpl.beforeTransactionCompletion() line: 2339	
+org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.beforeTransactionCompletion() line: 485	
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.beforeCompletion() line: 316	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorTrackingImpl(org.hibernate.resource.transaction.backend.jta.internal.synchronization.SynchronizationCallbackCoordinatorNonTrackingImpl).beforeCompletion() line: 47	
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.beforeCompletion() line: 37	
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 116	
+com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple.beforeCompletion() line: 76	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).beforeCompletion() line: 368	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).end(boolean) line: 91	
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.AtomicAction).commit(boolean) line: 162	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.commitAndDisassociate() line: 1200	
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionManagerImple(com.arjuna.ats.internal.jta.transaction.arjunacore.BaseTransaction).commit() line: 126	
+com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate(com.arjuna.ats.jbossatx.BaseTransactionManagerDelegate).commit() line: 89	
+org.jboss.as.ejb3.tx.CMTTxInterceptor.endTransaction(javax.transaction.TransactionManager, javax.transaction.Transaction) line: 91	
+
+/ Einde Intermezzo
+	
+/s,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).postFlush(org.hibernate.engine.spi.SessionImplementor) line: 357	
+		for ( Map.Entry<PersistentCollection, CollectionEntry> me : IdentityMap.concurrentEntries( persistenceContext.getCollectionEntries() ) ) {
+			CollectionEntry collectionEntry = me.getValue();
+			PersistentCollection persistentCollection = me.getKey();
+/ zitten er nog in,
+			collectionEntry.postFlush(persistentCollection);
+/s,
+	/**
+	 * Called after a successful flush
+	 */
+org.hibernate.engine.spi.CollectionEntry.postFlush(org.hibernate.collection.spi.PersistentCollection) line: 223	
+		collection.setSnapshot(loadedKey, role, snapshot);
+/t,
+org.hibernate.jpa.event.internal.core.JpaFlushEventListener(org.hibernate.event.internal.AbstractFlushingEventListener).postFlush(org.hibernate.engine.spi.SessionImplementor) line: 379	
+			collectionEntry.postFlush(persistentCollection);
+			else {
+				//otherwise recreate the mapping between the collection and its key
+				CollectionKey collectionKey = new CollectionKey(
+						collectionEntry.getLoadedPersister(),
+						collectionEntry.getLoadedKey()
+				);
+				persistenceContext.getCollectionsByKey().put(collectionKey, persistentCollection);
+
+persistenceContext	org.hibernate.engine.internal.StatefulPersistenceContext  (id=24004)	
+	collectionsByKey	java.util.HashMap<K,V>  (id=25042)	
+		[0]	java.util.HashMap$Node<K,V>  (id=32113)	
+			key	org.hibernate.engine.spi.CollectionKey  (id=32110)	
+			value	org.hibernate.collection.internal.PersistentSet  (id=25377)	
+				[0]	org.arquillian.jpa.study2.model.Item  (id=25213)	
+					serialVersionUID	1	
+					bids	java.util.HashSet<E>  (id=25217)	
+					categories	java.util.HashSet<E>  (id=25218)	
+						[0]	org.arquillian.jpa.study2.model.Category  (id=25233)	
+						[1]	org.arquillian.jpa.study2.model.Category  (id=22927)	
+					id	null	
+					name	"dress" (id=25219)	
+					version	0	
+...
+/t,
+org.hibernate.internal.SessionImpl.beforeTransactionCompletion() line: 2340	
+		flushBeforeTransactionCompletion();
+/d,
+		actionQueue.beforeTransactionCompletion();
+/ niets,
+/t,
+org.hibernate.resource.transaction.backend.jta.internal.JtaTransactionCoordinatorImpl.beforeCompletion() line: 327	
+			transactionCoordinatorOwner.beforeTransactionCompletion();
+/d,
+		finally {
+			synchronizationRegistry.notifySynchronizationsBeforeTransactionCompletion();	/ er zijn geen synchronizations in deze reg TODO 
+			for ( TransactionObserver observer : observers ) {	/ zijn er niet,
+				observer.beforeCompletion();
+/n,
+/t,
+org.hibernate.resource.transaction.backend.jta.internal.synchronization.RegisteredSynchronization.beforeCompletion() line: 38	
+		synchronizationCallbackCoordinator.beforeCompletion();
+/d,
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 117	
+            preJcaSync.beforeCompletion();
+/d,
+            lastIndexProcessed = lastIndexProcessed + 1;			
+1
+/ Dit was de RegisteredSynchronization's beforeCompletion	, 
+/ nu de SessionSynchronization	,
+/ volgende,
+        while ((lastIndexProcessed < preJcaSyncs.size())) {
+            Synchronization preJcaSync = preJcaSyncs.get(lastIndexProcessed);
+            preJcaSync.beforeCompletion();
+/=
+				afterCompletionCalled = false;
+/ er is geen volgende preJcaSync	,
+
+        // Do the same for the jca syncs
+        lastIndexProcessed = 0;
+        while ((lastIndexProcessed < jcaSyncs.size())) {
+            Synchronization jcaSync = jcaSyncs.get(lastIndexProcessed);
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer@3e9dfb46
+            jcaSync.beforeCompletion();
+/s,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.beforeCompletion() line: 376	
+      for (Synchronization synch : enlisted)
+TransactionSynchronization@1914048698{tx=TransactionImple < ac, BasicAction: 0:ffffc0a87b73:-4efcc201:5d05ef8e:18a status: ActionStatus.RUNNING > wasTrackByTx=true enlisted=true cancel=false}
+      {
+         invokeBefore(synch);
+      }
+/s,
+org.jboss.jca.core.connectionmanager.transaction.TransactionSynchronizer.invokeBefore(javax.transaction.Synchronization) line: 438	
+         synch.beforeCompletion();
+/s,
+org.jboss.jca.core.connectionmanager.listener.TxConnectionListener$TransactionSynchronization.beforeCompletion() line: 1055	
+         if (enlisted && !cancel)
+         {
+            try
+            {
+               if (this.equals(transactionSynchronization) && wasTrackByTx && doDelistResource)
+               {
+                  if (TxUtils.isUncommitted(currentTx))
+                  {
+                     if (TxUtils.isActive(currentTx))
+                     {
+                        currentTx.delistResource(TxConnectionListener.this.getXAResource(), XAResource.TMSUCCESS);
+
+this	org.jboss.jca.core.connectionmanager.listener.TxConnectionListener  (id=22145)	
+	xaResource	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22334)		/= TxConnectionListener.this.getXAResource()
+		xaResource	org.jboss.jca.adapters.jdbc.xa.XAManagedConnection  (id=22146)	
+			xaConnection	org.postgresql.xa.PGXAConnection  (id=22371)	
+/ hier kijken we altijd in,
+/s,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.delistResource(javax.transaction.xa.XAResource, int) line: 824	
+/=
+	public boolean delistResource(XAResource xaRes, int flags)
+
+_resources	java.util.Hashtable<K,V>  (id=22308)	
+	[0]	java.util.Hashtable$Entry<K,V>  (id=32267)	
+		key	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22334)	
+		value	com.arjuna.ats.internal.jta.xa.TxInfo  (id=22921)	
+			_state	0	
+			_thread	java.lang.Thread  (id=125)	
+			_xid	com.arjuna.ats.jta.xa.XidImple  (id=22815)	
+
+				info = (TxInfo) _resources.get(xaRes);
+
+				switch (info.getState())
+				{
+				case TxInfo.ASSOCIATED:
+				{
+					if ((flags & XAResource.TMSUCCESS) != 0)
+					{
+						xaRes.end(info.xid(), XAResource.TMSUCCESS);
+/s,
+org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl.end(javax.transaction.xa.Xid, int) line: 118	
+      xaResource.end(xid, flags);
+/s,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.end(javax.transaction.xa.Xid, int) line: 290	
+            xaResource.end(xid, flags);
+/s,
+    /**
+     * Preconditions:
+     * 1. Flags is one of TMSUCCESS, TMFAIL, TMSUSPEND
+     * 2. xid != null
+     * 3. Connection is associated with transaction xid
+     *
+     * Implementation deficiency preconditions:
+     * 1. Flags is not TMSUSPEND
+     * 
+     * Postconditions:
+     * 1. connection is disassociated from the transaction.
+     */
+org.postgresql.xa.PGXAConnection.end(javax.transaction.xa.Xid, int) line: 264	
+        // All clear. We don't have any real work to do.
+        state = STATE_ENDED;
+/t,
+org.jboss.jca.adapters.jdbc.xa.XAManagedConnection.end(javax.transaction.xa.Xid, int) line: 314	
+            xaResource.end(xid, flags);
+/d,
+            if (currentXid != null && currentXid.equals(xid))
+            {
+               inManagedTransaction = false;
+               currentXid = null;
+            }
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple.delistResource(javax.transaction.xa.XAResource, int) line: 898	
+						xaRes.end(info.xid(), XAResource.TMSUCCESS);
+/d,
+						info.setState(TxInfo.NOT_ASSOCIATED);
+				info = null;
+/ is info een copy?
+/ TODO COPY 
+/ want de TxInfo is er nog,			
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.TransactionImple  (id=22231)	
+	_resources	java.util.Hashtable<K,V>  (id=22308)	
+		[0]	java.util.Hashtable$Entry<K,V>  (id=32267)	
+			key	org.jboss.jca.core.tx.jbossts.XAResourceWrapperImpl  (id=22334)	
+			value	com.arjuna.ats.internal.jta.xa.TxInfo  (id=22921)	
+				_state	1	
+				_thread	java.lang.Thread  (id=125)	
+				_xid	com.arjuna.ats.jta.xa.XidImple  (id=22815)	
+
+/t,
+org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList.beforeCompletion() line: 131	
+        while ((lastIndexProcessed < jcaSyncs.size())) {
+            Synchronization jcaSync = jcaSyncs.get(lastIndexProcessed);
+             jcaSync.beforeCompletion();
+/d,
+/ er is geen volgende,
+/t,
+com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple.beforeCompletion() line: 77	
+		_theSynch.beforeCompletion();
+/d,
+		return true;
+/t,
+com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.arjuna.coordinator.TwoPhaseCoordinator).beforeCompletion() line: 388	
+	                while( (lastIndexProcessed < _synchs.size()-1) && !problem) {
+
+					synchronized (_synchs) {
+	                        // if new Synchronization have been registered, refresh our copy of the collection:
+	                        if(copiedSynchs.length != _synchs.size()) {
+	                            copiedSynchs = (SynchronizationRecord[])_synchs.toArray(new SynchronizationRecord[] {});
+	                        }
+	                    }
+
+	                    lastIndexProcessed = lastIndexProcessed+1;
+	                    _currentRecord = copiedSynchs[lastIndexProcessed];
+						
+this	com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction  (id=22309)	
+	_currentRecord	com.arjuna.ats.internal.jta.resources.arjunacore.SynchronizationImple  (id=26086)
+		_isInterposed	true		
+		_theSynch	org.jboss.as.txn.service.internal.tsr.JCAOrderedLastSynchronizationList  (id=22295)	
+
+	                    try
+	                    {
+	                        problem = !_currentRecord.beforeCompletion();
+/d,
+	    return !problem;
+
+				
+/ Einde Intermezzo
+
+
 							
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
