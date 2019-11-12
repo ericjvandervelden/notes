@@ -681,6 +681,182 @@ https://developer.jboss.org/thread/249446 WELD-001408: Unsatisfied dependencies 
 
 / Einde OPEN IN CHROME 21-04-2019
 
+/ OPEN IN CHROME 2019-11
+
+https://bintray.com/reactivex/RxJava/RxJava
+https://www.youtube.com/watch?v=iJBh2NoSCKM 	/ quarkus
+http://help.eclipse.org/kepler/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Freference%2Fviews%2Fbreakpoints%2Fref-groupby_viewaction.htm
+https://stackoverflow.com/questions/11340959/is-it-possible-to-save-a-set-of-breakpoints
+https://chartio.com/resources/tutorials/understanding-the-difference-between-a-jdbc-statement-and-prepared-statement/
+https://www.postgresql.org/docs/9.6/wal-configuration.html
+https://stackoverflow.com/questions/8104595/why-is-the-postgresql-jdbc-prepared-statement-threshold-defaulted-to-5
+https://www.postgresql.org/docs/9.6/protocol-flow.html#AEN113361
+https://www.journaldev.com/30222/sql-auto-increment?utm_source=browser&utm_medium=rss_notification&utm_id=321452.07912866544
+https://www.youtube.com/watch?v=ugQAupn9XFU
+https://www.youtube.com/watch?v=a_m440rZ5h8
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegressionCV.html
+https://developer.jboss.org/thread/278823
+https://stackoverflow.com/questions/6694003/whats-the-purpose-of-transactionsynchronizationregistry
+https://www.linkedin.com/pulse/how-memory-session-replication-works-spring-session-redis-abdelhamid
+https://www.youtube.com/watch?v=Yk9L_zEXItI
+https://www.youtube.com/watch?v=5q8B6lYhFvE
+https://medium.com/netflix-techblog/announcing-zuul-edge-service-in-the-cloud-ab3af5be08ee
+https://www.youtube.com/watch?v=sOP3x6ODQWQ
+https://docs.wildfly.org/16/WildFly_Elytron_Security.html#KeyCloak_Integration
+https://docs.jboss.org/author/display/WFLY/WildFly+Elytron+Security
+https://blog.hackeriet.no/Simple-and-Extended-postgresql-queries/
+https://www.postgresql.org/docs/9.6/protocol.html
+https://github.com/jbosstm/quickstart/tree/master/jts-docker
+https://stackoverflow.com/questions/45075133/increase-jta-transaction-timeout-limit-in-wildfly
+http://wiki.octave.org/Octave_for_GNU/Linux
+https://www.coursera.org/learn/machine-learning/supplement/Bln5m/model-representation-i
+https://stackoverflow.com/questions/6198020/eclipse-doesnt-find-source-attachements
+https://maven.apache.org/plugins/maven-dependency-plugin/sources-mojo.html
+https://www.javacodegeeks.com/2019/04/spring-reactive-already-obsolete-inversion-thread-coupling.html
+https://www.soapui.org/soap-mocking/creating-dynamic-mockservices.html
+https://www.soapui.org/resources/tutorials/rest-sample-project.html
+https://www.soapui.org/soap-mocking/mockoperations-and-responses.html
+https://smartbear.com/store/soapui-pro/?sr=soapui&md=nav&_ga=2.260454671.325663008.1556020961-794981696.1541713814
+https://www.baeldung.com/java-threadlocal
+https://download.oracle.com/otn-pub/jcp/connector_architecture-1.6-fr-eval-oth-JSpec/connector-1_6-final-spec.pdf?AuthParam=1556001864_9b1aa2d60944146920d83fa2a2d2ba81
+https://docs.wildfly.org/16/Admin_Guide.html
+https://developer.jboss.org/thread/279662
+https://stackoverflow.com/questions/1082095/how-to-remove-entity-with-manytomany-relationship-in-jpa-and-corresponding-join
+https://portal.hackazon.org/#!/course/7
+http://localhost:9990/console/App.html#profile/ds-finder
+https://stackoverflow.com/questions/7745885/log4j-logging-hierarchy-order
+https://stackoverflow.com/questions/960099/how-to-set-up-java-logging-using-a-properties-file-java-util-logging
+https://www.marcobehler.com/guides/a-guide-to-logging-in-java
+https://stackoverflow.com/questions/5950557/good-examples-using-java-util-logging
+https://www.logicbig.com/tutorials/misc/java-logging/slf4j-with-jul.html
+http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html
+https://www.mkyong.com/logging/log4j-hello-world-example/
+https://search.maven.org/artifact/org.wildfly/wildfly-ejb3/16.0.0.Final/jar
+https://thoughts-on-java.org/wp-content/uploads/member-access/library/cheatSheets/BestPracticesManyToMany.pdf
+https://thoughts-on-java.org/naturalid-good-way-persist-natural-ids-hibernate/
+https://forge.jboss.org/download
+https://stackoverflow.com/questions/12087959/junit-run-set-up-method-once
+https://docs.jboss.org/author/display/WFLY10/Logging+Configuration#LoggingConfiguration-StandaloneServer
+https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+http://narayana.io//docs/project/index.html#d0e2553
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/4.3/html/transactions_failure_recovery_guide/sect-transactions_failure_recovery_guide-architecture_of_the_recovery_manager-recovery_modules
+https://developer.jboss.org/wiki/HowToUseOutOfProcessActiveMQWithWildFly
+http://www.ironjacamar.org/doc/userguide/1.1/en-US/html/ch01.html
+https://sso.jboss.org/login?service=https%3A%2F%2Fdocs.jboss.org%2Fauthor%2Fdisplay%2FWFLY%2FJPA%2BReference%2BGuide&gateway=true#JPAReferenceGuide-Troubleshooting
+https://www.tutorialspoint.com/log4j/log4j_logging_levels.htm
+https://www.soapui.org/soapui-projects/soapui-projects.html
+http://petstore.swagger.io/#/
+http://petstore.swagger.io/v2/swagger.json
+https://www.soapui.org/rest-testing/getting-started.html
+https://forge.jboss.org/document/hands-on-lab
+https://stackoverflow.com/questions/38917610/arquillian-add-resources-from-main-folder
+https://stackoverflow.com/questions/673802/how-to-import-initial-data-to-database-with-hibernate
+http://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#associations
+https://docs.jboss.org/author/display/WFLY10/Messaging+configuration
+https://developer.okta.com/blog/2019/02/20/spring-boot-with-postgresql-flyway-jsonb
+https://docs.spring.io/spring-boot/docs/current/reference/html/howto-data-access.html
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req
+https://www.javacodegeeks.com/2019/03/centralized-authorization-with-oauth2-opaque-tokens-using-spring-boot-2.html?utm_source=sendpulse&utm_medium=push&utm_campaign=964840
+https://stackoverflow.com/questions/25214211/unsatisfied-dependencies-for-type-entitymanager-with-qualifiers-default
+http://localhost:8080/greeter/weld-probe#/beans
+https://abhirockzz.wordpress.com/2014/08/09/ejb-3-x-lifecycle-and-concurrency-models-part-1/
+https://dzone.com/articles/ejb-3x-lifecycle-and-0
+
+
+
+/ Einde OPEN IN CHROME 2019-11
+
+/ OPEN COMMAND LINE 2019-11
+
+D:\Users\ervelden\misc_codebase>dir
+ Volume in drive D is Data
+ Volume Serial Number is 6ED1-C17D
+
+ Directory of D:\Users\ervelden\misc_codebase
+
+11-04-2019  16:29    <DIR>          .
+11-04-2019  16:29    <DIR>          ..
+11-04-2019  16:33    <DIR>          abc-collection-study
+10-04-2019  18:53    <DIR>          arquillian-getting_started
+28-06-2019  22:26    <DIR>          arquillian-jpa-study2
+10-04-2019  18:53    <DIR>          arquillian-rinse_and_repeat
+               0 File(s)              0 bytes
+               6 Dir(s)  130.999.013.376 bytes free
+			   
+D:\Users\ervelden\misc_codebase>forge
+
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+TCP server running at tcp://localhost:9092 (only local connections)
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin>standalone.bat
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin>jboss-cli.bat
+
+[arquillian-jpa-study2]$ build test
+
+C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse>eclipse.exe
+
+
+/ Einde OPEN COMMAND LINE 2019-11
+
+/ GIT BASH
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/misc_codebase/arquillian-jpa-study2/target/surefire-reports (master)
+$ less TEST-org.arquillian.jpa.study2.dao.SetDaoTest.xml
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/tmp/arquillian-jpa-study2-copy (master)
+$ ls
+arquillian-jpa-study2.bkpt                              Notes.txt   src/
+arquillian-jpa-study2-only-basicaction.bkpt             pom.xml     target/
+arquillian-jpa-study2-only-basicaction-unselected.bkpt  README.txt
+
+ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/Documents/My Notes (master)
+$ git commit -m "sql any"
+
+ERVELDEN@LBNL031514 MINGW64 ~/bin/wildfly-10.1.0.Final
+$ less standalone/log/server.log
+
+/ let op,
+-rw-r--r-- 1 ERVELDEN 1049089 1814797 Mar  6  2019  LOG_angular20180124.txt
+-rw-r--r-- 1 ERVELDEN 1049089  724698 Sep 24 19:44  LOG_arquillian-again.txt
+
+
+
+
+
+
+/ Einde GIT BASH
+
+/ OPEN IN ECLIPSE
+
+/ workspace-arquillian-copy - arquillian-jpa-study2/README.txt
+
+/ maak in eclipse een remote application debug config, 
+naam: arquillian-jpa-study2-with-mvn-deps-attach
+project: arquillian-jpa-study2
+host: localhost
+port: 8787
+/ geen Source attachments, alles via mvn	,
+
+/ start wildfly,
+$ standalone.bat --debug
+/ set b, 
+run debug config: arquillian-jpa-study2-with-mvn-deps-attach
+/ doe in forge: build test
+/ hij valt in b,
+
+/ workspace-arquillian,
+
+D:\Users\ervelden\workspaces\workspace-arquillian
+
+
+
+
+
+
+
+/ Einde OPEN IN ECLIPSE
+
 
 
 

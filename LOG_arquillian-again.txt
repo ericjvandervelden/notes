@@ -13773,7 +13773,7 @@ com.arjuna.ats.internal.jta.transaction.arjunacore.AtomicAction(com.arjuna.ats.a
 / Einde Intermezzo
 
 
-							
+/ HIER HIER HIER 15-9-2019	
 		
 / Einde DEBUG TX START WILDFLY REGISTEREDSYNCHRONIZATION TRANSACTIONSYNCHRONIZATIONREGISTRYWRAPPER
 
