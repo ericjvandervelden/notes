@@ -1,0 +1,222 @@
+/ 7	 .
+
+/ ch 8
+
+create table series(
+seq int not null primary key
+constraint non_negative_nbr check(seq>0),
+cardinal_name varchar(32),
+ordinal_name varchar(32),
+constraint numbers_are_complete check((select count(*)from series)=(select max(seq)from series))		-- ERR,
+);
+ERROR:  cannot use subquery in check constraint
+
+create table series(
+seq int not null primary key
+constraint non_negative_nbr check(seq>0)
+);
+-- OK,
+
+create table annualsales1(
+salesman char(15) not null primary key,
+jan decimal(15,2),
+feb decimal(15,2)
+);
+
+create view numberedsales as
+select salesman,
+1 as m01,jan,
+2 as m02,feb
+from annualsales1
+;
+
+test=> insert into annualsales1 values('foo',15.3,7.32);
+INSERT 0 1
+test=> select*from numberedsales;
+    salesman     | m01 |  jan  | m02 | feb
+-----------------+-----+-------+-----+------
+ foo             |   1 | 15.30 |   2 | 7.32
+(1 row)
+
+create view annualsales2(salesman,sales_month,sales_amt)as
+select s1.salesman,					-- s1.salesman
+(case when a.nbr=m01 then 'jan'
+when a.nbr=m02 then 'feb'
+else null end),
+(case when a.nbr=m01 then jan
+when a.nbr=m02 then feb
+else null end)
+from numberedsales as s1
+cross join
+(select seq from series where seq<=2)as a(nbr)			-- a(nbr)
+;
+
+test=> select*from annualsales2;
+    salesman     | sales_month | sales_amt
+-----------------+-------------+-----------
+ foo             | jan         |     15.30
+ foo             | feb         |      7.32
+(2 rows)
+
+
+-- study	,
+create view annualsales2 as
+select s1.salesman
+from numberedsales as s1
+cross join
+(select seq from series 
+where seq<=2) as a(month_nbr)
+
+
+-- study
+select *
+from numberedsales as s1
+cross join
+(select seq from series where seq<=2)as a(nbr)			-- a(nbr)
+;
+    salesman     | m01 |  jan  | m02 | feb  | nbr
+-----------------+-----+-------+-----+------+-----
+ foo             |   1 | 15.30 |   2 | 7.32 |   1
+ foo             |   1 | 15.30 |   2 | 7.32 |   2
+(2 rows)
+
+/ 7	. 
+
+/ ch 6
+
+/ 13	. 
+
+/ study with,
+
+/ 1313	. 
+
+with recursive t(n)as(
+values(1)
+union all
+select n+1
+from t
+where n<10
+)
+select n
+from t
+;
+ n
+----
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+(10 rows)
+
+/ 1313	. 
+
+with t(n)as(
+values(1)
+union all
+select n+1
+from t			-- <-
+where n<10
+)
+select n
+from t
+;
+ERROR:  relation "t" does not exist
+LINE 5: from t
+             ^
+DETAIL:  There is a WITH item named "t", but it cannot be referenced from this part of the query.
+HINT:  Use WITH RECURSIVE, or re-order the WITH items to remove forward references.
+
+/ 1313	. 
+
+with recursive t(n)as(
+select n+1
+from t
+where n<10
+union all
+values(1)
+)
+select n
+from t
+;
+ERROR:  recursive reference to query "t" must not appear within its non-recursive term
+LINE 3: from t
+
+/ 1313	. 
+
+test=> values(100);
+ column1
+---------
+     100
+(1 row)
+
+test=> (values(100));
+ column1
+---------
+     100
+(1 row)
+
+test=> select*
+test-> from (values(100))_;
+ column1
+---------
+     100
+(1 row)
+
+test=> ((values(100)));
+ column1
+---------
+     100
+(1 row)
+
+test=> select*
+test-> from ((values(100)))_;
+ column1
+---------
+     100
+(1 row)
+
+/ 7	. 
+
+create table foobar(
+x int not null primary key
+);
+
+insert into foobar(x)
+values(7);
+
+with t(x)as(
+select*
+from(values(13))_
+)
+select*
+from t
+;
+ x
+----
+ 13
+(1 row)
+
+
+insert into foobar(x)
+with recursive t(x)as(
+values(1)
+union all
+select n+1
+from t
+where n<3
+)
+;
+
+insert into foobar(x)
+(with t(x)as(
+select*
+from(values(13))_
+))
+;
+

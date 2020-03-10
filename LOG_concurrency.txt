@@ -1,0 +1,45 @@
+C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse> eclipse
+D:\Users\ervelden\workspaces\workspace-concurrency
+/d/Users/ervelden/misc_codebase/concurrency			/ maak in eclipse maven proj	, hier is hij	,
+
+/ 7	. 
+
+/ boek (66)
+
+public class Collections {
+    public static <K,V> Map<K,V> unmodifiableMap(Map<? extends K, ? extends V> m) {
+        return new UnmodifiableMap<>(m);
+    }
+    private static class UnmodifiableMap<K,V> implements Map<K,V>, Serializable {
+       public Collection<V> values() {
+            if (values==null)
+                values = unmodifiableCollection(m.values());
+            return values;
+        }
+		
+/ dus als je een Map hebt,	
+	public final ConcurrentMap<String,Point>points;
+	
+	public final Map<String,Point>unmodMap;
+	unmodMap=Collections.unmodifiableMap(points);
+	
+/ dan  is unmodMap een onveranderbare Map, bovenop points op dat moment	,
+/ dat is je bij de values() fct	,
+
+/ dus als je daarna doet	,
+		points.put("3", new Point(5,9));
+		unmodMap=Collections.unmodifiableMap(points);
+		
+/ dan is unmodMap weer een onveranderbare Map bovenop points op dat moment, die 1 entry meer heeft	,
+
+/ dan doet het boek op (66)
+
+		unmodMap2=Collections.unmodifiableMap(new HashMap(points));
+	
+/ dan is unmodMap2 weer een onveranderbare Map bovenop een HashMap met de points, hetzelfde als die unmodMap heeft,
+/ maar als ik nu weer een Point zou toevoegen aan points, dan voeg ik deze niet toe aan de HashMap	, dus verandert unmodMap2 niet,
+
+/ dus het verschil tussen Collections.unmodifiableMap(points) en new HashMap(points) is dat als points verandert, de Collections.unmodifiableMap(points) een overanderbare Map geeft van de points op dat moment, en om dat je niet aan de HashMap het Point hebt toegevoegd, blijft de HashMap onveranderd.
+
+
+
