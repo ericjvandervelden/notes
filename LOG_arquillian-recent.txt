@@ -1,0 +1,641 @@
+/ lees,
+http://arquillian.org/guides/get_started_faster_with_forge/
+
+
+/ 13	. 
+
+
+/ windows cmd,
+D:\Users\ervelden\misc_codebase>c:\Users\ervelden\bin\forge-distribution-3.9.7.Final\bin\forge
+
+$ project-new --named arquillian-tutorial --stack JAVA_EE_7
+$ cdi-new-bean --named MySimpleBean --scoped DEPENDENT
+$ cd ~~
+
+/ 13	. 
+
+/ 
+/ we zien de arquillian-addon niet niet forge terug, hij verschijnt in mijn locale git repo, en forge vindt hem,
+
+/ windows cmd,
+[arquillian-tutorial]$ addon-install-from-git --url https://github.com/forge/arquillian-addon.git
+***INFO*** Installing Addon from Git    [1/4] ...
+***INFO*** Installing Addon from Git:Cloning repository in C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741       [1/4] ...
+***INFO*** Installing Addon from Git:Installing project into local repository   [2/4] ...
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Arquillian Forge Addon 1.0.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-clean-plugin:3.0.0:clean (default-clean) @ arquillian-addon ---
+[INFO]
+[INFO] --- maven-enforcer-plugin:1.4.1:enforce (enforce-java-version) @ arquillian-addon ---
+[INFO]
+[INFO] --- maven-enforcer-plugin:1.4.1:enforce (enforce-maven-version) @ arquillian-addon ---
+[INFO]
+[INFO] --- buildnumber-maven-plugin:1.4:create (get-scm-revision) @ arquillian-addon ---
+[INFO] Executing: cmd.exe /X /C "git rev-parse --verify HEAD"
+[INFO] Working directory: C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741
+[INFO] Storing buildNumber: eac26203b6f0cf8e1b6f97014d9748bccc9894fd at timestamp: 1586889326159
+[INFO] Storing buildScmBranch: master
+[INFO]
+[INFO] --- maven-resources-plugin:3.0.1:resources (default-resources) @ arquillian-addon ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 11 resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.5.1:compile (default-compile) @ arquillian-addon ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 78 source files to C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\classes
+[WARNING] /C:/Users/ervelden/AppData/Local/Temp/tmpdir7621798295983878741/src/main/java/org/jboss/forge/arquillian/command/cube/CubeSetupCommand.java:[189,60] unchecked generic array creation for vara
+[INFO]
+[INFO] --- maven-resources-plugin:3.0.1:testResources (default-testResources) @ arquillian-addon ---
+[INFO] Not copying test resources
+[INFO]
+[INFO] --- maven-compiler-plugin:3.5.1:testCompile (default-testCompile) @ arquillian-addon ---
+[INFO] Not compiling test sources
+[INFO]
+[INFO] --- maven-surefire-plugin:2.19.1:test (default-test) @ arquillian-addon ---
+[INFO] Tests are skipped.
+[INFO]
+[INFO] --- maven-jar-plugin:3.0.1:jar (default-jar) @ arquillian-addon ---
+[INFO] Building jar: C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\arquillian-addon-1.0.0-SNAPSHOT.jar
+[INFO]
+[INFO] --- maven-source-plugin:3.0.0:jar-no-fork (attach-sources) @ arquillian-addon ---
+[INFO] Building jar: C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\arquillian-addon-1.0.0-SNAPSHOT-sources.jar
+[INFO]
+[INFO] --- maven-jar-plugin:3.0.1:jar (create-forge-addon) @ arquillian-addon ---
+[INFO] Building jar: C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\arquillian-addon-1.0.0-SNAPSHOT-forge-addon.jar
+[INFO]
+[INFO] --- maven-install-plugin:2.5.2:install (default-install) @ arquillian-addon ---
+[INFO] Installing C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\arquillian-addon-1.0.0-SNAPSHOT.jar to C:\Users\ervelden\.m2\repository\org\arquillian\forge\arquillian-addon\1.
+[INFO] Installing C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\pom.xml to C:\Users\ervelden\.m2\repository\org\arquillian\forge\arquillian-addon\1.0.0-SNAPSHOT\arquillian-addon-1.0.0
+[INFO] Installing C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\arquillian-addon-1.0.0-SNAPSHOT-sources.jar to C:\Users\ervelden\.m2\repository\org\arquillian\forge\arquillian-
+[INFO] Installing C:\Users\ervelden\AppData\Local\Temp\tmpdir7621798295983878741\target\arquillian-addon-1.0.0-SNAPSHOT-forge-addon.jar to C:\Users\ervelden\.m2\repository\org\arquillian\forge\arquill
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 12.002 s
+[INFO] Finished at: 2020-04-14T20:35:33+02:00
+[INFO] Final Memory: 81M/732M
+[INFO] ------------------------------------------------------------------------
+***INFO*** Installing Addon from Git:Removing previous addon installation (org.arquillian.forge:arquillian-addon,1.0.0-SNAPSHOT)        [3/4] ...
+***INFO*** Installing Addon from Git:Installing addon (org.arquillian.forge:arquillian-addon,1.0.0-SNAPSHOT)   [4/4] ...
+***SUCCESS*** Addon(s) [org.arquillian.forge:arquillian-addon,1.0.0-SNAPSHOT] installed successfully.
+
+/ git bash,
+$ ls /c/Users/ervelden/.m2/repository/org//arquillian/forge/arquillian-addon/1.0.0-SNAPSHOT/
+_remote.repositories                 arquillian-addon-1.0.0-SNAPSHOT-forge-addon.jar
+arquillian-addon-1.0.0-SNAPSHOT.jar  arquillian-addon-1.0.0-SNAPSHOT-sources.jar
+arquillian-addon-1.0.0-SNAPSHOT.pom  maven-metadata-local.xml
+
+$ ls /c/Users/ervelden/.m2/repository/org//arquillian/universe/
+arquillian-chameleon/  arquillian-core/  arquillian-junit/  arquillian-universe-parent/
+/ TODO
+
+/ 13	. 
+
+/ je kunt ook,
+[arquillian-tutorial2]$ addon-install-from-catalog --addon org.arquillian.forge:arquillian-addon
+addon-install-from-git --url https://github.com/forge/arquillian-addon.git --coordinate org.arquillian.forge:arquillian-addon
+...
+/ Wat is het verschil?
+/ TODO
+
+/ 13	. 
+
+/ window cmd,
+[arquillian-tutorial]$ arquillian-setup  --test-framework junit --container-adapter wildfly-remote
+***SUCCESS*** Arquillian setup complete
+***SUCCESS*** Installed Arquillian Universe 1.5.0.0
+***SUCCESS*** Installed junit
+***SUCCESS*** Installed Arquillian Container WildFly Remote
+***SUCCESS*** Installed Arquillian Container WildFly Remote dependencies
+
+$ find
+.
+./pom.xml
+./src
+./src/main
+./src/main/java
+./src/main/java/org
+./src/main/java/org/arquillian
+./src/main/java/org/arquillian/tutorial
+./src/main/java/org/arquillian/tutorial/beans
+./src/main/java/org/arquillian/tutorial/beans/SimpleBean.java
+./src/main/resources
+./src/main/webapp
+./src/main/webapp/WEB-INF
+./src/main/webapp/WEB-INF/beans.xml
+./src/test
+./src/test/java
+./src/test/resources
+./src/test/resources/arquillian.xml
+
+
+/ git bash,
+
+$ cat pom.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.arquillian.tutorial</groupId>
+  <artifactId>arquillian-tutorial</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <build>
+    <finalName>arquillian-tutorial</finalName>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.universe</groupId>
+      <artifactId>arquillian-junit</artifactId>
+      <type>pom</type>											<- type pom, klopt	, die staat ook in de git repo, hierboven gezien,	
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${version.junit}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.arquillian.universe</groupId>
+      <artifactId>arquillian-chameleon</artifactId>
+      <type>pom</type>											<- type pom, klopt	, die staat ook in de git repo, hierboven gezien,
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <profiles>
+    <profile>
+      <id>arquillian-wildfly-remote</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.14.1</version>
+            <configuration>
+              <systemPropertyVariables>
+                <arquillian.launch>arquillian-wildfly-remote</arquillian.launch>
+                <chameleon.target>wildfly:10.1.0.Final:REMOTE</chameleon.target>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>7.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.arquillian</groupId>
+        <artifactId>arquillian-universe</artifactId>
+        <version>${version.arquillian_universe}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <properties>
+    <failOnMissingWebXml>false</failOnMissingWebXml>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.arquillian_universe>1.5.0.0</version.arquillian_universe>			<! dit is ERR, verander in 1.2.0.1, de meest recente versie -->
+    <version.junit>4.13</version.junit>
+  </properties>
+</project>
+
+/ Dus let op 	,
+  <properties>
+	...
+    <version.arquillian_universe>1.5.0.0</version.arquillian_universe>			<! dit is ERR, verander in 1.2.0.1, de meest recente versie -->
+  </properties>
+
+/ 13	. 
+
+$ cat ./src/main/webapp/WEB-INF/beans.xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bean-discovery-mode="all" version="1.1" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"/>
+
+$ cat ./src/test/resources/arquillian.xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<arquillian xmlns="http://jboss.org/schema/arquillian" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jboss.org/schema/arquillian http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
+  <container default="true" qualifier="arquillian-wildfly-remote">
+    <configuration>
+      <property name="chameleonTarget">${chameleon.target}</property>
+    </configuration>
+  </container>
+</arquillian>
+
+
+/ 13	. 
+
+/ lees,
+https://javaee.github.io/tutorial/cdi-adv001.html
+
+When you deploy a Java EE application, CDI looks for beans inside bean archives. A bean archive is any module that contains beans that the CDI runtime can manage and inject. There are two kinds of bean archives: explicit bean archives and implicit bean archives.
+
+An explicit bean archive is an archive that contains a beans.xml deployment descriptor, which can be an empty file, contain no version number, or contain the version number 1.1 with the bean-discovery-mode attribute set to all. For example:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                           http://xmlns.jcp.org/xml/ns/javaee/beans_1_1.xsd"
+       version="1.1" bean-discovery-mode="all">
+    ...
+</beans>
+CDI can manage and inject any bean in an explicit archive, except those annotated with @Vetoed.
+
+An implicit bean archive is an archive that contains some beans annotated with a scope type, contains no beans.xml deployment descriptor, or contains a beans.xml deployment descriptor with the bean-discovery-mode attribute set to annotated.
+
+In an implicit archive, CDI can only manage and inject beans annotated with a scope type.
+
+For a web application, the beans.xml deployment descriptor, if present, must be in the WEB-INF directory. For EJB modules or JAR files, the beans.xml deployment descriptor, if present, must be in the META-INF directory.
+
+/ 13	. 
+
+/ we zagen, 
+./src/main/java/org/arquillian/tutorial/beans/SimpleBean.java
+
+[arquillian-tutorial]$ arquillian-create-test --targets org.arquillian.tutorial.beans.SimpleBean
+***SUCCESS*** Created test class org.arquillian.tutorial.beans.SimpleBeanTest
+
+/ alleen als org.arquillian.tutorial.beans.SimpleBean goed is, dan maakt hij de test, anders gaat hij vragen stellen,
+
+$ find
+.
+./pom.xml
+./src
+./src/main
+./src/main/java
+./src/main/java/org
+./src/main/java/org/arquillian
+./src/main/java/org/arquillian/tutorial
+./src/main/java/org/arquillian/tutorial/beans
+./src/main/java/org/arquillian/tutorial/beans/SimpleBean.java
+./src/main/resources
+./src/main/webapp
+./src/main/webapp/WEB-INF
+./src/main/webapp/WEB-INF/beans.xml
+./src/test
+./src/test/java
+./src/test/java/org
+./src/test/java/org/arquillian
+./src/test/java/org/arquillian/tutorial
+./src/test/java/org/arquillian/tutorial/beans
+./src/test/java/org/arquillian/tutorial/beans/SimpleBeanTest.java
+./src/test/resources
+./src/test/resources/arquillian.xml
+
+$ cat ./src/test/java/org/arquillian/tutorial/beans/SimpleBeanTest.java
+package org.arquillian.tutorial.beans;
+
+import org.arquillian.tutorial.beans.SimpleBean;
+
+import javax.inject.Inject;
+
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
+import static org.hamcrest.core.Is.*;
+
+@RunWith(Arquillian.class)
+public class SimpleBeanTest {
+
+        @Inject
+        private SimpleBean simpleBean;
+
+        @Deployment
+        public static JavaArchive createDeployment() {
+                return ShrinkWrap.create(JavaArchive.class).addClass(SimpleBean.class)
+                                .addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
+        }
+
+        @Test
+        public void should_be_deployed() {
+                Assert.assertNotNull(simpleBean);
+        }
+}
+
+/ 13	. 
+
+/ voordat je wildfly start, moeten de databases draaien, dus start pg en h2, 
+
+/ pg draait al als windows service, 9.6	, 
+C:\Users\ervelden\bin\for_wildfly> psql -U eric test
+/ OK,
+/ TODO morgen,
+
+/ maar we moeten dit doen,	
+
+C:\Users\ervelden\bin\for_wildfly>h2_server.bat
+TCP server running at tcp://192.168.123.115:9092 (only local connections)
+
+/ nu pas kunnen we wildfly start,
+/ want er zijn appl die de databases use, 
+/ die we nu maken niet, 
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\standalone.bat
+Calling "C:\Users\ervelden\bin\wildfly-10.1.0.Final\bin\standalone.conf.bat"
+...
+
+/ bijvoorbeeld in arquillian-jpa-study2	, 
+
+$ less ../arquillian-jpa-study2/src/main/resources/META-INF/persistence.xml
+
+ <persistence-unit name="arquillian-jpa-study2-persistence-unit-pg" transaction-type="JTA">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <jta-data-source>java:jboss/datasources/PostgreSQLDS</jta-data-source>		/ in standalone.xml,
+	...
+  </persistence-unit>
+  <persistence-unit name="arquillian-jpa-study2-persistence-unit-h2" transaction-type="JTA">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <jta-data-source>java:jboss/datasources/RemoteExampleDS</jta-data-source>		/ in standalone.xml,
+
+
+$ less /c/Users/ervelden/bin/wildfly-10.1.0.Final/standalone/configuration/standalone.xml
+
+
+                <datasource jndi-name="java:jboss/datasources/ExampleDS" pool-name="ExampleDS" ena	
+bled="true" use-java-context="true">
+                    <connection-url>jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE</con		/ altijd OK,
+nection-url>
+                    <driver>h2</driver>
+                    <security>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                    </security>
+                </datasource>
+
+
+                <xa-datasource jndi-name="java:jboss/datasources/PostgreSQLDS" pool-name="PostgreS
+QLDS" spy="true">
+                    <xa-datasource-property name="ServerName">
+                        localhost															/ pg moet draaien,	
+                    </xa-datasource-property>
+                    <xa-datasource-property name="DatabaseName">
+                        test
+                    </xa-datasource-property>
+                    <xa-datasource-property name="User">
+                        eric
+                    </xa-datasource-property>
+                    <xa-datasource-property name="Password">
+                        vi_lang17
+                    </xa-datasource-property>
+                    <driver>postgresql</driver>
+                </xa-datasource>
+
+
+                <xa-datasource jndi-name="java:jboss/datasources/RemoteExampleDS" pool-name="RemoteExampleDS" spy="true">
+                    <xa-datasource-property name="URL">
+                        jdbc:h2:tcp://localhost/~/h2/test				/ h2 server moet draaien, deze client is dus in c:\Users\ervelden\h2	,
+                    <driver>h2</driver>
+                    <security>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                    </security>
+                </xa-datasource>
+                <xa-datasource jndi-name="java:jboss/datasources/H2DS" pool-name="H2DS">
+                    <xa-datasource-property name="ServerName">
+                        localhost
+                    </xa-datasource-property>
+                    <xa-datasource-property name="DatabaseName">
+                        ~/h2/test
+                    </xa-datasource-property>
+                    <xa-datasource-property name="User">
+                        sa
+                    </xa-datasource-property>
+                    <xa-datasource-property name="Password">
+                        sa
+                    </xa-datasource-property>
+                    <driver>h2</driver>
+                </xa-datasource>
+                <drivers>
+
+/ we moeten dus use, als je ook een h2 client wilt,	
+
+$ cat /c/Users/ervelden/bin/for_wildfly/h2_client1.bat
+@echo off
+set DIR=C:\Users\ervelden\bin\wildfly-10.1.0.Final
+java -classpath %DIR%\modules\system\layers\base\com\h2database\h2\main\h2-1.3.173.jar org.h2.tools.Shell -url jdbc:h2:tcp://localhost/~/h2/test -user sa -password sa
+
+/ 13	. 
+
+C:\Users\ervelden\bin\wildfly-10.1.0.Final>bin\jboss-cli.bat
+You are disconnected at the moment. Type 'connect' to connect to the server or 'help' for the list of supported
+[disconnected /] connect
+[standalone@localhost:9990 /] deployment-info
+NAME                                     RUNTIME-NAME                             PERSISTENT ENABLED STATUS
+0e3fc594-3bc8-42b1-820b-c9df62c5283f.war 0e3fc594-3bc8-42b1-820b-c9df62c5283f.war true       true    OK
+132f424c-5cc0-439a-9410-c29c3ff3574a.war 132f424c-5cc0-439a-9410-c29c3ff3574a.war true       true    OK
+5f4ed3ec-2fe3-4e20-a3e0-9f29e2ac1546.war 5f4ed3ec-2fe3-4e20-a3e0-9f29e2ac1546.war true       true    OK
+abc-wildfly-helloworld-ws.war            abc-wildfly-helloworld-ws.war            true       true    OK
+abc-wsgen-wsimport-0.0.1.war             abc-wsgen-wsimport-0.0.1.war             true       true    OK
+abctomcatappl3-1.0.war                   abctomcatappl3-1.0.war                   false      true    OK
+arquillian-cdi-study.war                 arquillian-cdi-study.war                 true       true    OK
+bookStore2.war                           bookStore2.war                           true       true    OK
+d9198fd2-4fc7-4b2c-82ba-cc8ea8d4f50a.war d9198fd2-4fc7-4b2c-82ba-cc8ea8d4f50a.war true       true    OK
+dvx.war                                  dvx.war                                  true       true    OK
+dvxuk2.war                               dvxuk2.war                               true       true    OK
+e7c3bf7d-46c0-4881-86ca-a80c528fa778.war e7c3bf7d-46c0-4881-86ca-a80c528fa778.war true       true    OK
+greeter.war                              greeter.war                              true       true    OK
+rtd.war                                  rtd.war                                  true       true    OK
+
+[standalone@localhost:9990 /] /subsystem=logging:read-resource(recursive=true)
+{
+    "outcome" => "success",
+    "result" => {
+        "add-logging-api-dependencies" => true,
+        "use-deployment-logging-config" => true,
+        "async-handler" => undefined,
+        "console-handler" => {"CONSOLE" => {
+            "autoflush" => true,
+            "enabled" => true,
+            "encoding" => undefined,
+            "filter" => undefined,
+            "filter-spec" => undefined,
+            "formatter" => "%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n",
+            "level" => "TRACE",
+            "name" => "CONSOLE",
+            "named-formatter" => "COLOR-PATTERN",
+            "target" => "System.out"
+        }},
+        "custom-formatter" => undefined,
+        "custom-handler" => undefined,
+        "file-handler" => undefined,
+        "log-file" => undefined,
+        "logger" => {
+            "com.arjuna" => {
+                "category" => "com.arjuna",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "TRACE",
+                "use-parent-handlers" => true
+            },
+            "org.jboss.as.config" => {
+                "category" => "org.jboss.as.config",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "DEBUG",
+                "use-parent-handlers" => true
+            },
+            "sun.rmi" => {
+                "category" => "sun.rmi",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "WARN",
+                "use-parent-handlers" => true
+            },
+            "org.jboss.as.jpa" => {
+                "category" => "org.jboss.as.jpa",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "DEBUG",
+                "use-parent-handlers" => true
+            },
+            "jboss.jdbc.spy" => {
+                "category" => "jboss.jdbc.spy",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "TRACE",
+                "use-parent-handlers" => true
+            },
+            "org.hibernate.SQL" => {
+                "category" => "org.hibernate.SQL",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "DEBUG",
+                "use-parent-handlers" => true
+            },
+            "org.hibernate.type" => {
+                "category" => "org.hibernate.type",
+                "filter" => undefined,
+                "filter-spec" => undefined,
+                "handlers" => undefined,
+                "level" => "TRACE",
+                "use-parent-handlers" => true
+            }
+        },
+        "logging-profile" => undefined,
+        "pattern-formatter" => {
+            "PATTERN" => {
+                "color-map" => undefined,
+                "pattern" => "%d{yyyy-MM-dd HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"
+            },
+            "COLOR-PATTERN" => {
+                "color-map" => undefined,
+                "pattern" => "%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"
+            }
+        },
+        "periodic-rotating-file-handler" => {"FILE" => {
+            "append" => true,
+            "autoflush" => true,
+            "enabled" => true,
+            "encoding" => undefined,
+            "file" => {
+                "relative-to" => "jboss.server.log.dir",
+                "path" => "server.log"
+            },
+            "filter" => undefined,
+            "filter-spec" => undefined,
+            "formatter" => "%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n",
+            "level" => "ALL",
+            "name" => "FILE",
+            "named-formatter" => "PATTERN",
+            "suffix" => ".yyyy-MM-dd"
+        }},
+        "periodic-size-rotating-file-handler" => undefined,
+        "root-logger" => {"ROOT" => {
+            "filter" => undefined,
+            "filter-spec" => undefined,
+            "handlers" => [
+                "CONSOLE",
+                "FILE"
+            ],
+            "level" => "INFO"
+        }},
+        "size-rotating-file-handler" => undefined,
+        "syslog-handler" => undefined
+    }
+}
+
+[standalone@localhost:9990 /] /subsystem=logging/logger=com.arjuna:
+add                         map-clear                   read-children-names         remove-handler
+add-handler                 map-get                     read-children-resources     unassign-handler
+assign-handler              map-put                     read-children-types         undefine-attribute
+change-log-level            map-remove                  read-operation-description  whoami
+list-add                    query                       read-operation-names        write-attribute
+list-clear                  read-attribute              read-resource
+list-get                    read-attribute-group        read-resource-description
+list-remove                 read-attribute-group-names  remove
+/ TODO
+
+/ 13	. 
+
+/ lees,
+https://github.com/jbosstm/quickstart/tree/master/jts-docker
+
+/ 13	. 
+
+/ geef
+localhost:9990/console, 
+/ we zien
+
+
+/ in jboss-cli.bat,
+[standalone@localhost:9990 /] /subsystem=naming:jndi-view
+{
+    "outcome" => "success",
+    "result" => {
+        "java: contexts" => {
+            "java:" => {"TransactionManager" => {
+                "class-name" => "com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate",
+                "value" => "com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate@749debf1"
+            }},
+            "java:jboss" => {
+                "TransactionManager" => {
+                    "class-name" => "com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate",
+                    "value" => "com.arjuna.ats.jbossatx.jta.TransactionManagerDelegate@749debf1"
+                },
+            "java:global" => {
+                "arquillian-cdi-study" => {
+                    "class-name" => "javax.naming.Context",
+                    "children" => {
+                        "CustomerEndpoint" => {
+                            "class-name" => "org.arquillian.cdi.study.rest.CustomerEndpoint",
+                            "value" => "?"
+                        },
+/ oef in arquillian er mee, 
+/ TODO
+
+
+

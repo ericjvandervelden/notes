@@ -213,6 +213,8 @@ http://localhost:8080/manager
 / 7. 
 workspace-arquillian,
 D:\Users\ervelden\workspaces\workspace-arquillian
+->
+D:\Users\ervelden\misc_codebase\arquillian-jpa-study2
 
 ERVELDEN@LBNL031514 MINGW64 /d/Users/ervelden/git_codebase/quickstart/tasks-rs (16.x)
 
@@ -235,3 +237,23 @@ Port: 8787
 C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen>forge
 / TODO
 h2-1.3.173
+
+/ 13	. 
+
+/lees over wildfly logging	,
+https://docs.jboss.org/author/display/WFLY10/How+To
+
+/ ik deed, in jboss-cli,
+[standalone@localhost:9990 /] /subsystem=logging:read-resource(recursive=true)
+
+/ 13	. 
+
+/ quickstarts,
+
+D:\Users\ervelden\git_codebase\quickstart
+D:\Users\ervelden\workspaces\workspace-wildfly-quickstart							<-
+
+
+C:\Users\ervelden\java\quickstart						<- verplaatst naar d:\Users\ervelden\java\quickstart
+C:\Users\ervelden\eclipse\workspace-jbosstools-jee-oxygen-wildfly-quickstart		<- aanpassen in de ws,
+

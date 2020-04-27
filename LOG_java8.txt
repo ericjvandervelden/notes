@@ -1318,6 +1318,70 @@ https://www.baeldung.com/junit-5
 
 / Einde JUNIT
 
+/ JAVA LAMBDAS
+
+/ we hebben in github en repository gemaakt, java_study, 
+/ in d/misc_codebase we clone deze, 
+/ in eclipse we maken een Maven proj, location: D:\Users\ervelden\misc_codebase\java_study
+
+/ we zien,
+ervelden@LBNL031514 MINGW64 /d/Users/ervelden/misc_codebase/java_study (master)
+$ git status
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        .classpath
+        .gitignore
+        .project
+        .settings/
+        pom.xml
+		
+/ lees,
+https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
+
+/ 13	. 
+
+@FunctionalInterface
+public interface Predicate<T> {
+    boolean test(T t);
+}
+@FunctionalInterface
+public interface Function<T, R> {
+    R apply(T t);
+}
+@FunctionalInterface
+public interface Consumer<T> {
+    void accept(T t);
+}
+/ dan,
+Predicate<Person>tester=(p->p.getAge()>18);	/ je hoeft alleen de implementatie op te schrijven,
+Function<Person,Integer>mapper=(p->p.getAge());
+Consumer<Integer>block=(s->System.out.println(s));
+boolean b=tester.test(person);
+Integer age=mapper.apply(person);
+block.accept(age);
+
+interface CheckPerson {
+    boolean test(Person p);
+}
+printPersons(
+    roster,
+    new CheckPerson() {
+        public boolean test(Person p) {
+            return p.getGender() == Person.Sex.MALE
+                && p.getAge() >= 18
+                && p.getAge() <= 25;
+        }
+    }
+);
+
+
+
+/ Einde JAVA LAMBDAS
+
 
 
 

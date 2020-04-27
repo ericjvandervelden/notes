@@ -1,0 +1,119 @@
+/ we hebben in c:\Program Files\Jetbrains intellij 
+/ we hebben in d:\Users\ervelden\bin maven en graalvm 
+
+/ oracle account,
+ericjvandervelden@gmail.com:vlWalnoot27
+
+https://www.oracle.com/java/technologies/javase-downloads.html
+/ downloads alle jdk versies	,
+
+/ lees,
+https://quarkus.io/guides/getting-started
+
+ervelden@LBNL031514 MINGW64 /d/Users/ervelden/misc_codebase
+$ git clone https://github.com/quarkusio/quarkus-quickstarts.git
+
+C:\Users\ervelden\eclipse\jbosstools-jee-oxygen\eclipse>eclipse.exe
+/ maak nieuwe ws,
+D:\Users\ervelden\workspaces\workspace-quarkus
+
+/ we install een aantal Java versies,
+/ lees,
+https://docs.oracle.com/javase/specs/index.html
+
+/ wat zijn,
+ervelden@LBNL031514 MINGW64 /d/Users/ervelden/misc_codebase
+$ ls /c/Program\ Files\ \(x86\)/Common\ Files/Oracle/Java/javapath/ -l
+total 756
+-rwxr-xr-x 1 ervelden 1049089 207936 Mar 11 21:53 java.exe*
+-rwxr-xr-x 1 ervelden 1049089 208440 Mar 11 21:53 javaw.exe*
+-rwxr-xr-x 1 ervelden 1049089 355384 Mar 11 21:53 javaws.exe*
+/ TODO
+
+/ 13	. 
+
+/ we import mvn project in eclipse,
+
+Setup Maven plugin connectors
+Discover and map Eclipse plugins to Maven plugin goal executions.
+Maven build									Action
+docker-maven-plugin:0.28.0:start (4 errors)
+	Execution docker-start, in /mqtt-quickstart/pom.xml
+	Execution docker-start, in /quartz-quickstart/pom.xml
+	Execution docker-start, in /spring-data-jpa-quickstart/pom.xml
+	Execution docker-start, in /vertx-quickstart/pom.xml
+	
+No marketplace entries found to handle docker-maven-plugin:0.28.0:start in Eclipse.  Please see Help for more information.
+
+resolve later
+
+/ 13	 .
+
+/ we zien foutmelding op de poms,
+
+Failure to transfer commons-io:commons-io:jar:2.6 from https://repo.maven.apache.org/maven2 was cached in the local repository, resolution will not be reattempted until the update interval of central has elapsed or updates are forced. Original error: Could not transfer artifact commons-io:commons-io:jar:2.6 from/to central (https://repo.maven.apache.org/maven2): repo.maven.apache.org
+
+$ ls /c/Users/ervelden/.m2/repository/commons-io/commons-io/2.6
+_remote.repositories            commons-io-2.6.pom              commons-io-2.6.pom.sha1
+commons-io-2.6.jar.lastUpdated  commons-io-2.6.pom.lastUpdated
+
+
+/ we google,
+https://stackoverflow.com/questions/5074063/maven-error-failure-to-transfer
+
+
+/ NIET gedaan,	
+$ find ~/.m2  -name "*.lastUpdated" -exec grep -q "Could not transfer" {} \; -print -exec rm {} \;
+/ of,
+cd %userprofile%\.m2\repository
+for /r %i in (*.lastUpdated) do del %i
+
+/ WEL gedaan, OK,
+In Eclipse: Right click the project->Maven->Update Project->Check checkbox "Force Update of Snapshots/Releases". Click OK.
+
+/ 7	. 
+
+D:\Users\ervelden\misc_codebase\quarkus> mvn io.quarkus:quarkus-maven-plugin:1.2.1.Final:create -DprojectGroupId=org.acme -DprojectArtifactId=getting-started -DclassName="org.acme.quickstart.GreetingResource" -Dpath="/hello"
+...
+D:\Users\ervelden\misc_codebase>cd getting-started
+/ we zien dezelfde getting-started als in het quarkus-quickstarts project,
+
+> mvn clean compile quarkus:dev
+Listening for transport dt_socket at address: 5005
+__  ____  __  _____   ___  __ ____  ______
+ --/ __ \/ / / / _ | / _ \/ //_/ / / / __/
+ -/ /_/ / /_/ / __ |/ , _/ ,< / /_/ /\ \
+--\___\_\____/_/ |_/_/|_/_/|_|\____/___/
+2020-03-20 20:46:23,721 INFO  [io.quarkus] (main) getting-started 1.0-SNAPSHOT (powered by Quarkus 1.3.0.Final) started in 1.947s. Listening on: http://0.0.0.0:8080
+2020-03-20 20:46:23,723 INFO  [io.quarkus] (main) Profile dev activated. Live Coding activated.
+2020-03-20 20:46:23,724 INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+
+C:\Users\ervelden>curl  http://localhost:8080/hello
+hello
+
+/ we geven mvn, niet mvnw
+/TODO
+
+/ lees,
+https://www.baeldung.com/spring-bean-scopes
+
+https://howtodoinjava.com/spring-core/spring-bean-scopes/
+
+In application scope, container creates one instance per web application runtime. It is almost similar to singleton scope, with only two differences i.e.
+
+application scoped bean is singleton per ServletContext, whereas singleton scoped bean is singleton per ApplicationContext. Please note that there can be multiple application contexts for single application.
+application scoped bean is visible as a ServletContext attribute.
+
+/ lees,
+https://docs.jboss.org/weld/reference/1.1.0.Final/en-US/pdf/weld-reference.pdf
+
+@ApplicationScoped @Singleton
+public class Catalog {
+...
+void addProduct(@Observes(during = AFTER_SUCCESS) @Created Product product) {
+products.add(product);
+}
+void removeProduct(@Observes(dur
+
+/ @ApplicationScoped slaat op de servlet context, @Singleton is EJB, andere contexts, kunnen er misschien meerdere zijn, 
+/ blijkbaar is Catalog in beide contexts en is een singleton in beide,

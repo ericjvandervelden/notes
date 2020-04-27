@@ -857,6 +857,141 @@ D:\Users\ervelden\workspaces\workspace-arquillian
 
 / Einde OPEN IN ECLIPSE
 
+/ OPEN IN CHROME
+
+/ jee
+https://dzone.com/articles/ejb-3x-lifecycle-and-0
+https://abhirockzz.wordpress.com/2014/08/09/ejb-3-x-lifecycle-and-concurrency-models-part-1/
+http://localhost:8080/greeter/weld-probe#/beans
+https://stackoverflow.com/questions/25214211/unsatisfied-dependencies-for-type-entitymanager-with-qualifiers-default
+https://stackoverflow.com/questions/8887140/jsf-request-scoped-bean-keeps-recreating-new-stateful-session-beans-on-every-req		/ !
+https://docs.jboss.org/author/index.html
+https://docs.jboss.org/author/index.html#JPAReferenceGuide-Troubleshooting
+https://docs.jboss.org/author/index.html#LoggingConfiguration-StandaloneServer
+https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#associations
+https://stackoverflow.com/questions/673802/how-to-import-initial-data-to-database-with-hibernate
+https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+https://stackoverflow.com/questions/12087959/junit-run-set-up-method-once
+https://thoughts-on-java.org/naturalid-good-way-persist-natural-ids-hibernate/		 / Thorben Janssen @NaturalId
+https://thoughts-on-java.org/wp-content/uploads/member-access/library/cheatSheets/BestPracticesManyToMany.pdf
+https://search.maven.org/artifact/org.wildfly/wildfly-ejb3/16.0.0.Final/jar
+http://localhost:9990/console/App.html#home
+https://stackoverflow.com/questions/4555844/what-is-the-difference-between-applicationscoped-and-singleton-scopes-in-cdi
+https://docs.jboss.org/weld/reference/1.1.0.Final/en-US/pdf/weld-reference.pdf	/ weld docs,
+http://localhost:9990/console/App.html#standalone-runtime/naming
+
+/ misc,
+https://portal.hackazon.org/#!/auth
+
+/ quarkus, micronaut,
+https://www.youtube.com/watch?v=SQDR34KoC-8&t=903s	/ Emmanuel Bernard
+https://micronaut.io/
+https://quarkus.io/guides/getting-started#bootstrapping-the-project
+
+
+/ wd,
+http://products.wd.com/docs/default.aspx?t=2
+http://products.wdc.com/library/UM/NLD/4779-705124.pdf
+
+/ intellij, eclipse
+https://www.jetbrains.com/help/idea/migrating-from-eclipse-to-intellij-idea.html
+https://help.eclipse.org/2019-12/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Freference%2Fref-icons.htm	/ icons in eclipse,	
+
+
+/ git,
+https://stackoverflow.com/questions/1800783/how-to-compare-a-local-git-branch-with-its-remote-branch
+
+/ maven,
+https://stackoverflow.com/questions/5074063/maven-error-failure-to-transfer
+
+/ nvidia,
+https://developer.nvidia.com/
+https://www.nvidia.com/en-us/deep-learning-ai/solutions/training/
+https://developer.nvidia.com/deep-learning
+https://developer.nvidia.com/cuda-gpus									<-
+https://store.hp.com/NetherlandsStore/Merch/Product.aspx?id=7GM89EA&opt=ABH&sel=NTB
+
+
+/ docker,
+https://docs.docker.com/docker-for-windows/
+https://docs.docker.com/docker-for-windows/install/
+
+
+
+/ java, 
+https://www.baeldung.com/ahead-of-time-compilation
+https://www.geeksforgeeks.org/final-keyword-java/
+https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html
+https://mkyong.com/maven/integrate-maven-with-eclipse-via-external-tool-configuration/
+https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html
+https://docs.oracle.com/javase/tutorial/java/javaOO/examples/Person.java
+https://www.geeksforgeeks.org/arrays-aslist-method-in-java-with-examples/
+
+
+
+/ transactions, jboss internals	,
+http://www.ironjacamar.org/doc/userguide/1.1/en-US/html/ch01.html / The Java Connector Architecture (JCA) defines a standard architecture for connecting the Java EE platform to heterogeneous Enterprise Information Systems (EIS)
+https://developer.jboss.org/wiki/HowToUseOutOfProcessActiveMQWithWildFly
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/4.3/html/transactions_failure_recovery_guide/sect-transactions_failure_recovery_guide-architecture_of_the_recovery_manager-recovery_modules
+https://access.redhat.com/documentation/en-us/jboss_enterprise_application_platform/4.3/html/transactions_failure_recovery_guide/chap-transactions_failure_recovery_guide-architecture_of_the_recovery_manager#sect-Transactions_Failure_Recovery_Guide-Architecture_of_the_Recovery_Manager-Crash_Recovery_Overview
+https://narayana.io//docs/project/index.html#d0e2553
+
+
+
+/ arquillian, forge,
+https://stackoverflow.com/questions/38917610/arquillian-add-resources-from-main-folder
+https://forge.jboss.org/document/hands-on-lab
+https://forge.jboss.org/document/write-a-java-ee-rest-application---basic
+http://arquillian.org/guides/get_started_faster_with_forge/
+https://github.com/arquillian/arquillian-universe-bom
+http://arquillian.org/modules/arquillian-universe-bom-bom/
+
+
+/ soapui,
+https://www.soapui.org/rest-testing/getting-started/
+https://www.soapui.org/soapui-projects/soapui-projects.html/
+
+/ log4j,
+https://www.tutorialspoint.com/log4j/log4j_logging_levels.htm
+https://mkyong.com/logging/log4j-hello-world-example/
+http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html
+https://www.logicbig.com/tutorials/misc/java-logging/slf4j-with-jul.html
+https://stackoverflow.com/questions/5950557/good-examples-using-java-util-logging
+https://www.marcobehler.com/guides/a-guide-to-logging-in-java
+https://stackoverflow.com/questions/960099/how-to-set-up-java-logging-using-a-properties-file-java-util-logging
+https://stackoverflow.com/questions/7745885/log4j-logging-hierarchy-order
+
+
+/ swagger,
+http://petstore.swagger.io/v2/swagger.json
+http://petstore.swagger.io/#/
+
+
+
+/ spring,
+https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto-data-access/library/cheatSheets/BestPracticesManyToMany
+https://www.baeldung.com/spring-bean-scopes
+https://howtodoinjava.com/spring-core/spring-bean-scopes/
+https://www.baeldung.com/spring-web-contexts_and_dependency_injection_cdi
+https://projectreactor.io/
+https://www.youtube.com/watch?v=Yk9L_zEXItI	/ Cloud Native Java by Josh Long #AgileIndia2018
+
+
+/ spring data jdbc,
+https://docs.spring.io/spring-data/jdbc/docs/1.1.6.RELEASE/reference/html/#reference
+
+
+
+/ boot, pg, flyway, 
+https://developer.okta.com/blog/2019/02/20/spring-boot-with-postgresql-flyway-jsonb
+
+
+/ oauth
+https://www.javacodegeeks.com/2019/03/centralized-authorization-with-oauth2-opaque-tokens-using-spring-boot-2.html?utm_source=sendpulse&utm_medium=push&utm_campaign=964840
+
+
+/ Einde OPEN IN CHROME
+
 
 
 
