@@ -989,6 +989,37 @@ https://developer.okta.com/blog/2019/02/20/spring-boot-with-postgresql-flyway-js
 / oauth
 https://www.javacodegeeks.com/2019/03/centralized-authorization-with-oauth2-opaque-tokens-using-spring-boot-2.html?utm_source=sendpulse&utm_medium=push&utm_campaign=964840
 
+/ databases,
+https://dzone.com/articles/its-not-nosql-versus-rdbms-its
+->
+https://dba.stackexchange.com/questions/34892/why-cant-rdbms-cluster-the-way-nosql-does
+->
+https://www.youtube.com/watch?v=uhDM4fcI2aI	/ oltp ( Online Transactional Processing )
+
+/ google, 
+sql turing complete
+-> 
+https://en.wikipedia.org/wiki/Hierarchical_and_recursive_queries_in_SQL
+
+/ hibernate, proxies,
+https://stackoverflow.com/questions/20988626/what-is-proxy-in-the-context-of-load-method-of-hibernate
+
+/ spring data jdbc,
+https://www.youtube.com/watch?v=EaHlancPA14
+https://www.youtube.com/watch?v=ccxBXDAPdmo
+
+https://www.youtube.com/watch?v=7YcW25PHnAA&t=259s		/ rest api
+->
+https://graph.facebook.com/youtube	/ {
+error: {
+message: "An access token is required to request this resource.",
+type: "OAuthException",
+code: 104,
+fbtrace_id: "Anbdn50yTGjSROKAvfy4U4T"
+}
+}
+->
+https://developers.facebook.com/docs/facebook-login/access-tokens/
 
 / Einde OPEN IN CHROME
 

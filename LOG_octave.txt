@@ -1,0 +1,867 @@
+/ lees,
+D:\Users\ervelden\dev\Octave-5.2.0\README.html
+
+/ in 
+C:\Users\ervelden\.config\octave\qt-settings
+
+/ COURSERA
+
+https://octave.org
+
+/ er zijn 2 shortcuts op de desktop,
+
+GNU Octave (CLI) 
+%SYSTEMROOT%\system32\wscript.exe "D:\Users\ervelden\dev\Octave-5.2.0\octave.vbs" --no-gui
+Start in: %USERPROFILE%
+
+GNU Octave (GUI)
+%SYSTEMROOT%\system32\wscript.exe "D:\Users\ervelden\dev\Octave-5.2.0\octave.vbs" --gui
+Start in: %USERPROFILE%
+
+/ lees,
+https://octave.org/doc/v5.2.0/
+
+/ 7	. 
+
+/ coursera week 2
+
+/ octave tutorial,
+
+/ 13	. 
+
+>> a=[1 2;3 4;4 6]
+a =
+
+   1   2
+   3   4
+   4   6
+% of,
+>> A=[1 2
+3 4
+5 6]
+A =
+
+   1   2
+   3   4
+   5   6
+   
+/ 13	. 
+
+>> v=1:.25:2
+v =
+
+    1.0000    1.2500    1.5000    1.7500    2.0000
+
+/ is een vector, 
+/ hoe zie je de type ?
+/ TODO
+
+>> v=2:6
+v =
+
+   2   3   4   5   6
+% of,
+>> v=2:1:6
+v =
+
+   2   3   4   5   6
+
+/ 13	. 
+
+
+>> ones(1,3)
+ans =
+
+   1   1   1
+
+>> zeros(1,3)
+ans =
+
+   0   0   0
+
+>> w=rand(1,3)
+w =
+
+   0.75730   0.25471   0.87566
+
+>> format long
+>> w
+w =
+
+   7.573018245061174e-01   2.547100960646547e-01   8.756562415218750e-01
+   
+>> w=randn(2,3)
+w =
+
+   0.531140  -0.012674  -0.181143
+   0.759045   0.083891  -1.411322
+/ normal distr random numbers,
+
+>> w=-6+sqrt(10)*randn(1,100);
+>> hist(w)
+/ randn(1,100) zijn 100 random values , std normal distr,
+/ dus w zijn 100 random values, normal dist met mean -6 en std dev sqrt(10),
+/ we zien gaussian rond -6 met 10 staafjes (bins), 
+>> hist(w,50)
+/ we zien 50 staafjes,
+
+>> help eye
+...
+
+/ matrix verm,
+>>  [1;2;3]*[1,2,3]
+ans =
+
+   1   2   3
+   2   4   6
+   3   6   9
+
+/ 7	. 
+
+/ second octave tutorial
+
+>> size(A)
+ans =
+
+   3   2
+/ is zelf ook een row vector,
+
+>> size(A,1)
+ans =  3
+>> size(A,2)
+ans =  2
+
+>> length([1;2;3;4;5])
+ans =  5
+>> length([1 2 3 4 5])
+ans =  5
+
+>> pwd
+ans = C:\Users\ervelden
+
+/ lees over links in windows,
+https://www.howtogeek.com/howto/16226/complete-guide-to-symbolic-links-symlinks-on-windows-or-linux/
+
+>> cd 'd:\Users\ervelden\tmp'
+>> pwd
+ans = d:\Users\ervelden\tmp
+>> ls
+...
+featuresX.dat
+priceY.dat
+
+$ cat featuresX.dat
+# area, number of rooms,  in a house,
+2104 3
+1600 3
+2400 3
+1416 2
+3000 4
+1985 4
+1534 3
+1427 3
+1380 3
+1494 3
+
+$ cat priceY.dat
+# price of the house,
+3999
+3299
+3690
+2320
+5399
+2999
+3149
+1989
+2120
+2425
+
+>> load featuresX.dat
+>> load('priceY.dat')
+>> who
+Variables in the current scope:
+
+A          a          ans        c          featuresX  priceY     v          w
+
+/ dus er zijn vars onstaan, zonder .dat,
+
+>> featuresX
+featuresX =
+
+   2104      3
+   1600      3
+   2400      3
+   1416      2
+   3000      4
+   1985      4
+   1534      3
+   1427      3
+   1380      3
+   1494      3
+
+>> priceY
+priceY =
+
+   3999
+   3299
+   3690
+   2320
+   5399
+   2999
+   3149
+   1989
+   2120
+   2425
+   
+>> size(featuresX)
+ans =
+
+   10    2
+   
+>> whos
+Variables in the current scope:
+
+   Attr Name           Size                     Bytes  Class
+   ==== ====           ====                     =====  =====
+        A              3x2                         48  double
+        a              3x2                         48  double
+        ans            1x2                         16  double
+        c              1x1                          1  logical
+        featuresX     10x2                        160  double
+        priceY        10x1                         80  double
+        v              1x5                         24  double
+        w              1x100                      800  double
+
+Total is 150 elements using 1177 bytes
+
+>> clear featuresX
+>> whos
+Variables in the current scope:
+
+   Attr Name        Size                     Bytes  Class
+   ==== ====        ====                     =====  =====
+        A           3x2                         48  double
+        a           3x2                         48  double
+        ans         1x2                         16  double
+        c           1x1                          1  logical
+        priceY     10x1                         80  double
+        v           1x5                         24  double
+        w           1x100                      800  double
+		
+>> v=priceY(1:5)
+v =
+
+   3999
+   3299
+   3690
+   2320
+   5399
+   
+% saved in compressed form
+>> save hello.mat v
+
+% windows cmd,   
+d:\Users\ervelden\tmp>type hello.mat
+# Created by Octave 5.2.0, Tue May 19 23:20:09 2020 GMT <unknown@LBNL031514>
+# name: v
+# type: matrix
+# rows: 5
+# columns: 1
+ 3999
+ 3299
+ 3690
+ 2320
+ 5399
+ 
+ >>  clear
+% alles vars zijn weg,
+>> whos
+>> load hello.mat
+>> whos
+Variables in the current scope:
+
+   Attr Name        Size                     Bytes  Class
+   ==== ====        ====                     =====  =====
+        v           5x1                         40  double
+
+Total is 5 elements using 40 bytes
+
+>> v
+v =
+
+   3999
+   3299
+   3690
+   2320
+   5399
+
+% saved in text form, not compressed,
+>> save hello.txt v -ascii
+
+% windows cmd,
+d:\Users\ervelden\tmp>type hello.txt
+ 3.99900000e+03
+ 3.29900000e+03
+ 3.69000000e+03
+ 2.32000000e+03
+ 5.39900000e+03
+ 
+/ 13	. 
+
+>> A=[1 2;3 4;5 6];
+>> A(3,2)
+ans =  6
+>> A(2,:)
+ans =
+
+   3   4
+
+>>  A(:,2)
+ans =
+
+   2
+   4
+   6
+   
+>> A([1 3],:)		% [1 3] is a vector,
+ans =
+
+   1   2
+   5   6
+   
+>> A(:,2)=[10;11;12]
+A =
+
+    1   10
+    3   11
+    5   12
+	
+>> A=[A,[100;101;102]]	[A,[...]] is a matrix (vector) die bestaat uit A, en een andere vector,
+A =
+
+     1    10   100
+     3    11   101
+     5    12   102
+	 
+>> A=[A,[100;101;102]]
+% of,
+>> A=[A [100;101;102]]
+	 
+>> A(:)
+ans =
+
+     1
+     3
+     5
+    10
+    11
+    12
+   100
+   101
+   102
+  
+/ 13	. 
+
+>> A=[1 2;3 4;5 6];
+>> B=[11 12;13 14;15 16];
+>> [A B]
+% of,
+>> [A,B]
+ans =
+
+    1    2   11   12
+    3    4   13   14
+    5    6   15   16
+
+>> [A;B]
+ans =
+
+    1    2
+    3    4
+    5    6
+   11   12
+   13   14
+   15   16
+
+>>	 
+
+/ 7	. 
+
+/ third octave tutorial
+
+/ computing on data
+
+>> A
+A =
+
+   1   2
+   3   4
+   5   6
+
+>> B
+B =
+
+   11   12
+   13   14
+   15   16
+
+>> C
+C =
+
+   1   1
+   2   2
+
+>> A*C
+ans =
+
+    5    5
+   11   11
+   17   17
+
+>> A.*B
+ans =
+
+   11   24
+   39   56
+   75   96
+
+/ . staat voor element wise,
+
+>> A.^2
+ans =
+
+    1    4
+    9   16
+   25   36
+
+v =
+
+   1
+   2
+   3
+
+>> 1./v
+ans =
+
+   1.00000
+   0.50000
+   0.33333
+
+v =
+
+   1
+   2
+   3
+
+>> 1./v
+ans =
+
+   1.00000
+   0.50000
+   0.33333
+
+/ ook elementwise:
+>> log(v)
+ans =
+
+   0.00000
+   0.69315
+   1.09861
+
+>> exp(v)
+ans =
+
+    2.7183
+    7.3891
+   20.0855
+
+>> abs([-1;-2;-3])
+ans =
+
+   1
+   2
+   3
+
+>> -v
+ans =
+
+  -1
+  -2
+  -3
+
+>> v+ones(length(v),1)
+ans =
+
+   2
+   3
+   4
+% of zo,
+>> v+1
+ans =
+
+   2
+   3
+   4
+
+/ 13	. 
+
+>> A'
+ans =
+
+   1   3   5
+   2   4   6
+   
+>> A''
+ans =
+
+   1   2
+   3   4
+   5   6
+
+>> a=[1 15 2 .5]
+a =
+
+    1.00000   15.00000    2.00000    0.50000
+	
+>> max(a)
+ans =  15
+>> [v,i]=max(a)
+v =  15
+i =  2
+
+/ elemtwise compare,
+>> a<3
+ans =
+
+  1  0  1  1
+  
+>> find(a<3)
+ans =
+
+   1   3   4
+   
+/ 13	. 
+
+>> A=magic(3)
+A =
+
+   8   1   6
+   3   5   7
+   4   9   2
+
+>> [r,c]=find(A>=7)
+r =
+
+   1
+   3
+   2
+
+c =
+
+   1
+   2
+   3
+   
+/ 13	. 
+
+a =
+
+    1.00000   15.00000    2.00000    0.50000
+
+>>  sum(a)
+ans =  18.500
+>> prod(a)
+ans =  15
+>> floor(a)
+ans =
+
+    1   15    2    0
+
+>> ceil(a)
+ans =
+
+    1   15    2    1
+	
+/ 13	. 
+
+% elementwise max, dus de elements zijn wat groot,
+>> max(rand(3),rand(3))
+ans =
+
+   0.69041   0.82583   0.58439
+   0.51069   0.85830   0.96822
+   0.66317   0.69388   0.93437
+   
+/ 13	. 
+
+>> A
+A =
+
+   8   1   6
+   3   5   7
+   4   9   2
+
+% max per column, over de 1ste dim=rij	,
+>> max(A,[],1)
+ans =
+
+   8   9   7
+
+% max over 2dn dim=col, is max per rij,
+>> max(A,[],2)
+ans =
+
+   8
+   7
+   9
+
+% = max(A,[],1), 
+>> max(A)
+ans =
+
+   8   9   7
+
+% max elem in de matrix,
+>> max(max(A))
+ans =  9
+
+% of zo,
+
+>> A(:)
+ans =
+
+   8
+   3
+   4
+   1
+   5
+   9
+   6
+   7
+   2
+
+>> max(A(:))
+ans =  9
+
+/ 13	. 
+
+        flipud ([1, 2; 3, 4])	% upside down	,
+               =>  3  4
+                   1  2
+				   
+          fliplr ([1, 2; 3, 4])	% left right	,
+               =>  2  1
+                   4  3
+
+>> fliplr(eye(3))
+ans =
+
+Permutation Matrix
+
+   0   0   1
+   0   1   0
+   1   0   0
+
+>> flipud(eye(3))
+ans =
+
+Permutation Matrix
+
+   0   0   1
+   0   1   0
+   1   0   0
+  
+% magic matrix, som cols = som rows= som diags,  
+>> A
+A =
+
+   8   1   6
+   3   5   7
+   4   9   2
+
+>> sum(A)
+ans =
+
+   15   15   15
+
+>> sum(A,1)
+ans =
+
+   15   15   15
+
+>> sum(A,2)
+ans =
+
+   15
+   15
+   15
+
+>> sum(A.*eye(3))
+ans =
+
+   8   5   2
+ 
+>> sum(sum(A.*eye(3)))
+ans =  15
+>> A.*flipud(eye(3))
+ans =
+
+   0   0   6
+   0   5   0
+   4   0   0
+
+>> sum(sum(A.*flipud(eye(3))))
+ans =  15 
+
+/ 13	. 
+
+% kijk over Moore-Penrose inverse,
+https://www.youtube.com/watch?v=5bxsxM2UTb4	/ least squares, via i=(a'*a)^-1 * a' en i*a=1 geeft least square sol to overdetermined system, 
+https://www.youtube.com/watch?v=N74V4CBO0sk / MIT; pinv via svd, niet via (a'*a)^-1 * a'
+https://www.youtube.com/watch?v=pTUfUjIQjoE	 /least squares,
+https://www.youtube.com/playlist?list=PL221E2BBF13BECF6C		/ MIT linear algebra !
+
+/ google
+nullspace column space transpose
+/ lees,
+https://ocw.mit.edu/courses/mathematics/18-06sc-linear-algebra-fall-2011/least-squares-determinants-and-eigenvalues/orthogonal-vectors-and-subspaces/MIT18_06SCF11_Ses2.1sum.pdf
+https://math.stackexchange.com/questions/29072/how-is-the-column-space-of-a-matrix-a-orthogonal-to-its-nullspace/933276
+https://ocw.mit.edu/courses/mathematics/18-06sc-linear-algebra-fall-2011/ax-b-and-the-four-subspaces/the-four-fundamental-subspaces/MIT18_06SCF11_Ses1.10sum.pdf
+/ google,
+reduced echelon form
+/ TODO
+
+/ b=(a'a)^-1 * a' : ba=1
+/ als a=[1;2], dan is b=1/5[1 2] : overdetermined system, 
+/ als a=[1 2], lijkt underdetermined system, dan is a'a=[1 2;2 4] en (a'a)^-1 bestaat niet; b=1/5[1;2]
+/ TODO
+
+
+/ Einde COURSERA
+
+/ MIT LINEAR ALGEBRA
+
+/ 13	. 
+
+/ kijk MIT 17 (7)
+https://www.youtube.com/watch?v=VqP2tREMvt0&list=PL221E2BBF13BECF6C&index=18&t=0s
+
+>> A=[1 2 2 2;2 4 6 8;3 6 8 10];
+>> rref(A)
+ans =
+
+   1.00000   2.00000   0.00000  -2.00000
+   0.00000   0.00000   1.00000   2.00000
+   0.00000   0.00000   0.00000   0.00000
+   
+/ google,
+matlab rref nullspace
+https://www.mathworks.com/help/matlab/ref/null.html
+
+% los op,
+Ax=[1;1;2]
+% we vinden, 
+x=N(A)+'n opl = [-2 2;0 -2;1 0;0 1] + [2;-1/2;0;0]
+
+Ax=[1;1;3] heeft geen opl,
+
+% maar octave geeft vreemde opl,
+
+>> b=[1;1;2]
+b =
+
+   1
+   1
+   2
+
+>> A\b
+ans =
+
+   0.27586
+   0.55172
+   0.12069
+  -0.31034
+
+>> b=[1;1;3]
+b =
+
+   1
+   1
+   3
+
+>> A\b
+ans =
+
+   0.36782
+   0.73563
+   0.16092
+  -0.41379
+  
+% deze null space herkennen we niet,
+
+>> null(A)
+ans =
+
+   0.83504  -0.36097
+  -0.18594   0.52514
+  -0.46316  -0.68931
+   0.23158   0.34465
+   
+% klopt, [-2;1;0;0] hadden wij uitgerekend,
+>> A*[-2;1;0;0]
+ans =
+
+   0
+   0
+   0
+   
+% dit is een opl van octave,
+>> A*x(:,1)
+ans =
+
+   2.7756e-16
+  -2.2204e-15
+  -2.2204e-15
+  
+/ 13	 
+
+/ lees,
+/ column rank = row rank,
+https://ocw.mit.edu/courses/mathematics/18-701-algebra-i-fall-2010/study-materials/MIT18_701F10_rrk_crk.pdf
+
+/ lees,
+https://en.wikipedia.org/wiki/Rank_(linear_algebra)
+
+When applied to floating point computations on computers, basic Gaussian elimination (LU decomposition) can be unreliable, and a rank-revealing decomposition should be used instead. An effective alternative is the singular value decomposition (SVD), but there are other less expensive choices, such as QR decomposition with pivoting (so-called rank-revealing QR factorization), which are still more numerically robust than Gaussian elimination. Numerical determination of rank requires a criterion for deciding when a value, such as a singular value from the SVD, should be treated as zero, a practical choice which depends on both the matrix and the application.
+
+/ Lees Second proof dat column rank= row rank,
+
+/ 13	. 
+
+/ lees,
+eigenvectors different eigenvalues linearly independent
+https://math.stackexchange.com/questions/29371/how-to-prove-that-eigenvectors-from-different-eigenvalues-are-linearly-independe
+
+/ lees symm matrix verschillende eigenwaarden -> loodrechte eigenvectoren
+http://www.quandt.com/papers/basicmatrixtheorems.pdf
+
+/ 13	. 
+
+/ strang's second course,
+https://ocw.mit.edu/resources/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/videos/the-column-space-of-a-matrix/
+
+/ Einde MIT LINEAR ALGEBRA
+
+/ DRAAITABEL
+
+https://www.perfectxl.com/nl/over-spreadsheets/excel-verklarende-woordenlijst/wat-is-een-draaitabel/
+
+/ Einde DRAAITABEL
+
+/ MIT TENSOR
+
+/ kijk,
+https://ocw.mit.edu/courses/materials-science-and-engineering/3-60-symmetry-structure-and-tensor-properties-of-materials-fall-2005/video-lectures/stress-and-strain-tensors-part-1/
+
+
+/ Einde MIT TENSOR

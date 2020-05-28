@@ -1,0 +1,8 @@
+/ kijk,
+https://www.youtube.com/watch?v=t4-416mg6iU&t=19s
+
+/ oath gaat over authorisatie, niet authenticatie,
+
+
+/ laat appl access photo's on drive of user on behalf of the user,
+/ namens de user dus,

@@ -1,0 +1,9 @@
+/ lees,
+https://www.baeldung.com/hibernate-entity-lifecycle
+
+/ helemaal onderaan de pagina, in het donkergrijs,
+/ lees,
+https://www.baeldung.com/httpclient-guide
+->
+https://www.baeldung.com/httpclient-ssl
+

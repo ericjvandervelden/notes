@@ -117,3 +117,8 @@ void removeProduct(@Observes(dur
 
 / @ApplicationScoped slaat op de servlet context, @Singleton is EJB, andere contexts, kunnen er misschien meerdere zijn, 
 / blijkbaar is Catalog in beide contexts en is een singleton in beide,
+
+/ lees,
+https://www.baeldung.com/spring-web-contexts
+
+
