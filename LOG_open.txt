@@ -1021,6 +1021,42 @@ fbtrace_id: "Anbdn50yTGjSROKAvfy4U4T"
 ->
 https://developers.facebook.com/docs/facebook-login/access-tokens/
 
+
+/ Einde OPEN IN CHROME
+
+/ OPEN IN CHROME
+
+https://www.youtube.com/playlist?list=PL221E2BBF13BECF6C		/ MIT 18.06SC Linear Algebra
+https://ocw.mit.edu/resources/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/videos/the-column-space-of-a-matrix/	 / String 2020
+https://en.wikipedia.org/wiki/DFT_matrix
+http://dsec.pku.edu.cn/~tieli/notes/num_meth/lect11.pdf
+https://en.wikipedia.org/wiki/Orthogonal_functions
+https://nl.mathworks.com/help/matlab/ref/double.svd.html
+https://en.wikipedia.org/wiki/Rank_(linear_algebra)
+https://www.coursera.org/learn/machine-learning
+https://www.gnu.org/software/octave/
+https://www.coursera.org/
+https://stackoverflow.com/questions/20988626/what-is-proxy-in-the-context-of-load-method-of-hibernate
+https://en.wikipedia.org/wiki/Hierarchical_and_recursive_queries_in_SQL
+https://dba.stackexchange.com/questions/34892/why-cant-rdbms-cluster-the-way-nosql-does
+https://www.youtube.com/watch?v=GOSW911Ox6s	 / spring data jdbc
+https://docs.spring.io/spring-data/jdbc/docs/1.1.7.RELEASE/reference/html/#reference
+https://www.baeldung.com/hibernate-entity-lifecycle
+https://thorben-janssen.com/wp-content/uploads/member-access/library/ebooks/NativeQueriesWithHibernate-ThoughtsOnJavaLibrary2.pdf / native queries
+https://www.youtube.com/watch?v=2SV7QODVHAE / thorben-janssen spring data jpa,
+
+https://store.hp.com/NetherlandsStore/Merch/Product.aspx?id=2SC67AA&opt=&sel=ACC	/ backpack
+https://www8.hp.com/us/en/workstations/zbook-studio.html
+https://store.hp.com/NetherlandsStore/Merch/Product.aspx?id=3A019EA&opt=ABH&sel=NTB	/ hp envy,
+https://developer.nvidia.com/cuda-gpus		/ !
+https://telewerken.politie.nl/logon/LogonPoint/tmindex.html
+
+https://capgemini.sharepoint.com/sites/NLSOGITSogeti -> Itaas, Service central
+https://myservices.itaas.capgemini.com/itaas
+https://servicecentral.capgemini.com/sc?id=first_page
+https://talent.capgemini.com/global/pages/about_us/global_functions/group_it/regions/ne/Your_LaptopPC__Printer/LaptopPC/laptop_swap_process/
+
+
 / Einde OPEN IN CHROME
 
 
