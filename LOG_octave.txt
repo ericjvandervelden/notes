@@ -850,6 +850,7 @@ http://www.quandt.com/papers/basicmatrixtheorems.pdf
 / strang's second course,
 https://ocw.mit.edu/resources/res-18-010-a-2020-vision-of-linear-algebra-spring-2020/videos/the-column-space-of-a-matrix/
 
+
 / Einde MIT LINEAR ALGEBRA
 
 / DRAAITABEL
@@ -865,3 +866,10 @@ https://ocw.mit.edu/courses/materials-science-and-engineering/3-60-symmetry-stru
 
 
 / Einde MIT TENSOR
+
+/ FFT
+http://vmm.math.uci.edu/ODEandCM/PDF_Files/FFT_Appendix_K.pdf
+https://web.ma.utexas.edu/users/gilbert/REU/REUNewApp2Sum06.pdf
+http://dsec.pku.edu.cn/~tieli/notes/num_meth/lect11.pdf
+
+/ Einde FFT

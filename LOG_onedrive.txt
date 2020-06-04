@@ -1,0 +1,5 @@
+/ 7	. 
+
+/ we hebben de onedrive applicatie geinstalleerd, 
+/ er is een dir aangemaakt, 
+D:\Users\ervelden\OneDrive - Capgemini
