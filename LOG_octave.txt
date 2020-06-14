@@ -124,7 +124,7 @@ ans =
 ans =
 
    3   2
-/ is zelf ook een row vector,
+/ size is zelf ook een row vector,
 
 >> size(A,1)
 ans =  3
@@ -305,6 +305,26 @@ d:\Users\ervelden\tmp>type hello.txt
  3.69000000e+03
  2.32000000e+03
  5.39900000e+03
+ 
+% WH is beste:
+>> save hello.txt v
+
+% in notepad++	,
+# Created by Octave 5.2.0, Sun Jun 07 21:10:30 2020 GMT <unknown@LBNL031514>
+# name: priceY
+# type: matrix
+# rows: 10
+# columns: 1
+ 3999
+ 3299
+ 3690
+ 2320
+ 5399
+ 2999
+ 3149
+ 1989
+ 2120
+ 2425
  
 / 13	. 
 
@@ -584,6 +604,13 @@ ans =
 	
 / 13	. 
 
+>> rand(3)
+ans =
+
+   0.78808   0.11014   0.42617
+   0.73909   0.27390   0.45304
+   0.17581   0.50359   0.13715
+
 % elementwise max, dus de elements zijn wat groot,
 >> max(rand(3),rand(3))
 ans =
@@ -606,6 +633,8 @@ A =
 ans =
 
    8   9   7
+   
+% max(A) is hetzelfde als max(A,[],1)
 
 % max over 2dn dim=col, is max per rij,
 >> max(A,[],2)
@@ -873,3 +902,44 @@ https://web.ma.utexas.edu/users/gilbert/REU/REUNewApp2Sum06.pdf
 http://dsec.pku.edu.cn/~tieli/notes/num_meth/lect11.pdf
 
 / Einde FFT
+
+/ MATLAB
+
+/ uitrekenen sum of cosines,
+symsum() of a symbolic expression expression allows a variable and a range of values
+But what you need is bsxfun() to calculate the table of values and then to sum() along the appropriate dimension
+
+/ lees,
+https://nl.mathworks.com/help/symbolic/symsum.html
+
+syms k x				% TODO
+F1 = symsum(k^2,k,0,10)
+
+/ lees,
+https://octave.sourceforge.io/symbolic/index.html
+-> 
+https://sourceforge.net/projects/octave/postdownload
+
+/ lees,
+https://wiki.octave.org/Category:Octave_Forge#:~:text=To%20install%20a%20package%20from,and%20use%20pkg%20install%20package_file_name.
+-> 
+https://octave.org/doc/v5.2.0/Installing-and-Removing-Packages.html
+
+>> pkg list
+Package Name         | Version | Installation directory
+---------------------+---------+-----------------------
+              audio  |   2.0.0 | D:\Users\ervelden\dev\Octave-5.2.0\mingw64\share\octave\packages\audio-2.0.0
+     communications  |   1.2.2 | D:\Users\ervelden\dev\Octave-5.2.0\mingw64\share\octave\packages\communications-1.2.2
+            control  |   3.2.0 | D:\Users\ervelden\dev\Octave-5.2.0\mingw64\share\octave\packages\control-3.2.0
+...
+
+/ TODO
+
+/ lees,
+https://octave.sourceforge.io/symbolic/index.html
+system dependencies: python, sympy (≥ 1.2), mpmath (≥ 1.0)
+
+http://mpmath.org/
+https://www.sympy.org/en/index.html
+
+/ Einde MATLAB
